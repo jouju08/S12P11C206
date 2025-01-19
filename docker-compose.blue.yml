@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  backend-blue:
+    build: ./deploytest
+    container_name: backend-blue
+    # 또는, 이미 빌드된 이미지를 사용할 때:
+    # image: myregistry.com/myapp-backend:1.0.0
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - app-network
+
+  frontend-blue:
+    build: ./frontend
+    container_name: frontend-blue
+    # image: myregistry.com/myapp-frontend:1.0.0
+    networks:
+      - app-network
+
+  nginx:
+    # nginx 폴더를 빌드 -> 그 안에는 별도 Dockerfile이 있을 수 있음
+    # 단, 여기서는 "nginx:alpine"만 쓰고 conf 파일 COPY 전략 가능
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      # nginx-blue.conf를 default.conf로 매핑해서 사용
+      - ./nginx/conf/nginx-blue.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend-blue
+      - frontend-blue
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
