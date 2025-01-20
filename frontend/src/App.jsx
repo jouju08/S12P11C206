@@ -1,5 +1,5 @@
 import React from 'react';
-import Login from './pages/Login';
+import Login from './pages/User/Login';
 import AppRouter from './routes/AppRouter';
 
 export default function App() {

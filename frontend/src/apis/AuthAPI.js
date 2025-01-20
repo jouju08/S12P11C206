@@ -7,7 +7,6 @@ const navigate = useNavigate();
 
 /*
     APIs
-
 */
 
 export const login = async (email, password) => {
