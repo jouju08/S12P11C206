@@ -1,12 +1,9 @@
 package com.ssafy.backend.guide.controller;
 
 import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.common.ResponseCode;
-import com.ssafy.backend.common.ResponseMessage;
 import com.ssafy.backend.guide.model.Guide;
 import com.ssafy.backend.guide.service.GuideService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
