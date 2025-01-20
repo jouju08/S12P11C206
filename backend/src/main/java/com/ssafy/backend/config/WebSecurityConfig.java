@@ -36,7 +36,7 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/", "/api/auth/**", "/api/search/**", "/file/**").permitAll()   // 인증 필요없는
-                        .requestMatchers(HttpMethod.GET, "/api/board/**", "/api/user/*").permitAll()          // 패턴들
+                        .requestMatchers(HttpMethod.GET,"/guide/**", "/api/board/**", "/api/user/*").permitAll()          // 패턴들
                         .anyRequest().authenticated());
 
         return httpSecurity.build();
