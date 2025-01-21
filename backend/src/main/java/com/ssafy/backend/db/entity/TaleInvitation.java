@@ -12,7 +12,7 @@ public class TaleInvitation extends Common {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, columnDefinition = "W") // W : wait, D : Deny ,A : accept
+    @Column(nullable = false, columnDefinition = "CHAR(1) DEFAULT 'E'") // W : wait, D : Deny ,A : accept
     private Character status;
 
     // 수신자 (Member)

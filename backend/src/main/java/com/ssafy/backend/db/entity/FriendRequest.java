@@ -16,8 +16,8 @@ public class FriendRequest extends Common {
     private Long proposerId;
 
     // 수신자 (Member)
-    @Column(name = "receiver_id", nullable = false)
-    private Long receiverId;
+    @Column(name = "recipient_id", nullable = false)
+    private Long recipientId;
 
     // 응답(null = 보류/대기)
     private Character response;
@@ -28,6 +28,6 @@ public class FriendRequest extends Common {
     private Member proposerMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id", insertable = false, updatable = false)
+    @JoinColumn(name = "recipient_id", insertable = false, updatable = false)
     private Member receiverMember;
 }

@@ -33,7 +33,7 @@ public class Member extends Common{
     @Column(length = 20, nullable = false)
     private String nickname;  // 닉네임
 
-    @Column(nullable = false, columnDefinition = "E")
+    @Column(nullable = false, columnDefinition = "CHAR(1) DEFAULT 'E'")
     private Character loginType; // 로그인타입(소셜 타입), 기본 'E'
 
     @Column(nullable = false)
@@ -55,7 +55,7 @@ public class Member extends Common{
     private List<FriendRequest> sentFriendRequests = new ArrayList<>();
 
     // 친구 신청 받은 경우 (Member 1 : N FriendRequest, "recipient")
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "receiverMember", cascade = CascadeType.ALL)
     @Builder.Default
     private List<FriendRequest> receivedFriendRequests = new ArrayList<>();
 
