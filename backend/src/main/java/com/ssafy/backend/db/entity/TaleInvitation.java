@@ -12,8 +12,8 @@ public class TaleInvitation extends Common {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Character status; // 초대 상태 ('0' 기본)
+    @Column(nullable = false, columnDefinition = "W") // W : wait, D : Deny ,A : accept
+    private Character status;
 
     // 수신자 (Member)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -22,7 +22,7 @@ public class TaleInvitation extends Common {
 
     // 발신자 (Member)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender", nullable = false)
+    @JoinColumn(name = "sender_id", nullable = false)
     private Member senderMember;
 
     // Tale (동화방)

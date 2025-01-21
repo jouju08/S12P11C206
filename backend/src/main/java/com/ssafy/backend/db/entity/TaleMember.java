@@ -15,8 +15,26 @@ public class TaleMember extends Common{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private Boolean has_host;
+
     @Column(length = 20, nullable = false)
     private String keyword;  // 선택 키워드
+
+    @Column(name = "orderNum", nullable = false)
+    private int orderNum;  // 페이지 순서
+
+    @Column(length = 255)
+    private String orginImg;   // 삽화 원본 이미지
+
+    @Column(length = 255)
+    private String img;        // 삽화 이미지
+
+    @Column(length = 255)
+    private String voice;      // 나레이션 음성
+
+    @Lob
+    private String script;     // 스크립트
 
     // Tale N:1
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,7 +46,4 @@ public class TaleMember extends Common{
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    // TalePage (TaleMember 1 : N TalePage)
-    @OneToMany(mappedBy = "taleMember", cascade = CascadeType.ALL)
-    private List<TalePage> talePages = new ArrayList<>();
 }
