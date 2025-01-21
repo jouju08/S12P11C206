@@ -31,6 +31,20 @@ export default function AuthHeader() {
               Share
             </Link>
           </li>
+          <li>
+            <Link
+              to="/upload"
+              className="text-gray-700 hover:text-blue-600 text-xl">
+              File
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="tale/lobby"
+              className="text-gray-700 hover:text-blue-600 text-xl">
+              Lobby
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>
