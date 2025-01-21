@@ -38,6 +38,13 @@ export default function AuthHeader() {
               File
             </Link>
           </li>
+          <li>
+            <Link
+              to="tale/lobby"
+              className="text-gray-700 hover:text-blue-600 text-xl">
+              Lobby
+            </Link>
+          </li>
         </ul>
       </nav>
     </header>

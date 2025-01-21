@@ -1,4 +1,4 @@
-import { uploadFile } from '@/apis/FileAPI';
+import { uploadFile } from '@/apis/tale/FileAPI';
 import React, { useState } from 'react';
 
 export default function FileTest() {
