@@ -36,8 +36,6 @@ public class MyUserDetailService implements UserDetailsService {
         CustomUser customUser=new CustomUser(user.getMemberId(), user.getPassword(), authorities);
         customUser.setNickName(user.getNickname());
         return customUser;
-
-
     }
 
 

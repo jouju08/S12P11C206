@@ -44,7 +44,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/", "/api/auth/**", "/api/search/**", "/file/**").permitAll()   // 인증 필요없는
                         .requestMatchers(HttpMethod.GET,"/guide/**", "/api/board/**", "/api/user/*").permitAll()          // 패턴들
                         .anyRequest().authenticated());
-        httpSecurity.logout(logout->logout.logoutUrl("/logout"));
+        httpSecurity.logout(logout->logout.logoutUrl("api/auth/logout"));
         httpSecurity.addFilterBefore(new JwtFilter(), ExceptionTranslationFilter.class);
         return httpSecurity.build();
 

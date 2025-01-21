@@ -54,4 +54,5 @@ public class AuthController {
         map.put("token",jwt);
         return map;
     }
+
 }
