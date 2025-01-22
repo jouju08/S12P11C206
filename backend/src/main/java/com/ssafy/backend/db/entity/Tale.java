@@ -23,11 +23,8 @@ public class Tale extends Common{
     @JoinColumn(name = "base_tale_id", nullable = false)
     private BaseTale baseTale;
 
-    // TaleMember (Tale 1 : N TaleMember)
-    @OneToMany(mappedBy = "tale", cascade = CascadeType.ALL)
-    private List<TaleMember> taleMembers = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
-    // TaleInvitation (Tale 1 : N TaleInvitation)
-    @OneToMany(mappedBy = "tale", cascade = CascadeType.ALL)
-    private List<TaleInvitation> invitations = new ArrayList<>();
 }

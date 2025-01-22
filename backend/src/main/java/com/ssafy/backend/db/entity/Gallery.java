@@ -17,20 +17,18 @@ public class Gallery extends Common {
     private int hit;  // 조회수
 
     @Column(nullable = false)
-    private Boolean isOrigin; // 원본 여부
+    private Boolean hasOrigin; // 원본 여부
 
     @Column(nullable = false)
     private int likeCnt;  // 좋아요 수
+
+    @Column(nullable = false)
+    private Boolean hasDeleted = false;
 
     // Member N:1
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
-
-    // TalePage N:1
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tale_page_id", nullable = false)
-    private TalePage talePage;
 
     // GalleryLike (Gallery 1 : N GalleryLike)
     @OneToMany(mappedBy = "gallery", cascade = CascadeType.ALL)
