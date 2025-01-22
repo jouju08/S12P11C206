@@ -1,5 +1,6 @@
 package com.ssafy.backend.config;
 
+import com.ssafy.backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +10,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -38,9 +44,22 @@ public class WebSecurityConfig {
                         .requestMatchers("/", "/api/auth/**", "/api/search/**", "/file/**").permitAll()   // 인증 필요없는
                         .requestMatchers(HttpMethod.GET,"/guide/**", "/api/board/**", "/api/user/*").permitAll()          // 패턴들
                         .anyRequest().authenticated());
-
+        httpSecurity.logout(logout->logout.logoutUrl("/logout"));
+        httpSecurity.addFilterBefore(new JwtFilter(), ExceptionTranslationFilter.class);
         return httpSecurity.build();
 
+    }
+
+    @Bean
+    public CsrfTokenRepository csrfTokenRepository() {
+        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
+        repository.setHeaderName("X-XSRF-TOKEN");
+        return repository;
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
