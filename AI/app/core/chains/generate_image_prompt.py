@@ -29,8 +29,8 @@ Context(상황):
 - 목표는 동화의 내용과 분위기를 잘 반영하여, 메인 삽화의 스타일과 디테일을 효과적으로 증강시키는 것입니다.
 
 Input Values(입력값):
-Title: 아기돼지 삼형제
-Scene
+- Title: 동화의 제목
+- Scene: 동화의 삽화에 들어갈 내용을 담은 리스트
 
 Instructions(단계별 지시사항):
 1. 동화의 메인 문장을 분석하여 전반적인 분위기(예: 밝고 따뜻한, 신비로운, 어두운 등)를 파악합니다.
@@ -40,28 +40,14 @@ Instructions(단계별 지시사항):
 5. negative prompt에는 불필요하거나 의도하지 않은 결과물을 방지하기 위한 요소를 포함합니다(예: 흐릿함, 왜곡, 과도한 세부 묘사 등).
 
 Constraints(제약사항):
-- answer in korean
 - 프롬프트는 명확하고 간결하게 작성합니다.
 - prompt는 최대 200자 이내로 유지하며 핵심 요소를 포함합니다.
 
 Output Indicator(출력값 지정):
 - Output format: Plain Text
-- Output fields:
+- Output fields: list of fields
   field1: Prompt
   field2: Negative Prompt
-- Output examples: 
-
----
-
-**Output Example:**
-
-Input 1: "한 소녀가 달빛 아래 숲속에서 빛나는 꽃을 발견하는 장면"
-Input 2: "달빛, 신비로운 숲, 빛나는 꽃, 소녀의 놀라운 표정"
-
-Prompt: "A magical forest illuminated by moonlight, a glowing flower in the center, a young girl staring in awe, soft shadows, dreamy and ethereal atmosphere, watercolor illustration style, vibrant colors"
-
-Negative Prompt: "distorted shapes, blurry details, oversaturated colors, unnatural lighting, dark and scary vibes"
-
 """
     ),
     ("human", """

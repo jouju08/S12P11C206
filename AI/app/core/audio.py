@@ -1,29 +1,31 @@
 from openai import OpenAI
 from app.config.init_config import MAX_AUDIO_LENGTH
 from pydub import AudioSegment
-from app.core.chains.read_tale import prompt as read_tale_prompt
+import app.core.chains as chains
 from app.core.util import save_file
+import app.models.request as requestDto
+import app.models.response as responseDTO
 import base64
 
 
 def is_audio_length_ok(file):
-    audio = AudioSegment.from_file(file)
-    return len(audio)/60/1000 < MAX_AUDIO_LENGTH
+    with open(file, "rb") as f:
+        audio = AudioSegment.from_file(file)
+    return len(audio)//60//1000 < MAX_AUDIO_LENGTH
 
 
-async def transcribe_audio(file):
+def transcript_audio(file):
     client = OpenAI()
+    with open(file, "rb") as audio_file:
+        transcription = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio_file
+        )
 
-    audio_file = open("/path/to/file/audio.mp3", "rb")
-    transcription = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=audio_file
-    )
-
-    return transcription
+    return transcription.text
 
 
-async def script_read(script: str):
+def script_read(scriptReadRequestDto: requestDto.ScriptReadRequestDto):
     client = OpenAI()
 
     response = client.chat.completions.create(
@@ -33,7 +35,7 @@ async def script_read(script: str):
                 "role": "system",
                 "content": [
                     {
-                        "text": read_tale_prompt,
+                        "text": chains.read_tale_prompt,
                         "type": "text"
                     }
                 ]
@@ -42,7 +44,7 @@ async def script_read(script: str):
                 "role": "user",
                 "content": [
                     {
-                        "text": script,
+                        "text": scriptReadRequestDto.script,
                         "type": "text"
                     },
                 ],
@@ -59,4 +61,7 @@ async def script_read(script: str):
         frequency_penalty=0,
         presence_penalty=0
     )
-    return save_file(base64.b64decode(response.choices[0].message.audio.data), "wb", f"{script[:20]}.wav")
+
+    ret = save_file(base64.b64decode(
+        response.choices[0].message.audio.data), "wb", f"{scriptReadRequestDto.script[:20]}.wav")
+    return responseDTO.ScriptReadResponseDto(file=ret)
