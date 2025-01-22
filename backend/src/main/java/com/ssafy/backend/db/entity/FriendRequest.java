@@ -12,22 +12,22 @@ public class FriendRequest extends Common {
     private Long id;
 
     // 신청자 (Member)
-    @Column(name = "proposer", nullable = false)
-    private Long proposer;
+    @Column(name = "proposer_id", nullable = false)
+    private Long proposerId;
 
     // 수신자 (Member)
-    @Column(name = "receiver", nullable = false)
-    private Long receiver;
+    @Column(name = "recipient_id", nullable = false)
+    private Long recipientId;
 
     // 응답(null = 보류/대기)
-    private Boolean response;
+    private Character response;
 
     /** 연관관계 매핑 (Member) */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "proposer", insertable = false, updatable = false)
+    @JoinColumn(name = "proposer_id", insertable = false, updatable = false)
     private Member proposerMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver", insertable = false, updatable = false)
+    @JoinColumn(name = "recipient_id", insertable = false, updatable = false)
     private Member receiverMember;
 }

@@ -4,36 +4,41 @@ import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.db.entity.Member;
 //import com.ssafy.backend.member.service.MemberService;
-import com.ssafy.backend.member.service.AuthenticationService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
-@RequestMapping("/api/member")
-@AllArgsConstructor
+@RequestMapping("api/member")
 public class MemberController {
+
 //    @Autowired
 //    private MemberService memberService;
 //
 //    @GetMapping("/mypage")
-//    public ApiResponse<Member> getMember(@PathVariable("memberId") String memberId) {
+//    public ApiResponse<Member> getMember(String memberId) {
 //        Member member = new Member();
-//
-//        memberService.tryCatchGetMember(memberId);
+//        member = memberService.GetMember(memberId);
 //
 //        return ApiResponse.<Member>builder()
 //                .data(member)
+//                .build();
+//    }
+//
+//    @PatchMapping("/mypage")
+//    public ApiResponse<Void> updateMember(Member member) {
+//
+//        memberService.ModifyMember(member);
+//
+//        return ApiResponse.<Void>builder()
+//                .data(null)
+//                .build();
+//    }
+//
+//    @DeleteMapping("/delete")
+//    public ApiResponse<Void> deleteMember(@RequestParam String memberId) {
+//        memberService.DeleteMember(memberId);
+//        return ApiResponse.<Void>builder()
+//                .data(null)
 //                .build();
 //    }
 }
