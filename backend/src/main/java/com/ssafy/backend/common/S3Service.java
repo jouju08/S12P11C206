@@ -68,7 +68,7 @@ public class S3Service {
     // S3 파일 삭제
     public void deleteFile(String fileUrl) {
         // S3에서의 파일 경로 추출 (filePrefix 이후의 경로만 사용)
-        String fileKey = fileUrl.replace(filePrefix, "");
+        String fileKey = fileUrl.split("/")[3];
 
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
@@ -77,6 +77,7 @@ public class S3Service {
         try{
             s3Client.deleteObject(deleteObjectRequest);
         } catch (AwsServiceException e) {
+            System.err.println("파일 삭제 실패");
             throw new RuntimeException("파일 삭제 실패");
         }
     }
