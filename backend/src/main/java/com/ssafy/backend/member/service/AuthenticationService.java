@@ -18,7 +18,7 @@ public class AuthenticationService {
 
 
     public void register(@RequestBody Member request) {
-        if (memberRepository.findByMemberId(request.getMemberId()).isPresent()) {
+        if (memberRepository.findByLoginId(request.getLoginId()).isPresent()) {
             throw new BadRequestException("이미 사용중인 아이디입니다");
         }
         if (memberRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -27,7 +27,7 @@ public class AuthenticationService {
         try {
             Member user = Member.builder()
                     .email(request.getEmail())
-                    .memberId(request.getMemberId())
+                    .loginId(request.getLoginId())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .nickname(request.getNickname())
                     .isDeleted(false)

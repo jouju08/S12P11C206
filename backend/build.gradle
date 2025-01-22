@@ -39,6 +39,20 @@ dependencies {
 //    aws s3
     implementation group: 'software.amazon.awssdk', name: 's3', version: '2.29.44'
     implementation group: 'software.amazon.awssdk', name: 'sts', version: '2.29.44'
+
+    // web socket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+
+    //
+    //---
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+    implementation 'io.jsonwebtoken:jjwt-gson:0.12.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.5'
+
+    // email authentication
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 tasks.named('test') {
