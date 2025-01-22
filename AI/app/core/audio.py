@@ -1,20 +1,30 @@
-from openai import OpenAI
-from app.config.init_config import MAX_AUDIO_LENGTH
-from pydub import AudioSegment
-import app.core.chains as chains
-from app.core.util import save_file
-import app.models.request as requestDto
-import app.models.response as responseDTO
+"""
+Audio Service
+"""
 import base64
+from openai import OpenAI
+from pydub import AudioSegment
+import app.config as config
+import app.core.chains as chains
+import app.models.request as request_dto
+import app.models.response as response_dto
+from app.core.util import save_file
 
 
 def is_audio_length_ok(file):
+    """
+    audio 파일의 길이가 MAX_AUDIO_LENGTH 이하인지 확인하는 함수
+    """
     with open(file, "rb") as f:
         audio = AudioSegment.from_file(file)
-    return len(audio)//60//1000 < MAX_AUDIO_LENGTH
+    return len(audio)//60//1000 < config.MAX_AUDIO_LENGTH
 
 
 def transcript_audio(file):
+    """
+    audio 파일을 텍스트로 변환하는 함수
+    audio -> text 변환
+    """
     client = OpenAI()
     with open(file, "rb") as audio_file:
         transcription = client.audio.transcriptions.create(
@@ -25,7 +35,12 @@ def transcript_audio(file):
     return transcription.text
 
 
-def script_read(scriptReadRequestDto: requestDto.ScriptReadRequestDto):
+def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
+    """
+    스크립트를 읽어주는 함수
+    text -> audio 변환
+    """
+
     client = OpenAI()
 
     response = client.chat.completions.create(
@@ -62,6 +77,8 @@ def script_read(scriptReadRequestDto: requestDto.ScriptReadRequestDto):
         presence_penalty=0
     )
 
-    ret = save_file(base64.b64decode(
+    # response로 받은 파일을 저장
+    audio = save_file(base64.b64decode(
         response.choices[0].message.audio.data), "wb", f"{scriptReadRequestDto.script[:20]}.wav")
-    return responseDTO.ScriptReadResponseDto(file=ret)
+
+    return response_dto.ScriptReadResponseDto(file=audio)
