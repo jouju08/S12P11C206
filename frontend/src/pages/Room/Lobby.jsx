@@ -1,21 +1,30 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import useRoom from '../../hooks/socket/useRoom';
+import { useTaleRoom } from '@/store/roomStore';
 
 export default function Lobby() {
-  const { rooms, createRoom, joinRoom } = useRoom();
+  const { rooms, connect, createRoom, joinRoom, currentRoom } = useTaleRoom();
+
+  useEffect(() => {
+    connect();
+  }, []);
 
   return (
     <div>
-      <button onClick={createRoom}>Create Room</button>
+      <h2 className="text-2xl bg-slate-300">Game Rooms</h2>
+      <button
+        onClick={() => {
+          createRoom();
+        }}
+        className="text-xl text-fuchsia-400">
+        Create New Room
+      </button>
+
       <ul>
-        <span>
-          <br />
-          <h2 className="text-2xl">Room List</h2>
-        </span>
-        {rooms.map((room, index) => (
-          <li key={index}>
-            {room.roomId} - {room.creatorId}
-            <button onClick={() => joinRoom(room.roomId, 'MyUsername')}>
+        {rooms.map((room) => (
+          <li key={room.id}>
+            {room.id}
+            <button onClick={() => joinRoom(room.id, room.memberId)}>
               Join
             </button>
           </li>
