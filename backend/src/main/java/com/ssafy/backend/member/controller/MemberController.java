@@ -1,6 +1,7 @@
 package com.ssafy.backend.member.controller;
 
 import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.db.entity.Member;
 //import com.ssafy.backend.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
