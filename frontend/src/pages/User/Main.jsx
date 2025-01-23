@@ -1,5 +1,11 @@
 import React from 'react';
 import NavMenu from '@/components/Main/NavMenu';
+// import Pagination from 'swiper/react';
+
+// Import Swiper React components
+import { Swiper, SwiperSlide } from 'swiper/react';
+// Import Swiper styles
+import 'swiper/css';
 
 export default function Main() {
   const imgArray = [
@@ -24,17 +30,56 @@ export default function Main() {
   ];
 
   const listNavMenu = imgArray.map((image, idx) => (
-    <li key={idx}>
+    <SwiperSlide key={idx}>
       <NavMenu location={image}>{menuArray[idx]}</NavMenu>
-    </li>
+    </SwiperSlide>
   ));
 
   console.log(listNavMenu);
   return (
     <div>
-      <ul className="h-[200px] justify-start items-center gap-5 flex overflow-hidden">
-        {listNavMenu}
-      </ul>
+      {/* 메인 페이지 상단 프로필, 메뉴바 section */}
+      <div className=" w-[1024px] h-[440px] px-[60px] bg-[url(/Main/nav-background.png)] flex flex-row justify-between items-center">
+        {/* 왼쪽 프로필 */}
+        <div className="w-[294px] h-[317px] relative">
+          {/* 로그인 정보 store에서 가져오기기 */}
+          <img
+            className="w-[150px] h-[150px] left-[103px] top-0 absolute rounded-[100px]"
+            src="/Main/profile-img.png"
+          />
+          <img
+            className="w-[140px] h-[140px] left-[9px] top-0 absolute"
+            src="/Main/main-fairy.png"
+          />
+          <div className="w-[271px] h-[180px] left-[10px] top-[123px] absolute">
+            <img
+              className="w-[271px] h-[180px] left-0 top-0 absolute"
+              src="/Main/fairy-chat-bubble.png"
+            />
+            <div className="h-[68px] left-[36px] top-[74px] absolute flex-col justify-start items-start gap-1 inline-flex overflow-hidden">
+              <div className="justify-start items-center gap-2 inline-flex overflow-hidden">
+                {/* 로그인 정보 store에서 가져오기기 */}
+                <div className="text-main-point service-accent3">닉네임</div>
+                <div className="text-first service-accent3">어서 와!</div>
+              </div>
+              <div className="text-first service-accent3">
+                오늘도 이야기를 만들자!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 오른쪽 메뉴바 */}
+        <div className="w-[594px] h-[316px] py-[58px] justify-center items-center gap-[7px] inline-flex">
+          <Swiper
+            slidesPerView={3}
+            spaceBetween={-30}
+            grabCursor={true}
+            className="mySwiper w-[509px] h-[200px] overflow-hidden">
+            {listNavMenu}
+          </Swiper>
+        </div>
+      </div>
     </div>
   );
 }
