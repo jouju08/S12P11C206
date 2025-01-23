@@ -21,3 +21,9 @@ MYSQL_URL = f"mysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{M
 REDIS_HOST = str = os.getenv("REDIS_HOST")
 REDIS_PORT = integer = os.getenv("REDIS_PORT")
 REDIS_DATABASE = integer = os.getenv("REDIS_DATABASE")
+
+# about aws s3
+AWS_S3_BUCKET = os.getenv("AWS_S3_BUCKET")
+AWS_S3_ACCESS = os.getenv("AWS_S3_ACCESS")
+AWS_S3_SECRET = os.getenv("AWS_S3_SECRET")
+AWS_S3_REGION = os.getenv("AWS_S3_REGION")
