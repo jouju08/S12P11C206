@@ -6,20 +6,24 @@ import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
 import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
 import com.ssafy.backend.member.service.MemberService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("api/member")
 public class MemberController {
 
-    @Autowired
-    private MemberService memberService;
+    private final MemberService memberService;
 
     // 회원 정보 조회
     @GetMapping("/mypage")
-    public ApiResponse<GetMemberResponseDTO> getMember(String loginId) {
+    public ApiResponse<GetMemberResponseDTO> getMember(Authentication authentication) {
+        String loginId = authentication.getName();
         GetMemberResponseDTO memberResponse = memberService.getMember(loginId);
         return ApiResponse.<GetMemberResponseDTO>builder()  
                 .data(memberResponse)
@@ -28,9 +32,12 @@ public class MemberController {
 
     // 회원 정보 수정
     @PatchMapping("/mypage")
-    public ApiResponse<Void> updateMember(String LoginId, UpdateMemberRequestDTO updateMemberRequestDTO) {
+    public ApiResponse<Void> updateMember(
+            Authentication authentication,
+            @Valid @RequestBody UpdateMemberRequestDTO updateMemberRequestDTO) {
 
-        memberService.updateMember(LoginId, updateMemberRequestDTO);
+        String loginId = authentication.getName();
+        memberService.updateMember(loginId, updateMemberRequestDTO);
 
         return ApiResponse.<Void>builder()
                 .data(null)
@@ -39,8 +46,8 @@ public class MemberController {
 
     // 회원 탈퇴
     @DeleteMapping("/delete")
-    public ApiResponse<Void> deleteMember(String loginId) {
-
+    public ApiResponse<Void> deleteMember(Authentication authentication) {
+        String loginId = authentication.getName();
         memberService.deleteMember(loginId);
 
         return ApiResponse.<Void>builder()
@@ -50,8 +57,11 @@ public class MemberController {
 
     // 비밀번호 수정
     @PatchMapping("/change-password")
-    public ApiResponse<Void> changePassword(String loginId, ChangePasswordRequestDTO changePasswordRequestDTO) {
+    public ApiResponse<Void> changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO) {
 
+        String loginId = authentication.getName();
         memberService.changePassword(loginId, changePasswordRequestDTO);
 
         return ApiResponse.<Void>builder()
@@ -61,8 +71,11 @@ public class MemberController {
 
     // 프로필 사진 변경
     @PatchMapping("profile-image")
-    public ApiResponse<Void> updateProfileImage(String loginId, MultipartFile profileImage) {
+    public ApiResponse<Void> updateProfileImage(
+            Authentication authentication,
+            @RequestParam("profileImage") MultipartFile profileImage) {
 
+        String loginId = authentication.getName();
         memberService.updateProfileImage(loginId, profileImage);
 
         return ApiResponse.<Void>builder()

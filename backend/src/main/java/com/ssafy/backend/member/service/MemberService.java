@@ -7,30 +7,30 @@ import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
 import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 @Service
+@RequiredArgsConstructor
 public class MemberService {
 
-    @Autowired
-    private MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
+    private final S3Service s3Service;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private S3Service s3Service;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
+    @Transactional(readOnly = true)
     public GetMemberResponseDTO getMember(String loginId) {
         try{
             Member member = memberRepository.getMemberByLoginIdEquals(loginId)
                     .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + loginId));
 
-            GetMemberResponseDTO response = GetMemberResponseDTO.builder()
+            return GetMemberResponseDTO.builder()
                     .id(member.getId())
                     .loginId(member.getLoginId())
                     .email(member.getEmail())
@@ -39,7 +39,6 @@ public class MemberService {
                     .birth(member.getBirth())
                     .profileImg(member.getProfileImg())
                     .build();
-            return response;
         } catch (BadRequestException e) {
             throw e;
         } catch (Exception e) {
@@ -63,13 +62,21 @@ public class MemberService {
     public void updateMember(String LoginId, UpdateMemberRequestDTO updateMemberRequestDTO) {
         try {
             Member member = new Member();
+            System.out.println(LoginId);
             member = memberRepository.getMemberByLoginIdEquals(LoginId).get();
+            System.out.println(updateMemberRequestDTO);
+            if (updateMemberRequestDTO.getNickname() != null) {
+                member.setNickname(updateMemberRequestDTO.getNickname());
+            }
 
-            member.setNickname(updateMemberRequestDTO.getNickname());
-            member.setEmail(updateMemberRequestDTO.getEmail());
-            member.setBirth(updateMemberRequestDTO.getBirth());
+            if (updateMemberRequestDTO.getEmail() != null) {
+                member.setEmail(updateMemberRequestDTO.getEmail());
+            }
 
-            memberRepository.save(member);
+            if (updateMemberRequestDTO.getBirth() != null) {
+                member.setBirth(updateMemberRequestDTO.getBirth());
+            }
+            System.out.println("여기까지 옴");
 
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
