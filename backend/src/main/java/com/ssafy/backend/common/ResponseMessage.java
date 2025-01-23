@@ -20,6 +20,7 @@ public interface ResponseMessage {
     String NOT_EXISTED_USER = "This user does not exist.";
     String NOT_EXISTED_BOARD = "This board does not exist.";
     String BAD_REQUEST = "Bad request";
+    String NOT_FOUND = "Not found";
 
 
     // HTTP Status 401

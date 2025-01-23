@@ -3,6 +3,7 @@ package com.ssafy.backend.member.controller;
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.ControllerExceptionHandler;
 import com.ssafy.backend.common.ResponseCode;
+import com.ssafy.backend.common.ResponseMessage;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.Member;
@@ -86,7 +87,7 @@ public class AuthController {
             return ApiResponse.builder()
                     .data("Duplicated id")
                     .status(ResponseCode.DUPLICATE_ID)
-                    .message("이미 사용중인 ID")
+                    .message(ResponseMessage.DUPLICATE_ID)
                     .build();
         }
         else {
@@ -102,7 +103,7 @@ public class AuthController {
             return ApiResponse.builder()
                     .data("Duplicated email")
                     .status(ResponseCode.DUPLICATE_EMAIL)
-                    .message("이미 사용중인 EMAIL")
+                    .message(ResponseMessage.DUPLICATE_EMAIL)
                     .build();
         }
         else{
@@ -117,7 +118,7 @@ public class AuthController {
             return ApiResponse.builder()
                     .data("Duplicated Nickname")
                     .status(ResponseCode.DUPLICATE_NICKNAME)
-                    .message("이미 사용중인 NICKNAME")
+                    .message(ResponseMessage.DUPLICATE_NICKNAME)
                     .build();
         }
         else{
@@ -134,14 +135,15 @@ public class AuthController {
         if (exists) {
             String loginID=emailSendService.findIdEmail(email);
             return ApiResponse.builder()
-                    .data("사용자가 존재합니다.")
+                    .data("loginID:"+loginID)
+                    .message(email+"으로 아이디 전송 완료")
                     .build();
         }
         else {
             return ApiResponse.builder()
                     .data("Not Found")
                     .status(ResponseCode.NOT_FOUND)
-                    .message("회원 조회 실패")
+                    .message(ResponseMessage.NOT_FOUND)
                     .build();
 
         }
