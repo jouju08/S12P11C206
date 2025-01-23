@@ -2,7 +2,7 @@
 Audio Controller
 """
 from fastapi import APIRouter, UploadFile, status, HTTPException
-import app.config as config
+import config
 from app.core.util import save_file
 import app.core.audio as audio_service
 import app.models.request as request_dto
