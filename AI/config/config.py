@@ -6,6 +6,9 @@ load_dotenv()
 BASE_URL = os.getenv("BASE_URL")
 MAX_AUDIO_LENGTH = int(os.getenv("MAX_AUDIO_LENGTH"))
 
+# Server
+SPRING_SERVER = os.getenv("SPRING_SERVER")
+
 # DB
 MYSQL_USER = os.getenv("MYSQL_USER")
 MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
@@ -15,4 +18,6 @@ MYSQL_PORT = os.getenv("MYSQL_PORT")
 
 MYSQL_URL = f"mysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DBNAME}"
 
-REDIS_URL = os.getenv("REDIS_URL")
+REDIS_HOST = str = os.getenv("REDIS_HOST")
+REDIS_PORT = integer = os.getenv("REDIS_PORT")
+REDIS_DATABASE = integer = os.getenv("REDIS_DATABASE")
