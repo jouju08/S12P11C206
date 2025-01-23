@@ -15,10 +15,12 @@ public interface ResponseCode {
     String VALIDATION_FAILED = "VF";
     String DUPLICATE_EMAIL = "DE";
     String DUPLICATE_NICKNAME = "DN";
+    String DUPLICATE_ID = "DI";
     String DUPLICATE_TEL_NUNBER = "DT";
     String NOT_EXISTED_USER = "NU";
     String NOT_EXISTED_BOARD = "NB";
     String BAD_REQUEST = "BD";
+    String NOT_FOUND = "NF";
 
     // HTTP Status 401
     String SIGN_IN_FAIL = "SF";

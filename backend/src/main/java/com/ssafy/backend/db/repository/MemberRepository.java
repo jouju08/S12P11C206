@@ -12,4 +12,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     //Derived query methods
     //특정 문자 포함 검색하기
     Optional<Member> findByEmail(String email);
+    Optional<Member> findByNickname(String email);
+    Optional<Member> findByEmailAndBirth(String email, String birth);
 }
