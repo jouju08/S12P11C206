@@ -1,11 +1,7 @@
-version: "3.8"
-
 services:
   backend-green:
-    build: ./deploytest
+    build: ./backend
     container_name: backend-green
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
     networks:
       - app-network
 
@@ -14,9 +10,6 @@ services:
     container_name: frontend-green
     networks:
       - app-network
-
-  # nginx는 여기서 생략 (이미 Blue compose에서 띄운 nginx를 계속 사용)
-  # 또는 정말 완전 분리해서 nginx-green 컨테이너도 따로 띄울 수 있음.
 
 networks:
   app-network:
