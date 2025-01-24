@@ -1,6 +1,7 @@
 import React from 'react';
 import NavMenu from '@/components/Main/NavMenu';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
+import GalleryItem from '@/components/Common/GalleyItem';
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -33,7 +34,7 @@ export default function Main() {
   const listNavMenu = imgArray.map((image, idx) => (
     <SwiperSlide
       key={idx}
-      className="hover:-translate-y-1 hover:scale-110">
+      className="hover:-translate-y-1 hover:scale-105">
       <NavMenu location={image}>{menuArray[idx]}</NavMenu>
     </SwiperSlide>
   ));
@@ -41,6 +42,12 @@ export default function Main() {
   const listFairyTaleRoom = new Array(5).fill(null).map((_, idx) => (
     <SwiperSlide key={idx}>
       <FairyTaleRoom />
+    </SwiperSlide>
+  ));
+
+  const listFamousDrawing = new Array(5).fill(null).map((_, idx) => (
+    <SwiperSlide key={idx}>
+      <GalleryItem />
     </SwiperSlide>
   ));
 
@@ -108,6 +115,20 @@ export default function Main() {
           grabCursor={true}
           className="mySwiper w-[904px] h-[290px] overflow-hidden px-4">
           {listFairyTaleRoom}
+        </Swiper>
+      </div>
+
+      {/* 인기있는 그림 */}
+      <div className="mx-[60px] my-[70px] w-[904px] h-[357px]">
+        <div className="text-first service-accent2 mb-[10px]">
+          지금 인기있는 그림
+        </div>
+        <Swiper
+          slidesPerView={4}
+          spaceBetween={30}
+          grabCursor={true}
+          className="mySwiper w-[904px] h-[300px] overflow-hidden px-4">
+          {listFamousDrawing}
         </Swiper>
       </div>
     </div>
