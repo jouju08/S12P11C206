@@ -8,7 +8,7 @@ import app.core.audio as audio_service
 import app.models.request as request_dto
 import app.models.response as response_dto
 
-router = APIRouter(prefix=f"{config.BASE_URL}/audio", tags=["audio"])
+router = APIRouter(prefix=f"{config.API_BASE_URL}/audio", tags=["audio"])
 
 
 @router.post("/transcript", response_model=response_dto.TranscriptResponseDto)

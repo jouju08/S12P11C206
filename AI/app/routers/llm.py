@@ -7,7 +7,7 @@ import app.core.llm as llm_service
 import app.models.request as request_dto
 import app.models.response as response_dto
 
-router = APIRouter(prefix=f"{config.BASE_URL}/llm", tags=["llm"])
+router = APIRouter(prefix=f"{config.API_BASE_URL}/llm", tags=["llm"])
 
 
 @router.get("/keyword-sentences/{title}", response_model=response_dto.ExtractKeywordSentencesResponseDto)
