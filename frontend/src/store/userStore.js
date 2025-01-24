@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 
+// 잠깐 DefaultHeader 만들기 위해 변경
 const initialState = {
-  isAuthenticated: true,
+  isAuthenticated: false,
 };
 
 const authActions = (set) => ({
