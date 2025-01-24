@@ -54,6 +54,10 @@ public class AuthenticationService {
         return memberRepository.findByNickname(nickname);
     }
 
+    public Optional<Member> findById(Integer Id) {
+        return memberRepository.findById(Id);
+    }
+
     public boolean isMemberExists(String email, String birth) {
         return memberRepository.findByEmailAndBirth(email, birth).isPresent();
     }

@@ -26,7 +26,7 @@ public class JwtUtil {
 
         val authorities=auth.getAuthorities().stream().map(a->a.getAuthority()).collect(Collectors.joining(","));
         String jwt = Jwts.builder()
-                .claim("memberId", user.getUsername())
+                .claim("LoginId", user.getUsername())
                 .claim("nickname",user.nickName)
                 .claim("authorities",authorities)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -42,5 +42,6 @@ public class JwtUtil {
                 .parseSignedClaims(token).getPayload();
         return claims;
     }
+
 
 }

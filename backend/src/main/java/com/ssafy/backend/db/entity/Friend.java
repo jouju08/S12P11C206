@@ -1,7 +1,10 @@
 package com.ssafy.backend.db.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @IdClass(FriendId.class)

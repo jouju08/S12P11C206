@@ -45,7 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
         val arr=claim.get("authorities").toString().split(",");
         val authorities= Arrays.stream(arr).map(a->new SimpleGrantedAuthority(a)).toList();
         val customUser=new CustomUser(
-                claim.get("memberId").toString(),"none",authorities
+                claim.get("loginId").toString(),"none",authorities
         );
         customUser.nickName=claim.get("nickname").toString();
         val authToken=new UsernamePasswordAuthenticationToken(
