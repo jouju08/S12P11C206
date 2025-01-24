@@ -1,6 +1,0 @@
-.venv
-.env
-__pycache__
-app/files/*.mp3
-app/files/*.m4a
-app/files/*.wav
