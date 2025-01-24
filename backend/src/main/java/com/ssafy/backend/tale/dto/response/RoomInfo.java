@@ -19,5 +19,11 @@ import lombok.*;
 @Builder
 public class RoomInfo {
     private Long roomId;
+    private Long hostMemberId;
+    private String hostNickname;
+    private String hostProfileImg;
+    private String taleTitle;
     private int participantsCnt;
+    private int maxParticipantsCnt;
+
 }

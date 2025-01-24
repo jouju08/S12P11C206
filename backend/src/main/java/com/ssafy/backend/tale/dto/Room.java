@@ -26,7 +26,7 @@ public class Room {
     private Long roomId;
     private Long baseTaleId;
     private Long memberId;
-    private int partiCnt;
+    private int maxParticipantsCnt;
     private boolean isFull = false;
     private Map<Long, Member> participants = new HashMap<>();
 }
