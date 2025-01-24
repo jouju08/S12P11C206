@@ -27,7 +27,7 @@ def transcript_audio(file: UploadFile):
             status_code=status.HTTP_400_BAD_REQUEST, detail="음성의 길이가 너무 깁니다.")
 
 
-@router.post("/script-read", response_model=response_dto.ScriptReadResponseDto)
+@router.post("/script-read", response_model=response_dto.FileResponseDto)
 def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
     """
     스크립트를 받아서 음성으로 변환하는 API

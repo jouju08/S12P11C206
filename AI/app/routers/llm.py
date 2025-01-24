@@ -15,9 +15,9 @@ def extract_keyword_sentences(title):
     return llm_service.extract_keyword_sentences(title)
 
 
-@router.post("/create-tale", response_model=response_dto.CreateTaleResponseDto)
-def create_tale(create_tale_request: request_dto.CreateTaleRequestDto):
-    return llm_service.create_tale(create_tale_request)
+@router.post("/create-tale", response_model=response_dto.GenerateTaleResponseDto)
+def create_tale(create_tale_request: request_dto.GenerateTaleRequestDto):
+    return llm_service.write_tale(create_tale_request)
 
 
 @router.post("/generate-diffusion-prompts", response_model=response_dto.GenerateDiffusionPromptsResponseDto)
