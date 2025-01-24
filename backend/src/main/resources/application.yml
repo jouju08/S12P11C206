@@ -1,0 +1,46 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 200MB
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING-DB-URL}
+    username: ${SPRING-DB-USERNAME}
+    password: ${SPRING-DB-PASSWORD}
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: ${REDIS-HOST}
+      port: ${REDIS-PORT}
+      exprire-time: ${REDIS-EXPIRE-TIME}
+  mail:
+    host: ${SPRING-MAIL-HOST}
+    username: ${SPRING-MAIL-USERNAME}
+    password: ${SPRING-MAIL-PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+    port: ${SPRING-MAIL-PORT}
+
+
+
+# aws s3
+aws:
+  s3:
+    bucket: ${AWS-S3-BUCKET}
+  stack:
+    auto: false
+  credentials:
+    access-key: ${AWS-S3-ACCESS}
+    secret-key: ${AWS-S3-SECRET}
+    region: ${AWS-S3-REGION}
