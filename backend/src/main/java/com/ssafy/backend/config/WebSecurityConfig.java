@@ -42,11 +42,7 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/", "/api/auth/**", "/api/search/**", "/file/**").permitAll()   // 인증 필요없는
-                        .requestMatchers(HttpMethod.GET, "/api/board/**", "/api/user/*", "/api/member/**").permitAll()          // 패턴들
-                        .requestMatchers(HttpMethod.PATCH, "/api/member/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/member/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/member/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/member/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/guide/**", "/api/board/**", "/api/user/*").permitAll()          // 패턴들
                         .anyRequest().authenticated());
         httpSecurity.logout(logout->logout.logoutUrl("api/auth/logout"));
         httpSecurity.addFilterBefore(new JwtFilter(), ExceptionTranslationFilter.class);

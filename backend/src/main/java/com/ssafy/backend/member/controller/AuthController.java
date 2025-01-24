@@ -37,7 +37,7 @@ public class AuthController {
     public Map<String, String> loginJwt(@RequestBody Map<String, String> data,
                                         HttpServletResponse response) {
         System.out.println("authToken");
-        val authToken=new UsernamePasswordAuthenticationToken(data.get("loginId"), data.get("password"));
+        val authToken=new UsernamePasswordAuthenticationToken(data.get("memberId"), data.get("password"));
         System.out.println(authToken);
         val auth=authenticationManagerBuilder.getObject().authenticate(authToken);
         System.out.println("authToken2");

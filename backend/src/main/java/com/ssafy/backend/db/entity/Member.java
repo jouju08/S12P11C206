@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "member", indexes = {@Index(name = "loginId_index", columnList = "login_id")})
+@Table(name = "member")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,7 +21,7 @@ public class Member extends Common{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "login_id", length = 40, nullable = false, unique = true)
+    @Column(name = "login_id", length = 40, nullable = false)
     private String loginId;  // 멤버 아이디
 
     @Column(length = 60)

@@ -1,3 +1,17 @@
+"""
+기존에 동화에서 주요 문장에서 4개의 단어를 추출
+
+# Example
+--- 
+## Input 
+신데렐라
+## Output
+1. 신데렐라는 XX을 입고 왕궁에 갔습니다.
+2. 신데렐라는 XX를 타고 왕궁에 갔습니다.
+3. 신데렐라는 XX을 신고 춤을 추었습니다.
+4. 왕자는 신데렐라의 XX을 찾아 돌아다녔습니다.
+"""
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import BaseOutputParser
 
@@ -24,7 +38,7 @@ Create a process that takes the title of a fairy tale as input and identifies fo
 ## Steps
 
 1. Understand the plot of the fairy tale based on the given title.
-2. Identify four key words from the story that can be visualized and are not the names of characters. Each word should refer to a distinct object or concept.
+2. Identify four key words from the story that can be visualized and are not the names of characters in order. Each word should refer to a distinct object or concept.
 3. Replace each selected word with "XX" in a sentence and construct four sentences.
 4. translate the sentences into Korean.
 ---
@@ -38,12 +52,12 @@ Create a process that takes the title of a fairy tale as input and identifies fo
 
 ### Examples
 
-**Input:** The Three Little Pigs  
+**Input:** 아기돼지 삼형제
 **Output:**
-1. The first little pig built a house made of XX.  
-2. The second little pig built a house made of XX.  
-3. The third little pig built a house made of XX.  
-4. The wolf destroyed the little pigs’ house with XX.  
+1. 첫번째 아기돼지는 XX로 집을 지었습니다.  
+2. 두번째 아기돼지는 XX로 집을 지었습니다.
+3. 세번째 아기돼지는 XX로 집을 지었습니다.
+4. 아기돼지들은 XX를 이용해 늑대를 이겼습니다. 
 
 ---
 

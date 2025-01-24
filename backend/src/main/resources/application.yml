@@ -25,8 +25,8 @@ spring:
       exprire-time: ${REDIS_EXPIRE_TIME}
   mail:
     host: ${SMTP_HOST}
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
+    username: ${for.myfairytale08@gmail.com}
+    password: ${zkxa dzxl vfhp ibaj}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true

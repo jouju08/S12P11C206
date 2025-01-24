@@ -18,6 +18,9 @@ public class Tale extends Common{
     @Column(name = "parti_cnt")
     private int partiCnt; // 참여자 수
 
+//    @Column(name = "base_tale_id", insertable = false, updatable = false)
+//    private int baseTaleId;
+
     // BaseTale N:1
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "base_tale_id", nullable = false)
