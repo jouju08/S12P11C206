@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import authAPI from '@/apis/auth/AuthAPI';
 
+// 잠깐 DefaultHeader 만들기 위해 변경
 const initialState = {
   loginId: null,
   nickname: null,
