@@ -17,4 +17,33 @@ def s3_connection():
         return s3
 
 
-s3_conn = s3_connection()
+class S3Connection:
+    def __init__(self):
+        self.s3_conn = s3_connection()
+
+    def put(self, local_file_name, upload_file_name):
+        try:
+            self.s3_conn.upload_file(
+                local_file_name, config.AWS_S3_BUCKET, upload_file_name)
+            return True
+        except Exception as e:
+            return False
+
+    def get(self, local_file_name, download_file_name):
+        try:
+            self.s3_conn.download_file(
+                config.AWS_S3_BUCKET, download_file_name, local_file_name)
+            return True
+        except Exception as e:
+            return False
+
+    def delete(self, file_name):
+        try:
+            self.s3_conn.delete_object(
+                Bucket=config.AWS_S3_BUCKET, Key=file_name)
+            return True
+        except Exception as e:
+            return False
+
+
+s3_conn = S3Connection()
