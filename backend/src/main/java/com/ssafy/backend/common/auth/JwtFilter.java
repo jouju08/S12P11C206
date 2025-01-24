@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -32,6 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
         for(int i=0;i<cookies.length;i++) {
             if(cookies[i].getName().equals("jwt")) {
                 jwtCookie=cookies[i].getValue();
+                break;
             }
         }
         System.out.println(jwtCookie);
@@ -42,10 +44,10 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        val arr=claim.get("authorities").toString().split(",");
-        val authorities= Arrays.stream(arr).map(a->new SimpleGrantedAuthority(a)).toList();
+        String arr[] =claim.get("authorities").toString().split(",");
+        List<SimpleGrantedAuthority> authorities= Arrays.stream(arr).map(SimpleGrantedAuthority::new).toList();
         val customUser=new CustomUser(
-                claim.get("memberId").toString(),"none",authorities
+                claim.get("loginId").toString(),"none",authorities
         );
         customUser.nickName=claim.get("nickname").toString();
         val authToken=new UsernamePasswordAuthenticationToken(

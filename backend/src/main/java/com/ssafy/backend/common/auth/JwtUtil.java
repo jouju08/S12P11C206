@@ -24,9 +24,9 @@ public class JwtUtil {
     public static String createToken(Authentication auth) {
         CustomUser user=(CustomUser)auth.getPrincipal();
 
-        val authorities=auth.getAuthorities().stream().map(a->a.getAuthority()).collect(Collectors.joining(","));
+        String authorities=auth.getAuthorities().stream().map(a->a.getAuthority()).collect(Collectors.joining(","));
         String jwt = Jwts.builder()
-                .claim("memberId", user.getUsername())
+                .claim("loginId", user.getUsername())
                 .claim("nickname",user.nickName)
                 .claim("authorities",authorities)
                 .issuedAt(new Date(System.currentTimeMillis()))
