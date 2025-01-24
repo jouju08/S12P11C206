@@ -28,3 +28,9 @@ def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
     """
     result = audio_service.script_read(scriptReadRequestDto)
     return response_dto.ApiResponse(status=Status.SUCCESS, message="OK", data=result)
+
+
+"""
+todo
+그림 ai 생성 api를 만들어야 함
+"""

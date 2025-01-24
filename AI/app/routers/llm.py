@@ -23,3 +23,9 @@ def create_tale(create_tale_request: request_dto.GenerateTaleRequestDto):
 @router.post("/generate-diffusion-prompts", response_model=response_dto.GenerateDiffusionPromptsResponseDto)
 def generate_diffusion_prompts(generate_diffusion_prompts_request: request_dto.GenerateDiffusionPromptsRequestDto):
     return llm_service.generate_diffusion_prompts(generate_diffusion_prompts_request)
+
+
+"""
+todo
+삭제 예정
+"""
