@@ -5,6 +5,7 @@ import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.member.service.AuthenticationService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -35,14 +36,18 @@ public class AuthController {
 
     @PostMapping("/login/jwt")
     @ResponseBody
-    public ApiResponse<Map<String, String>> loginJwt(@RequestBody Map<String, String> data) {
+    public ApiResponse<Map<String, String>> loginJwt(@RequestBody Map<String, String> data, HttpServletRequest request, HttpServletResponse response) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(data.get("loginId"), data.get("password"));
         Authentication auth = authenticationManagerBuilder.getObject().authenticate(authToken);
         SecurityContextHolder.getContext().setAuthentication(auth);
         String jwt = JwtUtil.createToken(SecurityContextHolder.getContext().getAuthentication());//함수 계속 재사용하는거라 단순 계산에만 사용
+        Cookie cookie=new Cookie("jwt",jwt);
         Map<String, String> map = new HashMap<>();
         map.put("token", jwt);
+        cookie.setMaxAge(24*60*60);//쿠키 수명
+        cookie.setHttpOnly(true);//쿠키 가로채기 금지
+        cookie.setPath("/");//쿠키가 전송될 경로
+        response.addCookie(cookie);
         return ApiResponse.<Map<String, String>>builder().data(map).build();
     }
-
 }
