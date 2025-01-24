@@ -1,17 +1,26 @@
 import { useAuth } from '@/store/userStore';
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import { useState } from 'react';
+import authAPI from '@/apis/auth/AuthAPI';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
 
-  const { Login } = useAuth();
+  const { login } = useAuth();
+
+  useEffect(() => {}, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('이메일:', email, '비밀번호:', password);
+    const res = authAPI.login(email, password);
+    if (res) {
+      login();
+      navigate('/');
+    }
   };
 
   return (
