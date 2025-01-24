@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import useRoom from '../../hooks/socket/useRoom';
 import { useTaleRoom } from '@/store/roomStore';
+import CurrentRoom from './CurrentRoom';
 
 export default function Lobby() {
   const { rooms, connect, createRoom, joinRoom, currentRoom } = useTaleRoom();
@@ -22,14 +23,13 @@ export default function Lobby() {
 
       <ul>
         {rooms.map((room) => (
-          <li key={room.id}>
-            {room.id}
-            <button onClick={() => joinRoom(room.id, room.memberId)}>
-              Join
-            </button>
+          <li key={room.roomId}>
+            {room.roomId}
+            <button onClick={() => joinRoom(room.roomId, 3)}>JOIN</button>
           </li>
         ))}
       </ul>
+      <CurrentRoom />
     </div>
   );
 }

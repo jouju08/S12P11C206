@@ -5,10 +5,12 @@ import { shallow } from 'zustand/shallow';
 import { devtools } from 'zustand/middleware';
 
 const initialState = {
-  client: null,
   rooms: [],
+  stompClient: null,
+  participants: {},
+  memberId: 1,
+
   currentRoom: null,
-  participants: [],
 };
 
 const roomActions = (set, get) => ({
@@ -18,75 +20,79 @@ const roomActions = (set, get) => ({
       webSocketFactory: () => socket,
       onConnect: () => {
         console.log('Socket connected');
-        stompClient.subscribe('/topic/rooms', (message) => {
-          console.log(JSON.parse(message.body));
-          set((state) => ({
-            rooms: [...state.rooms, JSON.parse(message.body)],
-          }));
-        });
-
-        set({ client: stompClient });
-
-        // 방목록 요청
-        stompClient.publish({
-          destination: '/app/room/create',
-          body: JSON.stringify({
-            memberId: 1, // host id
-            baseTaleId: 1,
-            partiCnt: 4,
-          }),
-        });
+        get().subscribeToRooms();
       },
       onDisconnect: () => console.log('Disconnected'),
-      reconnectDelay: 5000,
-      debug: (str) => console.log(str),
     });
     stompClient.activate();
+    set({ stompClient });
+  },
+
+  subscribeToRooms: () => {
+    const stompClient = get().stompClient;
+    if (!stompClient || !stompClient.connected) {
+      return;
+    }
+
+    stompClient.subscribe(`/topic/rooms`, (message) => {
+      const newRoom = JSON.parse(message.body);
+      get().addRoom(newRoom);
+    });
+  },
+
+  subscribeToParticipants: (roomId) => {
+    const stompClient = get().stompClient;
+    if (!stompClient || !stompClient.connected) {
+      return;
+    }
+
+    stompClient.subscribe(`topic/room/${roomId}`, (message) => {
+      const participants = JSON.parse(message.body)['participants'];
+      get().setParticipants(roomId, participants);
+    });
   },
 
   createRoom: () => {
-    const { client } = get();
-    if (client) {
-      client.publish({
+    const stompClient = get().stompClient;
+    if (stompClient && stompClient.connected) {
+      const data = {
+        memberId: get().memberId,
+        baseTaleId: 1,
+        partiCnt: 4,
+      };
+
+      console.log(data);
+
+      stompClient.publish({
         destination: '/app/room/create',
-        body: JSON.stringify({
-          memberId: 1, // host id
-          baseTaleId: 1,
-          partiCnt: 4,
-        }),
+        body: JSON.stringify(data),
       });
     }
   },
 
   joinRoom: (roomId, memberId) => {
-    const { client } = get();
-    if (client) {
-      get().leaveRoom(); // disconnect
-
-      client.subscribe(`/topic/room/${roomId}/participants`, (message) => {
-        set({ participants: JSON.parse(message.body) });
+    console.log('JOIN');
+    const stompClient = get().stompClient;
+    const room = { roomId, memberId };
+    if (stompClient && stompClient.connect) {
+      stompClient.subscribe(`/topic/room/${roomId}`, (message) => {
+        console.log(message);
+        // get().setCurrentRoom(JSON.parse(message.body));
       });
-
-      client.subscribe(`/topic/room/${roomId}`, (message) => {
-        console.log('JOIN ROOM');
-      });
-
-      const room = { roomId, memberId };
 
       // 참가 요청
       client.publish({
         destination: `/app/room/join/${roomId}`,
         body: JSON.stringify(room),
       });
-
-      set({ currentRoom: roomId, participants: [] });
     }
   },
 
   leaveRoom: () => {
+    `room/leave/roomId`;
     const { client, currentRoom } = get();
     if (client && currentRoom) {
-      // client.unsubscribe(`/topic/room/${currentRoom}/participants`);
+      client.unsubscribe(`/topic/room/${currentRoom}/participants`);
       client.unsubscribe(`/topic/room/${currentRoom}`);
       set({ currentRoom: null, participants: [] });
     }
@@ -94,7 +100,10 @@ const roomActions = (set, get) => ({
 
   setRooms: (rooms) => set({ rooms }),
   setCurrentRoom: (currentRoom) => set({ currentRoom }),
-  setParticipants: (participants) => set({ participants }),
+  setParticipants: (roomId, users) =>
+    set((state) => ({
+      participants: { ...state.participants, [roomId]: users },
+    })),
 
   addRoom: (room) => set((state) => ({ rooms: [...state.rooms, room] })),
   removeRoom: (roomId) =>
@@ -139,6 +148,11 @@ export const useTaleRoom = () => {
   const joinRoom = useRoomStore((state) => state.joinRoom);
   const leaveRoom = useRoomStore((state) => state.leaveRoom);
 
+  const subscribeToRooms = useRoomStore((state) => state.subscribeToRooms);
+  const subscribeToParticipants = useRoomStore(
+    (state) => state.subscribeToParticipants
+  );
+
   return {
     rooms,
     currentRoom,
@@ -154,5 +168,8 @@ export const useTaleRoom = () => {
     createRoom,
     joinRoom,
     leaveRoom,
+
+    subscribeToRooms,
+    subscribeToParticipants,
   };
 };

@@ -1,12 +1,34 @@
 import { create } from 'zustand';
+import authAPI from '@/apis/auth/AuthAPI';
 
 const initialState = {
-  isAuthenticated: true,
+  loginId: null,
+  nickname: null,
+  accessToken: null,
+  isAuthenticated: false,
 };
 
 const authActions = (set) => ({
-  login: () => set({ isAuthenticated: true }),
-  logout: () => set({ isAuthenticated: false }),
+  login: (token, loginId, nickname) =>
+    set({
+      loginId: loginId,
+      nickname: nickname,
+      accessToken: token,
+      isAuthenticated: true,
+    }),
+
+  logout: async () => {
+    authAPI.logout();
+
+    set({
+      loginId: null,
+      nickname: null,
+      accessToken: null,
+      isAuthenticated: false,
+    });
+  },
+
+  checkAuth: async () => {},
 });
 
 const useAuthStore = create((set, get) => ({
