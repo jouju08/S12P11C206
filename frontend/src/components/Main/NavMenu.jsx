@@ -2,9 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 export default function NavMenu({ location, children }) {
-  console.log(location);
-  console.log(children);
-
   const path = '/Main/';
 
   return (
