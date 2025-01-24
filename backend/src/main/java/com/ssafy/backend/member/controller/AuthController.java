@@ -1,15 +1,21 @@
 package com.ssafy.backend.member.controller;
 
 import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.common.ControllerExceptionHandler;
+import com.ssafy.backend.common.ResponseCode;
+import com.ssafy.backend.common.ResponseMessage;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.UnauthorizedException;
 import com.ssafy.backend.db.entity.Member;
+import com.ssafy.backend.dto.EmailRequestDto;
+import com.ssafy.backend.dto.FindIdDto;
 import com.ssafy.backend.member.service.AuthenticationService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +33,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -147,4 +154,87 @@ public class AuthController {
             throw new UnauthorizedException("유효하지 않은 토큰");
         }
     }
+    @GetMapping("/logout")
+    @ResponseBody
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
+
+        //쿠키 삭제
+        Cookie cookie = new Cookie("token", null);
+        cookie.setMaxAge(0); // 쿠키를 즉시 만료시킴
+        cookie.setPath("/");  // 쿠키의 경로 설정
+        response.addCookie(cookie);
+        return ResponseEntity.ok("로그아웃되었습니다.");
+    }
+
+    @GetMapping("/check-id/{loginId}")
+    public ApiResponse<Object> isDuplicatedId(@PathVariable String loginId) {
+        Optional<Member> member = authenticationService.findByLoginId(loginId);
+        if (member.isPresent()) {
+            return ApiResponse.builder()
+                    .data("Duplicated id")
+                    .status(ResponseCode.DUPLICATE_ID)
+                    .message(ResponseMessage.DUPLICATE_ID)
+                    .build();
+        }
+        else {
+            return ApiResponse.builder().data("사용 가능").build();
+        }
+    }
+
+
+    @GetMapping("/check-email/{email}")
+    public ApiResponse<Object> isDuplicatedEmail(@PathVariable String email){
+        Optional<Member> member = authenticationService.findByEmail(email);
+        if(member.isPresent()){
+            return ApiResponse.builder()
+                    .data("Duplicated email")
+                    .status(ResponseCode.DUPLICATE_EMAIL)
+                    .message(ResponseMessage.DUPLICATE_EMAIL)
+                    .build();
+        }
+        else{
+            return ApiResponse.builder().data("사용 가능한 email").build();
+        }
+    }
+
+    @GetMapping("/check-nickname/{nickname}")
+    public ApiResponse<Object> isDuplicatedNickname(@PathVariable String nickname){
+        Optional<Member> member = authenticationService.findByNickname(nickname);
+        if(member.isPresent()){
+            return ApiResponse.builder()
+                    .data("Duplicated Nickname")
+                    .status(ResponseCode.DUPLICATE_NICKNAME)
+                    .message(ResponseMessage.DUPLICATE_NICKNAME)
+                    .build();
+        }
+        else{
+            return ApiResponse.builder().data("사용 가능한 nickname").build();
+        }
+    }
+
+
+    @PostMapping("/find-id")
+    public ApiResponse<Object> mailSend(@RequestBody @Valid FindIdDto findIdDto) {
+        String email = findIdDto.getEmail();
+        String birth = findIdDto.getBirth();
+        boolean exists = authenticationService.isMemberExists(email, birth);
+        if (exists) {
+            String loginID=emailSendService.findIdEmail(email);
+            return ApiResponse.builder()
+                    .data("loginID:"+loginID)
+                    .message(email+"으로 아이디 전송 완료")
+                    .build();
+        }
+        else {
+            return ApiResponse.builder()
+                    .data("Not Found")
+                    .status(ResponseCode.NOT_FOUND)
+                    .message(ResponseMessage.NOT_FOUND)
+                    .build();
+
+        }
+    }
+
+
+
 }

@@ -17,10 +17,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m FROM Member m WHERE m.loginId = :loginId AND m.isDeleted=false ")
     Optional<Member> getMemberByLoginIdEquals(String loginId);
-
     @Modifying
     @Transactional
     @Query("UPDATE Member m SET m.isDeleted=true WHERE m.loginId = :loginId AND m.isDeleted=false  ")
     int softDeleteByLoginId(String loginId);
-
+    Optional<Member> findByNickname(String email);
+    Optional<Member> findByEmailAndBirth(String email, String birth);
 }
