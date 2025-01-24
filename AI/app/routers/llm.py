@@ -2,7 +2,7 @@
 LLM Controller
 """
 from fastapi import APIRouter
-import app.config as config
+import config
 import app.core.llm as llm_service
 import app.models.request as request_dto
 import app.models.response as response_dto

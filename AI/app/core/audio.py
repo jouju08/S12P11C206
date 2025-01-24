@@ -4,7 +4,7 @@ Audio Service
 import base64
 from openai import OpenAI
 from pydub import AudioSegment
-import app.config as config
+import config
 import app.core.chains as chains
 import app.models.request as request_dto
 import app.models.response as response_dto

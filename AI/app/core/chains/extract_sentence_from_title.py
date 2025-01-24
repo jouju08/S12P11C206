@@ -52,7 +52,7 @@ Create a process that takes the title of a fairy tale as input and identifies fo
 
 ### Examples
 
-**Input:** 아기돼지 삼형제제
+**Input:** 아기돼지 삼형제
 **Output:**
 1. 첫번째 아기돼지는 XX로 집을 지었습니다.  
 2. 두번째 아기돼지는 XX로 집을 지었습니다.
