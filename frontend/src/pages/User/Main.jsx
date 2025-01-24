@@ -31,8 +31,16 @@ export default function Main() {
   ];
 
   const listNavMenu = imgArray.map((image, idx) => (
-    <SwiperSlide key={idx}>
+    <SwiperSlide
+      key={idx}
+      className="hover:-translate-y-1 hover:scale-110">
       <NavMenu location={image}>{menuArray[idx]}</NavMenu>
+    </SwiperSlide>
+  ));
+
+  const listFairyTaleRoom = new Array(5).fill(null).map((_, idx) => (
+    <SwiperSlide key={idx}>
+      <FairyTaleRoom />
     </SwiperSlide>
   ));
 
@@ -77,40 +85,29 @@ export default function Main() {
         </div>
 
         {/* 오른쪽 메뉴바 */}
-        <div className="w-[594px] h-[316px] py-[58px] justify-center items-center gap-[7px] inline-flex">
+        <div className="w-[594px] h-[316px] py-[40px] ">
           <Swiper
             slidesPerView={3}
-            spaceBetween={-30}
+            spaceBetween={-10}
             grabCursor={true}
-            className="mySwiper w-[509px] h-[200px] overflow-hidden">
+            className="mySwiper w-[509px] overflow-visible"
+            style={{ padding: 20 }}>
             {listNavMenu}
           </Swiper>
         </div>
       </div>
+
+      {/* 만들어진 동화방 */}
       <div className="mx-[60px] mt-[70px] w-[904px] h-[350px]">
         <div className="text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
         <Swiper
           slidesPerView={3}
-          spaceBetween={-20}
+          spaceBetween={-10}
           grabCursor={true}
           className="mySwiper w-[904px] h-[290px] overflow-hidden px-4">
-          <SwiperSlide>
-            <FairyTaleRoom />
-          </SwiperSlide>
-          <SwiperSlide>
-            <FairyTaleRoom />
-          </SwiperSlide>
-          <SwiperSlide>
-            <FairyTaleRoom />
-          </SwiperSlide>
-          <SwiperSlide>
-            <FairyTaleRoom />
-          </SwiperSlide>
-          <SwiperSlide>
-            <FairyTaleRoom />
-          </SwiperSlide>
+          {listFairyTaleRoom}
         </Swiper>
       </div>
     </div>
