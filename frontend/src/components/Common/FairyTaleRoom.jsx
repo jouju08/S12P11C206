@@ -1,10 +1,19 @@
 import React from 'react';
+import { useState } from 'react';
+
+// sweetAlert2 with react
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 // main page에서 창이 불러와 지기 전에 동화 방을 백에서 조회
-// 커버, 인원, 방 번호, 책 이름, 방장 프로필, 닉네임임
+// 커버, 인원, 방 번호, 책 이름, 방장 프로필, 닉네임
 export default function FairyTaleRoom() {
   return (
-    <div className="cursor-pointer">
+    <div
+      className="cursor-pointer"
+      onClick={() => {
+        console.log('바보');
+      }}>
       <div className="w-[275px] h-[270px] bg-gray-50 rounded-[30px] shadow-[0px_4px_15px_0px_rgba(0,0,0,0.2)] flex-col justify-center items-start inline-flex overflow-hidden">
         <div className="w-[275px] h-[156px] overflow-hidden relative">
           {/* 백에서 가져온 cover 쓰기 */}
