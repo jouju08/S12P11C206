@@ -1,6 +1,6 @@
 import React from 'react';
 import NavMenu from '@/components/Main/NavMenu';
-import FairyTaleRoom from '@/components/Main/FairyTaleRoom';
+import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
