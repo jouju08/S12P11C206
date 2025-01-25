@@ -41,6 +41,6 @@ aws:
   stack:
     auto: false
   credentials:
-    access-key: ${AWS-S3-ACCESS}
-    secret-key: ${AWS-S3-SECRET}
-    region: ${AWS-S3-REGION}
+    access-key: ${AWS_S3_ACCESS}
+    secret-key: ${AWS_S3_SECRET}
+    region: ${AWS_S3_REGION}
