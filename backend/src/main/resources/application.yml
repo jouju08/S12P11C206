@@ -37,7 +37,7 @@ spring:
 # aws s3
 aws:
   s3:
-    bucket: ${AWS-S3-BUCKET}
+    bucket: ${AWS_S3_BUCKET}
   stack:
     auto: false
   credentials:

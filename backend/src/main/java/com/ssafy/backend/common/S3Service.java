@@ -1,5 +1,6 @@
 package com.ssafy.backend.common;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,15 +24,12 @@ import java.util.UUID;
  * */
 
 @Service
+@RequiredArgsConstructor
 public class S3Service {
     private final S3Client s3Client;
     private final String filePrefix = "https://${aws.s3.bucket}.s3.ap-northeast-2.amazonaws.com/";
     @Value("${aws.s3.bucket}")
     private String bucketName;
-
-    public S3Service(S3Client s3Client) {
-        this.s3Client = s3Client;
-    }
 
     /*
     * 파일 업로드 전략
