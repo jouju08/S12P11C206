@@ -2,6 +2,7 @@
 Gen Controller
 """
 from fastapi import APIRouter, UploadFile, HTTPException
+from fastapi.responses import StreamingResponse
 import config
 import app.core.llm as llm_service
 import app.core.audio as audio_service
@@ -21,13 +22,14 @@ def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto):
     return response_dto.ApiResponse(status=Status.SUCCESS, message="OK", data=result)
 
 
-@router.post("/script-read", response_model=response_dto.ApiResponse[response_dto.FileResponseDto])
+@router.post("/script-read")
 def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
     """
     스크립트를 읽어주는 API
     """
     result = audio_service.script_read(scriptReadRequestDto)
-    return response_dto.ApiResponse(status=Status.SUCCESS, message="OK", data=result)
+    
+    return result
 
 
 """
