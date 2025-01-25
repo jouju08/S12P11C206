@@ -10,6 +10,7 @@ import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.dto.EmailRequestDto;
 import com.ssafy.backend.dto.FindIdDto;
 import com.ssafy.backend.member.service.AuthenticationService;
+import com.ssafy.backend.member.service.EmailSendService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
@@ -42,6 +43,7 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final AuthenticationManagerBuilder authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final EmailSendService emailSendService;
 
 
     //회원가입
@@ -154,17 +156,16 @@ public class AuthController {
             throw new UnauthorizedException("유효하지 않은 토큰");
         }
     }
-    @GetMapping("/logout")
-    @ResponseBody
-    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-
-        //쿠키 삭제
-        Cookie cookie = new Cookie("token", null);
-        cookie.setMaxAge(0); // 쿠키를 즉시 만료시킴
-        cookie.setPath("/");  // 쿠키의 경로 설정
-        response.addCookie(cookie);
-        return ResponseEntity.ok("로그아웃되었습니다.");
-    }
+//    @GetMapping("/logout")
+//    public ApiResponse<String> logout(HttpServletRequest request, HttpServletResponse response) {
+//
+//        //쿠키 삭제
+//        Cookie cookie = new Cookie("token", null);
+//        cookie.setMaxAge(0); // 쿠키를 즉시 만료시킴
+//        cookie.setPath("/");  // 쿠키의 경로 설정
+//        response.addCookie(cookie);
+//        return ApiResponse.<String>builder().data("로그아웃 완료").build();
+//    }
 
     @GetMapping("/check-id/{loginId}")
     public ApiResponse<Object> isDuplicatedId(@PathVariable String loginId) {
