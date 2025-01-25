@@ -14,30 +14,65 @@ def extract_keyword_sentences(title: str):
 
     # 체인 생성
     chain = chains.extract_sentence_from_title_prompt | ChatOpenAI(
-        temperature=0.7, model="gpt-4o") | chains.ExtractSentenceFromTitleOutputParser()
+        temperature=0.7, model="gpt-4o") | chains.NumberdListParser()
     # 체인 실행
     response = chain.invoke({"question": title})
 
     return response_dto.ExtractKeywordSentencesResponseDto(sentences=response)
 
 
-def create_tale(create_tale_request: request_dto.CreateTaleRequestDto):
+def write_tale(title, introduction, sentences):
     """
     제목, 소개, 문장들을 입력받아 동화를 생성하는 함수
     """
 
     # 체인 생성
-    chain = chains.create_tale_prompt | ChatOpenAI(
-        temperature=0.7, model="gpt-4o") | chains.CreateTaleOutputParser()
+    chain = chains.write_tale_prompt | ChatOpenAI(
+        temperature=0.7, model="gpt-4o") | chains.NumberdListParser()
 
     # 체인 실행
     response = chain.invoke({
-        "title": create_tale_request.title,
-        "introduction": create_tale_request.introduction,
-        "sentences": create_tale_request.sentences
+        "title": title,
+        "introduction": introduction,
+        "sentences": sentences
     })
 
-    return response_dto.CreateTaleResponseDto(pages=response)
+    return response
+
+
+def extract_sentence_from_tale(contents: list[str]):
+    """
+    동화의 각 페이지별 상세 내용을 입력받아 한 문장으로 요약하는 함수
+    """
+
+    # 체인 생성
+    chain = chains.extract_sentence_from_tale_prompt | ChatOpenAI(
+        temperature=0.1) | chains.NumberdListParser()
+
+    # 체인 실행
+    response = chain.invoke({
+        "contents": contents
+    })
+
+    return response
+
+
+def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
+    """
+    제목, 소개, 문장들을 입력받아
+    페이지별 내용과 요약문장을 출력하는 함수
+    Controller에서 호출
+    """
+    contents = write_tale(generate_tale_request.title,
+                          generate_tale_request.introduction, generate_tale_request.sentences)
+    sentences = extract_sentence_from_tale(contents)
+    pages = []
+    for i, sentence in enumerate(sentences):
+        page = response_dto.PageInfo(
+            extractedSentence=sentence, fullText=contents[i])
+        pages.append(page)
+
+    return response_dto.GenerateTaleResponseDto(pages=pages)
 
 
 def generate_diffusion_prompts(generate_diffusion_prompts_request: request_dto.GenerateDiffusionPromptsRequestDto):
@@ -59,7 +94,7 @@ def generate_diffusion_prompts(generate_diffusion_prompts_request: request_dto.G
     prompts = []
     for item in response:
         prompt = response_dto.PromptSet(
-            prompt=item["Prompt"], negative_prompt=item["Negative Prompt"])
+            prompt=item["Prompt"], negativePrompt=item["Negative Prompt"])
         prompts.append(prompt)
 
     return response_dto.GenerateDiffusionPromptsResponseDto(prompts=prompts)
