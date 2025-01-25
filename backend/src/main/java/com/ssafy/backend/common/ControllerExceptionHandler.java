@@ -15,13 +15,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ControllerExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
-    public ApiResponse<?> badRequestHandler(Exception e) {
+    public ApiResponse<?> badRequestHandler(BadRequestException e) {
         return ApiResponse.builder()
                 .data(e.getMessage())
                 .status(ResponseCode.BAD_REQUEST)
                 .message(ResponseMessage.BAD_REQUEST)
                 .build();
     }
+
+
 
     public ApiResponse<?> unAuthorizedHandler(Exception e) {
         return ApiResponse.builder()

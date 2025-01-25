@@ -1,11 +1,17 @@
 package com.ssafy.backend.db.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "friend_request")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class FriendRequest extends Common {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,4 +36,6 @@ public class FriendRequest extends Common {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id", insertable = false, updatable = false)
     private Member receiverMember;
+
+
 }

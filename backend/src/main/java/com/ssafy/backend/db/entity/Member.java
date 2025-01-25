@@ -1,18 +1,17 @@
 package com.ssafy.backend.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "member")
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -47,55 +46,66 @@ public class Member extends Common{
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore
     private List<Stamp> stamps = new ArrayList<>();
 
     // 친구 신청 보낸 경우 (Member 1 : N FriendRequest, "proposer")
     @OneToMany(mappedBy = "proposerMember", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<FriendRequest> sentFriendRequests = new ArrayList<>();
 
     // 친구 신청 받은 경우 (Member 1 : N FriendRequest, "recipient")
     @OneToMany(mappedBy = "receiverMember", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<FriendRequest> receivedFriendRequests = new ArrayList<>();
 
     // 친구 관계 (Member <-> Friend)
     // Friend 테이블은 복합키이므로, 직접 friendFrom / friendTo 매핑 가능
     @OneToMany(mappedBy = "fromMember", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<Friend> friendFromList = new ArrayList<>();
 
     @OneToMany(mappedBy = "toMember", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<Friend> friendToList = new ArrayList<>();
 
     // TaleMember (Member 1 : N TaleMember)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<TaleMember> taleMembers = new ArrayList<>();
 
     // Gallery (Member 1 : N Gallery)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<Gallery> galleries = new ArrayList<>();
 
     // GalleryLike (Member 1 : N GalleryLike)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<GalleryLike> galleryLikes = new ArrayList<>();
 
     // TaleInvitation - 수신자
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @JsonIgnore
     private List<TaleInvitation> receivedInvitations = new ArrayList<>();
 
     // TaleInvitation - 발신자
     @OneToMany(mappedBy = "senderMember", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<TaleInvitation> sentInvitations = new ArrayList<>();
 
     // Tale (Member 1 : N Tale)
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     @Builder.Default
+    @JsonIgnore
     private List<Tale> tales = new ArrayList<>();
 }

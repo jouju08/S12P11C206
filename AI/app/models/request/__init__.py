@@ -1,3 +1,3 @@
-from .CreateTaleRequestDto import CreateTaleRequestDto
+from .GenerateTaleRequestDto import GenerateTaleRequestDto
 from .GenerateDiffusionPromptsRequestDto import GenerateDiffusionPromptsRequestDto
 from .ScriptReadRequestDto import ScriptReadRequestDto

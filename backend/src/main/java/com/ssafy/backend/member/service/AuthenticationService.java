@@ -9,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -39,5 +41,24 @@ public class AuthenticationService {
         }catch (Exception e) {
             throw new BadRequestException("잘못된 요청입니다");
         }
+    }
+    public Optional<Member> findByLoginId(String loginId) {
+        return memberRepository.findByLoginId(loginId);
+    }
+
+    public Optional<Member> findByEmail(String email) {
+        return memberRepository.findByEmail(email);
+    }
+
+    public Optional<Member> findByNickname(String nickname) {
+        return memberRepository.findByNickname(nickname);
+    }
+
+    public Optional<Member> findById(Integer Id) {
+        return memberRepository.findById(Id);
+    }
+
+    public boolean isMemberExists(String email, String birth) {
+        return memberRepository.findByEmailAndBirth(email, birth).isPresent();
     }
 }

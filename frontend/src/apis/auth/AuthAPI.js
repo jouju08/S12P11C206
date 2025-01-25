@@ -1,21 +1,26 @@
 import React from 'react';
 import { Route, Link, Router, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { authAxiosInstance } from '@/apis/axiosConfig';
-
-const navigate = useNavigate();
+import authAxiosInstance from '@/apis/auth/AuthInstance.js';
 
 /*
     APIs
 */
 
-export const login = async (email, password) => {
+export const login = async (loginId, password) => {
   try {
     const response = await authAxiosInstance.post('/auth/login', {
-      email,
+      loginId,
       password,
     });
-    console.log('Login successful:', response.data);
+
+    console.log('Login successful:', response);
+
+    if (response.statusText === 'OK') {
+      return true;
+    } else {
+      return false;
+    }
   } catch (error) {
     console.log('Error In AuthAPI Login: ', error);
     throw error;
@@ -26,7 +31,6 @@ export const login = async (email, password) => {
 export const logout = async () => {
   try {
     const response = await authAxiosInstance.post('/auth/logout');
-    navigate('/login'); // Router path
     return response;
   } catch (error) {
     console.log('Error In AuthAPI Logout: ', error);
@@ -35,7 +39,7 @@ export const logout = async () => {
 };
 
 // 회원가입
-export const register = async (email, password) => {
+export const register = async (loginId, password) => {
   try {
     const res = await authAxiosInstance.post('/auth/register', {
       email,
@@ -60,7 +64,7 @@ export const registerEmailSend = async (email) => {
 };
 
 //회원가입 이메일 인증 확인
-export const registerEmailVertify = async (email, code) => {
+export const registerEmailVerify = async (email, code) => {
   try {
     const res = await authAxiosInstance.post('/auth/vertify', { email, code });
     return res;
@@ -107,3 +111,28 @@ export const unRegister = async () => {
     console.error(err);
   }
 };
+
+export const refreshAuth = async () => {
+  const response = await authAxiosInstance.post();
+};
+
+export const testAPI = async () => {
+  const response = await authAxiosInstance.get(
+    'http://192.168.100.136:8080/guide'
+  );
+  console.log('RESPONSE: ', response);
+};
+
+const authAPI = {
+  login,
+  logout,
+  register,
+  registerEmailSend,
+  registerEmailVerify,
+  profile,
+  profileUpdate,
+  unRegister,
+  testAPI,
+};
+
+export default authAPI;
