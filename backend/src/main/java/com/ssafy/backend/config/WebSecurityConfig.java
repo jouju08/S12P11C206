@@ -1,24 +1,25 @@
 package com.ssafy.backend.config;
 
-import com.ssafy.backend.common.auth.JwtFilter;
+import com.ssafy.backend.common.auth.JwtAuthenticationEntryPoint;
+import com.ssafy.backend.common.auth.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 /*
  *  author : park byeongju
@@ -31,48 +32,55 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    @Bean
-    protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .cors(cors -> cors
-                        .configurationSource(corsConfigrationSource()))
-                .csrf(CsrfConfigurer::disable)
-                .httpBasic(HttpBasicConfigurer::disable)
-                .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("/", "/api/auth/**", "/api/search/**", "/file/**","/api/friend/**").permitAll()   // 인증 필요없는
-                        .requestMatchers(HttpMethod.GET,"/guide/**", "/api/board/**", "/api/user/*","/api/friend/**").permitAll()          // 패턴들
-                        .anyRequest().authenticated());
-        httpSecurity.logout(logout->logout.logoutUrl("api/auth/logout"));
-        httpSecurity.addFilterBefore(new JwtFilter(), ExceptionTranslationFilter.class);
-        return httpSecurity.build();
 
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    // CORS 설정을 별도의 Bean으로 분리
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://172.30.1.21:3000")); // 허용할 Origin 설정
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "MESSAGE")); // 허용할 HTTP 메서드 설정
+        config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
+        config.setAllowCredentials(true); // 인증 정보 허용
+        config.setMaxAge(3600L); // Preflight 요청 캐시 시간 설정
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     @Bean
-    public CsrfTokenRepository csrfTokenRepository() {
-        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-        repository.setHeaderName("X-XSRF-TOKEN");
-        return repository;
+    @Order(1)
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Bean 참조
+                // 인증 실패 시 대응 핸들러 (401 응답 등)
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                // 세션 정책: JWT를 사용한다면 항상 STATELESS
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);        // JWT 필터 추가
+
+
+        return http.build();
     }
 
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    protected CorsConfigurationSource corsConfigrationSource() {
-
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("*");
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration
+    ) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }
+
+

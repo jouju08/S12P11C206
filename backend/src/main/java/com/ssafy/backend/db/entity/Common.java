@@ -6,6 +6,8 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -14,20 +16,22 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 public abstract class Common {
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", updatable = false)
+//    @CreatedDate
+    private String createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+//    @LastModifiedDate
+    private String updatedAt;
 
     @PrePersist
     public void onPrePersist() {
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now().toString();
     }
 
     @PreUpdate
     public void onPreUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now().toString();
     }
 
 }
