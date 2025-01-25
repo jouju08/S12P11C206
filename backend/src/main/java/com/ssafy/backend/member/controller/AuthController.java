@@ -1,171 +1,98 @@
 package com.ssafy.backend.member.controller;
 
 import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.common.ControllerExceptionHandler;
 import com.ssafy.backend.common.ResponseCode;
 import com.ssafy.backend.common.ResponseMessage;
 import com.ssafy.backend.common.auth.JwtUtil;
-import com.ssafy.backend.common.exception.UnauthorizedException;
 import com.ssafy.backend.db.entity.Member;
-import com.ssafy.backend.dto.EmailRequestDto;
 import com.ssafy.backend.dto.FindIdDto;
-import com.ssafy.backend.member.service.AuthenticationService;
-import com.ssafy.backend.member.service.EmailSendService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import com.ssafy.backend.member.dto.request.LoginRequest;
+import com.ssafy.backend.member.dto.request.RegisterRequest;
+import com.ssafy.backend.member.service.*;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+/*
+ *  author : jung juha
+ *  date : 2025.01.21
+ *  description : 인증 관련 컨트롤러
+ *  update
+ *      1. 0125: 로그인 리펙토링 및 리프레시 토큰 추가
+ * */
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService authenticationService;
-    private final AuthenticationManagerBuilder authenticationManager;
-    private final UserDetailsService userDetailsService;
     private final EmailSendService emailSendService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
+    private final AuthService authService;
 
 
-    //회원가입
-    @PostMapping("/register")   //말 그대로 회원 가입
-    public ApiResponse<Object> register(
-            @Valid @RequestBody Member member) {
-        authenticationService.register(member);
-        return ApiResponse.builder().data("성공").build();
-    }
-
-    // 로그아웃 API
-    @PostMapping("/logout")
-    public ApiResponse<String> logout(HttpServletResponse response) {
-        // Access 토큰 쿠키 제거
-        Cookie accessTokenCookie = new Cookie("accessToken", null);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(0); // 즉시 만료
-
-        // Refresh 토큰 쿠키 제거
-        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0); // 즉시 만료
-
-        // 응답에 쿠키 추가
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-
-        return ApiResponse.<String>builder().data("로그아웃 완료").build();
+    @PostMapping("/register")
+    public ApiResponse<String> register(@RequestBody RegisterRequest request) {
+        authService.register(request); // 회원가입 로직 (DB 저장)
+        return ApiResponse.<String>builder().data("가입 성공").build();
     }
 
     @PostMapping("/login")
-    @ResponseBody
-    public ApiResponse<Map<String, String>> loginJwt(@RequestBody Map<String, String> data, HttpServletRequest request, HttpServletResponse response) {
+    public ApiResponse<Map<String, String>> login(@RequestBody LoginRequest request) {
         UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(data.get("loginId"), data.get("password"));
+                new UsernamePasswordAuthenticationToken(request.getLoginId(), request.getPassword());
+        Authentication auth = authenticationManager.authenticate(authToken);
 
-        Authentication auth = authenticationManager.getObject().authenticate(authToken);
+        // 로그인 성공 시 JWT 발급
+        String accessToken = jwtUtil.generateToken(request.getLoginId());
+        String refreshToken = jwtUtil.generateRefreshToken(request.getLoginId());
+        refreshTokenService.saveRefreshToken(request.getLoginId(), refreshToken);
 
-        // Access 토큰과 Refresh 토큰 생성
-        String accessToken = JwtUtil.createAccessToken(auth);
-        String refreshToken = JwtUtil.createRefreshToken(data.get("loginId"));
+        // 프론트엔드에서 accessToken / refreshToken를 쿠키 또는 로컬스토리지에 저장하여 사용
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("accessToken", accessToken);
+        tokens.put("refreshToken", refreshToken);
 
-        // 쿠키로 전달(예시)
-        Cookie accessCookie = new Cookie("accessToken", accessToken);
-//        accessCookie.setAttribute("SameSite", "None");
-//        accessCookie.setHttpOnly(true);
-        accessCookie.setPath("/");
-        accessCookie.setMaxAge(30 * 60); // 30분
+        return ApiResponse.<Map<String, String>>builder().data(tokens).build();
+    }
 
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
-//        refreshCookie.setHttpOnly(true);
-        refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(14 * 24 * 60 * 60); // 2주
-
-        response.addCookie(accessCookie);
-        response.addCookie(refreshCookie);
-        Map<String, String> map = new HashMap<>();
-        map.put("accessToken", accessToken);
-        map.put("refreshToken", refreshToken);
-
-        return ApiResponse.<Map<String, String>>builder().data(map).build();
+    @PostMapping("/logout")
+    public ApiResponse<String> logout(@RequestHeader("Authorization") String header) {
+        // 클라이언트로부터 기존 토큰 식별/해제 로직 (필요 시 Redis 삭제)
+        if (header != null && header.startsWith("Bearer ")) {
+            String accessToken = header.substring(7);
+            String username = jwtUtil.extractUsername(accessToken);
+            // 만약 서버 측에 토큰에 대한 로그아웃 기록을 저장한다면 저장 처리
+            // refreshToken도 함께 제거
+            refreshTokenService.deleteRefreshToken(username);
+        }
+        System.out.println("로그아웃");
+        return ApiResponse.<String>builder().data("로그아웃 성고").build();
     }
 
     @PostMapping("/refresh")
-    public ApiResponse<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        // Refresh 토큰 검증 로직
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            throw new UnauthorizedException("토큰 없음");
-        }
-
-        String refreshToken = Arrays.stream(cookies)
-                .filter(c -> "refreshToken".equals(c.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse("");
-
-        if (refreshToken.isEmpty()) {
-            throw new UnauthorizedException("토큰 없음");
-        }
-
-        try {
-            Claims claims = JwtUtil.extractToken(refreshToken);
-            if (claims.getExpiration().before(new Date())) {
-                throw new UnauthorizedException("refresh 토큰 만료");
+    public ApiResponse<Map<String, String>> refresh(@RequestBody Map<String, String> tokenMap) {
+        // 프론트엔드에서 전달한 refreshToken 확인
+        String refreshToken = tokenMap.get("refreshToken");
+        if (jwtUtil.validateRefreshToken(refreshToken)) {
+            String username = jwtUtil.extractUsername(refreshToken);
+            // Redis에 저장된 리프레시 토큰과 비교
+            if (refreshTokenService.isValidRefreshToken(username, refreshToken)) {
+                String newAccessToken = jwtUtil.generateToken(username);
+                Map<String, String> token = new HashMap<>();
+                token.put("accessToken", newAccessToken);
+                return ApiResponse.<Map<String, String>>builder().data(token).build();
             }
-
-            // Refresh 토큰이 유효하다면 새로운 Access 토큰을 만들어 쿠키에 담아준다
-            String loginId = claims.get("loginId").toString();
-            UserDetails userDetails = userDetailsService.loadUserByUsername(loginId);
-            Authentication auth = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-
-            String newAccessToken = JwtUtil.createAccessToken(auth);
-            Cookie newAccessCookie = new Cookie("accessToken", newAccessToken);
-            newAccessCookie.setHttpOnly(true);
-            newAccessCookie.setPath("/");
-            newAccessCookie.setMaxAge(30 * 60);
-
-            response.addCookie(newAccessCookie);
-
-            Map<String, String> map = new HashMap<>();
-            map.put("accessToken", newAccessToken);
-            map.put("refreshToken", refreshToken);
-
-            return ApiResponse.<Map<String, String>>builder().data(map).build();
-        } catch (JwtException e) {
-            throw new UnauthorizedException("유효하지 않은 토큰");
         }
+        return ApiResponse.<Map<String, String>>builder().data(null).build();
     }
-//    @GetMapping("/logout")
-//    public ApiResponse<String> logout(HttpServletRequest request, HttpServletResponse response) {
-//
-//        //쿠키 삭제
-//        Cookie cookie = new Cookie("token", null);
-//        cookie.setMaxAge(0); // 쿠키를 즉시 만료시킴
-//        cookie.setPath("/");  // 쿠키의 경로 설정
-//        response.addCookie(cookie);
-//        return ApiResponse.<String>builder().data("로그아웃 완료").build();
-//    }
 
     @GetMapping("/check-id/{loginId}")
     public ApiResponse<Object> isDuplicatedId(@PathVariable String loginId) {

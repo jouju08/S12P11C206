@@ -5,6 +5,7 @@ import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
+import com.ssafy.backend.member.dto.request.RegisterRequest;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
 import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final S3Service s3Service;
     private final PasswordEncoder passwordEncoder;
+
 
     @Transactional(readOnly = true)
     public GetMemberResponseDTO getMember(String loginId) {

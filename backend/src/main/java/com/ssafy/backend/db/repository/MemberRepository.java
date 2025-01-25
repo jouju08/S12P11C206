@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByLoginId(String loginId);
-
+    boolean existsByLoginId(String loginId);
     Optional<Member> findByEmail(String email);
 
     @Query("SELECT m FROM Member m WHERE m.loginId = :loginId AND m.isDeleted=false ")
