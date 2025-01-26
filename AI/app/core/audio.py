@@ -32,7 +32,7 @@ def transcript_audio(file):
         file=file
     )
 
-    return response_dto.TranscriptResponseDto(text=transcription.text)
+    return response_dto.TextResponseDto(text=transcription.text)
 
 
 def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
@@ -82,6 +82,10 @@ def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
         "Content-Disposition": f"attachment; filename={filename}",
     }
     response_data = base64.b64decode(response.choices[0].message.audio.data)
-        
-    result = StreamingResponse(io.BytesIO(response_data), headers=headers, media_type="audio/wav")
+
+    result = StreamingResponse(
+        io.BytesIO(response_data),
+        headers=headers,
+        media_type="audio/wav"
+    )
     return result
