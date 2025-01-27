@@ -3,6 +3,7 @@ networks:
     driver: bridge
 
 services:
+  # backend
   backend:
     build: ./backend
     ports:
@@ -31,8 +32,8 @@ services:
       - FRONT_PORT=${FRONT_PORT}
       - MYSQL_PORT=${MYSQL_PORT}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
 
+  # frontend
   frontend:
     build: ./frontend
     ports:
@@ -40,6 +41,7 @@ services:
     networks:
       - app-network
 
+  # redis
   redis:
     image: redis:6.2.6-alpine
     ports:
@@ -51,12 +53,14 @@ services:
     networks:
       - app-network
 
+  # mysql
   mysql:
     image: mysql:8.0
     ports:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
       - TZ=Asia/Seoul
     volumes:
       - ./mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
@@ -64,15 +68,30 @@ services:
     networks:
       - app-network
 
+  # nginx
   nginx:
     build: ./nginx
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - frontend
       - backend
+    volumes:
+      - .data/certbot/conf:/etc/letsencrypt
+      - .data/certbot/www:/var/www/certbot
     networks:
       - app-network
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - .data/certbot/conf:/etc/letsencrypt
+      - .data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
   mysql-data:
