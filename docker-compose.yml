@@ -59,7 +59,7 @@ services:
     ports:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}a
       - TZ=Asia/Seoul
     volumes:
       - ./mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
@@ -76,6 +76,25 @@ services:
     depends_on:
       - frontend
       - backend
+    environment:
+      - SPRING_DB_URL=${SPRING_DB_URL}
+      - SPRING_DB_USERNAME=${SPRING_DB_USERNAME}
+      - SPRING_DB_PASSWORD=${SPRING_DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_EXPIRE_TIME=${REDIS_EXPIRE_TIME}
+      - SPRING_MAIL_HOST=${SPRING_MAIL_HOST}
+      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
+      - SPRING_MAIL_PORT=${SPRING_MAIL_PORT}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_S3_ACCESS=${AWS_S3_ACCESS}
+      - AWS_S3_SECRET=${AWS_S3_SECRET}
+      - AWS_S3_REGION=${AWS_S3_REGION}
+      - SPRING_PORT=${SPRING_PORT}
+      - FRONT_PORT=${FRONT_PORT}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     volumes:
       - /home/ubuntu/certbot/data/certbot/conf:/etc/letsencrypt
       - /home/ubuntu/certbot/data/certbot/www:/var/www/certbot
