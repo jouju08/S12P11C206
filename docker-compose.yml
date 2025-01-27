@@ -77,8 +77,8 @@ services:
       - frontend
       - backend
     volumes:
-      - /home/ubuntu/certbot/data/certbot/conf:/etc/letsencrypt
-      - /home/ubuntu/certbot/data/certbot/www:/var/www/certbot
+      - ./data/certbot:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     networks:
       - app-network
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
@@ -88,8 +88,8 @@ services:
     image: certbot/certbot:latest
     restart: unless-stopped
     volumes:
-      - /home/ubuntu/certbot/data/certbot/conf:/etc/letsencrypt
-      - /home/ubuntu/certbot/data/certbot/www:/var/www/certbot
+      - ./data/certbot:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
