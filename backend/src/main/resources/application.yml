@@ -22,7 +22,7 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-      exprire-time: ${REDIS_EXPIRE_TIME}
+      expire-time: ${REDIS_EXPIRE_TIME}
   mail:
     host: ${SMTP_HOST}
     username: ${SMTP_USERNAME}
