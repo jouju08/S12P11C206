@@ -24,9 +24,9 @@ spring:
       port: ${REDIS_PORT}
       expire-time: ${REDIS_EXPIRE_TIME}
   mail:
-    host: ${SMTP_HOST}
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
+    host: ${SPRING_MAIL_HOST}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
