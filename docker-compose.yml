@@ -60,7 +60,6 @@ services:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
       - TZ=Asia/Seoul
     volumes:
       - ./mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
