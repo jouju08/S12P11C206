@@ -32,7 +32,7 @@ services:
       - FRONT_PORT=${FRONT_PORT}
       - MYSQL_PORT=${MYSQL_PORT}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-
+      - JWT_SECRET=${JWT_SECRET}
   # frontend
   frontend:
     build: ./frontend
