@@ -18,11 +18,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   data:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
       expire-time: ${REDIS_EXPIRE_TIME}
+
   mail:
     host: ${SPRING_MAIL_HOST}
     username: ${SPRING_MAIL_USERNAME}

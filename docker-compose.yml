@@ -3,7 +3,6 @@ networks:
     driver: bridge
 
 services:
-  # backend
   backend:
     build: ./backend
     ports:
@@ -33,7 +32,6 @@ services:
       - MYSQL_PORT=${MYSQL_PORT}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 
-  # frontend
   frontend:
     build: ./frontend
     ports:
@@ -41,7 +39,6 @@ services:
     networks:
       - app-network
 
-  # redis
   redis:
     image: redis:6.2.6-alpine
     ports:
@@ -53,7 +50,6 @@ services:
     networks:
       - app-network
 
-  # mysql
   mysql:
     image: mysql:8.0
     ports:
@@ -67,7 +63,6 @@ services:
     networks:
       - app-network
 
-  # nginx
   nginx:
     build: ./nginx
     ports:
