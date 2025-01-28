@@ -62,9 +62,10 @@ public class WebSecurityConfig {
                 // 세션 정책: JWT를 사용한다면 항상 STATELESS
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
-                        .requestMatchers("/api/**").permitAll()
-                        .anyRequest().authenticated())
+                        // .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
+                        // .requestMatchers("/api/**").permitAll()
+                        // .anyRequest().authenticated())
+                        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);        // JWT 필터 추가
 
 
