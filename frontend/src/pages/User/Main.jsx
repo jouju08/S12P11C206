@@ -66,7 +66,7 @@ export default function Main() {
         <div className="w-[294px] h-[317px] relative">
           {/* 로그인 정보 store에서 가져오기기 */}
           <img
-            className="w-[150px] h-[150px] left-[103px] top-0 absolute rounded-[100px]"
+            className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px]"
             src="/Main/profile-img.png"
           />
           <img
