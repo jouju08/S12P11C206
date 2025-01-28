@@ -31,11 +31,17 @@ export default function Main() {
     </>,
   ];
 
+  // conflict 시, 이 파일 전체 선택이 아닌 35줄~42줄만 변경 필요
+  const linkArray = ['/room', '/collection', '/gallery', '/'];
   const listNavMenu = imgArray.map((image, idx) => (
     <SwiperSlide
       key={idx}
       className="hover:-translate-y-1 hover:scale-105">
-      <NavMenu location={image}>{menuArray[idx]}</NavMenu>
+      <NavMenu
+        location={image}
+        linkTo={linkArray[idx]}>
+        {menuArray[idx]}
+      </NavMenu>
     </SwiperSlide>
   ));
 
