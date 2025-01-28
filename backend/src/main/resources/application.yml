@@ -6,9 +6,10 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DB_URL}
+    username: ${SPRING_DB_USERNAME}
+    password: ${SPRING_DB_PASSWORD}
+
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -18,23 +19,27 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   data:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-      exprire-time: ${REDIS_EXPIRE_TIME}
+      expire-time: ${REDIS_EXPIRE_TIME}
+
   mail:
-    host: ${SMTP_HOST}
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
+    host: ${SPRING_MAIL_HOST}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
-    port: 587
+    port: ${SPRING_MAIL_PORT}
 
+jwt:
+  secret: ${JWT_SECRET}
+  accessExpiration: 10000
+  refreshExpiration: 604800000
 
-
-# aws s3
 aws:
   s3:
     bucket: ${AWS_S3_BUCKET}
