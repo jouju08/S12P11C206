@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import useRoom from '../../hooks/socket/useRoom';
 import { useTaleRoom } from '@/store/roomStore';
 import CurrentRoom from './CurrentRoom';
 

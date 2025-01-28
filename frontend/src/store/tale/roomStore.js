@@ -3,15 +3,10 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { shallow } from 'zustand/shallow';
 import { devtools } from 'zustand/middleware';
-import taleAPI from '@/apis/tale/taleAxios';
-import { userStore } from './userStore';
 
 const initialState = {
   rooms: [],
   currentRoom: null,
-  stompClient: null,
-  participants: {},
-  memberId: userStore.getState().memberId,
 };
 
 const roomActions = (set, get) => ({
@@ -19,17 +14,10 @@ const roomActions = (set, get) => ({
     const socket = new SockJS(import.meta.env.VITE_WS_URL);
     const stompClient = new Client({
       webSocketFactory: () => socket,
-
       onConnect: () => {
         console.log('Socket connected');
         get().subscribeToRooms();
-        console.log(`${userStore.getState().accessToken + 1}`);
       },
-
-      connectHeaders: {
-        Authorization: `Bearer ${userStore.getState().accessToken + 1}`,
-      },
-
       onDisconnect: () => console.log('Disconnected'),
     });
     stompClient.activate();
