@@ -65,7 +65,8 @@ public class WebSecurityConfig {
                         // .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
                         // .requestMatchers("/api/**").permitAll()
                         // .anyRequest().authenticated())
-                        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                        .anyRequest().permitAll())
+                        
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);        // JWT 필터 추가
 
 
