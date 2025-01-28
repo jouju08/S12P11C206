@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from .PromptSet import PromptSet
+from app.models.common.PromptSet import PromptSet
 
 
 class GenerateDiffusionPromptsResponseDto(BaseModel):
