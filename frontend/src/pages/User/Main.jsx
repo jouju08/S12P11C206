@@ -1,4 +1,7 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
 import NavMenu from '@/components/Main/NavMenu';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 import GalleryItem from '@/components/Common/GalleyItem';
@@ -31,6 +34,26 @@ export default function Main() {
     </>,
   ];
 
+  // 백엔드에서 만들어져 있는 동화방 데이터 불러오기
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    // 백엔드 API 호출 함수
+    async function fetchData() {
+      try {
+        const response = await axios.get(
+          'http://i12c206.p.ssafy.io/api/tale/rooms'
+        );
+        console.log('📌 가져온 데이터:', response.data); // 콘솔 출력
+        setData(response.data); // 상태에 저장
+      } catch (error) {
+        console.error('데이터 가져오기 실패:', error);
+      }
+    }
+
+    fetchData(); // 함수 실행
+  }, []); // 빈 배열을 넣으면 컴포넌트가 처음 렌더링될 때만 실행됨
+
   const listNavMenu = imgArray.map((image, idx) => (
     <SwiperSlide
       key={idx}
@@ -51,7 +74,6 @@ export default function Main() {
     </SwiperSlide>
   ));
 
-  console.log(listNavMenu);
   return (
     <div>
       {/* 메인 페이지 상단 프로필, 메뉴바 section */}
