@@ -39,11 +39,10 @@ export default function Main() {
 
   useEffect(() => {
     // 백엔드 API 호출 함수
+    // userStore에서 토큰 가져와서 헤더에 보내줘야 해
     async function fetchData() {
       try {
-        const response = await axios.get(
-          'http://i12c206.p.ssafy.io/api/tale/rooms'
-        );
+        const response = await axios.get('/api/tale/rooms');
         console.log('📌 가져온 데이터:', response.data); // 콘솔 출력
         setData(response.data); // 상태에 저장
       } catch (error) {
