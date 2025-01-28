@@ -39,7 +39,6 @@ export default function Main() {
 
   useEffect(() => {
     // 백엔드 API 호출 함수
-    // userStore에서 토큰 가져와서 헤더에 보내줘야 해
     async function fetchData() {
       try {
         const response = await axios.get('/api/tale/rooms');
