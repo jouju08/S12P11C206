@@ -5,15 +5,30 @@ import { useState } from 'react';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
+// swal test, modal에는 추후 만들 방만들기 컴포넌트로 대체
+const MyComponent = () => (
+  <div>
+    <h3 className="service-accent1">SweetAlert2 + React</h3>
+    <p>이 모달은 나중에 width 100% height 100% 컴포넌트</p>
+  </div>
+);
+
 // main page에서 창이 불러와 지기 전에 동화 방을 백에서 조회
 // 커버, 인원, 방 번호, 책 이름, 방장 프로필, 닉네임
 export default function FairyTaleRoom() {
+  // 동화방 click 이벤트 발생 시, 모달 띄움
+  const showGameModal = () => {
+    withReactContent(Swal).fire({
+      title: <i>확인용</i>,
+      html: <MyComponent />, // 여기에 jsx 컴포넌트 가능
+      showConfirmButton: true,
+    });
+  };
+
   return (
     <div
       className="cursor-pointer"
-      onClick={() => {
-        console.log('바보');
-      }}>
+      onClick={showGameModal}>
       <div className="w-[275px] h-[270px] bg-gray-50 rounded-[30px] flex-col justify-center items-start inline-flex overflow-hidden">
         <div className="w-[275px] h-[156px] overflow-hidden relative">
           {/* 백에서 가져온 cover 쓰기 */}
