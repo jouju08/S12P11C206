@@ -109,13 +109,14 @@ export default function Main() {
         <div className="text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
-        <Swiper
-          slidesPerView={3}
-          spaceBetween={-10}
-          grabCursor={true}
-          className="mySwiper w-[904px] h-[290px] overflow-hidden px-4">
-          {listFairyTaleRoom}
-        </Swiper>
+        <div className="h-[270px]">
+          <Swiper
+            slidesPerView={3}
+            spaceBetween={-10}
+            className="mySwiper w-[904px] overflow-hidden">
+            {listFairyTaleRoom}
+          </Swiper>
+        </div>
       </div>
 
       {/* 인기있는 그림 */}
