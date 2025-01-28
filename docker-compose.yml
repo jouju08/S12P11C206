@@ -77,7 +77,7 @@ services:
       - frontend
       - backend
     volumes:
-      - ./data/certbot:/etc/letsencrypt
+      - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     networks:
       - app-network
@@ -87,7 +87,7 @@ services:
     image: certbot/certbot:latest
     restart: unless-stopped
     volumes:
-      - ./data/certbot:/etc/letsencrypt
+      - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
 
 volumes:
