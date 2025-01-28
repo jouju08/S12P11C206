@@ -51,7 +51,6 @@ public class JwtUtil implements InitializingBean {
      * Access Token 생성
      */
     public String generateToken(String username) {
-        System.out.println("만료시간: " + accessExpiration);
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())

@@ -18,6 +18,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   data:
     redis:
       host: ${REDIS_HOST}
@@ -32,6 +33,27 @@ spring:
       mail.smtp.starttls.enable: true
     port: 587
 
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${oauth_kakao_client_id}
+            client-secret: ${oauth_kakao_secert}
+            redirect-uri: ${oauth_kakao_redirect_uri}
+            authorization-grant-type: authorization_code
+            scope: profile_nickname, account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+jwt:
+  secret: ${JWT_SECRET}
+  accessExpiration: 10000
+  refreshExpiration: 604800000
 
 
 # aws s3

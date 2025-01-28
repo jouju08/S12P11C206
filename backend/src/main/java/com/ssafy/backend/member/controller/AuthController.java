@@ -33,10 +33,11 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final EmailSendService emailSendService;
     private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
     private final AuthService authService;
+    private final KakaoService kakaoService;
 
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
     public ApiResponse<String> register(@RequestBody RegisterRequest request) {
@@ -74,7 +75,13 @@ public class AuthController {
             refreshTokenService.deleteRefreshToken(username);
         }
         System.out.println("로그아웃");
-        return ApiResponse.<String>builder().data("로그아웃 성고").build();
+        return ApiResponse.<String>builder().data("로그아웃 성공").build();
+    }
+
+    @GetMapping("/kakao/callback")
+    public ApiResponse<Map<String, String>> kakaoCallback(@RequestParam String code) {
+        Map<String, String> tokens = kakaoService.kakaoLogin(code);
+        return ApiResponse.<Map<String, String>>builder().data(tokens).build();
     }
 
     @PostMapping("/refresh")
