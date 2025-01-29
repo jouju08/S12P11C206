@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChooseTale from '@/components/Room/ChooseTale';
 import NumSearch from '@/components/Room/NumSearch';
 
@@ -13,10 +13,22 @@ import { Navigation } from 'swiper/modules';
 
 import '@/styles/roomPage.css';
 
+// 확인용 더미데이터
+const taleArray = [
+  '아기 돼지 삼형제',
+  '백설공주',
+  '신데렐라',
+  '피리부는 사나이',
+  '흥부놀부',
+  '피노키오',
+];
+
 export default function Room() {
   const [swiper, setSwiper] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [data, setData] = useState(null); // 백엔드에서 가져올 데이터
+  const [loading, setLoading] = useState(false); // 로딩 상태
 
   // 클릭된 동화 업데이트
   const handleClick = (index) => {
@@ -30,6 +42,24 @@ export default function Room() {
     setSearchQuery(query);
     console.log('부모 컴포넌트가 받은 검색어:', query);
   };
+
+  // selectedIndex 변경될 때마다 데이터 요청
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // const response = await axios.get(`/api/data/${selectedIndex}`);
+        // setData(response.data); // 데이터 저장
+        console.log(`${taleArray[selectedIndex]} 변경!`);
+      } catch (error) {
+        console.error('데이터 가져오기 실패:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedIndex]); // selectedIndex 변경 시마다 실행
 
   return (
     <div className="w-[1024px] px-[25px]">
@@ -53,13 +83,16 @@ export default function Room() {
           modules={[Navigation]}
           onBeforeInit={(swipper) => setSwiper(swipper)}
           className="mySwiper w-[808px] h-[270px] overflow-hidden">
-          {[...Array(6)].map((_, index) => (
+          {taleArray.map((title, index) => (
             <SwiperSlide
               key={index}
               onClick={() => {
                 handleClick(index);
               }}>
-              <ChooseTale isActive={selectedIndex === index} />
+              <ChooseTale
+                title={title}
+                isActive={selectedIndex === index}
+              />
             </SwiperSlide>
           ))}
         </Swiper>
@@ -89,8 +122,9 @@ export default function Room() {
           </div>
         ) : (
           // 책 고름
-          <div className="bg-green-300 p-4 w-64 text-center">
-            2번 div (selectedIndex: {selectedIndex})
+          <div className="w-full h-[100px] text-center service-accent1 text-second">
+            <span className="text-main-choose">{taleArray[selectedIndex]}</span>{' '}
+            을(를) 골랐어요!
           </div>
         )}
       </div>
