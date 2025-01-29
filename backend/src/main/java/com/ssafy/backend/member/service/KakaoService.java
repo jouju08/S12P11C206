@@ -22,6 +22,7 @@ import java.util.Map;
 public class KakaoService {
 
     private final MemberRepository memberRepository;
+    private final RefreshTokenService refreshTokenService;
     private final JwtUtil jwtUtil;
 
     @Value("${oauth_kakao_client_id}")
@@ -47,7 +48,6 @@ public class KakaoService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String formattedDate = sdf.format(today);
 
-//        System.out.println("formattedDate : " + formattedDate);
         Member member = memberRepository.findByLoginId(userInfo.getLoginId())
                 .orElseGet(() -> {
                     Member newMember = Member.builder()
@@ -64,7 +64,10 @@ public class KakaoService {
         // 4. JWT 토큰 생성 및 반환
         String jwtAccessToken = jwtUtil.generateToken(member.getEmail());
         String jwtRefreshToken = jwtUtil.generateRefreshToken(member.getEmail());
-
+        
+        // 레디스에 리프레시 토큰 저장
+        refreshTokenService.saveRefreshToken(member.getLoginId(), jwtRefreshToken);
+        
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", jwtAccessToken);
         tokens.put("refreshToken", jwtRefreshToken);
@@ -79,7 +82,7 @@ public class KakaoService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("grant_type", "authorization_code");
+        body.add("grant_type", "authorization_code"); // 고정 값 들어감
         body.add("client_id", clientId);
         body.add("redirect_uri", redirectUri);
         body.add("code", code);
