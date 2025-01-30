@@ -1,5 +1,6 @@
 package com.ssafy.backend.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -48,5 +49,6 @@ public class BaseTale extends Common{
 
     // Tale (BaseTale 1 : N Tale)
     @OneToMany(mappedBy = "baseTale", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Tale> tales = new ArrayList<>();
 }
