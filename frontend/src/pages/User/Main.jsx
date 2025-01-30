@@ -1,4 +1,7 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
 import NavMenu from '@/components/Main/NavMenu';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 import GalleryItem from '@/components/Common/GalleyItem';
@@ -31,7 +34,24 @@ export default function Main() {
     </>,
   ];
 
-  // conflict 시, 이 파일 전체 선택이 아닌 35줄~42줄만 변경 필요
+  // 백엔드에서 만들어져 있는 동화방 데이터 불러오기
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    // 백엔드 API 호출 함수
+    async function fetchData() {
+      try {
+        const response = await axios.get('/api/tale/rooms');
+        console.log('📌 가져온 데이터:', response.data); // 콘솔 출력
+        setData(response.data); // 상태에 저장
+      } catch (error) {
+        console.error('데이터 가져오기 실패:', error);
+      }
+    }
+
+    fetchData(); // 함수 실행
+  }, []); // 빈 배열을 넣으면 컴포넌트가 처음 렌더링될 때만 실행됨
+
   const linkArray = ['/room', '/collection', '/gallery', '/'];
   const listNavMenu = imgArray.map((image, idx) => (
     <SwiperSlide
@@ -57,7 +77,6 @@ export default function Main() {
     </SwiperSlide>
   ));
 
-  console.log(listNavMenu);
   return (
     <div>
       {/* 메인 페이지 상단 프로필, 메뉴바 section */}
@@ -72,7 +91,7 @@ export default function Main() {
         <div className="w-[294px] h-[317px] relative">
           {/* 로그인 정보 store에서 가져오기기 */}
           <img
-            className="w-[150px] h-[150px] left-[103px] top-0 absolute rounded-[100px]"
+            className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px]"
             src="/Main/profile-img.png"
           />
           <img
@@ -115,13 +134,14 @@ export default function Main() {
         <div className="text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
-        <Swiper
-          slidesPerView={3}
-          spaceBetween={-10}
-          grabCursor={true}
-          className="mySwiper w-[904px] h-[290px] overflow-hidden px-4">
-          {listFairyTaleRoom}
-        </Swiper>
+        <div className="h-[270px]">
+          <Swiper
+            slidesPerView={3}
+            spaceBetween={-10}
+            className="mySwiper w-[904px] overflow-hidden">
+            {listFairyTaleRoom}
+          </Swiper>
+        </div>
       </div>
 
       {/* 인기있는 그림 */}

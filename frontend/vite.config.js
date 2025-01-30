@@ -11,7 +11,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://192.168.100.136:8080',
+        target: 'http://i12c206.p.ssafy.io:8080',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, ''),
         secure: false,
