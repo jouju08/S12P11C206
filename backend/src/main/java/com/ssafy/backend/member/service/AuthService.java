@@ -6,11 +6,15 @@ import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.member.dto.request.LoginRequest;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /*
  *  author : park byeongju
@@ -26,9 +30,10 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final UserDetailsService userDetailsService;
 
+    private final JwtUtil jwtUtil;
 
     /**
      * 회원가입
@@ -54,6 +59,8 @@ public class AuthService {
 
         memberRepository.save(member);
     }
+
+
 
     /**
      * 로그인
@@ -86,15 +93,33 @@ public class AuthService {
     /**
      * 로그아웃
      */
-    public void logout(String loginId) {
-        // Redis에서 리프레시 토큰 삭제
-        refreshTokenService.deleteRefreshToken(loginId);
+    public boolean logout(String header) {
+        // 클라이언트로부터 기존 토큰 식별/해제 로직 (필요 시 Redis 삭제)
+        if (header != null && header.startsWith("Bearer ")) {
+            String accessToken = header.substring(7);
+            String loginId = jwtUtil.extractUsername(accessToken);
+            // 만약 서버 측에 토큰에 대한 로그아웃 기록을 저장한다면 저장 처리
+            // refreshToken도 함께 제거
+            refreshTokenService.deleteRefreshToken(loginId);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Access 토큰 유효성 검사
+     */
+    public boolean validateAccessToken(String accessToken) {
+        String username = jwtUtil.extractUsername(accessToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return jwtUtil.validateToken(accessToken, userDetails);
     }
 
     /**
      * 리프레시 토큰을 사용한 액세스 토큰 갱신
      */
-    public String refreshAccessToken(String refreshToken) {
+    public Map<String, String> refreshAccessToken(String refreshToken) {
         // 리프레시 토큰 유효성 검증
         if (!jwtUtil.validateRefreshToken(refreshToken)) {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
@@ -107,8 +132,31 @@ public class AuthService {
         if (!refreshTokenService.isValidRefreshToken(loginId, refreshToken)) {
             throw new IllegalArgumentException("리프레시 토큰이 일치하지 않습니다.");
         }
+        // 새로운 액세스 토큰 생성
+        String newAccessToken = jwtUtil.generateToken(loginId);
+        Map<String, String> token = new HashMap<>();
+        token.put("accessToken", newAccessToken);
 
-        // 새로운 액세스 토큰 생성 및 반환
-        return jwtUtil.generateToken(loginId);
+        return token;
+    }
+
+    public Optional<Member> findByLoginId(String loginId) {
+        return memberRepository.findByLoginId(loginId);
+    }
+
+    public Optional<Member> findByEmail(String email) {
+        return memberRepository.findByEmail(email);
+    }
+
+    public Optional<Member> findByNickname(String nickname) {
+        return memberRepository.findByNickname(nickname);
+    }
+
+    public Optional<Member> findById(Integer Id) {
+        return memberRepository.findById(Id);
+    }
+
+    public boolean isMemberExists(String email, String birth) {
+        return memberRepository.findByEmailAndBirth(email, birth).isPresent();
     }
 }

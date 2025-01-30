@@ -51,7 +51,6 @@ public class JwtUtil implements InitializingBean {
      * Access Token 생성
      */
     public String generateToken(String username) {
-        System.out.println("만료시간: " + accessExpiration);
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
@@ -90,6 +89,7 @@ public class JwtUtil implements InitializingBean {
      * 토큰 검증
      */
     public boolean validateToken(String token, UserDetails userDetails) {
+
         String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }

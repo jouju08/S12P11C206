@@ -11,12 +11,14 @@ import com.ssafy.backend.member.dto.request.RegisterRequest;
 import com.ssafy.backend.member.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
-/*
+import java.util.*;
+
+
+/**
  *  author : jung juha
  *  date : 2025.01.21
  *  description : 인증 관련 컨트롤러
@@ -24,19 +26,18 @@ import org.springframework.web.bind.annotation.*;
  *      1. 0125: 로그인 리펙토링 및 리프레시 토큰 추가
  * */
 
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthenticationService authenticationService;
     private final EmailSendService emailSendService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
     private final AuthService authService;
+    private final KakaoService kakaoService;
 
+
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
     public ApiResponse<String> register(@RequestBody RegisterRequest request) {
@@ -46,57 +47,45 @@ public class AuthController {
 
     @PostMapping("/login")
     public ApiResponse<Map<String, String>> login(@RequestBody LoginRequest request) {
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(request.getLoginId(), request.getPassword());
-        Authentication auth = authenticationManager.authenticate(authToken);
-
-        // 로그인 성공 시 JWT 발급
-        String accessToken = jwtUtil.generateToken(request.getLoginId());
-        String refreshToken = jwtUtil.generateRefreshToken(request.getLoginId());
-        refreshTokenService.saveRefreshToken(request.getLoginId(), refreshToken);
-
-        // 프론트엔드에서 accessToken / refreshToken를 쿠키 또는 로컬스토리지에 저장하여 사용
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", accessToken);
-        tokens.put("refreshToken", refreshToken);
-
-        return ApiResponse.<Map<String, String>>builder().data(tokens).build();
+        return ApiResponse.<Map<String, String>>builder().data(authService.login(request)).build();
     }
 
     @PostMapping("/logout")
     public ApiResponse<String> logout(@RequestHeader("Authorization") String header) {
-        // 클라이언트로부터 기존 토큰 식별/해제 로직 (필요 시 Redis 삭제)
-        if (header != null && header.startsWith("Bearer ")) {
-            String accessToken = header.substring(7);
-            String username = jwtUtil.extractUsername(accessToken);
-            // 만약 서버 측에 토큰에 대한 로그아웃 기록을 저장한다면 저장 처리
-            // refreshToken도 함께 제거
-            refreshTokenService.deleteRefreshToken(username);
+        if(authService.logout(header)){
+            return ApiResponse.<String>builder().data("로그아웃 성공").build();
         }
-        System.out.println("로그아웃");
-        return ApiResponse.<String>builder().data("로그아웃 성고").build();
+        throw new RuntimeException("로그아웃 도중에 장애가 발생 했습니다.");
     }
 
+    @GetMapping("/kakao/callback")
+    public ApiResponse<Map<String, String>> kakaoCallback(@RequestParam String code) {
+        Map<String, String> tokens = kakaoService.kakaoLogin(code);
+        return ApiResponse.<Map<String, String>>builder().data(tokens).build();
+    }
+
+    @PostMapping("/token/valid/access")
+    public ApiResponse<Boolean> validateAccessToken(@RequestBody String accessToken) {
+        return ApiResponse.<Boolean>builder().data(authService.validateAccessToken(accessToken)).build();
+    }
+    @PostMapping("/token/valid/refresh")
+    public ApiResponse<Boolean> validateRefreshToken(@RequestBody String loginId, @RequestBody String refreshToken) {
+        // 발급된 토큰 유효성 확인 && 레디스 저장 상태 확인
+        boolean result = jwtUtil.validateRefreshToken(refreshToken) && refreshTokenService.isValidRefreshToken(loginId, refreshToken);
+        return ApiResponse.<Boolean>builder().data(result).build();
+    }
+
+    /**
+     * Refresh 토큰으로 Access 토큰 재발급
+     */
     @PostMapping("/refresh")
-    public ApiResponse<Map<String, String>> refresh(@RequestBody Map<String, String> tokenMap) {
-        // 프론트엔드에서 전달한 refreshToken 확인
-        String refreshToken = tokenMap.get("refreshToken");
-        if (jwtUtil.validateRefreshToken(refreshToken)) {
-            String username = jwtUtil.extractUsername(refreshToken);
-            // Redis에 저장된 리프레시 토큰과 비교
-            if (refreshTokenService.isValidRefreshToken(username, refreshToken)) {
-                String newAccessToken = jwtUtil.generateToken(username);
-                Map<String, String> token = new HashMap<>();
-                token.put("accessToken", newAccessToken);
-                return ApiResponse.<Map<String, String>>builder().data(token).build();
-            }
-        }
-        return ApiResponse.<Map<String, String>>builder().data(null).build();
+    public ApiResponse<Map<String, String>> refreshAccessTokenByRefreshToken(@RequestBody String refreshToken) {
+        return ApiResponse.<Map<String, String>>builder().data(authService.refreshAccessToken(refreshToken)).build();
     }
 
     @GetMapping("/check-id/{loginId}")
     public ApiResponse<Object> isDuplicatedId(@PathVariable String loginId) {
-        Optional<Member> member = authenticationService.findByLoginId(loginId);
+        Optional<Member> member = authService.findByLoginId(loginId);
         if (member.isPresent()) {
             return ApiResponse.builder()
                     .data("Duplicated id")
@@ -112,7 +101,7 @@ public class AuthController {
 
     @GetMapping("/check-email/{email}")
     public ApiResponse<Object> isDuplicatedEmail(@PathVariable String email){
-        Optional<Member> member = authenticationService.findByEmail(email);
+        Optional<Member> member = authService.findByEmail(email);
         if(member.isPresent()){
             return ApiResponse.builder()
                     .data("Duplicated email")
@@ -127,7 +116,7 @@ public class AuthController {
 
     @GetMapping("/check-nickname/{nickname}")
     public ApiResponse<Object> isDuplicatedNickname(@PathVariable String nickname){
-        Optional<Member> member = authenticationService.findByNickname(nickname);
+        Optional<Member> member = authService.findByNickname(nickname);
         if(member.isPresent()){
             return ApiResponse.builder()
                     .data("Duplicated Nickname")
@@ -145,7 +134,7 @@ public class AuthController {
     public ApiResponse<Object> mailSend(@RequestBody @Valid FindIdDto findIdDto) {
         String email = findIdDto.getEmail();
         String birth = findIdDto.getBirth();
-        boolean exists = authenticationService.isMemberExists(email, birth);
+        boolean exists = authService.isMemberExists(email, birth);
         if (exists) {
             String loginID=emailSendService.findIdEmail(email);
             return ApiResponse.builder()
