@@ -11,6 +11,7 @@ import {
   RouterProvider,
   useLocation,
 } from 'react-router-dom';
+import KakaoCallback from '@/components/kakao/KakaoCallback';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
 const Login = lazy(() => import('@/pages/User/Login'));
@@ -51,6 +52,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Hero /> },
       { path: 'login', element: <Login /> },
+      { path: 'auth/kakao/callback', element: <KakaoCallback /> },
       {
         element: <ProtectedLayout />, // 인증된 사용자
         children: [

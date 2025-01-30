@@ -14,8 +14,11 @@ const initialState = {
   memberId: userStore.getState().memberId,
 };
 
+const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
+
 const roomActions = (set, get) => ({
   connect: () => {
+    console.log(get().memberId);
     const socket = new SockJS(import.meta.env.VITE_WS_URL);
     const stompClient = new Client({
       webSocketFactory: () => socket,
@@ -23,14 +26,15 @@ const roomActions = (set, get) => ({
       onConnect: () => {
         console.log('Socket connected');
         get().subscribeToRooms();
-        console.log(`${userStore.getState().accessToken + 1}`);
+        console.log(`${userStore.getState().accessToken}`);
       },
 
       connectHeaders: {
-        Authorization: `Bearer ${userStore.getState().accessToken + 1}`,
+        Authorization: `Bearer ${userStore.getState().accessToken}`,
       },
 
       onDisconnect: () => console.log('Disconnected'),
+      debug: (str) => console.log(str),
     });
     stompClient.activate();
     set({ stompClient });
@@ -56,6 +60,7 @@ const roomActions = (set, get) => ({
 
     stompClient.subscribe(`topic/room/${roomId}`, (message) => {
       const participants = JSON.parse(message.body)['participants'];
+      console.log(message);
       get().setParticipants(roomId, participants);
     });
   },
@@ -75,33 +80,71 @@ const roomActions = (set, get) => ({
         destination: '/app/room/create',
         body: JSON.stringify(data),
       });
+
+      setTimeout(() => {
+        const createRoom = get().rooms[get().rooms.length - 1];
+        if (createRoom) {
+          get().joinRoom(createRoom.roomId, get().memberId);
+        }
+      }, 500);
     }
   },
 
   joinRoom: (roomId, memberId) => {
-    console.log('JOIN');
     const stompClient = get().stompClient;
     const room = { roomId, memberId };
-    if (stompClient && stompClient.connect) {
-      stompClient.subscribe(`/topic/room/${roomId}`, (message) => {
-        console.log(message);
-        // get().setCurrentRoom(JSON.parse(message.body));
-      });
 
+    if (stompClient && stompClient.connected) {
       // 참가 요청
-      client.publish({
+      stompClient.publish({
         destination: `/app/room/join/${roomId}`,
         body: JSON.stringify(room),
       });
+
+      stompClient.subscribe(`/topic/room/${roomId}`, (message) => {
+        console.log(message);
+        get().setCurrentRoom(JSON.parse(message.body));
+      });
+
+      stompClient.subscribe(`/topic/room/leave/${roomId}`, (message) => {
+        const leaveData = JSON.parse(message.body);
+        console.log(leaveData);
+        if (leaveData.leaveMemberId !== memberId) {
+          console.log(`${leaveData.memberId} has left the room`);
+          get().setCurrentRoom([JSON.parse(message.body)]);
+        }
+      });
+
+      console.log('JOIN');
     }
   },
 
   leaveRoom: () => {
-    `room/leave/roomId`;
-    const { client, currentRoom } = get();
-    if (client && currentRoom) {
-      client.unsubscribe(`/topic/room/${currentRoom}/participants`);
-      client.unsubscribe(`/topic/room/${currentRoom}`);
+    const { stompClient, currentRoom, memberId } = get();
+
+    if (stompClient && stompClient.connected) {
+      const room = { roomId: currentRoom.roomId, leaveMemberId: memberId };
+
+      console.log(currentRoom.roomId);
+      console.log(JSON.stringify(room));
+
+      stompClient.publish({
+        destination: `/app/room/leave/${currentRoom.roomId}`,
+        body: JSON.stringify(room),
+      });
+
+      // stompClient.subscribe(`/topic/room/${currentRoom.roomId}`, (message) => {
+      //   const response = JSON.parse(message.body);
+      //   if (response.status === 'left') {
+      //     console.log(`Member ${memberId} has left the room`);
+      //     // 퇴장 성공 시 상태 업데이트
+      //     set({ currentRoom: null, participants: [] });
+      //   } else {
+      //     console.log('Failed to leave room');
+      //   }
+      // });
+
+      stompClient.unsubscribe(`/topic/room/${currentRoom.roomId}`);
       set({ currentRoom: null, participants: [] });
     }
   },
@@ -131,16 +174,20 @@ const roomActions = (set, get) => ({
 });
 
 const useRoomStore = create(
-  devtools((set, get) => ({
-    ...initialState,
-    ...roomActions(set, get),
-  }))
+  devtools(
+    (set, get) => ({
+      ...initialState,
+      ...roomActions(set, get),
+    }),
+    { name: `room-${tabId}` }
+  )
 );
 
 export const useTaleRoom = () => {
   const rooms = useRoomStore((state) => state.rooms, shallow);
   const currentRoom = useRoomStore((state) => state.currentRoom);
   const participants = useRoomStore((state) => state.participants, shallow);
+  const memberId = useRoomStore((state) => state.memberId);
 
   const setRooms = useRoomStore((state) => state.setRooms);
   const setCurrentRoom = useRoomStore((state) => state.setCurrentRoom);
@@ -165,6 +212,8 @@ export const useTaleRoom = () => {
     rooms,
     currentRoom,
     participants,
+    memberId,
+
     setRooms,
     setCurrentRoom,
     setParticipants,
