@@ -1,26 +1,26 @@
-import { useAuth } from '@/store/userStore';
-import { use, useEffect } from 'react';
-import { useState } from 'react';
-import authAPI from '@/apis/auth/AuthAPI';
+import { use, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// import authAPI from '@/apis/auth/userAxios';
+import { useUser } from '@/store/userStore';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
+
+  const { login, isAuthenticated, refreshAccessToken } = useUser();
+
   const navigate = useNavigate();
 
-  const { login } = useAuth();
-
-  useEffect(() => {}, []);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const res = authAPI.login(email, password);
-    if (res) {
-      login();
-      navigate('/');
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/main');
     }
+  }, [isAuthenticated, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await login({ loginId, password });
   };
 
   return (
@@ -66,12 +66,12 @@ export default function Login() {
                     <label
                       htmlFor="login-email"
                       className="block text-sm font-medium text-gray-600">
-                      Email
+                      ID
                     </label>
                     <input
                       type="email"
                       id="login-email"
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => setLoginId(e.target.value)}
                       className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                     />
                   </div>
@@ -150,7 +150,12 @@ export default function Login() {
       </div>
 
       <div className="flex-1 min-h-screen flex items-center justify-center bg-yellow-200">
-        <div className="bg-transparent p-2 w-full h-full max-w-[100%]"></div>
+        <div className="bg-transparent p-2 w-full h-full max-w-[100%]">
+          {isAuthenticated.toString()}
+          <div>
+            <button onClick={refreshAccessToken}>refresh</button>
+          </div>
+        </div>
       </div>
     </div>
   );

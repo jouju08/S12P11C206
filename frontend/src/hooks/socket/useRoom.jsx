@@ -2,13 +2,12 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-const useRoom = () => {
-  const [client, setClient] = useState(null);
+const useRoom = (roomId) => {
+  const [stompClient, setStompClient] = useState(null);
   const [rooms, setRooms] = useState([]);
-  const [userName, setUserName] = useState(Math.floor(Math.random() * 1000));
 
   useEffect(() => {
-    const socket = new SockJS('http://192.168.100.136:8080/ws');
+    const socket = new SockJS(import.meta.env.VITE_WS_URL);
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,

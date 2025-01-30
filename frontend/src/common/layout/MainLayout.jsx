@@ -1,11 +1,11 @@
 import { Outlet } from 'react-router-dom';
-import { useAuth } from '@/store/userStore';
 import Footer from '../Footer';
 import AuthHeader from '../Header/AuthHeader';
 import DefaultHeader from '../Header/DefaultHeader';
+import { useUser } from '@/store/userStore';
 
 export default function MainLayout() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useUser();
   return (
     <div className="bg-main-background">
       {isAuthenticated ? <AuthHeader /> : <DefaultHeader />}

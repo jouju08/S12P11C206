@@ -13,7 +13,26 @@ services:
       - redis
     networks:
       - app-network
-
+    environment:
+      - SPRING_DB_URL=${SPRING_DB_URL}
+      - SPRING_DB_USERNAME=${SPRING_DB_USERNAME}
+      - SPRING_DB_PASSWORD=${SPRING_DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_EXPIRE_TIME=${REDIS_EXPIRE_TIME}
+      - SPRING_MAIL_HOST=${SPRING_MAIL_HOST}
+      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
+      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
+      - SPRING_MAIL_PORT=${SPRING_MAIL_PORT}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_S3_ACCESS=${AWS_S3_ACCESS}
+      - AWS_S3_SECRET=${AWS_S3_SECRET}
+      - AWS_S3_REGION=${AWS_S3_REGION}
+      - SPRING_PORT=${SPRING_PORT}
+      - FRONT_PORT=${FRONT_PORT}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
   # frontend
   frontend:
     build: ./frontend
@@ -40,8 +59,7 @@ services:
     ports:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}a
       - TZ=Asia/Seoul
     volumes:
       - ./mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
@@ -54,11 +72,27 @@ services:
     build: ./nginx
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - frontend
       - backend
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/certbot:/var/www/certbot
     networks:
       - app-network
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  certbot:
+    container_name: certbot
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    depends_on:
+      - nginx
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/certbot:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
   mysql-data:

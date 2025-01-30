@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Link, Router, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import authAxiosInstance from '@/apis/auth/AuthInstance.js';
+import authAxiosInstance from '@/apis/auth/testInstance.js';
 
 /*
     APIs
@@ -117,9 +117,7 @@ export const refreshAuth = async () => {
 };
 
 export const testAPI = async () => {
-  const response = await authAxiosInstance.get(
-    'http://192.168.100.136:8080/guide'
-  );
+  const response = await authAxiosInstance.get('http://172.30.1.45:8080/guide');
   console.log('RESPONSE: ', response);
 };
 
