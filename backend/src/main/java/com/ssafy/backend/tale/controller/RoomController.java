@@ -24,8 +24,8 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 public class RoomController {
-
     private final RoomService roomService;
+
 
     @MessageMapping("/room/create")
     @SendTo("/topic/rooms")
