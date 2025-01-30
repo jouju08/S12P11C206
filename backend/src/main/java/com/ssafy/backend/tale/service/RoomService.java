@@ -73,7 +73,7 @@ public class RoomService {
 
         // 3. Redis에 room id 값으로 저장
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-        ops.set(room.getRoomId().toString(), room);
+        ops.set("tale-" + room.getRoomId().toString(), room);
 
         // RoomInfo List 갱신 및 저장
         List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
@@ -112,7 +112,7 @@ public class RoomService {
         if (cnt == room.getMaxParticipantsCnt()) room.setFull(true);
 
         //redis room 갱신
-        ops.set(room.getRoomId().toString(), room);
+        ops.set("tale-"+room.getRoomId().toString(), room);
         //redis room list 갱신
         List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
 //        if(roomList != null){
@@ -158,12 +158,14 @@ public class RoomService {
     public Room leaveRoom(LeaveRoomRequestDto leaveRoomRequestDto) {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
-
+        System.out.println(leaveRoomRequestDto);
         Room room = (Room) ops.get("tale-" + leaveRoomRequestDto.getRoomId().toString());
         if (room == null) throw new RuntimeException("유효하지 않은 방입니다.");
 
         // Room 갱신
+        System.out.println("room = " + room);
         Member leaveMember = room.getParticipants().get(leaveRoomRequestDto.getLeaveMemberId());
+        System.out.println("leaveMember = " + leaveMember);
         room.getParticipants().remove(leaveMember.getId());
         room.setFull(false);
 
@@ -194,9 +196,11 @@ public class RoomService {
         for (RoomInfo roomInfo : roomList) {
             if (roomInfo.getRoomId().equals(leaveRoomRequestDto.getRoomId())) {
                 roomInfo.setParticipantsCnt(room.getParticipants().size());
-                roomInfo.setHostMemberId(nextHostMember.getId());
-                roomInfo.setHostNickname(nextHostMember.getNickname());
-                roomInfo.setHostProfileImg(nextHostMember.getProfileImg());
+                if(nextHostMember != null) { // 호스트 변경이 없는 경우
+                    roomInfo.setHostMemberId(nextHostMember.getId());
+                    roomInfo.setHostNickname(nextHostMember.getNickname());
+                    roomInfo.setHostProfileImg(nextHostMember.getProfileImg());
+                }
                 ops.set("tale-roomList", roomList);
                 break;
             }
