@@ -2,6 +2,8 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import ChooseTale from '@/components/Room/ChooseTale';
 import NumSearch from '@/components/Room/NumSearch';
+import RoomBtn from '@/components/Room/RoomBtn';
+import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -37,7 +39,6 @@ export default function Room() {
   };
 
   // 검색어를 받아서 부모 상태 업데이트
-  // ref를 써야하나 고민해보자
   const handleSearch = (query) => {
     setSearchQuery(query);
     console.log('부모 컴포넌트가 받은 검색어:', query);
@@ -50,6 +51,9 @@ export default function Room() {
       try {
         // const response = await axios.get(`/api/data/${selectedIndex}`);
         // setData(response.data); // 데이터 저장
+
+        // 테스트용 data dummy data
+        setData(new Array(5).fill(null).map((_, idx) => <FairyTaleRoom />));
         console.log(`${taleArray[selectedIndex]} 변경!`);
       } catch (error) {
         console.error('데이터 가져오기 실패:', error);
@@ -122,10 +126,35 @@ export default function Room() {
           </div>
         ) : (
           // 책 고름
-          <div className="w-full h-[100px] text-center service-accent1 text-second">
-            <span className="text-main-choose">{taleArray[selectedIndex]}</span>{' '}
-            을(를) 골랐어요!
-          </div>
+          <>
+            <div className="w-full h-[100px] leading-[100px] text-center service-accent1 text-second">
+              <span className="text-main-choose">
+                {taleArray[selectedIndex]}
+              </span>{' '}
+              을(를) 골랐어요!
+            </div>
+            <div className="px-[20px] flex gap-4 justify-end">
+              <RoomBtn location={'alone.png'}>나 혼자 시작하기</RoomBtn>
+              <RoomBtn location={'together.png'}>내가 방 만들기</RoomBtn>
+            </div>
+            {/* 데이터 표시 구간 */}
+            <section className="w-full px-9 py-10">
+              {loading ? (
+                <p>로딩 중...</p>
+              ) : data ? (
+                <div>
+                  <h2 className="text-xl font-bold">
+                    데이터 ID: {selectedIndex}
+                  </h2>
+                  <div className="grid grid-flow-row grid-cols-3 gap-4">
+                    {...data}
+                  </div>
+                </div>
+              ) : (
+                <p>데이터 없음</p>
+              )}
+            </section>
+          </>
         )}
       </div>
     </div>
