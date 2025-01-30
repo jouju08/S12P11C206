@@ -9,7 +9,8 @@ export default function MainLayout() {
   return (
     <div className="bg-main-background">
       {isAuthenticated ? <AuthHeader /> : <DefaultHeader />}
-      <div className="flex w-3/4 min-h-screen justify-center items-center mx-auto border-solid border-2 border-indigo-600">
+      {/* 최소 높이 주는 css 삭제 */}
+      <div className="flex w-3/4 justify-center items-center mx-auto border-solid border-2 border-indigo-600">
         <Outlet />
       </div>
       <Footer />

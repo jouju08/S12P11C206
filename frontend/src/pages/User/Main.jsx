@@ -52,11 +52,16 @@ export default function Main() {
     fetchData(); // 함수 실행
   }, []); // 빈 배열을 넣으면 컴포넌트가 처음 렌더링될 때만 실행됨
 
+  const linkArray = ['/room', '/collection', '/gallery', '/'];
   const listNavMenu = imgArray.map((image, idx) => (
     <SwiperSlide
       key={idx}
       className="hover:-translate-y-1 hover:scale-105">
-      <NavMenu location={image}>{menuArray[idx]}</NavMenu>
+      <NavMenu
+        location={image}
+        linkTo={linkArray[idx]}>
+        {menuArray[idx]}
+      </NavMenu>
     </SwiperSlide>
   ));
 
