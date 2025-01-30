@@ -15,6 +15,10 @@ import { Navigation } from 'swiper/modules';
 
 import '@/styles/roomPage.css';
 
+/*
+>> 방 번호 입력시 그 번호에 해당되는 부분 아직 안 됨<<
+*/
+
 // 확인용 더미데이터
 const taleArray = [
   '아기 돼지 삼형제',
@@ -54,6 +58,7 @@ export default function Room() {
 
         // 테스트용 data dummy data
         setData(new Array(5).fill(null).map((_, idx) => <FairyTaleRoom />));
+        //
         console.log(`${taleArray[selectedIndex]} 변경!`);
       } catch (error) {
         console.error('데이터 가져오기 실패:', error);
