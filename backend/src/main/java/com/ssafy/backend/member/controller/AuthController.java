@@ -8,6 +8,7 @@ import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.dto.FindIdDto;
 import com.ssafy.backend.member.dto.request.LoginRequest;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
+import com.ssafy.backend.member.dto.response.LoginResponseDto;
 import com.ssafy.backend.member.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,8 +47,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ApiResponse<Map<String, String>> login(@RequestBody LoginRequest request) {
-        return ApiResponse.<Map<String, String>>builder().data(authService.login(request)).build();
+    public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequest request) {
+        return ApiResponse.<LoginResponseDto>builder().data(authService.login(request)).build();
     }
 
     @PostMapping("/logout")
@@ -59,9 +60,8 @@ public class AuthController {
     }
 
     @GetMapping("/kakao/callback")
-    public ApiResponse<Map<String, String>> kakaoCallback(@RequestParam String code) {
-        Map<String, String> tokens = kakaoService.kakaoLogin(code);
-        return ApiResponse.<Map<String, String>>builder().data(tokens).build();
+    public ApiResponse<LoginResponseDto> kakaoCallback(@RequestParam String code) {
+        return ApiResponse.<LoginResponseDto>builder().data(kakaoService.kakaoLogin(code)).build();
     }
 
     @PostMapping("/token/valid/access")

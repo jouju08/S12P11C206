@@ -1,5 +1,6 @@
 package com.ssafy.backend.tale.controller;
 
+import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.tale.dto.response.RoomInfo;
 import com.ssafy.backend.tale.service.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +12,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/")
+@RequestMapping("/api")
 public class RoomRestController {
     private final RoomService roomService;
 
     @GetMapping("/tale/rooms")
-    public List<RoomInfo> getAllRooms() {
-        return roomService.getRoomList();
+    public ApiResponse<List<RoomInfo>> getAllRooms() {
+        return ApiResponse.<List<RoomInfo>>builder().data(roomService.getRoomList()).build();
     }
 }

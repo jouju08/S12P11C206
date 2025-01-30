@@ -5,6 +5,7 @@ import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.member.dto.request.LoginRequest;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
+import com.ssafy.backend.member.dto.response.LoginResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -65,7 +66,7 @@ public class AuthService {
     /**
      * 로그인
      */
-    public Map<String, String> login(LoginRequest request) {
+    public LoginResponseDto login(LoginRequest request) {
         // 사용자 조회
         Member member = memberRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
@@ -87,7 +88,12 @@ public class AuthService {
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
 
-        return tokens;
+
+        LoginResponseDto loginResponseDto = new LoginResponseDto();
+        loginResponseDto.setTokens(tokens);
+        member.setPassword(null);
+        loginResponseDto.setMember(member);
+        return loginResponseDto;
     }
 
     /**

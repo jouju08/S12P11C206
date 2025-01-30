@@ -4,6 +4,7 @@ import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.auth.KakaoUserInfo;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
+import com.ssafy.backend.member.dto.response.LoginResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -34,7 +35,7 @@ public class KakaoService {
     @Value("${oauth_kakao_secert}")
     private String secret;
 
-    public Map<String, String> kakaoLogin(String code) {
+    public LoginResponseDto kakaoLogin(String code) {
         // 1. 카카오 토큰 요청
         String accessToken = getKakaoAccessToken(code);
 
@@ -71,7 +72,13 @@ public class KakaoService {
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", jwtAccessToken);
         tokens.put("refreshToken", jwtRefreshToken);
-        return tokens;
+        LoginResponseDto loginResponseDto = new LoginResponseDto();
+        loginResponseDto.setTokens(tokens);
+        member.setPassword(null);
+        loginResponseDto.setMember(member);
+
+
+        return loginResponseDto;
     }
 
     private String getKakaoAccessToken(String code) {
