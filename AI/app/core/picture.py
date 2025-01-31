@@ -6,6 +6,10 @@ import time
 import json
 import requests
 import config
+import base64
+import config
+import app.core.llm as llm_service
+import app.models.common as common
 import app.models.request as request_dto
 import app.models.response as response_dto
 from fastapi import UploadFile
@@ -52,7 +56,57 @@ def is_image_suffix_ok(file: UploadFile):
     return file_suffix in ["jpg", "jpeg", "png", "pdf", "tif", "tiff"]
 
 
-"""
-todo
-그림 ai 생성 api를 만들어야 함
-"""
+def generate_img2img(pictureRequestDto: request_dto.GeneratePictureRequestDto, img: bytes):
+    """
+    이미지 파일을 입력받아 그림을 생성하는 함수
+    """
+    
+    img_base_64 = base64.b64encode(img).decode('utf-8')
+
+
+    task_id = post_novita_api(img_base_64, pictureRequestDto.promptSet)
+    image_url = get_novita_image(task_id)
+    return response_dto.URLResponseDto(url=image_url)
+
+def post_novita_api(img_base_64 , prompts: common.PromptSet):
+    url = "https://api.novita.ai/v3/async/img2img"
+    payload = {
+    "extra": {
+        "response_image_type": "png"
+    },
+    "request": {
+        "model_name": "sd_xl_base_1.0.safetensors",
+        "prompt": prompts.prompt,
+        "negative_prompt": prompts.negativePrompt ,
+        "height": 512,
+        "width": 512,
+        "image_num": 1,
+        "steps": 20,
+        "seed": -1,
+        "clip_skip": 1,
+        "guidance_scale": 7.5,
+        "sampler_name": "Euler a",
+        "embeddings": [
+        ],
+        "loras": [
+        ],
+        "image_base64": img_base_64
+    }
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {config.NOVITA_API_KEY}"
+    }
+
+    response = requests.request("POST", url, json=payload, headers=headers)
+    task_id =  response.json()['task_id']
+
+    return task_id
+
+def get_novita_image(task_id):
+    url = 'https://api.novita.ai/v3/async/task-result'
+    params = {'task_id': task_id}
+    headers = {'Authorization': f'Bearer {config.NOVITA_API_KEY}'}
+
+    response = requests.get(url, headers=headers, params=params)
+    return response.json()['images'][0]['image_url']

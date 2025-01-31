@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
-from .PageInfo import PageInfo
+import app.models.common as common_dto
 
 
 class GenerateTaleResponseDto(BaseModel):
-    pages: list[PageInfo] = Field(title="페이지 정보")
+    pages: list[common_dto.PageInfo] = Field(title="페이지 정보")
