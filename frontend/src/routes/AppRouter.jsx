@@ -24,6 +24,8 @@ const FileTest = lazy(() => import('@/pages/FileTest'));
 const Lobby = lazy(() => import('@/pages/Room/Lobby'));
 const Share = lazy(() => import('@/pages/Room/Share'));
 
+const TalePlay = lazy(() => import('@/pages/Tale/TalePlay'));
+
 //인증된 사용자
 const ProtectedLayout = () => {
   const { isAuthenticated, fetchUser } = useUser();
@@ -75,6 +77,7 @@ const router = createBrowserRouter([
         children: [
           { path: 'lobby', element: <Lobby /> },
           { path: 'share', element: <Share /> },
+          { path: 'play', element: <TalePlay /> },
         ],
       },
     ],
