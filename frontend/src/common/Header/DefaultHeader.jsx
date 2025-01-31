@@ -14,7 +14,7 @@ export default function AuthHeader() {
           to="/"
           className="w-[200px] h-[70px] left-[60px] top-[15px] absolute bg-[#ffafaf]"
         />
-        <div className="left-[788px] top-[35px] absolute service-bold3 text-first cursor-pointer hover:text-main-choose">
+        <div className="left-[788px] top-[35px] absolute service-bold3 text-text-first cursor-pointer hover:text-main-choose">
           <Link to="/login">로그인</Link>
         </div>
 

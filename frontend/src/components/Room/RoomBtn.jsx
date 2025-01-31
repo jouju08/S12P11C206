@@ -32,7 +32,7 @@ export default function RoomBtn({ location, children }) {
           alt="버튼 이미지"
         />
       </div>
-      <div className="text-first service-bold3">{children}</div>
+      <div className="text-text-first service-bold3">{children}</div>
     </div>
   );
 }
