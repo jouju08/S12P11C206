@@ -7,7 +7,7 @@
  */
 
 import { create, useStore } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { devtools, persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
 import authAPI from '@/apis/auth/userAxios';
 
@@ -41,6 +41,8 @@ const isTokenExpired = (token) => {
   return decoded.exp < currentTime;
 };
 
+const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
+
 const initialState = {
   loginId: '',
   nickname: '',
@@ -56,17 +58,40 @@ const userActions = (set, get) => ({
   login: async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
-      const { data } = response.data;
+      const { member, tokens } = response.data['data'];
 
       set({
-        loginId: credentials.loginId,
-        nickname: credentials.loginId,
-        memberId: data.memberId,
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
+        loginId: member.loginId,
+        nickname: member.nickname,
+        memberId: member.id,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
         isAuthenticated: true,
       });
 
+      // axios 기본 헤더에 토큰 추가
+      api.defaults.headers.common['Authorization'] =
+        `Bearer ${get().accessToken}`;
+      return true;
+    } catch (error) {
+      console.error('로그인 실패:', error);
+      throw error;
+    }
+  },
+
+  loginWithKakao: async (code) => {
+    try {
+      const response = await authAPI.kakaologin(code);
+      const { member, tokens } = response.data['data'];
+
+      set({
+        loginId: member.loginId,
+        nickname: member.nickname,
+        memberId: member.id,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        isAuthenticated: true,
+      });
       // axios 기본 헤더에 토큰 추가
       api.defaults.headers.common['Authorization'] =
         `Bearer ${get().accessToken}`;
@@ -185,27 +210,31 @@ const userActions = (set, get) => ({
 });
 
 const userStore = create(
-  persist(
-    devtools((set, get) => ({
-      ...initialState,
-      ...userActions(set, get),
-    })),
-    {
-      name: 'user-token', // localStorage에 저장될 키 값
-      getStorage: () => localStorage,
-    }
+  devtools(
+    persist(
+      (set, get) => ({
+        ...initialState,
+        ...userActions(set, get),
+      }),
+      {
+        name: `user-store`,
+        storage: createJSONStorage(() => sessionStorage),
+      }
+    ),
+    { name: `Auth Store ${tabId}` }
   )
 );
 
 export const useUser = () => {
   const loginId = userStore((state) => state.loginId);
   const nickname = userStore((state) => state.nickname);
-  const memberId = userStore((state) => state.memberid);
+  const memberId = userStore((state) => state.memberId);
   const accessToken = userStore((state) => state.accessToken);
   const refreshToken = userStore((state) => state.refreshToken);
   const isAuthenticated = userStore((state) => state.isAuthenticated);
 
   const login = userStore((state) => state.login);
+  const loginWithKakao = userStore((state) => state.loginWithKakao);
   const logout = userStore((state) => state.logout);
   const refreshAccessToken = userStore((state) => state.refreshAccessToken);
   const fetchUser = userStore((state) => state.fetchUser);
@@ -219,6 +248,7 @@ export const useUser = () => {
     isAuthenticated,
 
     login,
+    loginWithKakao,
     logout,
     refreshAccessToken,
     fetchUser,

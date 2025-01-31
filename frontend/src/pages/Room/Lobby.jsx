@@ -3,7 +3,8 @@ import { useTaleRoom } from '@/store/roomStore';
 import CurrentRoom from './CurrentRoom';
 
 export default function Lobby() {
-  const { rooms, connect, createRoom, joinRoom, currentRoom } = useTaleRoom();
+  const { rooms, memberId, connect, createRoom, joinRoom, currentRoom } =
+    useTaleRoom();
 
   useEffect(() => {
     connect();
@@ -11,6 +12,7 @@ export default function Lobby() {
 
   return (
     <div>
+      <h2>{memberId}</h2>
       <h2 className="text-2xl bg-slate-300">Game Rooms</h2>
       <button
         onClick={() => {
@@ -24,7 +26,9 @@ export default function Lobby() {
         {rooms.map((room) => (
           <li key={room.roomId}>
             {room.roomId}
-            <button onClick={() => joinRoom(room.roomId, 3)}>JOIN</button>
+            <button onClick={() => joinRoom(room.roomId, parseInt(memberId))}>
+              JOIN
+            </button>
           </li>
         ))}
       </ul>

@@ -12,6 +12,8 @@ export default function Login() {
 
   const navigate = useNavigate();
 
+  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_KAKAO_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
+
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/main');
@@ -20,7 +22,13 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     await login({ loginId, password });
+  };
+
+  const handleKakao = (e) => {
+    e.preventDefault();
+    window.location.href = KAKAO_AUTH_URL;
   };
 
   return (
@@ -94,6 +102,12 @@ export default function Login() {
                     className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
                     Login
                   </button>
+
+                  <button
+                    onClick={handleKakao}
+                    className="w-full bg-yellow-300 text-white py-2 rounded-lg hover:bg-yellow-600">
+                    카카오 로그인
+                  </button>
                 </form>
               </div>
 
@@ -137,12 +151,10 @@ export default function Login() {
                       className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
                     />
                   </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
-                    Sign Up
-                  </button>
                 </form>
+                <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
+                  Sign Up
+                </button>
               </div>
             </div>
           </div>

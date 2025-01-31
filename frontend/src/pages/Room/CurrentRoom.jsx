@@ -2,7 +2,7 @@ import { useTaleRoom } from '@/store/roomStore';
 import React from 'react';
 
 export default function CurrentRoom() {
-  const { currentRoom } = useTaleRoom();
+  const { currentRoom, leaveRoom } = useTaleRoom();
 
   return (
     <div
@@ -10,6 +10,9 @@ export default function CurrentRoom() {
         currentRoom ? 'absolute w-full h-full bg-red-200' : 'hidden'
       }`}>
       {JSON.stringify(currentRoom)}
+      <br />
+
+      <button onClick={() => leaveRoom()}>leaveRoom</button>
     </div>
   );
 }
