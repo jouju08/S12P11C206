@@ -4,6 +4,7 @@ import ChooseTale from '@/components/Room/ChooseTale';
 import NumSearch from '@/components/Room/NumSearch';
 import RoomBtn from '@/components/Room/RoomBtn';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
+import axios from 'axios';
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -33,7 +34,7 @@ export default function Room() {
   const [swiper, setSwiper] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [data, setData] = useState(null); // 백엔드에서 가져올 데이터
+  const [data, setData] = useState([]); // 백엔드에서 가져올 데이터
   const [loading, setLoading] = useState(false); // 로딩 상태
 
   // 클릭된 동화 업데이트
@@ -53,12 +54,18 @@ export default function Room() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // const response = await axios.get(`/api/data/${selectedIndex}`);
-        // setData(response.data); // 데이터 저장
+        const response = await axios.get(`/api/tale/${selectedIndex}`);
 
         // 테스트용 data dummy data
-        setData(new Array(5).fill(null).map((_, idx) => <FairyTaleRoom />));
-        //
+        setData(
+          (response.data.data || []).map((item, idx) => (
+            <FairyTaleRoom
+              item={item}
+              key={idx}
+            />
+          ))
+        );
+
         console.log(`${taleArray[selectedIndex]} 변경!`);
       } catch (error) {
         console.error('데이터 가져오기 실패:', error);
@@ -72,7 +79,7 @@ export default function Room() {
 
   return (
     <div className="w-[1024px] px-[25px]">
-      <h1 className="text-center text-first service-accent1 mx-auto mb-3">
+      <h1 className="text-center text-text-first service-accent1 mx-auto mb-3">
         동화 만들기
       </h1>
       {/* 방 번호 입력해서 시작 */}
@@ -132,7 +139,7 @@ export default function Room() {
         ) : (
           // 책 고름
           <>
-            <div className="w-full h-[100px] leading-[100px] text-center service-accent1 text-second">
+            <div className="w-full h-[100px] leading-[100px] text-center service-accent1 text-text-second">
               <span className="text-main-choose">
                 {taleArray[selectedIndex]}
               </span>{' '}
