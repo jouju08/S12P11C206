@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { userStore } from '@/store/userStore';
 
 import NavMenu from '@/components/Main/NavMenu';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
@@ -13,6 +14,9 @@ import 'swiper/css';
 import { Link } from 'react-router-dom';
 
 export default function Main() {
+  // 로그인 되어있는 유저 닉네임 가져오기
+  const { nickname } = userStore((state) => state);
+
   const imgArray = [
     'nav-colored-pencils.png',
     'nav-book.png',
@@ -35,15 +39,16 @@ export default function Main() {
   ];
 
   // 백엔드에서 만들어져 있는 동화방 데이터 불러오기
-  const [data, setData] = useState(null);
+  const [taleData, setTaleData] = useState([]);
 
   useEffect(() => {
     // 백엔드 API 호출 함수
     async function fetchData() {
       try {
         const response = await axios.get('/api/tale/rooms');
-        console.log('📌 가져온 데이터:', response.data); // 콘솔 출력
-        setData(response.data); // 상태에 저장
+        // console.log('📌 가져온 데이터:', response.data); // 콘솔 출력
+        setTaleData(response.data.data); // 상태에 저장
+        // console.log(taleData);
       } catch (error) {
         console.error('데이터 가져오기 실패:', error);
       }
@@ -65,9 +70,9 @@ export default function Main() {
     </SwiperSlide>
   ));
 
-  const listFairyTaleRoom = new Array(5).fill(null).map((_, idx) => (
+  const listFairyTaleRoom = (taleData || []).map((item, idx) => (
     <SwiperSlide key={idx}>
-      <FairyTaleRoom />
+      <FairyTaleRoom item={item} />
     </SwiperSlide>
   ));
 
@@ -106,10 +111,12 @@ export default function Main() {
             <div className="h-[68px] left-[36px] top-[74px] absolute flex-col justify-start items-start gap-1 inline-flex overflow-hidden">
               <div className="justify-start items-center gap-2 inline-flex overflow-hidden">
                 {/* 로그인 정보 store에서 가져오기기 */}
-                <div className="text-main-point service-accent3">닉네임</div>
-                <div className="text-first service-accent3">어서 와!</div>
+                <div className="text-main-point service-accent3">
+                  {nickname}
+                </div>
+                <div className="text-text-first service-accent3">어서 와!</div>
               </div>
-              <div className="text-first service-accent3">
+              <div className="text-text-first service-accent3">
                 오늘도 이야기를 만들자!
               </div>
             </div>
@@ -131,7 +138,7 @@ export default function Main() {
 
       {/* 만들어진 동화방 */}
       <div className="mx-[60px] mt-[70px] w-[904px] h-[350px]">
-        <div className="text-first service-accent2 mb-[10px]">
+        <div className="text-text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
         <div className="h-[270px]">
@@ -146,7 +153,7 @@ export default function Main() {
 
       {/* 인기있는 그림 */}
       <div className="mx-[60px] my-[70px] w-[904px] h-[357px]">
-        <div className="text-first service-accent2 mb-[10px]">
+        <div className="text-text-first service-accent2 mb-[10px]">
           지금 인기있는 그림
         </div>
         <Swiper
