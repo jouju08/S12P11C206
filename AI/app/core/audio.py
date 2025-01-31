@@ -8,6 +8,7 @@ from fastapi.responses import StreamingResponse
 from openai import OpenAI
 from pydub import AudioSegment
 import config
+import app.core.util as util
 import app.core.chains as chains
 import app.models.request as request_dto
 import app.models.response as response_dto
@@ -26,12 +27,13 @@ def transcript_audio(file):
     audio 파일을 텍스트로 변환하는 함수
     audio -> text 변환
     """
-    client = OpenAI()
-    transcription = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=file
-    )
-
+    with open(file, "rb") as audio:
+        client = OpenAI()
+        transcription = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio
+        )
+    util.delete_file(file)
     return response_dto.TextResponseDto(text=transcription.text)
 
 
