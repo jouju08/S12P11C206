@@ -33,11 +33,14 @@ services:
       - MYSQL_PORT=${MYSQL_PORT}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - oauth_kakao_client_id=${oauth_kakao_client_id}
+      - oauth_kakao_secert=${oauth_kakao_secert}
+      - oauth_kakao_redirect_uri=${oauth_kakao_redirect_uri}
   # frontend
   frontend:
     build: ./frontend
     ports:
-      - "${FRONT_PORT}:443"
+      - "${FRONT_PORT}:80"
     networks:
       - app-network
 
@@ -77,8 +80,8 @@ services:
       - frontend
       - backend
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /var/www/certbot:/var/www/certbot
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     networks:
       - app-network
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
@@ -90,8 +93,8 @@ services:
     depends_on:
       - nginx
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /var/www/certbot:/var/www/certbot
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 volumes:
