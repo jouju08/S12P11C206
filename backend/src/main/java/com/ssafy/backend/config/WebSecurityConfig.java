@@ -40,7 +40,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://i12c206.p.ssafy.io/:3000")); // 허용할 Origin 설정
+        config.setAllowedOrigins(List.of("https://i12c206.p.ssafy.io:3000", "http://localhost:3000", "https://i12c206.p.ssafy.io")); // 허용할 Origin 설정
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "MESSAGE")); // 허용할 HTTP 메서드 설정
         config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         config.setAllowCredentials(true); // 인증 정보 허용
