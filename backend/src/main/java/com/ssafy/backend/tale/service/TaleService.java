@@ -93,7 +93,9 @@ public class TaleService {
 
             // 키워드와 member를 매칭
             taleMember.setHas_host(Objects.equals(room.getMemberId(), member.getId()));
-            taleMember.setOrderNum(keywordSentenceList.get(i).getOrder());
+            int keywordOrder = keywordSentenceList.get(i).getOrder();
+            taleMember.setKeyword(keywordList.get(keywordOrder));
+            taleMember.setOrderNum(keywordOrder);
             taleMember.setMember(member);
 
             taleMembers.add(taleMember);
