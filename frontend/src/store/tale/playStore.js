@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { immer, produce } from 'immer';
+import { immer } from 'zustand/middleware/immer';
+import taleAPI from '@/apis/tale/taleAxios';
 
-//동화 정보
+//기본 동화 정보
 const tale = {
   taleTitle: 'title',
   taleStartScript: 'script',
-  taleStartScriptVoice: null,
+  taleStartScriptVoice: 'url',
   keywordSentences: [
     { owner: 'usename1', sentence: 'set' },
     { owner: 'usename2', sentence: 'set' },
@@ -16,10 +17,14 @@ const tale = {
   taleStartImage: 'url',
 };
 
+//처음에 통신될 init data
+const initState = {};
+
+//완성된 햇동화
 const hotTale = {
   hotTaleTitle: 'title',
   hotTaleScript: 'script',
-  taleHotScriptVoice: [],
+  taleHotScriptVoice: 'url',
   keywordSentences: [
     { owner: 'usename1', sentence: [1] },
     { owner: 'usename2', sentence: [1] },
@@ -29,20 +34,22 @@ const hotTale = {
   taleStartImage: 'url',
 };
 
-const initState = {
-  roomId: 1,
-  currentKeyword: '',
-  inputType: '',
-};
-
 const playActions = (set, get) => ({
-  setRoomId: () => set((state) => ({ roomId: state.roomId + 1 })),
-  setBaseTale: (baseTale) =>
+  setRoomId: (roomId) =>
+    set((state) => {
+      state.roomId = roomId;
+    }),
+  setBaseTale: async () => {
+    const response = await taleAPI.startTale(get().roomId);
+
+    const { baseTale } = response.data;
     set(
       produce((state) => {
         state.tale = baseTale;
       })
-    ),
+    );
+  },
+
   setCurrentKeyword: () =>
     set((state) => ({
       currentKeyword: state.currentKeyword,
@@ -56,8 +63,11 @@ const playActions = (set, get) => ({
 const usePlayStore = create(
   devtools(
     immer((set, get) => ({
-      ...tale,
-      ...initState,
+      tale: { ...tale },
+      hotTale: { ...hotTale },
+      roomId: 1,
+      currentKeyword: '',
+      inputType: '',
       ...playActions(set, get),
     }))
   )
@@ -65,6 +75,7 @@ const usePlayStore = create(
 
 export const useTalePlay = () => {
   const tale = usePlayStore((state) => state.tale);
+  const hotTale = usePlayStore((state) => state.hotTale);
   const roomId = usePlayStore((state) => state.roomId);
   const currentKeyword = usePlayStore((state) => state.currentKeyword);
   const inputType = usePlayStore((state) => state.inputType);
@@ -73,4 +84,17 @@ export const useTalePlay = () => {
   const setBaseTale = usePlayStore((state) => state.setBaseTale);
   const setCurrentKeyword = usePlayStore((state) => state.setCurrentKeyword);
   const setInputType = usePlayStore((state) => state.setInputType);
+
+  return {
+    tale,
+    hotTale,
+    roomId,
+    currentKeyword,
+    inputType,
+
+    setRoomId,
+    setBaseTale,
+    setCurrentKeyword,
+    setInputType,
+  };
 };
