@@ -65,7 +65,7 @@ const roomActions = (set, get) => ({
     });
   },
 
-  createRoom: () => {
+  createRoom: async () => {
     const stompClient = get().stompClient;
     if (stompClient && stompClient.connected) {
       const data = {
@@ -74,19 +74,24 @@ const roomActions = (set, get) => ({
         partiCnt: 4,
       };
 
-      console.log(data);
-
       stompClient.publish({
         destination: '/app/room/create',
         body: JSON.stringify(data),
       });
 
-      setTimeout(() => {
-        const createRoom = get().rooms[get().rooms.length - 1];
-        if (createRoom) {
-          get().joinRoom(createRoom.roomId, get().memberId);
-        }
-      }, 500);
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const createRoom = get().rooms[get().rooms.length - 1];
+          if (createRoom) {
+            get().joinRoom(createRoom.roomId, get().memberId);
+            resolve(createRoom);
+          } else {
+            reject(new Error('방 생성 실패'));
+          }
+        }, 500);
+      });
+    } else {
+      throw new Error('Stomp Client not connected');
     }
   },
 
