@@ -35,6 +35,7 @@ export default function Room() {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [data, setData] = useState([]); // 백엔드에서 가져올 데이터
+  const [taleList, setTaleList] = useState([]); // 백엔드에서 가져올 데이터
   const [loading, setLoading] = useState(false); // 로딩 상태
 
   // 클릭된 동화 업데이트
@@ -56,6 +57,7 @@ export default function Room() {
       try {
         // 아래 api 주소는 동화 상세 정보 조회, 다른 것 필요
         // const response = await axios.get(`/api/tale/${selectedIndex}`);
+        // console.log('➡️ 가져온 데이터 : ', response.data);
 
         // 테스트용 dummy data
         const dummy = {
@@ -65,7 +67,7 @@ export default function Room() {
           maxParticipantsCnt: 4,
           participantsCnt: 1,
           roomId: 222,
-          taleTitle: taleArray[selectedIndex],
+          taleTitle: taleList[selectedIndex].title,
         };
         setData(
           new Array(Number(selectedIndex)).fill(dummy).map((item, idx) => (
@@ -76,10 +78,9 @@ export default function Room() {
           ))
         );
 
-        console.log(`${taleArray[selectedIndex]} 변경!`);
-        console.log('가져온 데이터 : ', response.data);
+        console.log(`${taleList[selectedIndex].title} 변경!`);
       } catch (error) {
-        console.error('데이터 가져오기 실패:', error);
+        console.error('➡️ 데이터 가져오기 실패:', error);
       } finally {
         setLoading(false);
       }
@@ -87,6 +88,25 @@ export default function Room() {
 
     fetchData();
   }, [selectedIndex]); // selectedIndex 변경 시마다 실행
+
+  // 동화책 목록 불러오기
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('/api/tale/list');
+        console.log('✅ 가져온 데이터', response.data);
+        // 응답 데이터 구조 확인 후 배열 접근
+        setTaleList(response.data.data || []);
+      } catch (err) {
+        console.error('✅ 데이터 가져오기 실패:', err);
+        setTaleList([]); // 에러 발생 시 빈 배열 설정
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []); // 빈 배열: 컴포넌트 마운트 시 1회만 실행
 
   return (
     <div className="w-[1024px] px-[25px]">
@@ -98,6 +118,7 @@ export default function Room() {
         <NumSearch onSearch={handleSearch} />
       </div>
 
+      {/* 동화목록 swiper */}
       <div className="flex justify-between items-center gap-8 py-8">
         <button
           onClick={() => swiper.slidePrev()}
@@ -110,14 +131,14 @@ export default function Room() {
           modules={[Navigation]}
           onBeforeInit={(swipper) => setSwiper(swipper)}
           className="mySwiper w-[808px] h-[270px] overflow-hidden">
-          {taleArray.map((title, index) => (
+          {taleList.map((item, index) => (
             <SwiperSlide
               key={index}
               onClick={() => {
                 handleClick(index);
               }}>
               <ChooseTale
-                title={title}
+                item={item}
                 isActive={selectedIndex === index}
               />
             </SwiperSlide>
