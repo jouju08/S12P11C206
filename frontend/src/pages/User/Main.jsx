@@ -46,7 +46,7 @@ export default function Main() {
     async function fetchData() {
       try {
         const response = await axios.get('/api/tale/rooms');
-        // console.log('📌 가져온 데이터:', response.data); // 콘솔 출력
+        console.log('📌 가져온 데이터:', response.data); // 콘솔 출력
         setTaleData(response.data.data); // 상태에 저장
         // console.log(taleData);
       } catch (error) {
@@ -141,13 +141,20 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
-        <div className="h-[270px]">
-          <Swiper
-            slidesPerView={3}
-            spaceBetween={-10}
-            className="mySwiper w-[904px] overflow-hidden">
-            {listFairyTaleRoom}
-          </Swiper>
+        <div className="h-[270px] text-center">
+          {taleData ? (
+            <Swiper
+              slidesPerView={3}
+              spaceBetween={-10}
+              className="mySwiper w-[904px] overflow-hidden">
+              {listFairyTaleRoom}
+            </Swiper>
+          ) : (
+            // 데이터 없을 때 어떻게 나올지 수정 필요
+            <p className="text-text-first leading-[270px] service-accent2">
+              아직 만들어진 방이 없어요!
+            </p>
+          )}
         </div>
       </div>
 
