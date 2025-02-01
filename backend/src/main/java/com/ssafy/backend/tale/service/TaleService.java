@@ -61,7 +61,7 @@ public class TaleService {
         startTaleMakingResponseDto.setTaleStartImage(tale.getStartImg());
 
         //참가자과 키워드 문장을 매칭합니다.
-        Map<Long, Member> allParticipants = room.getParticipants();
+        List<Member> participants = new ArrayList<>(room.getParticipants().values());
         List<KeywordSentence> keywordSentenceList = new ArrayList<>();
 
         //키워드 리스트를 생성합니다.
@@ -71,15 +71,17 @@ public class TaleService {
         keywordList.add(tale.getKeyword3());
         keywordList.add(tale.getKeyword4());
 
-        for (Member member : allParticipants.values()) {
+        int order = -1;
+        int memberCnt = 0;
+        while((order = getNextKeywordIdx(keywordCheck)) != -1){
             KeywordSentence keywordSentence = new KeywordSentence();
-            keywordSentence.setOwner(member.getId());
-            //키워드 문장을 랜덤하게 선택합니다.
-            int order = getNextKeywordIdx(keywordCheck);
             keywordSentence.setOrder(order);
+            keywordSentence.setOwner(participants.get(memberCnt).getId());
             keywordSentence.setSentence(keywordList.get(order));
             keywordSentenceList.add(keywordSentence);
+            memberCnt = (memberCnt+1) % participants.size();
         }
+
         startTaleMakingResponseDto.setKeywordSentences(keywordSentenceList);
 
         ////////////////////////tale_member 관련작업//////////////////////////
@@ -110,9 +112,15 @@ public class TaleService {
     // 중복이 되지 않도록 키워드문장 인덱스를 반환합니다.
     private int getNextKeywordIdx(boolean[] keywordCheck) {
         int ret = -1;
-        int tmp = -1;
+        int cnt = 0;
+        for(int i = 0; i < 4; i++)
+            if(keywordCheck[i])
+                cnt++;
+        if(cnt == 4)
+            return ret;
+
         while(true){
-            tmp = new Random().nextInt(0,4); // 무작위한 번호를 선택
+            int tmp = new Random().nextInt(0,4); // 무작위한 번호를 선택
             if(!keywordCheck[tmp]){ // 이미 선택된 번호인지 확인
                 ret = tmp;
                 keywordCheck[tmp] = true;
