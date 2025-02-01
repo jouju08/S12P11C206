@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class KeywordSentence {
+public class SentenceOwnerPair {
     private int order;
     private long owner;
     private String sentence;

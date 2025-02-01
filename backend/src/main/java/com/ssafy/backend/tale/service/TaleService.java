@@ -8,8 +8,10 @@ import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.db.repository.TaleRepository;
 import com.ssafy.backend.tale.dto.Room;
 import com.ssafy.backend.tale.dto.TaleMemberDto;
+import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
-import com.ssafy.backend.tale.dto.response.KeywordSentence;
+import com.ssafy.backend.tale.dto.response.SentenceOwnerPair;
+import com.ssafy.backend.tale.dto.response.PageInfo;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -60,7 +62,7 @@ public class TaleService {
 
         //참가자과 키워드 문장을 매칭합니다.
         List<Member> participants = new ArrayList<>(room.getParticipants().values());
-        List<KeywordSentence> keywordSentenceList = new ArrayList<>();
+        List<SentenceOwnerPair> sentenceOwnerPairList = new ArrayList<>();
 
         //키워드 리스트를 생성합니다.
         List<String> keywordList = new ArrayList<>();
@@ -72,15 +74,15 @@ public class TaleService {
         int order = -1;
         int memberCnt = 0;
         while((order = getNextKeywordIdx(keywordCheck)) != -1){
-            KeywordSentence keywordSentence = new KeywordSentence();
-            keywordSentence.setOrder(order);
-            keywordSentence.setOwner(participants.get(memberCnt).getId());
-            keywordSentence.setSentence(keywordList.get(order));
-            keywordSentenceList.add(keywordSentence);
+            SentenceOwnerPair sentenceOwnerPair = new SentenceOwnerPair();
+            sentenceOwnerPair.setOrder(order);
+            sentenceOwnerPair.setOwner(participants.get(memberCnt).getId());
+            sentenceOwnerPair.setSentence(keywordList.get(order));
+            sentenceOwnerPairList.add(sentenceOwnerPair);
             memberCnt = (memberCnt+1) % participants.size();
         }
 
-        startTaleMakingResponseDto.setKeywordSentences(keywordSentenceList);
+        startTaleMakingResponseDto.setSentenceOwnerPairs(sentenceOwnerPairList);
 
         ////////////////////////tale_member 관련작업//////////////////////////
         // 1. 빈 tale_member 4개 생성
@@ -88,13 +90,13 @@ public class TaleService {
         for(int i = 0; i < 4; i++){
             // 각 멤버들을 설정합니다.
             TaleMember taleMember = new TaleMember();
-            Member member = memberRepository.getReferenceById(keywordSentenceList.get(i).getOwner());
+            Member member = memberRepository.getReferenceById(sentenceOwnerPairList.get(i).getOwner());
 
             taleMember.setTale(taleRepository.getReferenceById(room.getRoomId()));
 
             // 키워드와 member를 매칭
             taleMember.setHas_host(Objects.equals(room.getMemberId(), member.getId()));
-            int keywordOrder = keywordSentenceList.get(i).getOrder();
+            int keywordOrder = sentenceOwnerPairList.get(i).getOrder();
             taleMember.setKeyword(keywordList.get(keywordOrder));
             taleMember.setOrderNum(keywordOrder);
             taleMember.setMember(member);
@@ -109,6 +111,7 @@ public class TaleService {
         List<TaleMemberDto> taleMemberDtos = new ArrayList<>();
         for(int i = 0; i < 4; i++){
             TaleMemberDto taleMemberDto = TaleMemberDto.parse(taleMembers.get(i));
+            taleMemberDto.setKeyword(null); // 단어를 선택하지 않음으로 초기화합니다. (mysql에는 저장되어있지만 redis에는 저장되어있지 않습니다.)
             taleMemberDtos.add(taleMemberDto);
         }
 
@@ -149,9 +152,7 @@ public class TaleService {
         // 1. 레디스에 키워드 저장
         // 레디스에서 방 정보를 불러옵니다.
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-        Room room = (Room)ops.get("tale-" + keywordRequestDto.getRoomId().toString());
-        if(room == null)
-            throw new RuntimeException("유효하지 않은 방입니다.");
+        Room room = getRoomFromRedis(keywordRequestDto.getRoomId());
         // 레디스에서 참가자 정보를 불러옵니다.
         Map<Long, Member> participants = room.getParticipants();
 
@@ -169,7 +170,7 @@ public class TaleService {
 
         // 2. 단어 몇명 선택했는지 확인
         int cnt = 0;
-        List<TaleMember> taleMembers = (List<TaleMember>)taleMemberRepository.getReferenceById(room.getRoomId());
+        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(room.getRoomId());
         for (int i = 0; i < taleMembers.size(); i++) {
             TaleMember participant = (TaleMember) ops.get("tale_member-"+taleMembers.get(i).getId().toString());
             if(participant.getKeyword() != null)
@@ -177,4 +178,64 @@ public class TaleService {
         }
         return cnt;
     }
+
+    // 키워드 문장을 반환합니다.
+    public GenerateTaleRequestDto getGenerateTaleInfo(long roomId){
+        // 레디스에서 방 정보를 불러옵니다.
+        Room room = getRoomFromRedis(roomId);
+        // 레디스에서 참가자 정보를 불러옵니다.
+        Map<Long, Member> participants = room.getParticipants();
+
+        // 동화 정보를 가져옵니다.
+        BaseTale tale = baseTaleService.getById(room.getBaseTaleId());
+
+        // 참가자의 키워드를 가져옵니다.
+        List<String> keywordList = new ArrayList<>();
+        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
+        for (int i = 0; i < taleMembers.size(); i++) {
+            TaleMemberDto taleMemberDto = TaleMemberDto.parse(taleMembers.get(i));
+            keywordList.add(taleMemberDto.getKeyword());
+        }
+
+        // 키워드 문장을 반환합니다.
+        GenerateTaleRequestDto generateTaleRequestDto = new GenerateTaleRequestDto();
+        generateTaleRequestDto.setTitle(tale.getTitle());
+        generateTaleRequestDto.setIntroduction(tale.getStartScript());
+        generateTaleRequestDto.setSentences(keywordList);
+
+        return generateTaleRequestDto;
+    }
+
+    public List<SentenceOwnerPair> saveTaleInfo(long roomId, List<PageInfo> pages){
+        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
+        List<SentenceOwnerPair> sentenceOwnerPairs = new ArrayList<>();
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        for(int i = 0; i < 4; i++){
+            TaleMemberDto taleMemberDto = (TaleMemberDto) ops.get("tale_member-"+taleMembers.get(i).getId().toString());
+            SentenceOwnerPair sentenceOwnerPair = new SentenceOwnerPair();
+
+            int pageOrder = taleMemberDto.getOrderNum();
+
+            taleMemberDto.setScript(pages.get(pageOrder).getFullText());
+            taleMemberDto.setImgScript(pages.get(pageOrder).getExtractedSentence());
+            ops.set("tale_member-"+taleMembers.get(i).getId().toString(), taleMemberDto);
+
+            sentenceOwnerPair.setOrder(pageOrder);
+            sentenceOwnerPair.setOwner(taleMemberDto.getMemberId());
+            sentenceOwnerPair.setSentence(pages.get(pageOrder).getExtractedSentence());
+            sentenceOwnerPairs.add(sentenceOwnerPair);
+        }
+
+        return sentenceOwnerPairs;
+    }
+
+    private Room getRoomFromRedis(long roomId) {
+        // 레디스에서 방 정보를 불러옵니다.
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        Room room = (Room)ops.get("tale-" + roomId);
+        if(room == null)
+            throw new RuntimeException("유효하지 않은 방입니다.");
+        return room;
+    }
+
 }

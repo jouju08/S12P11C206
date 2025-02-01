@@ -16,6 +16,7 @@ public class TaleMemberDto {
     private String orginImg;
     private String img;
     private String voice;
+    private String imgScript;
     private String script;
     private Long taleId;
     private Long memberId;

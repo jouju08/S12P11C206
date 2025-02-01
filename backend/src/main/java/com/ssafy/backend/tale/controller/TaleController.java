@@ -1,10 +1,12 @@
 package com.ssafy.backend.tale.controller;
 
 import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
+import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/tale")
 public class TaleController {
     private final TaleService taleService;
+    private final AIServerRequestService aiServerRequestService;
 
     // 동화 제작 시작
     @GetMapping("/start/{roomId}")
@@ -32,6 +35,7 @@ public class TaleController {
     // 키워드 타이핑 정보 확인
     @PostMapping("/keyword/typing")
     public ApiResponse<String> keywordTyping(@RequestBody KeywordRequestDto keywordRequestDto){
+        aiServerRequestService.requestTest();
         return ApiResponse.<String>builder().data(keywordRequestDto.getKeyword()).build();
     }
 
@@ -58,7 +62,8 @@ public class TaleController {
         if(taleService.keywordSubmit(keywordRequestDto) >= 4){
             // todo : 다음 단계로 넘어가기
             // ai 쪽으로 동화 생성 요청
-
+            GenerateTaleRequestDto generateTaleRequestDto = taleService.getGenerateTaleInfo(keywordRequestDto.getRoomId());
+            aiServerRequestService.requestGenerateTale(keywordRequestDto.getRoomId(), generateTaleRequestDto);
         }
         return ApiResponse.<String>builder().build();
     }
