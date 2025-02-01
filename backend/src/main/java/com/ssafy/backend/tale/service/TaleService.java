@@ -7,6 +7,7 @@ import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.db.repository.TaleRepository;
 import com.ssafy.backend.tale.dto.Room;
+import com.ssafy.backend.tale.dto.TaleMemberDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.response.KeywordSentence;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
@@ -100,15 +101,23 @@ public class TaleService {
 
             taleMembers.add(taleMember);
         }
+
         // 2. tale_member 저장
         taleMemberRepository.saveAll(taleMembers);
         taleMembers = taleMemberRepository.findByTaleId(room.getRoomId());
+        // 3. tale_member dto로 변환
+        List<TaleMemberDto> taleMemberDtos = new ArrayList<>();
+        for(int i = 0; i < 4; i++){
+            TaleMemberDto taleMemberDto = TaleMemberDto.parse(taleMembers.get(i));
+            taleMemberDtos.add(taleMemberDto);
+        }
 
         // 3. tale_member redis에 저장
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-        for(int i = 0; i < 4; i++)
-            ops.set("tale_member-"+taleMembers.get(i).getId().toString(), taleMembers.get(i));
-
+        for(int i = 0; i < 4; i++) {
+            System.out.println("taleMemberDtos.get(i).toString() = " + taleMemberDtos.get(i).toString());
+            ops.set("tale_member-" + taleMemberDtos.get(i).getId().toString(), taleMemberDtos.get(i));
+        }
         return startTaleMakingResponseDto;
     }
 
