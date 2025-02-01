@@ -36,7 +36,7 @@ export default function ParentNav({ nickname, loginId, selectedComponent, onTabC
                     <MenuItem
                         icon="/Parent/profile-paint-icon.png"
                         text="아이가 그린 그림"
-                        item="paint"
+                        item="exhibition"
                         selectedComponent={selectedComponent}
                         onTabClick={onTabClick}
                     />

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ParentNav from '@/components/Parent/common/ParentNav';
 import Edit from '@/components/Parent/Edit';
 import Bookcase from '@/components/Parent/Bookcase'
+import Exhibition from '@/components/Parent/Exhibition'
 
 export default function Profile() {
 
@@ -11,6 +12,7 @@ export default function Profile() {
   const COMPONENTS = {
     edit: <Edit />,
     bookcase: <Bookcase />,
+    exhibition: <Exhibition/>,
   };
 
   return (
