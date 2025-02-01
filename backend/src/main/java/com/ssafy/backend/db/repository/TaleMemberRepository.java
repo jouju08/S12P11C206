@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface TaleMemberRepository extends JpaRepository<TaleMember, Long> {
     TaleMember findByMemberIdAndTaleId(Long memberId, Long taleId);
+    List<TaleMember> findByTaleId(Long taleId);
 }

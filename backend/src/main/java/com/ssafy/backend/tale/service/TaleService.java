@@ -89,7 +89,7 @@ public class TaleService {
             TaleMember taleMember = new TaleMember();
             Member member = memberRepository.getReferenceById(keywordSentenceList.get(i).getOwner());
 
-            taleMember.setTale(taleRepository.getReferenceById(room.getBaseTaleId()));
+            taleMember.setTale(taleRepository.getReferenceById(room.getRoomId()));
 
             // 키워드와 member를 매칭
             taleMember.setHas_host(Objects.equals(room.getMemberId(), member.getId()));
@@ -102,7 +102,7 @@ public class TaleService {
         }
         // 2. tale_member 저장
         taleMemberRepository.saveAll(taleMembers);
-        taleMembers = (List<TaleMember>) taleMemberRepository.getReferenceById(room.getBaseTaleId());
+        taleMembers = taleMemberRepository.findByTaleId(room.getRoomId());
 
         // 3. tale_member redis에 저장
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
