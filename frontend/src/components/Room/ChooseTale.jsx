@@ -1,13 +1,15 @@
 import React from 'react';
 
 // props로 백에서 동화 있는거 조회해서 넘겨줘야 해
-export default function ChooseTale({ title, isActive }) {
+export default function ChooseTale({ item, isActive }) {
+  const { title, titleImg } = item;
+
   return (
     <div className="w-[200px] h-[270px] relative bg-gray-50 rounded-[30px] shadow-[0px_4px_15px_0px_rgba(0,0,0,0.10)] overflow-hidden">
       <div className="w-[200px] h-[270px] overflow-hidden">
         <img
           className="w-full h-full object-cover object-center"
-          src="/Main/tale-cover-test.png"
+          src={titleImg}
         />
       </div>
       <div

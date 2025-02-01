@@ -15,7 +15,18 @@ const MyComponent = () => (
 
 // main page에서 창이 불러와 지기 전에 동화 방을 백에서 조회
 // 커버, 인원, 방 번호, 책 이름, 방장 프로필, 닉네임
-export default function FairyTaleRoom() {
+export default function FairyTaleRoom({ item }) {
+  // taleCover도 추가될거에요!
+  const {
+    hostMemberId,
+    hostNickname,
+    hostProfileImg,
+    maxParticipantsCnt,
+    participantsCnt,
+    roomId,
+    taleTitle,
+  } = item;
+
   // 동화방 click 이벤트 발생 시, 모달 띄움
   const showGameModal = () => {
     withReactContent(Swal).fire({
@@ -36,31 +47,42 @@ export default function FairyTaleRoom() {
             className="w-[275px] bg-center"
             src="/Main/tale-cover-test.png"
           />
-          <div className="w-[65px] px-4 py-1 absolute top-[8px] right-[13px] z-10 bg-main-beige rounded-xl">
+          <div className="w-fit px-4 py-1 absolute top-[8px] right-[13px] z-10 bg-main-beige rounded-xl">
             {/* 백에서 가져온 인원 수 쓰기 */}
-            <div className="text-second service-regular3">1 / 4</div>
+            <div className="text-text-second service-regular3">
+              {participantsCnt} / {maxParticipantsCnt}
+            </div>
           </div>
         </div>
         <div className="pl-[17px] pr-5 pt-2 pb-2.5 justify-center items-center inline-flex overflow-hidden">
           <div className="w-[267px] self-stretch flex-col justify-start items-start inline-flex">
             {/* 백에서 가져온 방 번호 쓰기기 */}
-            <div className="text-first font-NPSfont font-light text-[14px]">
-              7번
+            <div className="text-text-first font-NPSfont font-light text-[14px]">
+              {roomId}번
             </div>
             <div className="self-stretch py-[5px] justify-between items-center inline-flex overflow-hidden">
               {/* 백에서 가져온 책 이름 쓰기기 */}
-              <div className="w-[170px] text-first service-bold3">
-                잠자는 숲 속의 공주
+              <div className="w-[170px] text-text-first service-bold3">
+                {taleTitle}
               </div>
             </div>
             <div className="justify-start items-center gap-3 inline-flex overflow-hidden">
               {/* 백에서 가져온 방장 프로필 쓰기기 */}
-              <img
-                className="w-[35px] h-[35px] relative rounded-[100px]"
-                src="/Main/profile-img.png"
-              />
+              {hostProfileImg ? (
+                <img
+                  className="w-[35px] h-[35px] relative rounded-[100px]"
+                  src={hostProfileImg}
+                />
+              ) : (
+                <img
+                  className="w-[35px] h-[35px] relative rounded-[100px]"
+                  src="/Main/profile-img.png"
+                />
+              )}
               {/* 백에서 가져온온 닉네임 쓰기 */}
-              <div className="text-secoond service-regular3">방장 닉네임</div>
+              <div className="text-text-second service-regular3">
+                {hostNickname}
+              </div>
             </div>
           </div>
         </div>
