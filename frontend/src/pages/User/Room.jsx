@@ -54,19 +54,30 @@ export default function Room() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`/api/tale/${selectedIndex}`);
+        // 아래 api 주소는 동화 상세 정보 조회, 다른 것 필요
+        // const response = await axios.get(`/api/tale/${selectedIndex}`);
 
-        // 테스트용 data dummy data
+        // 테스트용 dummy data
+        const dummy = {
+          hostMemberId: 0,
+          hostNickname: '방장이겠지',
+          hostProfileImg: null,
+          maxParticipantsCnt: 4,
+          participantsCnt: 1,
+          roomId: 222,
+          taleTitle: taleArray[selectedIndex],
+        };
         setData(
-          (response.data.data || []).map((item, idx) => (
+          new Array(Number(selectedIndex)).fill(dummy).map((item, idx) => (
             <FairyTaleRoom
-              item={item}
               key={idx}
+              item={item}
             />
           ))
         );
 
         console.log(`${taleArray[selectedIndex]} 변경!`);
+        console.log('가져온 데이터 : ', response.data);
       } catch (error) {
         console.error('데이터 가져오기 실패:', error);
       } finally {
@@ -92,8 +103,8 @@ export default function Room() {
           onClick={() => swiper.slidePrev()}
           className="block w-[50px] h-[50px] bg-gray-50 rounded-full after:content-[url(/Room/room-navigater.png)]"></button>
         <Swiper
-          slidesPerView={4}
-          spaceBetween={80}
+          slidesPerView={3}
+          spaceBetween={-80}
           grabCursor={true}
           navigation={true}
           modules={[Navigation]}
