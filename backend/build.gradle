@@ -57,6 +57,9 @@ dependencies {
     // email authentication
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+    // http request, web client
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 }
 
 tasks.named('test') {
