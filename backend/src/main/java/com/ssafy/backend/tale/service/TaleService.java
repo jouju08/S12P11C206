@@ -15,10 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  *  author : HEO-hyunjun
@@ -90,10 +87,14 @@ public class TaleService {
         for(int i = 0; i < 4; i++){
             // 각 멤버들을 설정합니다.
             TaleMember taleMember = new TaleMember();
+            Member member = memberRepository.getReferenceById(keywordSentenceList.get(i).getOwner());
+
             taleMember.setTale(taleRepository.getReferenceById(room.getBaseTaleId()));
+
             // 키워드와 member를 매칭
+            taleMember.setHas_host(Objects.equals(room.getMemberId(), member.getId()));
             taleMember.setOrderNum(keywordSentenceList.get(i).getOrder());
-            taleMember.setMember(memberRepository.getReferenceById(keywordSentenceList.get(i).getOwner()));
+            taleMember.setMember(member);
 
             taleMembers.add(taleMember);
         }
