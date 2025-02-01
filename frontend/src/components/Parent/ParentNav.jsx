@@ -7,7 +7,7 @@ export default function ParentNav({nickname, loginId}) {
             <div className="w-[219px] h-[568px] bg-white shadow-md p-[16px]">
                 <div className="items-center justify-between border-b pb-[13px]">
                     <div>
-                        <h1 className="text-xl font-bold service-regular1">{nickname}</h1>
+                        <h1 className="service-regular1">{nickname}</h1>
                     </div>
                     <div className="flex justify-between">
                         <p className="text-gray-500 service-regular3">{loginId}</p>
@@ -15,6 +15,7 @@ export default function ParentNav({nickname, loginId}) {
                             src="Parent/profile-kakaotalk-icon.png"
                             alt="icon"
                             className="rounded-full"
+                            width={25}
                         />
                     </div>
                 </div>
@@ -53,7 +54,7 @@ function click(){
 function MenuItem({ icon, text, textColor = "text-black" , onClick}) {
     return (
         <div className="hover:cursor-pointer flex items-center space-x-[16px] service-regular3" onClick={onClick}>
-            <img src={icon} alt={`${text} 아이콘`} />
+            <img width={24} src={icon} alt={`${text} 아이콘`} />
             <p className={`font-medium ${textColor}`}>{text}</p>
         </div>
     );
