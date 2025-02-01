@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
  *  date : 2025.01.31
  *  description : 동화 제작 관련 컨트롤러,
  *  update
- *      1.
+ *      1. keyword submit 구현 (2025.02.01)
  * */
 @RestController
 @RequiredArgsConstructor
@@ -31,31 +31,36 @@ public class TaleController {
 
     // 키워드 타이핑 정보 확인
     @PostMapping("/keyword/typing")
-    public ApiResponse<String> keywordTyping(@RequestBody KeywordRequestDto keyword){
-        return ApiResponse.<String>builder().data(keyword.getKeyword()).build();
+    public ApiResponse<String> keywordTyping(@RequestBody KeywordRequestDto keywordRequestDto){
+        return ApiResponse.<String>builder().data(keywordRequestDto.getKeyword()).build();
     }
 
     // todo : 키워드 음성 정보 확인
     @PostMapping("/keyword/voice")
-    public ApiResponse<String> keywordVoice(@RequestBody KeywordFileRequestDto keyword){
+    public ApiResponse<String> keywordVoice(@RequestBody KeywordFileRequestDto keywordFileRequestDto){
         return ApiResponse.<String>builder().data("keyword.getKeyword()").build();
     }
 
     // todo : 키워드 손글씨 정보 확인
     @PostMapping("/keyword/handwrite")
-    public ApiResponse<String> keywordHandwrite(@RequestBody KeywordFileRequestDto keyword){
+    public ApiResponse<String> keywordHandwrite(@RequestBody KeywordFileRequestDto keywordFileRequestDto){
         return ApiResponse.<String>builder().data("keyword.getKeyword()").build();
     }
 
     // 키워드 최종선택
     @PostMapping("/keyword/submit")
-    public ApiResponse<String> keywordSubmit(@RequestBody KeywordRequestDto keyword){
+    public ApiResponse<String> keywordSubmit(@RequestBody KeywordRequestDto keywordRequestDto){
         // todo : 키워드 선택 후 처리
         // 1. 레디스에 키워드 저장
         // 2. 단어 몇명 선택했는지 확인
         // 3. 모두 선택했으면 다음 단계로 넘어가기 -> websocket으로 알림 + 동화 생성
         // 4. 일단 응답은 ok
-        return ApiResponse.<String>builder().data(keyword.getKeyword()).build();
+        if(taleService.keywordSubmit(keywordRequestDto) >= 4){
+            // todo : 다음 단계로 넘어가기
+            // ai 쪽으로 동화 생성 요청
+
+        }
+        return ApiResponse.<String>builder().build();
     }
 
     // todo : 동화 음성 제출

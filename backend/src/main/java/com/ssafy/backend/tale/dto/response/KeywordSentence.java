@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class KeywordSentence {
+    private int order;
     private long owner;
     private String sentence;
 }

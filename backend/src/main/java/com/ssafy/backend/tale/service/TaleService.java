@@ -2,10 +2,17 @@ package com.ssafy.backend.tale.service;
 
 import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.entity.Member;
+import com.ssafy.backend.db.entity.TaleMember;
+import com.ssafy.backend.db.repository.MemberRepository;
+import com.ssafy.backend.db.repository.TaleMemberRepository;
+import com.ssafy.backend.db.repository.TaleRepository;
 import com.ssafy.backend.tale.dto.Room;
+import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.response.KeywordSentence;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,55 +31,83 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class TaleService {
+    private final TaleRepository taleRepository;
     private final BaseTaleService baseTaleService;
     private final RoomService roomService;
+    private final RedisTemplate<String, Object> redisTemplate;
+    private final MemberRepository memberRepository;
+    private final TaleMemberRepository taleMemberRepository;
 
     // 동화 제작 시작
     // -> 방의정보를 보고 동화의 정보를 불러와서 키워드 문장을 매칭시킵니다.
     public StartTaleMakingResponseDto startMakingTale(long roomId) {
+        /////////////////////////반환 데이터 관련///////////////////////////
         //방의 정보를 불러옵니다.
-        Room nowRoom = new Room();
-        nowRoom.setRoomId(roomId);
-        nowRoom = roomService.getRoom(nowRoom);
+        Room room = new Room();
+        room.setRoomId(roomId);
+        room = roomService.getRoom(room);
 
         //방의 동화 정보를 불러옵니다.
-        BaseTale nowTale = baseTaleService.getById(nowRoom.getBaseTaleId());
+        BaseTale tale = baseTaleService.getById(room.getBaseTaleId());
         boolean[] keywordCheck = new boolean[4]; // 중복 선택을 방지하기 위한 방문배열
-
 
         //반환할 객체를 생성합니다.
         StartTaleMakingResponseDto startTaleMakingResponseDto = new StartTaleMakingResponseDto();
 
         //고정적인 정보에 대해 작성합니다.
-        startTaleMakingResponseDto.setTaleTitle(nowTale.getTitle());
-        startTaleMakingResponseDto.setTaleStartScript(nowTale.getStartScript());
-        startTaleMakingResponseDto.setTaleStartScriptVoice(nowTale.getStartVoice());
-        startTaleMakingResponseDto.setTaleStartImage(nowTale.getStartImg());
+        startTaleMakingResponseDto.setTaleTitle(tale.getTitle());
+        startTaleMakingResponseDto.setTaleStartScript(tale.getStartScript());
+        startTaleMakingResponseDto.setTaleStartScriptVoice(tale.getStartVoice());
+        startTaleMakingResponseDto.setTaleStartImage(tale.getStartImg());
 
         //참가자과 키워드 문장을 매칭합니다.
-        Map<Long, Member> allParticipants = nowRoom.getParticipants();
+        Map<Long, Member> allParticipants = room.getParticipants();
         List<KeywordSentence> keywordSentenceList = new ArrayList<>();
 
         //키워드 리스트를 생성합니다.
         List<String> keywordList = new ArrayList<>();
-        keywordList.add(nowTale.getKeyword1());
-        keywordList.add(nowTale.getKeyword2());
-        keywordList.add(nowTale.getKeyword3());
-        keywordList.add(nowTale.getKeyword4());
+        keywordList.add(tale.getKeyword1());
+        keywordList.add(tale.getKeyword2());
+        keywordList.add(tale.getKeyword3());
+        keywordList.add(tale.getKeyword4());
 
         for (Member member : allParticipants.values()) {
             KeywordSentence keywordSentence = new KeywordSentence();
             keywordSentence.setOwner(member.getId());
             //키워드 문장을 랜덤하게 선택합니다.
-            keywordSentence.setSentence(keywordList.get(getNextKeywordIdx(keywordCheck)));
+            int order = getNextKeywordIdx(keywordCheck);
+            keywordSentence.setOrder(order);
+            keywordSentence.setSentence(keywordList.get(order));
             keywordSentenceList.add(keywordSentence);
         }
         startTaleMakingResponseDto.setKeywordSentences(keywordSentenceList);
 
+        ////////////////////////tale_member 관련작업//////////////////////////
+        // 1. 빈 tale_member 4개 생성
+        List<TaleMember> taleMembers = new ArrayList<>();
+        for(int i = 0; i < 4; i++){
+            // 각 멤버들을 설정합니다.
+            TaleMember taleMember = new TaleMember();
+            taleMember.setTale(taleRepository.getReferenceById(room.getBaseTaleId()));
+            // 키워드와 member를 매칭
+            taleMember.setOrderNum(keywordSentenceList.get(i).getOrder());
+            taleMember.setMember(memberRepository.getReferenceById(keywordSentenceList.get(i).getOwner()));
+
+            taleMembers.add(taleMember);
+        }
+        // 2. tale_member 저장
+        taleMemberRepository.saveAll(taleMembers);
+        taleMembers = (List<TaleMember>) taleMemberRepository.getReferenceById(room.getBaseTaleId());
+
+        // 3. tale_member redis에 저장
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        for(int i = 0; i < 4; i++)
+            ops.set("tale_member-"+taleMembers.get(i).getId().toString(), taleMembers.get(i));
+
         return startTaleMakingResponseDto;
     }
 
-    //중복이 되지 않도록 키워드문장 인덱스를 반환합니다.
+    // 중복이 되지 않도록 키워드문장 인덱스를 반환합니다.
     private int getNextKeywordIdx(boolean[] keywordCheck) {
         int ret = -1;
         int tmp = -1;
@@ -87,4 +122,39 @@ public class TaleService {
         return ret;
     }
 
+    // 키워드 최종선택한 인원 수를 반환합니다.
+    // 1. 레디스에 키워드 저장
+    // 2. 단어 몇명 선택했는지 확인
+    public int keywordSubmit(KeywordRequestDto keywordRequestDto){
+        // 1. 레디스에 키워드 저장
+        // 레디스에서 방 정보를 불러옵니다.
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        Room room = (Room)ops.get("tale-" + keywordRequestDto.getRoomId().toString());
+        if(room == null)
+            throw new RuntimeException("유효하지 않은 방입니다.");
+        // 레디스에서 참가자 정보를 불러옵니다.
+        Map<Long, Member> participants = room.getParticipants();
+
+        // 참가자의 키워드를 저장합니다.
+        Member member = participants.get(keywordRequestDto.getMemberId());
+        if(member == null)
+            throw new RuntimeException("유효하지 않은 참가자입니다.");
+
+        TaleMember taleMember = taleMemberRepository.findByMemberIdAndTaleId(member.getId(), room.getRoomId());
+        if(taleMember == null)
+            throw new RuntimeException("유효하지 않은 참가자입니다.");
+
+        taleMember.setKeyword(keywordRequestDto.getKeyword());
+        ops.set("tale_member-"+taleMember.getId().toString(), taleMember);
+
+        // 2. 단어 몇명 선택했는지 확인
+        int cnt = 0;
+        List<TaleMember> taleMembers = (List<TaleMember>)taleMemberRepository.getReferenceById(room.getRoomId());
+        for (int i = 0; i < taleMembers.size(); i++) {
+            TaleMember participant = (TaleMember) ops.get("tale_member-"+taleMembers.get(i).getId().toString());
+            if(participant.getKeyword() != null)
+                cnt++;
+        }
+        return cnt;
+    }
 }
