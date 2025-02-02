@@ -4,21 +4,25 @@ import React from 'react';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
-// swal test, modal에는 추후 만들 방만들기 컴포넌트로 대체
-const MyComponent = () => (
-  <div>
-    <h3 className="service-accent1">SweetAlert2 + React</h3>
-    <p>이 모달은 나중에 width 100% height 100% 컴포넌트</p>
-  </div>
-);
-
-export default function RoomBtn({ location, children }) {
-  // 버튼 click 이벤트 발생 시, 모달 띄움
+export default function RoomBtn({ numOfPerson, location, children }) {
+  // 동화방 click 이벤트 발생 시, 모달 띄움
   const showGameModal = () => {
+    const iframeSrc = numOfPerson === 1 ? '/tale' : '/tale/lobby';
+
     withReactContent(Swal).fire({
-      title: <i>확인용</i>,
-      html: <MyComponent />, // 여기에 jsx 컴포넌트 가능
+      // html: <MyComponent />, // 여기에 jsx 컴포넌트 가능
+      html: (
+        <iframe
+          src={iframeSrc}
+          className="w-full h-[768px]"
+        />
+      ), // 여기에 jsx 컴포넌트 가능
       showConfirmButton: true,
+      allowOutsideClick: false,
+      customClass: {
+        popup: 'h-[768px] w-[1024px]',
+      },
+      animation: false,
     });
   };
 

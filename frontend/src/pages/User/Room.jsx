@@ -178,8 +178,16 @@ export default function Room() {
               을(를) 골랐어요!
             </div>
             <div className="px-[20px] flex gap-4 justify-end">
-              <RoomBtn location={'alone.png'}>나 혼자 시작하기</RoomBtn>
-              <RoomBtn location={'together.png'}>내가 방 만들기</RoomBtn>
+              <RoomBtn
+                numOfPerson={1}
+                location={'alone.png'}>
+                나 혼자 시작하기
+              </RoomBtn>
+              <RoomBtn
+                numOfPerson={4}
+                location={'together.png'}>
+                내가 방 만들기
+              </RoomBtn>
             </div>
             {/* 데이터 표시 구간 */}
             <section className="w-full px-9 py-10">
