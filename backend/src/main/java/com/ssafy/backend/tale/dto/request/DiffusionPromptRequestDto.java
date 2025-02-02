@@ -1,6 +1,6 @@
 package com.ssafy.backend.tale.dto.request;
 
-import com.ssafy.backend.tale.dto.response.PageInfo;
+import com.ssafy.backend.tale.dto.common.PageInfo;
 import lombok.*;
 
 import java.util.List;

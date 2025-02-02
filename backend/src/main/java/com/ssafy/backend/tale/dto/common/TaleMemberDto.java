@@ -1,7 +1,6 @@
-package com.ssafy.backend.tale.dto;
+package com.ssafy.backend.tale.dto.common;
 
 import com.ssafy.backend.db.entity.TaleMember;
-import com.ssafy.backend.tale.dto.request.PromptSet;
 import lombok.*;
 
 /**

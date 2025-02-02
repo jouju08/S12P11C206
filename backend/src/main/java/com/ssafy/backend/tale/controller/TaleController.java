@@ -1,6 +1,7 @@
 package com.ssafy.backend.tale.controller;
 
 import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.tale.dto.common.TaleMemberDto;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
@@ -75,7 +76,7 @@ public class TaleController {
             //  1. tale_member들을 mysql에 저장
             //  2. ai 쪽으로 그림 생성 요청
             //  3. 동화 완성을 websocket으로 알림
-            
+            aiServerRequestService.requestAIPicture(submitFileRequestDto.getRoomId());
         }
         
         return ApiResponse.<String>builder().build();
@@ -83,18 +84,12 @@ public class TaleController {
 
     // todo : 햇동화 요청
     @GetMapping("/temp/{roomId}/{page}")
-    public ApiResponse<String> submitScriptVoice(@PathVariable long roomId, @PathVariable int page){
-        return ApiResponse.<String>builder().data(Long.toString(roomId)+Integer.toString(page)).build();
+    public ApiResponse<TaleMemberDto> getTempTale(@PathVariable long roomId, @PathVariable int page){
+        return ApiResponse.<TaleMemberDto>builder().data(taleService.getTaleMemberDtoFromRedis(roomId,page)).build();
     }
     // todo : 햇동화 다읽음
     @GetMapping("/temp/end/{roomId}")
     public ApiResponse<String> submitScriptVoice(@PathVariable long roomId){
         return ApiResponse.<String>builder().data(Long.toString(roomId)).build();
-    }
-    // todo : ai그림 제출
-    @PostMapping("/submit/ai-picture")
-    public ApiResponse<String> submitAIPicture(@RequestBody SubmitFileRequestDto submitFileRequestDto){
-        taleService.saveAIPicture(submitFileRequestDto);
-        return ApiResponse.<String>builder().data("submitFileRequestDto").build();
     }
 }

@@ -1,6 +1,6 @@
 package com.ssafy.backend.tale.dto.response;
 
-import com.ssafy.backend.tale.dto.request.PromptSet;
+import com.ssafy.backend.tale.dto.common.PromptSet;
 import lombok.*;
 
 import java.util.List;

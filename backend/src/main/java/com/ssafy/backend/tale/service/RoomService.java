@@ -6,16 +6,15 @@ import com.ssafy.backend.db.entity.Tale;
 import com.ssafy.backend.db.repository.BaseTaleRepository;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleRepository;
-import com.ssafy.backend.tale.dto.Room;
+import com.ssafy.backend.tale.dto.common.Room;
 import com.ssafy.backend.tale.dto.request.JoinRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.LeaveRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.MakeRoomRequestDto;
-import com.ssafy.backend.tale.dto.response.RoomInfo;
+import com.ssafy.backend.tale.dto.common.RoomInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;

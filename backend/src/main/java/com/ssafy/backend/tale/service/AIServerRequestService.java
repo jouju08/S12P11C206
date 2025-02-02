@@ -2,13 +2,13 @@ package com.ssafy.backend.tale.service;
 
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.CustomMultipartFile;
-import com.ssafy.backend.tale.dto.request.DiffusionPromptRequestDto;
-import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
-import com.ssafy.backend.tale.dto.request.VoiceScriptRequestDto;
+import com.ssafy.backend.tale.dto.common.PromptSet;
+import com.ssafy.backend.tale.dto.common.TaleMemberDto;
+import com.ssafy.backend.tale.dto.request.*;
 import com.ssafy.backend.tale.dto.response.DiffusionPromptResponseDto;
 import com.ssafy.backend.tale.dto.response.GenerateTaleResponseDto;
-import com.ssafy.backend.tale.dto.response.PageInfo;
-import com.ssafy.backend.tale.dto.response.SentenceOwnerPair;
+import com.ssafy.backend.tale.dto.common.PageInfo;
+import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -61,6 +61,30 @@ public class AIServerRequestService {
                 .subscribe(
                         response -> handleGenerateTaleResponse(roomId, generateTaleRequestDto, response)
                 );
+    }
+
+    public void requestAIPicture(long roomId){
+        //웹소켓으로 동화 제작이 끝났음을 알림
+        taleRoomNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
+
+        //각 페이지마다 ai 그림 생성 요청
+        for(int i=0; i<4; i++){
+            int finalI = i;
+
+            // AI 서버에 이미지를 보내기 위해 promptset과 original image url을 담은 dto를 생성
+            TaleMemberDto taleMemberDto = taleService.getTaleMemberDtoFromRedis(roomId, i);
+            String originImageUrl = taleMemberDto.getOrginImg();
+            PromptSet promptSet = taleMemberDto.getPromptSet();
+            AIPictureRequestDto aIPictureRequestDto = new AIPictureRequestDto(originImageUrl, promptSet);
+
+            webClient.post()
+                    .uri("/gen/picture")
+                    .bodyValue(aIPictureRequestDto)
+                    .retrieve()
+                    .bodyToMono(DataBuffer.class)
+                    .flatMap(dataBuffer -> convertToMultipartFile(dataBuffer, "picture_" + roomId + "_" + finalI + ".png", "image/png"))
+                    .subscribe(file -> taleService.saveAIPicture(roomId, finalI, file));
+        }
     }
 
     private void handleGenerateTaleResponse(long roomId,GenerateTaleRequestDto generateTaleRequestDto, ApiResponse<GenerateTaleResponseDto> response){

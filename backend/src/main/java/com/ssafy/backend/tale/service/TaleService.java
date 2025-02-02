@@ -7,14 +7,14 @@ import com.ssafy.backend.db.entity.TaleMember;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.db.repository.TaleRepository;
-import com.ssafy.backend.tale.dto.Room;
-import com.ssafy.backend.tale.dto.TaleMemberDto;
+import com.ssafy.backend.tale.dto.common.Room;
+import com.ssafy.backend.tale.dto.common.TaleMemberDto;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
-import com.ssafy.backend.tale.dto.request.PromptSet;
+import com.ssafy.backend.tale.dto.common.PromptSet;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
-import com.ssafy.backend.tale.dto.response.SentenceOwnerPair;
-import com.ssafy.backend.tale.dto.response.PageInfo;
+import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
+import com.ssafy.backend.tale.dto.common.PageInfo;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -32,6 +32,7 @@ import java.util.*;
  *      1. startMakingTale, keywordSubmit 메소드 완성 (2025.02.01)
  *      2. redis에 tale_member 저장, 불러오기 메소드 추가 (2025.02.02)
  *      3. save~ 메소드 추가 (2025.02.02)
+ *      4. todo: save TaleMemberDto to mysql (2025.02.02) -> mysql 테이블 수정 필요
  * */
 
 @Service
@@ -240,8 +241,7 @@ public class TaleService {
     // 동화의 내용을 읽는 음성을 저장합니다.
     public void saveTaleVoice(long roomId, int order, MultipartFile voiceFile){
             //각 순서별로 taleMember를 불러옵니다.
-            TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
-            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(roomId, order);
 
             //음성을 s3에 업로드하고, url을 저장합니다.
             String voiceUrl = s3Service.uploadFile(voiceFile);
@@ -255,8 +255,7 @@ public class TaleService {
     public void saveTalePrompt(long roomId, List<PromptSet> promptSetList){
         for(int i = 0; i < 4; i++){
             //각 순서별로 taleMember를 불러옵니다.
-            TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, i);
-            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(roomId, i);
 
             //프롬프트를 저장합니다.
             taleMemberDto.setPromptSet(promptSetList.get(i));
@@ -269,8 +268,7 @@ public class TaleService {
     // 동화 손그림을 저장합니다.
     public int saveHandPicture(SubmitFileRequestDto submitFileRequestDto){
         // 레디스에서 tale_member를 불러옵니다.
-        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(submitFileRequestDto.getRoomId(), submitFileRequestDto.getOrder());
-        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(submitFileRequestDto.getRoomId(), submitFileRequestDto.getOrder());
 
         // 손그림을 s3에 업로드하고, url을 저장합니다.
         String imgUrl = s3Service.uploadFile(submitFileRequestDto.getFile());
@@ -290,14 +288,20 @@ public class TaleService {
         return cnt;
     }
 
-    // 동화 AI 그림을 저장합니다.
-    public void saveAIPicture(SubmitFileRequestDto submitFileRequestDto){
+    public TaleMemberDto getTaleMemberDtoFromRedis(long roomId, int order){
         // 레디스에서 tale_member를 불러옵니다.
-        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(submitFileRequestDto.getRoomId(), submitFileRequestDto.getOrder());
+        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
+        return getTaleMemberDtoFromRedis(taleMember);
+    }
+
+    // 동화 AI 그림을 저장합니다.
+    public void saveAIPicture(long roomId, int order, MultipartFile imageFile){
+        // 레디스에서 tale_member를 불러옵니다.
+        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
         TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
 
         // AI그림을 s3에 업로드하고, url을 저장합니다.
-        String imgUrl = s3Service.uploadFile(submitFileRequestDto.getFile());
+        String imgUrl = s3Service.uploadFile(imageFile);
         taleMemberDto.setImg(imgUrl);
 
         // taleMember를 redis에 업데이트합니다.
