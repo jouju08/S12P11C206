@@ -1,6 +1,9 @@
 package com.ssafy.backend.common;
 
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
+
 import java.io.*;
 
 public class CustomMultipartFile implements MultipartFile {
@@ -55,5 +58,12 @@ public class CustomMultipartFile implements MultipartFile {
         try (FileOutputStream fos = new FileOutputStream(dest)) {
             fos.write(fileContent);
         }
+    }
+
+    public static MultipartFile convertToMultipartFile(DataBuffer dataBuffer, String fileName, String contentType) {
+        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+        dataBuffer.read(bytes);
+        MultipartFile multipartFile = new CustomMultipartFile(bytes, fileName, contentType);
+        return multipartFile;
     }
 }

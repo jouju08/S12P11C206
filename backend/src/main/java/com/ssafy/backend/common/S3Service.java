@@ -7,12 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.s3.model.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
@@ -99,5 +98,36 @@ public class S3Service {
 
         // 새 파일 업로드
         return uploadFile(newFile);
+    }
+
+    public byte[] getFileAsBytes(String fileUrl) {
+        String fileKey = fileUrl.replace(filePrefix, "");
+
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileKey)
+                .build();
+
+        try (ResponseInputStream<GetObjectResponse> s3Object = s3Client.getObject(getObjectRequest);
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = s3Object.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, length);
+            }
+
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new RuntimeException("파일 다운로드 실패", e);
+        }
+    }
+
+    public MultipartFile getFileAsMultipartFile(String fileUrl, String contentType) {
+        byte[] fileBytes = getFileAsBytes(fileUrl);
+        String fileKey = fileUrl.replace(filePrefix, "");
+        String fileName = fileKey.substring(fileKey.lastIndexOf("/") + 1);
+
+        return new CustomMultipartFile(fileBytes, fileName, contentType);
     }
 }

@@ -11,6 +11,8 @@ import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 /**
  *  author : HEO-hyunjun
  *  date : 2025.01.31
@@ -91,5 +93,10 @@ public class TaleController {
     @GetMapping("/temp/end/{roomId}")
     public ApiResponse<String> submitScriptVoice(@PathVariable long roomId){
         return ApiResponse.<String>builder().data(Long.toString(roomId)).build();
+    }
+
+    public ApiResponse<String> submitAIPicture(@RequestBody SubmitFileRequestDto submitFileRequestDto){
+        taleService.saveAIPicture(submitFileRequestDto.getRoomId(), submitFileRequestDto.getOrder(), submitFileRequestDto.getFile());
+        return ApiResponse.<String>builder().build();
     }
 }

@@ -2,6 +2,7 @@ package com.ssafy.backend.tale.service;
 
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.CustomMultipartFile;
+import com.ssafy.backend.common.S3Service;
 import com.ssafy.backend.tale.dto.common.PromptSet;
 import com.ssafy.backend.tale.dto.common.TaleMemberDto;
 import com.ssafy.backend.tale.dto.request.*;
@@ -36,8 +37,9 @@ public class AIServerRequestService {
     private final WebClient webClient;
     private final TaleRoomNotiService taleRoomNotiService;
     private final TaleService taleService;
+    private final S3Service s3Service;
 
-    public AIServerRequestService(@Value("${ai.server.url}") String url, TaleRoomNotiService taleRoomNotiService, TaleService taleService) {
+    public AIServerRequestService(@Value("${ai.server.url}") String url, TaleRoomNotiService taleRoomNotiService, TaleService taleService, S3Service s3Service) {
         this.webClient = WebClient.builder()
                 .baseUrl(url)
                 .exchangeStrategies(ExchangeStrategies.builder()
@@ -49,6 +51,7 @@ public class AIServerRequestService {
                 .build();
         this.taleRoomNotiService = taleRoomNotiService;
         this.taleService = taleService;
+        this.s3Service = s3Service;
     }
 
     public void requestGenerateTale(long roomId, GenerateTaleRequestDto generateTaleRequestDto){
@@ -69,21 +72,18 @@ public class AIServerRequestService {
 
         //각 페이지마다 ai 그림 생성 요청
         for(int i=0; i<4; i++){
-            int finalI = i;
-
             // AI 서버에 이미지를 보내기 위해 promptset과 original image url을 담은 dto를 생성
             TaleMemberDto taleMemberDto = taleService.getTaleMemberDtoFromRedis(roomId, i);
-            String originImageUrl = taleMemberDto.getOrginImg();
+            byte[] originImage = s3Service.getFileAsBytes(taleMemberDto.getOrginImg());
             PromptSet promptSet = taleMemberDto.getPromptSet();
-            AIPictureRequestDto aIPictureRequestDto = new AIPictureRequestDto(originImageUrl, promptSet);
+            AIPictureRequestDto aIPictureRequestDto = new AIPictureRequestDto(roomId, i, originImage, promptSet);
 
             webClient.post()
                     .uri("/gen/picture")
                     .bodyValue(aIPictureRequestDto)
                     .retrieve()
-                    .bodyToMono(DataBuffer.class)
-                    .flatMap(dataBuffer -> convertToMultipartFile(dataBuffer, "picture_" + roomId + "_" + finalI + ".png", "image/png"))
-                    .subscribe(file -> taleService.saveAIPicture(roomId, finalI, file));
+                    .bodyToMono(void.class)
+                    .subscribe();
         }
     }
 
@@ -131,11 +131,10 @@ public class AIServerRequestService {
     }
 
     private Mono<MultipartFile> convertToMultipartFile(DataBuffer dataBuffer, String fileName, String contentType) {
-        byte[] bytes = new byte[dataBuffer.readableByteCount()];
-        dataBuffer.read(bytes);
-        MultipartFile multipartFile = new CustomMultipartFile(bytes, fileName, contentType);
-        return Mono.just(multipartFile);
+        return Mono.just(CustomMultipartFile.convertToMultipartFile(dataBuffer, fileName, contentType));
     }
+
+
 
     public String requestTest(){
         return webClient.get()

@@ -14,6 +14,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AIPictureRequestDto {
-    private String url;
+    private long roomId;
+    private int order;
+    private byte[] image;
     private PromptSet promptSet;
 }
