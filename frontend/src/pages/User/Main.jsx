@@ -87,11 +87,11 @@ export default function Main() {
       {/* 메인 페이지 상단 프로필, 메뉴바 section */}
       <div className=" w-[1024px] h-[440px] px-[60px] bg-[url(/Main/nav-background.png)] flex flex-row justify-between items-center relative">
         {/* 부모님 페이지 이동, 연결링크 수정 필요 */}
-        <a
-          href="#"
+        <Link
+          to={'/profile'}
           className="absolute top-[16px] right-[61px] font-NPSfont font-light text-gray-200 text-[14px]">
           부모님 페이지
-        </a>
+        </Link>
         {/* 왼쪽 프로필 */}
         <div className="w-[294px] h-[317px] relative">
           {/* 로그인 정보 store에서 가져오기기 */}
