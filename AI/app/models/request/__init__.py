@@ -1,3 +1,4 @@
 from .GenerateTaleRequestDto import GenerateTaleRequestDto
 from .ScriptReadRequestDto import ScriptReadRequestDto
 from .GeneratePictureRequestDto import GeneratePictureRequestDto
+from .GenerateDiffusionPromptsRequestDto import GenerateDiffusionPromptsRequestDto

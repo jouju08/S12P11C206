@@ -52,7 +52,7 @@ public class TaleController {
     }
 
     // 키워드 최종선택
-    @PostMapping("/keyword/submit")
+    @PostMapping("/submit/keyword")
     public ApiResponse<String> keywordSubmit(@RequestBody KeywordRequestDto keywordRequestDto){
         // todo : 키워드 선택 후 처리
         // 1. 레디스에 키워드 저장
@@ -69,8 +69,9 @@ public class TaleController {
     }
 
     // todo : 동화 음성 제출
-    @PostMapping("/voice/submit")
-    public ApiResponse<String> submitScriptVoice(@RequestBody SubmitFileRequestDto submitFileRequestDto){
+    @PostMapping("/submit/voice")
+    public ApiResponse<String> submitScriptVoice(@RequestBody GenerateTaleRequestDto generateTaleRequestDto){
+        aiServerRequestService.requestGenerateTale(1, generateTaleRequestDto);
         return ApiResponse.<String>builder().data("submitFileRequestDto").build();
     }
 
@@ -92,12 +93,12 @@ public class TaleController {
         return ApiResponse.<String>builder().data(Long.toString(roomId)).build();
     }
     // todo : ai그림 제출
-    @PostMapping("/picture/final-submit")
+    @PostMapping("/submit/ai-picture")
     public ApiResponse<String> submitAIPicture(@RequestBody SubmitFileRequestDto submitFileRequestDto){
         return ApiResponse.<String>builder().data("submitFileRequestDto").build();
     }
     // todo : 동화 프롬프트 제출
-    @PostMapping("/prompt/submit")
+    @PostMapping("/submit/prompts")
     public ApiResponse<String> submitPrompt(@RequestBody SubmitFileRequestDto submitFileRequestDto){
         return ApiResponse.<String>builder().data("submitFileRequestDto").build();
     }

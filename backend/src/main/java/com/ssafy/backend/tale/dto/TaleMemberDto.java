@@ -1,6 +1,7 @@
 package com.ssafy.backend.tale.dto;
 
 import com.ssafy.backend.db.entity.TaleMember;
+import com.ssafy.backend.tale.dto.request.PromptSet;
 import lombok.*;
 
 @Getter
@@ -17,6 +18,7 @@ public class TaleMemberDto {
     private String img;
     private String voice;
     private String imgScript;
+    private PromptSet promptSet;
     private String script;
     private Long taleId;
     private Long memberId;

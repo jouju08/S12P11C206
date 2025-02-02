@@ -18,14 +18,11 @@ def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto, background
     """
     동화를 생성하는 API
     """
-    result = response_dto.ApiResponse(
+    return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
         data=llm_service.generate_tale(taleRequestDto)
     )
-    background_tasks.add_task(llm_service.generate_diffusion_prompts,
-                              title=taleRequestDto.title, pages=result.data.pages)
-    return result
 
 
 @router.post("/script-read", description="스크립트를 읽어주는 API")
@@ -35,6 +32,19 @@ def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
     """
 
     return audio_service.script_read(scriptReadRequestDto)
+
+
+@router.post("/diffusion-prompts", description="이미지 프롬프트 생성", response_model=response_dto.ApiResponse[response_dto.GenerateDiffusionPromptsResponseDto])
+def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.GenerateDiffusionPromptsRequestDto):
+    """
+    이미지 프롬프트 생성
+    """
+    return response_dto.ApiResponse(
+        status=Status.SUCCESS,
+        message="OK",
+        data=llm_service.generate_diffusion_prompts(
+            generateDiffusionPromptsRequestDto)
+    )
 
 
 @router.post("/picture", description="손그림에서 그림을 생성하는 API", response_model=response_dto.ApiResponse[response_dto.URLResponseDto])

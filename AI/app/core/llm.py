@@ -79,7 +79,7 @@ def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
     return response_dto.GenerateTaleResponseDto(pages=pages)
 
 
-def generate_diffusion_prompts(title: str, pages: list[PageInfo]):
+def generate_diffusion_prompts(generate_diffusion_prompts_request: request_dto.GenerateDiffusionPromptsRequestDto):
     """
     제목과 각 페이지별 내용을 입력받아 diffusion모델에 들어갈 프롬프트를 생성하는 함수
     """
@@ -88,12 +88,12 @@ def generate_diffusion_prompts(title: str, pages: list[PageInfo]):
     chain = chains.generate_image_prompt | ChatOpenAI(
         temperature=0.1, model="gpt-3.5-turbo") | chains.GenerateImageOutputParser()
     scenes = []
-    for page in pages:
+    for page in generate_diffusion_prompts_request.pages:
         scenes.append(page.fullText)
 
     # 체인 실행
     response = chain.invoke({
-        "title": title,
+        "title": generate_diffusion_prompts_request.title,
         "scenes": scenes
     })
 
@@ -103,9 +103,5 @@ def generate_diffusion_prompts(title: str, pages: list[PageInfo]):
         prompt = PromptSet(
             prompt=item["Prompt"], negativePrompt=item["Negative Prompt"])
         prompts.append(prompt)
-    result = response_dto.GenerateDiffusionPromptsResponseDto(prompts=prompts)
-    print(prompts)
-    """
-    todo:
-    prompts를 springboot로 전달
-    """
+
+    return response_dto.GenerateDiffusionPromptsResponseDto(prompts=prompts)

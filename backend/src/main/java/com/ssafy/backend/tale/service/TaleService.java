@@ -116,10 +116,9 @@ public class TaleService {
         }
 
         // 3. tale_member redis에 저장
-        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         for(int i = 0; i < 4; i++) {
-            System.out.println("taleMemberDtos.get(i).toString() = " + taleMemberDtos.get(i).toString());
-            ops.set("tale_member-" + taleMemberDtos.get(i).getId().toString(), taleMemberDtos.get(i));
+            //System.out.println("taleMemberDtos.get(i) = " + taleMemberDtos.get(i));
+            setTaleMemberDtoToRedis(taleMemberDtos.get(i));
         }
         return startTaleMakingResponseDto;
     }
@@ -151,7 +150,6 @@ public class TaleService {
     public int keywordSubmit(KeywordRequestDto keywordRequestDto){
         // 1. 레디스에 키워드 저장
         // 레디스에서 방 정보를 불러옵니다.
-        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         Room room = getRoomFromRedis(keywordRequestDto.getRoomId());
         // 레디스에서 참가자 정보를 불러옵니다.
         Map<Long, Member> participants = room.getParticipants();
@@ -161,18 +159,20 @@ public class TaleService {
         if(member == null)
             throw new RuntimeException("유효하지 않은 참가자입니다.");
 
-        TaleMember taleMember = taleMemberRepository.findByMemberIdAndTaleId(member.getId(), room.getRoomId());
+        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(room.getRoomId(), keywordRequestDto.getOrder());
         if(taleMember == null)
             throw new RuntimeException("유효하지 않은 참가자입니다.");
 
-        taleMember.setKeyword(keywordRequestDto.getKeyword());
-        ops.set("tale_member-"+taleMember.getId().toString(), taleMember);
+        TaleMemberDto taleMemberDto = TaleMemberDto.parse(taleMember);
+
+        taleMemberDto.setKeyword(keywordRequestDto.getKeyword());
+        setTaleMemberDtoToRedis(taleMemberDto);
 
         // 2. 단어 몇명 선택했는지 확인
         int cnt = 0;
         List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(room.getRoomId());
         for (int i = 0; i < taleMembers.size(); i++) {
-            TaleMember participant = (TaleMember) ops.get("tale_member-"+taleMembers.get(i).getId().toString());
+            TaleMemberDto participant = getTaleMemberDtoFromRedis(taleMembers.get(i));
             if(participant.getKeyword() != null)
                 cnt++;
         }
@@ -183,18 +183,19 @@ public class TaleService {
     public GenerateTaleRequestDto getGenerateTaleInfo(long roomId){
         // 레디스에서 방 정보를 불러옵니다.
         Room room = getRoomFromRedis(roomId);
-        // 레디스에서 참가자 정보를 불러옵니다.
-        Map<Long, Member> participants = room.getParticipants();
 
         // 동화 정보를 가져옵니다.
         BaseTale tale = baseTaleService.getById(room.getBaseTaleId());
 
         // 참가자의 키워드를 가져옵니다.
         List<String> keywordList = new ArrayList<>();
-        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
-        for (int i = 0; i < taleMembers.size(); i++) {
-            TaleMemberDto taleMemberDto = TaleMemberDto.parse(taleMembers.get(i));
-            keywordList.add(taleMemberDto.getKeyword());
+        for (int i = 0; i < 4; i++) {
+            TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, i);
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+            String keyword = taleMemberDto.getKeyword();
+            if(keyword == null) // 키워드가 null 인경우, baseTale의 키워드를 사용합니다.
+                keyword = taleMember.getKeyword();
+            keywordList.add(keyword);
         }
 
         // 키워드 문장을 반환합니다.
@@ -206,23 +207,24 @@ public class TaleService {
         return generateTaleRequestDto;
     }
 
-    public List<SentenceOwnerPair> saveTaleInfo(long roomId, List<PageInfo> pages){
+    // 전체 동화 내용을 저장하고, 각 참가자별 그림 그릴 문장을 반환합니다.
+    public List<SentenceOwnerPair> saveTaleText(long roomId, List<PageInfo> pages){
         List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
         List<SentenceOwnerPair> sentenceOwnerPairs = new ArrayList<>();
-        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         for(int i = 0; i < 4; i++){
-            TaleMemberDto taleMemberDto = (TaleMemberDto) ops.get("tale_member-"+taleMembers.get(i).getId().toString());
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMembers.get(i));
             SentenceOwnerPair sentenceOwnerPair = new SentenceOwnerPair();
 
-            int pageOrder = taleMemberDto.getOrderNum();
+            int order = taleMemberDto.getOrderNum();
 
-            taleMemberDto.setScript(pages.get(pageOrder).getFullText());
-            taleMemberDto.setImgScript(pages.get(pageOrder).getExtractedSentence());
-            ops.set("tale_member-"+taleMembers.get(i).getId().toString(), taleMemberDto);
+            taleMemberDto.setScript(pages.get(order).getFullText());
+            taleMemberDto.setImgScript(pages.get(order).getExtractedSentence());
+            // taleMember를 다시 저장합니다.
+            setTaleMemberDtoToRedis(taleMemberDto);
 
-            sentenceOwnerPair.setOrder(pageOrder);
+            sentenceOwnerPair.setOrder(order);
             sentenceOwnerPair.setOwner(taleMemberDto.getMemberId());
-            sentenceOwnerPair.setSentence(pages.get(pageOrder).getExtractedSentence());
+            sentenceOwnerPair.setSentence(pages.get(order).getExtractedSentence());
             sentenceOwnerPairs.add(sentenceOwnerPair);
         }
 
@@ -238,4 +240,16 @@ public class TaleService {
         return room;
     }
 
+    private TaleMemberDto getTaleMemberDtoFromRedis(TaleMember taleMember){
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        TaleMemberDto taleMemberDto = (TaleMemberDto) ops.get("tale_member-"+taleMember.getId());
+        if(taleMemberDto == null)
+            throw new RuntimeException("유효하지 않은 방입니다..");
+        return taleMemberDto;
+    }
+
+    private void setTaleMemberDtoToRedis(TaleMemberDto taleMemberDto){
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        ops.set("tale_member-"+taleMemberDto.getId(), taleMemberDto);
+    }
 }

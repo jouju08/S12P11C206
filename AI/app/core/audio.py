@@ -31,7 +31,8 @@ def transcript_audio(file):
         client = OpenAI()
         transcription = client.audio.transcriptions.create(
             model="whisper-1",
-            file=audio
+            file=audio,
+            language="ko"
         )
     util.delete_file(file)
     return response_dto.TextResponseDto(text=transcription.text)
