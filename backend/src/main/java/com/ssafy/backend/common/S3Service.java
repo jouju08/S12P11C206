@@ -1,5 +1,6 @@
 package com.ssafy.backend.common;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,23 +22,29 @@ import java.util.UUID;
  *  date : 2025.01.20
  *  description : AWS S3 파일 IO 서비스
  *  update
- *      1.
+ *      1. filePrefix : S3 버킷 URL (https://버킷명.s3.ap-northeast-2.amazonaws.com/)으로 제대로 작동하도록 수정
  * */
 
 @Service
 @RequiredArgsConstructor
 public class S3Service {
     private final S3Client s3Client;
-    private final String filePrefix = "https://${aws.s3.bucket}.s3.ap-northeast-2.amazonaws.com/";
-    @Value("${aws.s3.bucket}")
+    @Value("${AWS_S3_BUCKET}")
     private String bucketName;
+
+    private String filePrefix;
+
+    @PostConstruct
+    public void init() {
+        filePrefix = "https://" + bucketName + ".s3.ap-northeast-2.amazonaws.com/";
+    }
 
     /*
     * 파일 업로드 전략
     * UUID + 시간값 + .확장자
     * */
-
     // S3 파일 업로드
+
     public String uploadFile(MultipartFile file) {
         String filenameExtension = StringUtils.getFilenameExtension(file.getOriginalFilename());
         String uuid = UUID.randomUUID().toString();
