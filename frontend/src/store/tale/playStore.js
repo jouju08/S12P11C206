@@ -30,10 +30,10 @@ const hotTale = {
   hotTaleScript: 'script',
   taleHotScriptVoice: 'url',
   keywordSentences: [
-    { owner: 'usename1', sentence: [1] },
-    { owner: 'usename2', sentence: [1] },
-    { owner: 'usename3', sentence: [1] },
-    { owner: 'usename4', sentence: [1] },
+    { owner: 'usename1', sentence: `[1]` },
+    { owner: 'usename2', sentence: `[1]` },
+    { owner: 'usename3', sentence: `[1]` },
+    { owner: 'usename4', sentence: `[1]` },
   ],
   taleStartImage: 'url',
 };
@@ -121,6 +121,25 @@ const playActions = (set, get) => ({
       state.drawDirection = directions;
     });
   },
+
+  submitPicture: async (picture) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) =>
+        item.owner === userStore.getState().memberId &&
+        item.order === get().page
+    )?.['order'];
+
+    const formData = new FormData();
+
+    formData.append('order', String(order));
+    formData.append('roomId', String(get().roomId));
+    formData.append('memberId', String(userStore.getState().memberId));
+    formData.append('file', picture);
+
+    const response = await taleAPI.taleSubmitPicture(formData);
+
+    return response;
+  },
 });
 
 const usePlayStore = create(
@@ -158,6 +177,7 @@ export const useTalePlay = () => {
 
   const addKeyword = usePlayStore((state) => state.addKeyword);
   const submitTotal = usePlayStore((state) => state.submitTotal);
+  const submitPicture = usePlayStore((state) => state.submitPicture);
 
   const currentClient = usePlayStore((state) => state.currentClient);
   const setSubscribeTale = usePlayStore((state) => state.setSubscribeTale);
@@ -183,6 +203,7 @@ export const useTalePlay = () => {
     addKeyword,
     currentClient,
     submitTotal,
+    submitPicture,
     setSubscribeTale,
     setDrawDirection,
   };

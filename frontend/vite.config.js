@@ -21,6 +21,6 @@ export default defineConfig({
   },
   define: {
     global: 'window',
-    // 'process.env': {},
+    'process.env': {},
   },
 });
