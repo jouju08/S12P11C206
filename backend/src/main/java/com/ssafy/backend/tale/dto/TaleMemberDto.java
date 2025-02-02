@@ -4,6 +4,12 @@ import com.ssafy.backend.db.entity.TaleMember;
 import com.ssafy.backend.tale.dto.request.PromptSet;
 import lombok.*;
 
+/**
+ * author : HEO-hyunjun
+ * date : 2025.01.31
+ * description : tale member 엔티티를 redis에 넣기 위한 dto입니다.
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor

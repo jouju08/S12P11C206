@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
  * date: 2025.02.02
  * description: 프론트에 넘겨줄 문장과 문장의 주인을 담는 객체
  * update:
- * 1.
+ * 1. order 추가
+ * 2. 이름 변경
  */
 
 @Data

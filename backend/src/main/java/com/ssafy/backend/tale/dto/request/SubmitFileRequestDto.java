@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * author : 허현준
  * date : 2025.02.01
- * description : 파일 제출 요청 DTO
+ * description : 동화 제작시 파일 제출 요청 DTO
  * update:
  *  1. order 추가 (2025.02.02)
  */

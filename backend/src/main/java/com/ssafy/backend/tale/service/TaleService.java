@@ -29,7 +29,9 @@ import java.util.*;
  *  date : 2025.01.31
  *  description : 동화 제작 관련 서비스,
  *  update
- *      1.
+ *      1. startMakingTale, keywordSubmit 메소드 완성 (2025.02.01)
+ *      2. redis에 tale_member 저장, 불러오기 메소드 추가 (2025.02.02)
+ *      3. save~ 메소드 추가 (2025.02.02)
  * */
 
 @Service
@@ -235,36 +237,54 @@ public class TaleService {
         return sentenceOwnerPairs;
     }
 
+    // 동화의 내용을 읽는 음성을 저장합니다.
     public void saveTaleVoice(long roomId, List<MultipartFile> voiceScriptList){
         for(int i = 0; i < 4; i++){
+            //각 순서별로 taleMember를 불러옵니다.
             TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, i);
             TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+
+            //음성을 s3에 업로드하고, url을 저장합니다.
             String voiceUrl = s3Service.uploadFile(voiceScriptList.get(i));
             taleMemberDto.setVoice(voiceUrl);
+
+            // taleMember를 redis에 업데이트합니다.
             setTaleMemberDtoToRedis(taleMemberDto);
         }
     }
 
+    // 동화 삽화 수정용 프롬프트를 저장합니다.
     public void saveTalePrompt(long roomId, List<PromptSet> promptSetList){
         for(int i = 0; i < 4; i++){
+            //각 순서별로 taleMember를 불러옵니다.
             TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, i);
             TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+
+            //프롬프트를 저장합니다.
             taleMemberDto.setPromptSet(promptSetList.get(i));
+
+            // taleMember를 redis에 업데이트합니다.
             setTaleMemberDtoToRedis(taleMemberDto);
         }
     }
 
+    // 동화 손그림을 저장합니다.
     public int saveHandPicture(SubmitFileRequestDto submitFileRequestDto){
+        // 레디스에서 tale_member를 불러옵니다.
         TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(submitFileRequestDto.getRoomId(), submitFileRequestDto.getOrder());
         TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+
+        // 손그림을 s3에 업로드하고, url을 저장합니다.
         String imgUrl = s3Service.uploadFile(submitFileRequestDto.getFile());
         taleMemberDto.setOrginImg(imgUrl);
+
+        // taleMember를 redis에 업데이트합니다.
         setTaleMemberDtoToRedis(taleMemberDto);
 
         // 4명이 모두 그림을 제출했는지 확인
         List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(submitFileRequestDto.getRoomId());
         int cnt = 0;
-        for (int i = 0; i < taleMembers.size(); i++) {
+        for (int i = 0; i < 4; i++) {
             TaleMemberDto participant = getTaleMemberDtoFromRedis(taleMembers.get(i));
             if(participant.getOrginImg() != null)
                 cnt++;
@@ -272,11 +292,17 @@ public class TaleService {
         return cnt;
     }
 
+    // 동화 AI 그림을 저장합니다.
     public void saveAIPicture(SubmitFileRequestDto submitFileRequestDto){
+        // 레디스에서 tale_member를 불러옵니다.
         TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(submitFileRequestDto.getRoomId(), submitFileRequestDto.getOrder());
         TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+
+        // AI그림을 s3에 업로드하고, url을 저장합니다.
         String imgUrl = s3Service.uploadFile(submitFileRequestDto.getFile());
         taleMemberDto.setImg(imgUrl);
+
+        // taleMember를 redis에 업데이트합니다.
         setTaleMemberDtoToRedis(taleMemberDto);
     }
 
@@ -288,7 +314,8 @@ public class TaleService {
             throw new RuntimeException("유효하지 않은 방입니다.");
         return room;
     }
-
+    
+    // redis에서 tale_member 불러오기
     private TaleMemberDto getTaleMemberDtoFromRedis(TaleMember taleMember){
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         TaleMemberDto taleMemberDto = (TaleMemberDto) ops.get("tale_member-"+taleMember.getId());
@@ -296,7 +323,8 @@ public class TaleService {
             throw new RuntimeException("유효하지 않은 방입니다..");
         return taleMemberDto;
     }
-
+    
+    // redis에 tale_member 저장
     private void setTaleMemberDtoToRedis(TaleMemberDto taleMemberDto){
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         ops.set("tale_member-"+taleMemberDto.getId(), taleMemberDto);

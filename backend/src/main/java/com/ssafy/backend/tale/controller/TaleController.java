@@ -71,8 +71,10 @@ public class TaleController {
     @PostMapping("/submit/picture")
     public ApiResponse<String> submitHandPicture(@RequestBody SubmitFileRequestDto submitFileRequestDto){
         if(taleService.saveHandPicture(submitFileRequestDto) >= 4){
-            // todo : 다음 단계로 넘어가기
-            // ai 쪽으로 그림 생성 요청
+            // todo: 4명이 모두 그림을 제출했을 때,
+            //  1. tale_member들을 mysql에 저장
+            //  2. ai 쪽으로 그림 생성 요청
+            //  3. 동화 완성을 websocket으로 알림
             
         }
         
