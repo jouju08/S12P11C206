@@ -238,19 +238,17 @@ public class TaleService {
     }
 
     // 동화의 내용을 읽는 음성을 저장합니다.
-    public void saveTaleVoice(long roomId, List<MultipartFile> voiceScriptList){
-        for(int i = 0; i < 4; i++){
+    public void saveTaleVoice(long roomId, int order, MultipartFile voiceFile){
             //각 순서별로 taleMember를 불러옵니다.
-            TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, i);
+            TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
             TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
 
             //음성을 s3에 업로드하고, url을 저장합니다.
-            String voiceUrl = s3Service.uploadFile(voiceScriptList.get(i));
+            String voiceUrl = s3Service.uploadFile(voiceFile);
             taleMemberDto.setVoice(voiceUrl);
 
             // taleMember를 redis에 업데이트합니다.
             setTaleMemberDtoToRedis(taleMemberDto);
-        }
     }
 
     // 동화 삽화 수정용 프롬프트를 저장합니다.
@@ -328,5 +326,6 @@ public class TaleService {
     private void setTaleMemberDtoToRedis(TaleMemberDto taleMemberDto){
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         ops.set("tale_member-"+taleMemberDto.getId(), taleMemberDto);
+        System.out.println("UPDATE!!!!!!!!!!!!!!!! taleMemberDto\n" + taleMemberDto);
     }
 }

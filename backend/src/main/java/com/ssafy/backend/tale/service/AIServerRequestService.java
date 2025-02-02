@@ -1,19 +1,27 @@
 package com.ssafy.backend.tale.service;
 
 import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.common.CustomMultipartFile;
 import com.ssafy.backend.tale.dto.request.DiffusionPromptRequestDto;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
-import com.ssafy.backend.tale.dto.request.PromptSet;
+import com.ssafy.backend.tale.dto.request.VoiceScriptRequestDto;
+import com.ssafy.backend.tale.dto.response.DiffusionPromptResponseDto;
 import com.ssafy.backend.tale.dto.response.GenerateTaleResponseDto;
 import com.ssafy.backend.tale.dto.response.PageInfo;
 import com.ssafy.backend.tale.dto.response.SentenceOwnerPair;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.multipart.MultipartFile;
+import reactor.netty.http.client.HttpClient;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,9 +37,16 @@ public class AIServerRequestService {
     private final TaleRoomNotiService taleRoomNotiService;
     private final TaleService taleService;
 
-    public AIServerRequestService(WebClient.Builder webClientBuilder,
-                                  @Value("${ai.server.url}") String url, TaleRoomNotiService taleRoomNotiService, TaleService taleService) {
-        this.webClient = webClientBuilder.baseUrl(url).build();
+    public AIServerRequestService(@Value("${ai.server.url}") String url, TaleRoomNotiService taleRoomNotiService, TaleService taleService) {
+        this.webClient = WebClient.builder()
+                .baseUrl(url)
+                .exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer
+                                .defaultCodecs()
+                                .maxInMemorySize(50 * 1024 * 1024)) // 10MB로 설정
+                        .build())
+                .clientConnector(new ReactorClientHttpConnector(HttpClient.create()))
+                .build();
         this.taleRoomNotiService = taleRoomNotiService;
         this.taleService = taleService;
     }
@@ -54,43 +69,48 @@ public class AIServerRequestService {
 //        System.out.println("response = " + response);
         // 완성된 동화를 redis에 저장
         List<PageInfo> pages = response.getData().getPages();
+        System.out.println("pages = " + pages);
         List<SentenceOwnerPair> sentenceOwnerPairList =  taleService.saveTaleText(roomId, pages);
         //todo: websocket으로 알림
         taleRoomNotiService.sendNotification("/topic/tale/" + roomId, sentenceOwnerPairList);
         //todo: 프롬프트 생성 requestDiffusionPrompt-> taleService.saveTalePrompt(roomId, prompt);
         DiffusionPromptRequestDto diffusionPromptRequestDto = new DiffusionPromptRequestDto(generateTaleRequestDto.getTitle(), pages);
-        List<PromptSet> promptSetList = requestDiffusionPrompt(diffusionPromptRequestDto);
-        taleService.saveTalePrompt(roomId, promptSetList);
+        requestDiffusionPrompt(roomId, diffusionPromptRequestDto);
 
         //todo: 음성 생성 requestVoiceScript->  s3에 저장 -> taleService.saveTaleVoice(roomId, voiceUrl);
-        List<MultipartFile> voiceScriptList = requestVoiceScript(pages);
-        taleService.saveTaleVoice(roomId, voiceScriptList);
+        for(int i=0; i<4; i++)
+            requestVoiceScript(roomId, i, pages.get(i));
+
     }
 
-    private List<PromptSet> requestDiffusionPrompt(DiffusionPromptRequestDto diffusionPromptRequestDto){
-        return webClient.post()
+    private void requestDiffusionPrompt(long roomId, DiffusionPromptRequestDto diffusionPromptRequestDto){
+        webClient.post()
                 .uri("/gen/diffusion-prompts")
                 .bodyValue(diffusionPromptRequestDto)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<ApiResponse<List<PromptSet>>>(){})
-                .block().getData();
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<DiffusionPromptResponseDto>>(){})
+                .subscribe(response -> taleService.saveTalePrompt(roomId, response.getData().getPrompts()));
     }
 
-    private List<MultipartFile> requestVoiceScript(List<PageInfo> pages){
-        List<MultipartFile> voiceScriptList = new ArrayList<>();
-        for (PageInfo page : pages) {
-            MultipartFile voice = webClient.post()
-                    .uri("/gen/script-read")
-                    .bodyValue(page.getFullText())
-                    .retrieve()
-                    .bodyToMono(MultipartFile.class)
-                    .block();
 
-            if (voice != null) { // null 체크 추가 (에러 방지)
-                voiceScriptList.add(voice);
-            }
-        }
-        return voiceScriptList; // 결과 리스트 반환
+    private void requestVoiceScript(long roomId, int order, PageInfo pages) {
+        VoiceScriptRequestDto voiceScriptRequestDto = new VoiceScriptRequestDto(pages.getFullText());
+
+        webClient.post()
+                .uri("/gen/script-read")
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .bodyValue(voiceScriptRequestDto)
+                .retrieve()
+                .bodyToMono(DataBuffer.class)  // 바이너리 데이터로 받기
+                .flatMap(dataBuffer -> convertToMultipartFile(dataBuffer, "voice_" + roomId + "_" + order + ".wav","audio/wav"))  // MultipartFile로 변환
+                .subscribe(file -> taleService.saveTaleVoice(roomId, order, file)); // 저장된 파일 전달
+    }
+
+    private Mono<MultipartFile> convertToMultipartFile(DataBuffer dataBuffer, String fileName, String contentType) {
+        byte[] bytes = new byte[dataBuffer.readableByteCount()];
+        dataBuffer.read(bytes);
+        MultipartFile multipartFile = new CustomMultipartFile(bytes, fileName, contentType);
+        return Mono.just(multipartFile);
     }
 
     public String requestTest(){
