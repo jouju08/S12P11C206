@@ -1,4 +1,5 @@
 import React from 'react';
+import TaleRoomHeader from '@/common/Header/TaleRoomHeader';
 
 // sweetAlert2 with react
 import Swal from 'sweetalert2';
@@ -7,17 +8,18 @@ import withReactContent from 'sweetalert2-react-content';
 export default function RoomBtn({ numOfPerson, location, children }) {
   // 동화방 click 이벤트 발생 시, 모달 띄움
   const showGameModal = () => {
-    const iframeSrc = numOfPerson === 1 ? '/tale' : '/tale/lobby';
+    const iframeSrc = numOfPerson === 1 ? '/tale/taleStart' : '/tale/lobby';
 
     withReactContent(Swal).fire({
       // html: <MyComponent />, // 여기에 jsx 컴포넌트 가능
+      title: <TaleRoomHeader onClose={() => withReactContent(Swal).close()} />,
       html: (
         <iframe
           src={iframeSrc}
           className="w-full h-[768px]"
         />
       ), // 여기에 jsx 컴포넌트 가능
-      showConfirmButton: true,
+      showConfirmButton: false,
       allowOutsideClick: false,
       customClass: {
         popup: 'h-[768px] w-[1024px]',
