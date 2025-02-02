@@ -79,8 +79,6 @@ const playActions = (set, get) => ({
         item.order === get().page
     )?.['order'];
 
-    console.log(order);
-
     const data = {
       memberId: userStore.getState().memberId,
       order,
