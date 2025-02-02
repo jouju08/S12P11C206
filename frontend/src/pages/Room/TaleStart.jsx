@@ -1,3 +1,14 @@
+import { Link } from 'react-router-dom';
+import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
+
+// 확인용 더미데이터
+const ParticipationList = [
+  {
+    id: 1,
+    nickname: '더미데이터',
+  },
+];
+
 const TaleStart = () => {
   return (
     // 전체 컨테이너 (1024x668)
@@ -20,16 +31,9 @@ const TaleStart = () => {
         />
       </div>
 
-      {/* 상단 말풍선 섹션 */}
-      <div className="absolute top-4 left-[84px] w-[234px] h-[65px] px-[11px] py-2.5 bg-white rounded-[100px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] justify-center items-center gap-7 inline-flex overflow-hidden">
-        <div className="text-center text-text-first service-regular2">
-          혼자 하고 있어요
-        </div>
-        <img
-          src="/Main/profile-img.png"
-          alt="profile"
-          className="w-[45px] h-[45px] relative rounded-[100px] object-cover"
-        />
+      {/* 참여인원 섹션 */}
+      <div className="absolute top-4 left-[84px]">
+        <ParticipationStatus ParticipationList={ParticipationList} />
       </div>
 
       {/* 메인 콘텐츠 영역 */}
@@ -58,6 +62,17 @@ const TaleStart = () => {
           </p>
         </div>
       </div>
+
+      {/* 다음 화살표 */}
+      <Link
+        to={'/tale/taleKeyword'}
+        className="absolute bottom-3 right-3">
+        <img
+          src="/Common/arrow-left.png"
+          alt="다음 화살표"
+          className="w-[50px] h-[50px] -scale-x-100"
+        />
+      </Link>
     </div>
   );
 };
