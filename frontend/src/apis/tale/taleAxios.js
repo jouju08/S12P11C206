@@ -12,11 +12,11 @@ const taleAPI = {
 
   taleKeyWordVoice: () => api.post('/tale/keyword/voice'),
   taleKeyWordHandWrite: () => api.post('/tale/keyword/handwrite'),
-  taleKeyWordTyping: () => api.post('/tale/keyword/typing'),
+  taleKeyWordTyping: (keyword) => api.post('/tale/keyword/typing', { keyword }),
 
-  taleKeyWordSubmitTotal: () => api.post('/tale/keyword/submit'),
+  taleSubmitTotal: (data) => api.post('/tale/submit/keyword', data), //키워드 최종 제출
 
-  taleSubmitPicture: () => api.post('/tale/submit/picture'),
+  taleSubmitPicture: () => api.post('/tale/submit/picture'), //그린 동화 제출
 
   taleHot: (roomId, page) => api.get(`/tale/temp/${roomId}/${page}`),
 };

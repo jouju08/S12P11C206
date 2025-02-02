@@ -26,6 +26,7 @@ export default function TaleAudioPlayer() {
         autoPlay>
         audio
       </audio>
+      Audio
     </div>
   );
 }

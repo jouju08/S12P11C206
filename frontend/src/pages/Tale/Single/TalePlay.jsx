@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
-import TaleAudioPlayer from './Play/TaleAudioPlayer';
-import TalePicturePlayer from './Play/TalePicturePlayer';
+import TaleAudioPlayer from './TaleAudioPlayer';
+import TalePicturePlayer from './TalePicturePlayer';
+import Playground from '@/components/Play/Single/Playground';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
 import { create } from 'zustand';
@@ -24,6 +25,7 @@ export default function TalePlay() {
   useEffect(() => {
     connect();
   }, []);
+
   return (
     <>
       <div>
@@ -34,9 +36,11 @@ export default function TalePlay() {
         </button>
       </div>
       <div>{roomId}</div>
-      <div>
-        <TalePicturePlayer></TalePicturePlayer>
-        <TaleAudioPlayer></TaleAudioPlayer>
+      <div className="w-full h-screen">
+        <Playground
+          picture={<TalePicturePlayer />}
+          audio={<TaleAudioPlayer />}
+        />
       </div>
     </>
   );
