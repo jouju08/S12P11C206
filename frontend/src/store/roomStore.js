@@ -235,3 +235,5 @@ export const useTaleRoom = () => {
     subscribeToParticipants,
   };
 };
+
+export { useRoomStore };

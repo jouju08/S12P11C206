@@ -4,6 +4,7 @@ import { immer } from 'zustand/middleware/immer';
 import { shallow } from 'zustand/shallow';
 import taleAPI from '@/apis/tale/taleAxios';
 import { userStore } from '../userStore';
+import { useRoomStore } from '../roomStore';
 
 //기본 동화 정보
 const tale = {
@@ -19,8 +20,9 @@ const tale = {
   taleStartImage: 'url',
 };
 
-//처음에 통신될 init data
-const initState = {};
+const currentClient = null;
+
+const drawDirection = [];
 
 //완성된 햇동화
 const hotTale = {
@@ -49,11 +51,28 @@ const playActions = (set, get) => ({
 
     baseTale?.sentenceOwnerPairs.sort((a, b) => a.order - b.order);
 
-    console.log(baseTale);
+    set((state) => {
+      state.currentClient = useRoomStore.getState().stompClient;
+    });
 
     set((state) => {
       state.tale = baseTale;
     });
+  },
+
+  setSubscribeTale: async (roomId) => {
+    const client = get().currentClient;
+
+    //그림 문장 채널 구독
+    if (client && client.connected) {
+      client.subscribe(`/topic/tale/${roomId}`, (message) => {
+        get().setDrawDirection(JSON.parse(message.body));
+      });
+      console.log('Subscribe Sucex');
+    }
+
+    console.log(usePlayStore.getState().drawDirection);
+    return 1;
   },
 
   setCurrentKeyword: (keyword) =>
@@ -70,6 +89,12 @@ const playActions = (set, get) => ({
     set((state) => {
       state.page = state.page + 1;
     }),
+
+  addKeyword: (keyword) => {
+    set((state) => {
+      state.keywords = [...state.keywords, keyword];
+    });
+  },
 
   submitTotal: async (keyword) => {
     //MeberId로 order 가져오기
@@ -90,6 +115,12 @@ const playActions = (set, get) => ({
 
     return response;
   },
+
+  setDrawDirection: (directions) => {
+    set((state) => {
+      state.drawDirection = directions;
+    });
+  },
 });
 
 const usePlayStore = create(
@@ -101,6 +132,9 @@ const usePlayStore = create(
       currentKeyword: '',
       inputType: '',
       page: 0,
+      keywords: [],
+      currentClient,
+      drawDirection,
       ...playActions(set, get),
     }))
   )
@@ -113,6 +147,8 @@ export const useTalePlay = () => {
   const currentKeyword = usePlayStore((state) => state.currentKeyword);
   const inputType = usePlayStore((state) => state.inputType);
   const page = usePlayStore((state) => state.page);
+  const keywords = usePlayStore((state) => state.keywords);
+  const drawDirection = usePlayStore((state) => state.drawDirection);
 
   const setRoomId = usePlayStore((state) => state.setRoomId);
   const setBaseTale = usePlayStore((state) => state.setBaseTale, shallow);
@@ -120,7 +156,12 @@ export const useTalePlay = () => {
   const setInputType = usePlayStore((state) => state.setInputType);
   const setPage = usePlayStore((state) => state.setPage);
 
+  const addKeyword = usePlayStore((state) => state.addKeyword);
   const submitTotal = usePlayStore((state) => state.submitTotal);
+
+  const currentClient = usePlayStore((state) => state.currentClient);
+  const setSubscribeTale = usePlayStore((state) => state.setSubscribeTale);
+  const setDrawDirection = usePlayStore((state) => state.setDrawDirection);
 
   return {
     tale,
@@ -130,12 +171,19 @@ export const useTalePlay = () => {
     inputType,
     page,
 
+    keywords,
+    drawDirection,
+
     setRoomId,
     setBaseTale,
     setCurrentKeyword,
     setInputType,
     setPage,
 
+    addKeyword,
+    currentClient,
     submitTotal,
+    setSubscribeTale,
+    setDrawDirection,
   };
 };

@@ -7,7 +7,7 @@ import { useTaleRoom } from '@/store/roomStore';
 import { create } from 'zustand';
 
 export default function TalePlay() {
-  const { setBaseTale, setRoomId, roomId } = useTalePlay();
+  const { setBaseTale, setRoomId, setSubscribeTale, roomId } = useTalePlay();
   const { connect, createRoom } = useTaleRoom();
 
   const handleTale = async () => {
@@ -17,6 +17,7 @@ export default function TalePlay() {
       setRoomId(playRoom.roomId);
 
       await setBaseTale();
+      await setSubscribeTale(playRoom.roomId);
     } catch (error) {
       console.error('에러 발생:', error);
     }

@@ -92,4 +92,10 @@
     font-family: CuteFont;
     font-size: 20px;
   }
+
+  /* Other CSS */
+  .fancy-underline {
+    @apply bg-gradient-to-r from-[#2193b0] to-[#6dd5ed] bg-no-repeat bg-[length:100%_0.4em] bg-[0_90%];
+  }
+
 }

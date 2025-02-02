@@ -9,13 +9,15 @@ export default function KeywordInput({ type, isActive, onclickEvent }) {
   ];
 
   return (
-    <div className="p-2 service-bold3 flex flex-col justify-between items-center rounded-[2.3rem] w-[8.75rem] h-[5.55rem] text-text-first bg-main-btn">
-      <button>
+    <button
+      className="p-2 service-bold3 flex flex-col justify-between items-center rounded-[2.3rem] w-[8.75rem] h-[5.55rem] text-text-first bg-main-btn"
+      onClick={onclickEvent}>
+      <div>
         <img src="/Common/fill-heart.png" />
-      </button>
-      <button onClick={onclickEvent}>
+      </div>
+      <div>
         <span>{typeKR.find((item) => item.type === type)?.['kr']}</span>
-      </button>
-    </div>
+      </div>
+    </button>
   );
 }
