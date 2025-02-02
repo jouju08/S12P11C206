@@ -1,5 +1,6 @@
 package com.ssafy.backend.tale.service;
 
+import com.ssafy.backend.common.S3Service;
 import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.entity.TaleMember;
@@ -10,6 +11,8 @@ import com.ssafy.backend.tale.dto.Room;
 import com.ssafy.backend.tale.dto.TaleMemberDto;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
+import com.ssafy.backend.tale.dto.request.PromptSet;
+import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.response.SentenceOwnerPair;
 import com.ssafy.backend.tale.dto.response.PageInfo;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
@@ -17,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -37,7 +41,7 @@ public class TaleService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final MemberRepository memberRepository;
     private final TaleMemberRepository taleMemberRepository;
-
+    private final S3Service s3Service;
     // 동화 제작 시작
     // -> 방의정보를 보고 동화의 정보를 불러와서 키워드 문장을 매칭시킵니다.
     public StartTaleMakingResponseDto startMakingTale(long roomId) {
@@ -229,6 +233,51 @@ public class TaleService {
         }
 
         return sentenceOwnerPairs;
+    }
+
+    public void saveTaleVoice(long roomId, List<MultipartFile> voiceScriptList){
+        for(int i = 0; i < 4; i++){
+            TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, i);
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+            String voiceUrl = s3Service.uploadFile(voiceScriptList.get(i));
+            taleMemberDto.setVoice(voiceUrl);
+            setTaleMemberDtoToRedis(taleMemberDto);
+        }
+    }
+
+    public void saveTalePrompt(long roomId, List<PromptSet> promptSetList){
+        for(int i = 0; i < 4; i++){
+            TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, i);
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+            taleMemberDto.setPromptSet(promptSetList.get(i));
+            setTaleMemberDtoToRedis(taleMemberDto);
+        }
+    }
+
+    public int saveHandPicture(SubmitFileRequestDto submitFileRequestDto){
+        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(submitFileRequestDto.getRoomId(), submitFileRequestDto.getOrder());
+        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+        String imgUrl = s3Service.uploadFile(submitFileRequestDto.getFile());
+        taleMemberDto.setOrginImg(imgUrl);
+        setTaleMemberDtoToRedis(taleMemberDto);
+
+        // 4명이 모두 그림을 제출했는지 확인
+        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(submitFileRequestDto.getRoomId());
+        int cnt = 0;
+        for (int i = 0; i < taleMembers.size(); i++) {
+            TaleMemberDto participant = getTaleMemberDtoFromRedis(taleMembers.get(i));
+            if(participant.getOrginImg() != null)
+                cnt++;
+        }
+        return cnt;
+    }
+
+    public void saveAIPicture(SubmitFileRequestDto submitFileRequestDto){
+        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(submitFileRequestDto.getRoomId(), submitFileRequestDto.getOrder());
+        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+        String imgUrl = s3Service.uploadFile(submitFileRequestDto.getFile());
+        taleMemberDto.setImg(imgUrl);
+        setTaleMemberDtoToRedis(taleMemberDto);
     }
 
     private Room getRoomFromRedis(long roomId) {

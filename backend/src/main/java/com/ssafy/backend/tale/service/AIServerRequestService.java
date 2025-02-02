@@ -10,8 +10,10 @@ import com.ssafy.backend.tale.dto.response.SentenceOwnerPair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,7 +21,7 @@ import java.util.List;
  * date : 2025.01.31
  * description : AI 서버에 요청을 보내는 서비스
  * update
- *
+ *  1. handleGenerateTaleResponse 메소드에 ai 서버로부터 받은 응답을 처리하는 로직 추가 (2025.02.02) todo : 테스트, websocket으로 알림
  */
 @Service
 public class AIServerRequestService {
@@ -42,11 +44,11 @@ public class AIServerRequestService {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<GenerateTaleResponseDto>>(){})
                 .subscribe(
-                        response -> handleGenerateTaleResponse(roomId, response)
+                        response -> handleGenerateTaleResponse(roomId, generateTaleRequestDto, response)
                 );
     }
 
-    private void handleGenerateTaleResponse(long roomId, ApiResponse<GenerateTaleResponseDto> response){
+    private void handleGenerateTaleResponse(long roomId,GenerateTaleRequestDto generateTaleRequestDto, ApiResponse<GenerateTaleResponseDto> response){
 //        System.out.println("success requestGenerateTale");
 //        System.out.println("roomId = " + roomId);
 //        System.out.println("response = " + response);
@@ -56,9 +58,13 @@ public class AIServerRequestService {
         //todo: websocket으로 알림
         taleRoomNotiService.sendNotification("/topic/tale/" + roomId, sentenceOwnerPairList);
         //todo: 프롬프트 생성 requestDiffusionPrompt-> taleService.saveTalePrompt(roomId, prompt);
-//        List<PromptSet> promptSetList = requestDiffusionPrompt();
+        DiffusionPromptRequestDto diffusionPromptRequestDto = new DiffusionPromptRequestDto(generateTaleRequestDto.getTitle(), pages);
+        List<PromptSet> promptSetList = requestDiffusionPrompt(diffusionPromptRequestDto);
+        taleService.saveTalePrompt(roomId, promptSetList);
 
         //todo: 음성 생성 requestVoiceScript->  s3에 저장 -> taleService.saveTaleVoice(roomId, voiceUrl);
+        List<MultipartFile> voiceScriptList = requestVoiceScript(pages);
+        taleService.saveTaleVoice(roomId, voiceScriptList);
     }
 
     private List<PromptSet> requestDiffusionPrompt(DiffusionPromptRequestDto diffusionPromptRequestDto){
@@ -68,6 +74,23 @@ public class AIServerRequestService {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<List<PromptSet>>>(){})
                 .block().getData();
+    }
+
+    private List<MultipartFile> requestVoiceScript(List<PageInfo> pages){
+        List<MultipartFile> voiceScriptList = new ArrayList<>();
+        for (PageInfo page : pages) {
+            MultipartFile voice = webClient.post()
+                    .uri("/gen/script-read")
+                    .bodyValue(page.getFullText())
+                    .retrieve()
+                    .bodyToMono(MultipartFile.class)
+                    .block();
+
+            if (voice != null) { // null 체크 추가 (에러 방지)
+                voiceScriptList.add(voice);
+            }
+        }
+        return voiceScriptList; // 결과 리스트 반환
     }
 
     public String requestTest(){
