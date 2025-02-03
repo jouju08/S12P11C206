@@ -1,13 +1,12 @@
 import React from "react";
 
-export default function ParentNav({nickname, loginId}) {
+export default function ParentNav({ nickname, loginId, selectedComponent, onTabClick }) {
     return (
         <div className="min-h-screen p-4">
-            {/* 네비게이션 바 */}
             <div className="w-[219px] h-[568px] bg-white shadow-md p-[16px]">
                 <div className="items-center justify-between border-b pb-[13px]">
                     <div>
-                        <h1 className="text-xl font-bold service-regular1">{nickname}</h1>
+                        <h1 className="service-regular1">{nickname}</h1>
                     </div>
                     <div className="flex justify-between">
                         <p className="text-gray-500 service-regular3">{loginId}</p>
@@ -15,6 +14,7 @@ export default function ParentNav({nickname, loginId}) {
                             src="Parent/profile-kakaotalk-icon.png"
                             alt="icon"
                             className="rounded-full"
+                            width={25}
                         />
                     </div>
                 </div>
@@ -22,23 +22,30 @@ export default function ParentNav({nickname, loginId}) {
                     <MenuItem
                         icon="/Parent/profile-edit-icon.png"
                         text="회원 정보 수정"
-                        textColor="text-red-500"
-                        onClick={click}
+                        item="edit"
+                        selectedComponent={selectedComponent} // 현재 선택된 탭 전달
+                        onTabClick={onTabClick}
                     />
                     <MenuItem
                         icon="/Parent/profile-book-icon.png"
                         text="아이가 만든 동화책"
-                        onClick={click}
+                        item="bookcase"
+                        selectedComponent={selectedComponent}
+                        onTabClick={onTabClick}
                     />
                     <MenuItem
                         icon="/Parent/profile-paint-icon.png"
                         text="아이가 그린 그림"
-                        onClick={click}
+                        item="exhibition"
+                        selectedComponent={selectedComponent}
+                        onTabClick={onTabClick}
                     />
                     <MenuItem
                         icon="/Parent/profile-kids-mode-icon.png"
                         text="아이 모드 돌아가기"
-                        onClick={click}
+                        item="kidsMode"
+                        selectedComponent={selectedComponent}
+                        onTabClick={onTabClick}
                     />
                 </div>
             </div>
@@ -46,14 +53,20 @@ export default function ParentNav({nickname, loginId}) {
     );
 }
 
+
 function click(){
     console.log("!!")
 }
+function MenuItem({ icon, text, item, selectedComponent, onTabClick }) {
+    const isSelected = selectedComponent === item; // 현재 선택된 탭인지 확인
+    const textColor = isSelected ? "text-red-500" : "text-black"; // 조건부로 색상 설정
 
-function MenuItem({ icon, text, textColor = "text-black" , onClick}) {
     return (
-        <div className="hover:cursor-pointer flex items-center space-x-[16px] service-regular3" onClick={onClick}>
-            <img src={icon} alt={`${text} 아이콘`} />
+        <div
+            className="hover:cursor-pointer flex items-center space-x-[16px] service-regular3"
+            onClick={() => onTabClick(item)} // 클릭 시 해당 탭으로 변경
+        >
+            <img width={24} src={icon} alt={`${text} 아이콘`} />
             <p className={`font-medium ${textColor}`}>{text}</p>
         </div>
     );

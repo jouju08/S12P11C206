@@ -21,7 +21,9 @@ export default function GalleryItem() {
             src="/Main/profile-img.png"
           />
           {/* 그린 사람 닉네임 props 넣기 */}
-          <div className="text-second service-regular3">그린 사람 닉네임</div>
+          <div className="text-text-second service-regular3">
+            그린 사람 닉네임
+          </div>
         </div>
         <div className="justify-start items-center gap-2 inline-flex overflow-hidden">
           <div className="w-6 h-6">
@@ -32,7 +34,7 @@ export default function GalleryItem() {
             />
           </div>
           {/* 그림의 좋아요(추천) 수 */}
-          <div className="text-second service-regular3">12</div>
+          <div className="text-text-second service-regular3">12</div>
         </div>
       </div>
     </Link>

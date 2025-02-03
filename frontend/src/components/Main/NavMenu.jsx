@@ -15,7 +15,7 @@ export default function NavMenu({ location, linkTo, children }) {
             src={`${path}${location}`}
           />
         </div>
-        <div className="self-stretch text-center text-first service-accent2">
+        <div className="self-stretch text-center text-text-first service-accent2">
           {children}
         </div>
       </div>

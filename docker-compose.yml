@@ -33,6 +33,9 @@ services:
       - MYSQL_PORT=${MYSQL_PORT}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - JWT_SECRET=${JWT_SECRET}
+      - oauth_kakao_client_id=${oauth_kakao_client_id}
+      - oauth_kakao_secert=${oauth_kakao_secert}
+      - oauth_kakao_redirect_uri=${oauth_kakao_redirect_uri}
   # frontend
   frontend:
     build: ./frontend
@@ -97,3 +100,4 @@ services:
 volumes:
   mysql-data:
   redis-data:
+

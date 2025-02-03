@@ -23,6 +23,8 @@ const Profile = lazy(() => import('@/pages/User/Profile'));
 const FileTest = lazy(() => import('@/pages/FileTest'));
 const Lobby = lazy(() => import('@/pages/Room/Lobby'));
 const Share = lazy(() => import('@/pages/Room/Share'));
+const TaleStart = lazy(() => import('@/pages/Room/TaleStart'));
+const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));
 
 const TaleStart = lazy(() => import('@/pages/Room/TaleStart'));
 const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));

@@ -11,10 +11,10 @@ export default function AuthHeader() {
       <nav className="w-[1024px] h-[100px] relative m-auto">
         {/* logo - 다음에 link 사이 img 넣기기 */}
         <Link
-          to="/"
+          to="/main"
           className="w-[200px] h-[70px] left-[60px] top-[15px] absolute bg-[#ffafaf]"
         />
-        <div className="left-[788px] top-[35px] absolute service-bold3 text-first cursor-pointer hover:text-main-choose">
+        <div className="left-[788px] top-[35px] absolute service-bold3 text-text-first cursor-pointer hover:text-main-choose">
           <Link to="/login">로그인</Link>
         </div>
 

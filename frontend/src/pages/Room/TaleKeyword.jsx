@@ -193,30 +193,26 @@ const TaleKeyword = () => {
 
       {/* 모드별 UI */}
       {mode === 'typing' && (
-        <div className="absolute bottom-[150px] left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-4">
+        <div className="absolute bottom-[170px] right-[100px] h-[118px] px-7 py-5 bg-main-background rounded-[50px] justify-start items-center gap-5 inline-flex">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="내 단어"
-            className="w-[300px] p-2 border border-gray-300 rounded-md"
-            autoFocus
+            className="w-[395px] h-[78px] p-5 border border-gray-200 rounded-md story-basic1"
           />
-          <button
-            onClick={handleConfirm}
-            className="bg-pink-500 text-white px-4 py-2 rounded-md">
-            확인
-          </button>
+
+          <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
 
       {mode === 'voice' && (
-        <div className="absolute bottom-[150px] left-1/2 transform -translate-x-1/2">
-          <button
-            onClick={() => console.log('Recording audio...')}
-            className="bg-yellow-500 text-white p-4 rounded-full shadow-lg">
-            🎤
-          </button>
+        <div className="absolute bottom-[150px] right-[250px] flex items-center gap-8">
+          <VoiceRecorder
+            recordedAudio={recordedAudio}
+            setRecordedAudio={setRecordedAudio}
+          />
+          <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
 
@@ -227,37 +223,47 @@ const TaleKeyword = () => {
             width={470}
             height={165}
             className="border border-gray-200 rounded-xl bg-white"></canvas>
-          <button
-            onClick={handleConfirm}
-            className="bg-pink-500 text-white px-4 py-2 rounded-md">
-            확인
-          </button>
+
+          <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
 
       {/* 하단 버튼들 */}
-      <div className="absolute bottom-[50px] left-[50px] flex gap-4">
-        <button
-          onClick={() => {
-            setMode('default');
-            setIsNextActive(false);
-          }}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md">
-          뒤로 가기
-        </button>
-        {isNextActive && (
+      {mode !== 'default' && (
+        <div className="absolute bottom-[20px] right-[50px] flex gap-4">
+          {/* 뒤로가기 */}
           <button
-            onClick={handleNext}
-            className="bg-green-500 text-white px-4 py-2 rounded-md">
-            다음
+            onClick={() => {
+              setMode('default');
+              setIsNextActive(false);
+            }}
+            className="w-[100px] h-[100px]"
+            style={{
+              backgroundImage: "url('/TaleKeyword/keyword-back.png')",
+            }}></button>
+
+          {/* 다음 */}
+          <button onClick={handleNext}>
+            <img
+              src={
+                isNextActive
+                  ? '/TaleKeyword/keyword-next-active.png'
+                  : '/TaleKeyword/keyword-next-disable.png'
+              }
+              alt="다음"
+              className={'w-[100px] h-[100px]'}
+            />
           </button>
-        )}
-        <button
-          onClick={handleReset}
-          className="bg-red-500 text-white px-4 py-2 rounded-md">
-          다시 하기
-        </button>
-      </div>
+
+          {/* 다시하기 */}
+          <button
+            onClick={handleReset}
+            className="w-[100px] h-[100px]"
+            style={{
+              backgroundImage: "url('/TaleKeyword/keyword-reset.png')",
+            }}></button>
+        </div>
+      )}
 
       {/* 첫 번째 화면 버튼들 */}
       {mode === 'default' && (
@@ -294,6 +300,110 @@ const ModeButton = ({ mode, text, imageSrc, onClick }) => {
       <div className="self-stretch text-center text-text-first service-bold1">
         {text}
       </div>
+    </button>
+  );
+};
+
+const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+
+      mediaRecorderRef.current.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunksRef.current.push(e.data);
+        }
+      };
+
+      mediaRecorderRef.current.onstop = () => {
+        const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
+        setRecordedAudio(audioBlob);
+        console.log('🔊', audioBlob);
+        chunksRef.current = [];
+      };
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Error accessing microphone:', err);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
+      setIsRecording(false);
+    }
+  };
+
+  const handleRecordClick = () => {
+    if (!isRecording) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  };
+
+  // 녹음된 거 확인용 - 다운로드 부분 삭제 시 이것도 삭제
+  const downloadWavFile = (audioBlob) => {
+    if (!audioBlob) return;
+
+    // Blob URL 생성
+    const blobUrl = URL.createObjectURL(audioBlob);
+
+    // 다운로드 링크 생성
+    const downloadLink = document.createElement('a');
+    downloadLink.href = blobUrl;
+    downloadLink.download = `recorded_audio_${new Date().getTime()}.wav`;
+
+    // 링크를 DOM에 추가하고 클릭 이벤트 발생
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+
+    // cleanup
+    document.body.removeChild(downloadLink);
+    URL.revokeObjectURL(blobUrl);
+  };
+
+  return (
+    <div>
+      <button
+        onClick={handleRecordClick}
+        disabled={recordedAudio !== null}
+        className={`w-[140px] h-[140px] flex items-center justify-center rounded-full shadow-lg transition-all duration-200
+          ${isRecording ? 'bg-main-choose' : recordedAudio ? 'bg-gray-300' : 'bg-main-background'}`}>
+        <img
+          src={
+            isRecording
+              ? '/TaleKeyword/active-mic.png'
+              : '/TaleKeyword/before-mic.png'
+          }
+          alt="microphone"
+          className={`w-[100px] h-[100px] ${recordedAudio ? 'opacity-50' : ''}`}
+        />
+      </button>
+
+      {/* 녹음 완료 후 다운로드 버튼 클릭 시 */}
+      <button onClick={() => downloadWavFile(recordedAudio)}>다운로드</button>
+    </div>
+  );
+};
+
+// 분홍색 확인 버튼
+const ConfirmBtn = ({ onClick }) => {
+  return (
+    <button
+      onClick={onClick}
+      className="bg-main-strawberry w-[78px] h-[78px] text-white px-4 py-2 rounded-full service-bold2">
+      확인
     </button>
   );
 };
