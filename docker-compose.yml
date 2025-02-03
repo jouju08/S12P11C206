@@ -139,13 +139,13 @@ services:
       - OPENVIDU_CERTIFICATE=/certs/fullchain.pem
       - OPENVIDU_PRIVATE_KEY=/certs/privkey.pem
       - OPENVIDU_URL=http://i12c206.p.ssafy.io:4443/
+      - CERTIFICATE_TYPE=letsencrypt
+      - LETSENCRYPT_EMAIL=joker901010@gmail.com
+      - HTTPS_PORT=4443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/openvidu/recordings:/opt/openvidu/recordings
       - /etc/letsencrypt/live/i12c206.p.ssafy.io:/certs:ro
-      - CERTIFICATE_TYPE=letsencrypt
-      - LETSENCRYPT_EMAIL=joker901010@gmail.com
-      - HTTPS_PORT=4443
     networks:
       - app-network
 
