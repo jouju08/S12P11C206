@@ -136,6 +136,7 @@ services:
       - OPENVIDU_DOMAIN_OR_PUBLIC_IP=i12c206.p.ssafy.io
       - OPENVIDU_CERTIFICATE=/certs/fullchain.pem
       - OPENVIDU_PRIVATE_KEY=/certs/privkey.pem
+      - OPENVIDU_URL=http://i12c206.p.ssafy.io:4443/
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/openvidu/recordings:/opt/openvidu/recordings
