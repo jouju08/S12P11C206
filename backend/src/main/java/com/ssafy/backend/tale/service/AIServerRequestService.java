@@ -3,6 +3,7 @@ package com.ssafy.backend.tale.service;
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.CustomMultipartFile;
 import com.ssafy.backend.common.S3Service;
+import com.ssafy.backend.common.WebSocketNotiService;
 import com.ssafy.backend.tale.dto.common.PromptSet;
 import com.ssafy.backend.tale.dto.common.TaleMemberDto;
 import com.ssafy.backend.tale.dto.request.*;
@@ -23,7 +24,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.w3c.dom.Text;
 import reactor.core.publisher.Mono;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
@@ -38,16 +38,17 @@ import java.util.List;
  * date : 2025.01.31
  * description : AI 서버에 요청을 보내는 서비스
  * update
- *  1. handleGenerateTaleResponse 메소드에 ai 서버로부터 받은 응답을 처리하는 로직 추가 (2025.02.02) todo : 테스트, websocket으로 알림
+ *  1. handleGenerateTaleResponse 메소드에 ai 서버로부터 받은 응답을 처리하는 로직 추가 (2025.02.02)
+ *  2. requestAIPicture 메소드 추가 / voice, handwrite keyword 요청 메소드 추가 (2025.02.02)
  */
 @Service
 public class AIServerRequestService {
     private final WebClient webClient;
-    private final TaleRoomNotiService taleRoomNotiService;
+    private final WebSocketNotiService webSocketNotiService;
     private final TaleService taleService;
     private final S3Service s3Service;
 
-    public AIServerRequestService(@Value("${ai.server.url}") String url, TaleRoomNotiService taleRoomNotiService, TaleService taleService, S3Service s3Service) {
+    public AIServerRequestService(@Value("${ai.server.url}") String url, WebSocketNotiService webSocketNotiService, TaleService taleService, S3Service s3Service) {
         this.webClient = WebClient.builder()
                 .baseUrl(url)
                 .exchangeStrategies(ExchangeStrategies.builder()
@@ -57,13 +58,12 @@ public class AIServerRequestService {
                         .build())
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create()))
                 .build();
-        this.taleRoomNotiService = taleRoomNotiService;
+        this.webSocketNotiService = webSocketNotiService;
         this.taleService = taleService;
         this.s3Service = s3Service;
     }
 
     public void requestGenerateTale(long roomId, GenerateTaleRequestDto generateTaleRequestDto){
-//        System.out.println("start requestGenerateTale");
         webClient.post()
                 .uri("/gen/tale")
                 .bodyValue(generateTaleRequestDto)
@@ -76,7 +76,7 @@ public class AIServerRequestService {
 
     public void requestAIPicture(long roomId){
         //웹소켓으로 동화 제작이 끝났음을 알림
-        taleRoomNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
+        webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
         //각 페이지마다 ai 그림 생성 요청
         TaleMemberDto taleMemberDto = null;
         for (int i = 0; i < 4; i++) {
@@ -86,6 +86,7 @@ public class AIServerRequestService {
             int finalI = i;
             ByteArrayResource fileResource = getByteArrayResource(s3Service.getFileAsBytes(taleMemberDto.getOrginImg()), "origin_" + roomId + "_" + finalI + ".png");
 
+            // MultiValueMap 생성
             PromptSet promptSet = taleMemberDto.getPromptSet();
             MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
             parts.add("roomId", roomId);
@@ -105,36 +106,37 @@ public class AIServerRequestService {
         }
     }
 
-    public void requestTestAIPicture(SubmitFileRequestDto submitFileRequestDto) {
-        System.out.println("submitFileRequestDto = " + submitFileRequestDto);
-
-        // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
-        ByteArrayResource fileResource = getByteArrayResource(submitFileRequestDto.getFile());
-        PromptSet promptSet = new PromptSet("긍정 프롬프트", "부정 프롬프트");
-
-        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-        parts.add("roomId", 55555);
-        parts.add("order", 4444);
-        parts.add("image", fileResource);
-        parts.add("prompt", promptSet.getPrompt());
-        parts.add("negativePrompt", promptSet.getNegativePrompt());
-        System.out.println("parts = " + parts);
-
-        webClient.post()
-                .uri("/gen/picture")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(BodyInserters.fromMultipartData(parts))
-                .retrieve()
-                .bodyToMono(void.class)
-                .subscribe(unused -> System.out.println("요청 성공"),
-                        error -> System.err.println("요청 실패: " + error.getMessage()));
-
-    }
+//    public void requestTestAIPicture(SubmitFileRequestDto submitFileRequestDto) {
+//        System.out.println("submitFileRequestDto = " + submitFileRequestDto);
+//
+//        // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
+//        ByteArrayResource fileResource = getByteArrayResource(submitFileRequestDto.getFile());
+//        PromptSet promptSet = new PromptSet("긍정 프롬프트", "부정 프롬프트");
+//
+//        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+//        parts.add("roomId", 55555);
+//        parts.add("order", 4444);
+//        parts.add("image", fileResource);
+//        parts.add("prompt", promptSet.getPrompt());
+//        parts.add("negativePrompt", promptSet.getNegativePrompt());
+//        System.out.println("parts = " + parts);
+//
+//        webClient.post()
+//                .uri("/gen/picture")
+//                .contentType(MediaType.MULTIPART_FORM_DATA)
+//                .body(BodyInserters.fromMultipartData(parts))
+//                .retrieve()
+//                .bodyToMono(void.class)
+//                .subscribe(unused -> System.out.println("요청 성공"),
+//                        error -> System.err.println("요청 실패: " + error.getMessage()));
+//
+//    }
 
     public ApiResponse<TextResponseDto> requestVoiceKeyword(KeywordFileRequestDto keywordFileRequestDto) {
         // ByteArrayResource 생성
         ByteArrayResource fileResource = getByteArrayResource(keywordFileRequestDto.getKeyword());
 
+        // MultiValueMap 생성
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
         parts.add("file", fileResource);
 
@@ -151,6 +153,7 @@ public class AIServerRequestService {
         // ByteArrayResource 생성
         ByteArrayResource fileResource = getByteArrayResource(keywordFileRequestDto.getKeyword());
 
+        // MultiValueMap 생성
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
         parts.add("file", fileResource);
 
@@ -164,20 +167,17 @@ public class AIServerRequestService {
     }
 
     private void handleGenerateTaleResponse(long roomId,GenerateTaleRequestDto generateTaleRequestDto, ApiResponse<GenerateTaleResponseDto> response){
-//        System.out.println("success requestGenerateTale");
-//        System.out.println("roomId = " + roomId);
-//        System.out.println("response = " + response);
         // 완성된 동화를 redis에 저장
         List<PageInfo> pages = response.getData().getPages();
         System.out.println("pages = " + pages);
         List<SentenceOwnerPair> sentenceOwnerPairList =  taleService.saveTaleText(roomId, pages);
-        //todo: websocket으로 알림
-        taleRoomNotiService.sendNotification("/topic/tale/" + roomId, sentenceOwnerPairList);
-        //todo: 프롬프트 생성 requestDiffusionPrompt-> taleService.saveTalePrompt(roomId, prompt);
+        // websocket으로 알림
+        webSocketNotiService.sendNotification("/topic/tale/" + roomId, sentenceOwnerPairList);
+        // 프롬프트 생성 requestDiffusionPrompt-> taleService.saveTalePrompt(roomId, prompt);
         DiffusionPromptRequestDto diffusionPromptRequestDto = new DiffusionPromptRequestDto(generateTaleRequestDto.getTitle(), pages);
         requestDiffusionPrompt(roomId, diffusionPromptRequestDto);
 
-        //todo: 음성 생성 requestVoiceScript->  s3에 저장 -> taleService.saveTaleVoice(roomId, voiceUrl);
+        // 음성 생성 requestVoiceScript->  s3에 저장 -> taleService.saveTaleVoice(roomId, voiceUrl);
         for(int i=0; i<4; i++)
             requestVoiceScript(roomId, i, pages.get(i));
 
@@ -227,14 +227,5 @@ public class AIServerRequestService {
                 return fileName;
             }
         };
-    }
-
-
-    public String requestTest(){
-        return webClient.get()
-                .uri("")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
     }
 }
