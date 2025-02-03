@@ -32,22 +32,6 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    @Bean
-    protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .cors(cors -> cors
-                        .configurationSource(corsConfigrationSource()))
-                .csrf(CsrfConfigurer::disable)
-                .httpBasic(HttpBasicConfigurer::disable)
-                .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("/", "/api/auth/**", "/api/search/**", "/file/**","/api/friend/**","/api/gallery/**").permitAll()   // 인증 필요없는
-                        .requestMatchers(HttpMethod.GET,"/guide/**", "/api/board/**", "/api/user/*","/api/friend/**","/api/gallery/**").permitAll()          // 패턴들
-                        .anyRequest().authenticated());
-        httpSecurity.logout(logout->logout.logoutUrl("api/auth/logout"));
-        httpSecurity.addFilterBefore(new JwtFilter(), ExceptionTranslationFilter.class);
-        return httpSecurity.build();
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -56,7 +40,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://i12c206.p.ssafy.io:3000", "http://localhost:3000", "https://i12c206.p.ssafy.io")); // 허용할 Origin 설정
+        config.setAllowedOrigins(List.of("https://i12c206.p.ssafy.io:3000", "http://localhost:3000", "https://i12c206.p.ssafy.io", "http://192.168.100.136:3000")); // 허용할 Origin 설정
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "MESSAGE")); // 허용할 HTTP 메서드 설정
         config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         config.setAllowCredentials(true); // 인증 정보 허용
