@@ -40,6 +40,8 @@ public class TaleMemberDto {
         taleMemberDto.setScript(taleMember.getScript());
         taleMemberDto.setTaleId(taleMember.getTale().getId());
         taleMemberDto.setMemberId(taleMember.getMember().getId());
+        taleMemberDto.setPromptSet(new PromptSet(taleMember.getPrompt(), taleMember.getNegativePrompt()));
+
         return taleMemberDto;
     }
 
@@ -53,6 +55,8 @@ public class TaleMemberDto {
         taleMember.setImg(taleMemberDto.getImg());
         taleMember.setVoice(taleMemberDto.getVoice());
         taleMember.setScript(taleMemberDto.getScript());
+        taleMember.setPrompt(taleMemberDto.getPromptSet().getPrompt());
+        taleMember.setNegativePrompt(taleMemberDto.getPromptSet().getNegativePrompt());
         return taleMember;
     }
 }

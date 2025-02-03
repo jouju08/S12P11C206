@@ -78,13 +78,19 @@ public class TaleService {
         keywordList.add(tale.getKeyword3());
         keywordList.add(tale.getKeyword4());
 
+        List<String> keywordSentenceList = new ArrayList<>();
+        keywordSentenceList.add(tale.getKeywordSentence1());
+        keywordSentenceList.add(tale.getKeywordSentence2());
+        keywordSentenceList.add(tale.getKeywordSentence3());
+        keywordSentenceList.add(tale.getKeywordSentence4());
+
         int order = -1;
         int memberCnt = 0;
         while((order = getNextKeywordIdx(keywordCheck)) != -1){
             SentenceOwnerPair sentenceOwnerPair = new SentenceOwnerPair();
             sentenceOwnerPair.setOrder(order);
             sentenceOwnerPair.setOwner(participants.get(memberCnt).getId());
-            sentenceOwnerPair.setSentence(keywordList.get(order));
+            sentenceOwnerPair.setSentence(keywordSentenceList.get(order));
             sentenceOwnerPairList.add(sentenceOwnerPair);
             memberCnt = (memberCnt+1) % participants.size();
         }
@@ -193,6 +199,11 @@ public class TaleService {
 
         // 동화 정보를 가져옵니다.
         BaseTale tale = baseTaleService.getById(room.getBaseTaleId());
+        List<String> keywordSentenceList = new ArrayList<>();
+        keywordSentenceList.add(tale.getKeywordSentence1());
+        keywordSentenceList.add(tale.getKeywordSentence2());
+        keywordSentenceList.add(tale.getKeywordSentence3());
+        keywordSentenceList.add(tale.getKeywordSentence4());
 
         // 참가자의 키워드를 가져옵니다.
         List<String> keywordList = new ArrayList<>();
@@ -202,7 +213,10 @@ public class TaleService {
             String keyword = taleMemberDto.getKeyword();
             if(keyword == null) // 키워드가 null 인경우, baseTale의 키워드를 사용합니다.
                 keyword = taleMember.getKeyword();
-            keywordList.add(keyword);
+            String keywordSentence = keywordSentenceList.get(i);
+            keywordSentence = keywordSentence.replace("xx", keyword);
+
+            keywordList.add(keywordSentence);
         }
 
         // 키워드 문장을 반환합니다.
