@@ -32,6 +32,22 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
+    @Bean
+    protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .cors(cors -> cors
+                        .configurationSource(corsConfigrationSource()))
+                .csrf(CsrfConfigurer::disable)
+                .httpBasic(HttpBasicConfigurer::disable)
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/", "/api/auth/**", "/api/search/**", "/file/**","/api/friend/**","/api/gallery/**").permitAll()   // 인증 필요없는
+                        .requestMatchers(HttpMethod.GET,"/guide/**", "/api/board/**", "/api/user/*","/api/friend/**","/api/gallery/**").permitAll()          // 패턴들
+                        .anyRequest().authenticated());
+        httpSecurity.logout(logout->logout.logoutUrl("api/auth/logout"));
+        httpSecurity.addFilterBefore(new JwtFilter(), ExceptionTranslationFilter.class);
+        return httpSecurity.build();
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
