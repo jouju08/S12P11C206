@@ -32,4 +32,4 @@ RUN echo "/AI" > /usr/local/lib/python3.11/site-packages/app.pth
 EXPOSE 8000
 
 # 애플리케이션 실행 (Uvicorn 사용)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "app/main.py"]
