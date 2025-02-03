@@ -8,12 +8,25 @@ export default function TaleRoomHeader({ onClose }) {
         <div className="w-[200px] h-[70px] bg-[#ffafaf]">로고</div>
         {/* 책 이름 가져오기 */}
         <div className="text-text-first service-accent1">책 제목</div>
-        <div
+        {/* <div
           onClick={onClose}
           className="bg-red-400 w-[160px] h-[70px]">
           나가기
-        </div>
+        </div> */}
+        <closeBtn />
       </nav>
     </header>
   );
 }
+
+const closeBtn = () => {
+  return (
+    <div className="h-[70px] px-2.5 py-2 bg-main-choose rounded-[100px] justify-start items-center gap-2.5 inline-flex overflow-hidden">
+      <div
+        className="w-[50px] h-[50px] relative  overflow-hidden"
+        style={{ backgroundImage: "url('/Common/close.png')" }}
+      />
+      <div className="text-white service-bold1">나가기</div>
+    </div>
+  );
+};
