@@ -9,17 +9,18 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    // proxy: {
-    //   '/api': {
-    //     target: 'http://localhost:8080',
-    //     changeOrigin: true,
-    //     // rewrite: (path) => path.replace(/^\/api/, ''),
-    //     secure: false,
-    //     ws: true,
-    //   },
-    // },
+    proxy: {
+      '/api': {
+        target: 'https://i12c206.p.ssafy.io:8080',
+        changeOrigin: true,
+        // rewrite: (path) => path.replace(/^\/api/, ''),
+        secure: true,
+        ws: true,
+      },
+    },
   },
   define: {
     global: 'window',
+    // 'process.env': {},
   },
 });

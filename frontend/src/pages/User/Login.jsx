@@ -1,17 +1,34 @@
-import { useAuth } from '@/store/userStore';
-import { use } from 'react';
-import { useState } from 'react';
+import { use, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+// import authAPI from '@/apis/auth/userAxios';
+import { useUser } from '@/store/userStore';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
 
-  const { Login } = useAuth();
+  const { login, isAuthenticated, refreshAccessToken } = useUser();
 
-  const handleSubmit = (e) => {
+  const navigate = useNavigate();
+
+  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_KAKAO_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/main');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('이메일:', email, '비밀번호:', password);
+
+    await login({ loginId, password });
+  };
+
+  const handleKakao = (e) => {
+    e.preventDefault();
+    window.location.href = KAKAO_AUTH_URL;
   };
 
   return (
@@ -57,12 +74,12 @@ export default function Login() {
                     <label
                       htmlFor="login-email"
                       className="block text-sm font-medium text-gray-600">
-                      Email
+                      ID
                     </label>
                     <input
                       type="email"
                       id="login-email"
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => setLoginId(e.target.value)}
                       className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
                     />
                   </div>
@@ -84,6 +101,12 @@ export default function Login() {
                     type="submit"
                     className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
                     Login
+                  </button>
+
+                  <button
+                    onClick={handleKakao}
+                    className="w-full bg-yellow-300 text-white py-2 rounded-lg hover:bg-yellow-600">
+                    카카오 로그인
                   </button>
                 </form>
               </div>
@@ -128,12 +151,10 @@ export default function Login() {
                       className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
                     />
                   </div>
-                  <button
-                    type="submit"
-                    className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
-                    Sign Up
-                  </button>
                 </form>
+                <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
+                  Sign Up
+                </button>
               </div>
             </div>
           </div>
@@ -141,7 +162,12 @@ export default function Login() {
       </div>
 
       <div className="flex-1 min-h-screen flex items-center justify-center bg-yellow-200">
-        <div className="bg-transparent p-2 w-full h-full max-w-[100%]"></div>
+        <div className="bg-transparent p-2 w-full h-full max-w-[100%]">
+          {isAuthenticated.toString()}
+          <div>
+            <button onClick={refreshAccessToken}>refresh</button>
+          </div>
+        </div>
       </div>
     </div>
   );

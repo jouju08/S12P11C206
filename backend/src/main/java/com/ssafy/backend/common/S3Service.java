@@ -1,5 +1,6 @@
 package com.ssafy.backend.common;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -7,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
@@ -23,15 +25,12 @@ import java.util.UUID;
  * */
 
 @Service
+@RequiredArgsConstructor
 public class S3Service {
     private final S3Client s3Client;
     private final String filePrefix = "https://${aws.s3.bucket}.s3.ap-northeast-2.amazonaws.com/";
     @Value("${aws.s3.bucket}")
     private String bucketName;
-
-    public S3Service(S3Client s3Client) {
-        this.s3Client = s3Client;
-    }
 
     /*
     * 파일 업로드 전략
@@ -49,6 +48,7 @@ public class S3Service {
                 .bucket(bucketName)
                 .key(fileName)
                 .contentType(file.getContentType())
+                .acl(ObjectCannedACL.PUBLIC_READ)
                 .build();
 
         try (InputStream inputStream = file.getInputStream()) {
@@ -68,7 +68,7 @@ public class S3Service {
     // S3 파일 삭제
     public void deleteFile(String fileUrl) {
         // S3에서의 파일 경로 추출 (filePrefix 이후의 경로만 사용)
-        String fileKey = fileUrl.replace(filePrefix, "");
+        String fileKey = fileUrl.split("/")[3];
 
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
@@ -77,6 +77,7 @@ public class S3Service {
         try{
             s3Client.deleteObject(deleteObjectRequest);
         } catch (AwsServiceException e) {
+            System.err.println("파일 삭제 실패");
             throw new RuntimeException("파일 삭제 실패");
         }
     }

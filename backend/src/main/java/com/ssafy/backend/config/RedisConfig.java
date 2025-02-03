@@ -28,7 +28,6 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        System.out.println(" **** redisConnectionFactory **** ");
         return new LettuceConnectionFactory(redisHost, redisPort);
     }
 
@@ -38,7 +37,6 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
         // 객체가 직접 저장될 수 없어서 JSON 직렬화 과정을 거쳐야 함.
-        System.out.println(" **** 직렬화~! **** ");
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
 

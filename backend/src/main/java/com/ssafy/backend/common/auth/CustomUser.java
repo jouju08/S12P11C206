@@ -8,11 +8,11 @@ public class CustomUser extends org.springframework.security.core.userdetails.Us
     public String nickName;
 
     public CustomUser(
-            String loginId,
+            String memberId,
             String password,
             Collection<? extends GrantedAuthority> authorities
     ) {
-        super(loginId, password, authorities);
+        super(memberId, password, authorities);
     }
     public String getNickName() {
         return nickName;

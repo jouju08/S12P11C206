@@ -1,9 +1,14 @@
 import { uploadFile } from '@/apis/tale/FileAPI';
 import React, { useState } from 'react';
+import authAPI from '@/apis/auth/userAxios';
+import { useUser } from '@/store/userStore';
 
 export default function FileTest() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('');
+  const { guide } = authAPI;
+
+  const { refreshAccessToken } = useUser();
 
   // 파일 선택 핸들러
   const handleFileChange = (event) => {
@@ -32,6 +37,22 @@ export default function FileTest() {
         onChange={handleFileChange}
       />
       <button onClick={handleUpload}>업로드</button>
+
+      <div>
+        <button
+          className="bg-red-300"
+          onClick={guide}>
+          Guide
+        </button>
+      </div>
+
+      <div>
+        <button
+          className="bg-red-300"
+          onClick={refreshAccessToken}>
+          Refresh
+        </button>
+      </div>
     </div>
   );
 }

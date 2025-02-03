@@ -1,22 +1,15 @@
-
+"""
+main application
+"""
 from fastapi import FastAPI
-from pydantic import BaseModel, Field
 import uvicorn
-from app.routers.audio import router as audio_router
-app = FastAPI()
+import config
+import app.routers as routers
 
-
-class RequestItem(BaseModel):
-    id: int = Field(0, title="The ID of the item")
-    name: str = Field(None, title="Name of the item", max_length=300)
-    description: str = Field(
-        None, title="Description of the item", max_length=300)
-
-
-@app.get("/items", response_model=RequestItem)
-async def read_items():
-    return {"id": 1, "name": "Foo", "description": "There comes my hero"}
+app = FastAPI(title="MyFairy AI API")
 
 if __name__ == "__main__":
-    app.add_api_route(audio_router)
-    uvicorn.run(app, host="localhost", port=8000)
+    app.include_router(routers.ask_router)  # ask router 추가
+    app.include_router(routers.gen_router)  # gen router 추가
+    uvicorn.run(app, host=config.FAST_API_HOST,
+                port=config.FAST_API_PORT)
