@@ -14,7 +14,7 @@ import io.openvidu.java.client.Session;
 
 
 @RestController
-@RequestMapping("/api/share")
+@RequestMapping("/api/openvidu")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class OpenViduController {
