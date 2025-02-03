@@ -17,6 +17,8 @@ const TaleKeyword = () => {
   const [recordedAudio, setRecordedAudio] = useState(null); // 녹음된 오디오 데이터
   const canvasRef = useRef(null); // 글쓰기 캔버스 참조
 
+  // 확인 버튼 눌리면 백엔드로 input, png, wav 넘겨서 읽힌 값 응답 받아와야함 (axios)
+  // 응답 값 모두 str?
   const handleConfirm = () => {
     if (mode === 'typing' && inputText.trim()) {
       setIsNextActive(true);
@@ -24,6 +26,8 @@ const TaleKeyword = () => {
       const canvas = canvasRef.current;
       const pngData = canvas.toDataURL('image/png');
       console.log('PNG Data:', pngData); // PNG 데이터를 잠시 저장
+      setIsNextActive(true);
+    } else if (mode === 'voice') {
       setIsNextActive(true);
     }
   };
@@ -167,12 +171,13 @@ const TaleKeyword = () => {
       )}
 
       {mode === 'voice' && (
-        <VoiceRecorder
-          recordedAudio={recordedAudio}
-          setRecordedAudio={setRecordedAudio}
-          isNextActive={isNextActive}
-          setIsNextActive={setIsNextActive}
-        />
+        <div className="absolute bottom-[150px] right-[250px] flex items-center gap-8">
+          <VoiceRecorder
+            recordedAudio={recordedAudio}
+            setRecordedAudio={setRecordedAudio}
+          />
+          <ConfirmBtn onClick={handleConfirm} />
+        </div>
       )}
 
       {mode === 'writing' && (
@@ -263,12 +268,7 @@ const ModeButton = ({ mode, text, imageSrc, onClick }) => {
   );
 };
 
-const VoiceRecorder = ({
-  recordedAudio,
-  setRecordedAudio,
-  isNextActive,
-  setIsNextActive,
-}) => {
+const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
@@ -305,7 +305,6 @@ const VoiceRecorder = ({
         .getTracks()
         .forEach((track) => track.stop());
       setIsRecording(false);
-      setIsNextActive(true);
     }
   };
 
@@ -339,12 +338,12 @@ const VoiceRecorder = ({
   };
 
   return (
-    <div className="absolute bottom-[150px] right-[320px]">
+    <div>
       <button
         onClick={handleRecordClick}
         disabled={recordedAudio !== null}
         className={`w-[140px] h-[140px] flex items-center justify-center rounded-full shadow-lg transition-all duration-200
-          ${isRecording ? 'bg-main-current' : recordedAudio ? 'bg-gray-300' : 'bg-main-background'}`}>
+          ${isRecording ? 'bg-main-choose' : recordedAudio ? 'bg-gray-300' : 'bg-main-background'}`}>
         <img
           src={
             isRecording
