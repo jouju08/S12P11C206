@@ -36,6 +36,8 @@ services:
       - oauth_kakao_client_id=${oauth_kakao_client_id}
       - oauth_kakao_secert=${oauth_kakao_secert}
       - oauth_kakao_redirect_uri=${oauth_kakao_redirect_uri}
+      - OPENVIDU_URL=http://i12c206.p.ssafy.io:4443/
+      - OPENVIDU_SECRET=MY_SECRET
   # frontend
   frontend:
     build: ./frontend
