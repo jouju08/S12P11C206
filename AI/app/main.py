@@ -7,6 +7,9 @@ import config
 import app.routers as routers
 
 app = FastAPI(title="MyFairy AI API")
+@app.get("/")
+def hello():
+    return {"hello": "world"}
 
 if __name__ == "__main__":
     app.include_router(routers.ask_router)  # ask router 추가
