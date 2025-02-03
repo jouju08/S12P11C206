@@ -12,32 +12,35 @@ const initialState = {
   stompClient: null,
   participants: {},
   memberId: userStore.getState().memberId,
+  isSingle: true,
 };
 
 const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
 
 const roomActions = (set, get) => ({
-  connect: () => {
-    console.log(get().memberId);
-    const socket = new SockJS(import.meta.env.VITE_WS_URL);
-    const stompClient = new Client({
-      webSocketFactory: () => socket,
+  connect: async () => {
+    return new Promise((resolve, reject) => {
+      console.log(get().memberId);
+      const socket = new SockJS(import.meta.env.VITE_WS_URL);
+      const stompClient = new Client({
+        webSocketFactory: () => socket,
 
-      onConnect: () => {
-        console.log('Socket connected');
-        get().subscribeToRooms();
-        console.log(`${userStore.getState().accessToken}`);
-      },
+        onConnect: () => {
+          console.log('Socket connected');
+          get().subscribeToRooms();
+          resolve(stompClient);
+        },
 
-      connectHeaders: {
-        Authorization: `Bearer ${userStore.getState().accessToken}`,
-      },
+        connectHeaders: {
+          Authorization: `Bearer ${userStore.getState().accessToken}`,
+        },
 
-      onDisconnect: () => console.log('Disconnected'),
-      debug: (str) => console.log(str),
+        onDisconnect: () => console.log('Disconnected'),
+        debug: (str) => console.log(str),
+      });
+      stompClient.activate();
+      set({ stompClient });
     });
-    stompClient.activate();
-    set({ stompClient });
   },
 
   subscribeToRooms: () => {
@@ -60,7 +63,6 @@ const roomActions = (set, get) => ({
 
     stompClient.subscribe(`topic/room/${roomId}`, (message) => {
       const participants = JSON.parse(message.body)['participants'];
-      console.log(message);
       get().setParticipants(roomId, participants);
     });
   },
@@ -88,7 +90,7 @@ const roomActions = (set, get) => ({
           } else {
             reject(new Error('방 생성 실패'));
           }
-        }, 500);
+        }, 1000);
       });
     } else {
       throw new Error('Stomp Client not connected');
@@ -113,14 +115,11 @@ const roomActions = (set, get) => ({
 
       stompClient.subscribe(`/topic/room/leave/${roomId}`, (message) => {
         const leaveData = JSON.parse(message.body);
-        console.log(leaveData);
         if (leaveData.leaveMemberId !== memberId) {
           console.log(`${leaveData.memberId} has left the room`);
           get().setCurrentRoom([JSON.parse(message.body)]);
         }
       });
-
-      console.log('JOIN');
     }
   },
 
@@ -176,6 +175,8 @@ const roomActions = (set, get) => ({
         (participant) => participant.id !== participantId
       ),
     })),
+
+  setIsSingle: (value) => set((state) => ({ ...state, isSingle: value })),
 });
 
 const useRoomStore = create(
@@ -193,6 +194,7 @@ export const useTaleRoom = () => {
   const currentRoom = useRoomStore((state) => state.currentRoom);
   const participants = useRoomStore((state) => state.participants, shallow);
   const memberId = useRoomStore((state) => state.memberId);
+  const isSingle = useRoomStore((state) => state.isSingle);
 
   const setRooms = useRoomStore((state) => state.setRooms);
   const setCurrentRoom = useRoomStore((state) => state.setCurrentRoom);
@@ -213,11 +215,14 @@ export const useTaleRoom = () => {
     (state) => state.subscribeToParticipants
   );
 
+  const setIsSingle = useRoomStore((state) => state.setIsSingle);
+
   return {
     rooms,
     currentRoom,
     participants,
     memberId,
+    isSingle,
 
     setRooms,
     setCurrentRoom,
@@ -230,6 +235,8 @@ export const useTaleRoom = () => {
     createRoom,
     joinRoom,
     leaveRoom,
+
+    setIsSingle,
 
     subscribeToRooms,
     subscribeToParticipants,

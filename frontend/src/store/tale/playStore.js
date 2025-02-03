@@ -123,6 +123,7 @@ const playActions = (set, get) => ({
   },
 
   submitPicture: async (picture) => {
+    //싱글 모드 차례대로 가져오기
     let order = get().tale?.sentenceOwnerPairs?.find(
       (item) =>
         item.owner === userStore.getState().memberId &&

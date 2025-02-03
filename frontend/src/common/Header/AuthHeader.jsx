@@ -21,9 +21,6 @@ export default function DefaultHeader() {
         <div className="left-[788px] top-[35px] absolute service-bold3 text-first cursor-pointer hover:text-main-choose">
           <Link to="/gallery">갤러리</Link>
         </div>
-        <div className="left-[900px] top-[35px] absolute service-bold3 text-first cursor-pointer hover:text-main-choose">
-          <Link to="/tale/play">싱글모드</Link>
-        </div>
 
         <div className=" left-[939px] top-[35px] absolute service-bold3 text-first cursor-pointer hover:text-main-choose">
           <button onClick={logout}> 그만하기</button>
