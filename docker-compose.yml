@@ -143,6 +143,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/openvidu/recordings:/opt/openvidu/recordings
       - /etc/letsencrypt/live/i12c206.p.ssafy.io:/certs:ro
+      - CERTIFICATE_TYPE=letsencrypt
+      - LETSENCRYPT_EMAIL=joker901010@gmail.com
+      - HTTPS_PORT=4443
     networks:
       - app-network
 
