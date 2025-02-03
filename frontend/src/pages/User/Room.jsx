@@ -179,12 +179,12 @@ export default function Room() {
             </div>
             <div className="px-[20px] flex gap-4 justify-end">
               <RoomBtn
-                numOfPerson={1}
+                isSingle={true}
                 location={'alone.png'}>
                 나 혼자 시작하기
               </RoomBtn>
               <RoomBtn
-                numOfPerson={4}
+                isSingle={false}
                 location={'together.png'}>
                 내가 방 만들기
               </RoomBtn>

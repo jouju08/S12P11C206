@@ -1,8 +1,9 @@
 """
 Ask Controller
 """
-from fastapi import APIRouter, UploadFile
+from fastapi import APIRouter, UploadFile, Form, File
 import config
+import app.core.util as util
 import app.core.audio as audio_service
 import app.core.picture as picture_service
 import app.models.response as response_dto
@@ -18,14 +19,15 @@ def transcript_audio(file: UploadFile):
     """
     # 파일을 바이트로 읽어들임
     file_bytes = file.file.read()
-
-    if audio_service.is_audio_length_ok(file_bytes):  # 음성의 길이가 최대 길이를 넘지 않는다면,
+    file_path = util.save_file(file_bytes, "wb", file.filename)
+    if audio_service.is_audio_length_ok(file_path):  # 음성의 길이가 최대 길이를 넘지 않는다면,
         # 음성을 텍스트로 변환하여 반환
         return response_dto.ApiResponse(
             status=Status.SUCCESS,
             message="OK",
-            data=audio_service.transcript_audio(file_bytes))
+            data=audio_service.transcript_audio(file_path))
     else:
+        util.delete_file(file_path)
         return response_dto.ApiResponse(
             status=Status.BAD_REQUEST,
             message="BAD REQUEST",
@@ -51,3 +53,18 @@ def handwrite_to_word(file: UploadFile):
             message="지원하지 않는 파일 형식입니다. 지원하는 형식은 jpg, jpeg, png, pdf, tif, tiff 입니다.",
             data=None
         )
+
+
+@router.post("/ai-picture")
+def submit_picture(roomId: str = Form(...),
+                   order: str = Form(...),
+                   file: UploadFile = File(...)):
+    """
+    손그림에서 그림을 생성하는 API
+    """
+    picture_service.submit_picture(roomId, order, file)
+    return response_dto.ApiResponse(
+        status=Status.SUCCESS,
+        message="OK",
+        data=None
+    )

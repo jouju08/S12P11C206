@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
+import { useTalePlay } from '@/store/tale/playStore';
+import { useEffect } from 'react';
+import { useTaleRoom } from '@/store/roomStore';
 
 // 확인용 더미데이터
 const ParticipationList = [
@@ -10,6 +13,26 @@ const ParticipationList = [
 ];
 
 const TaleStart = () => {
+  const { setBaseTale, setRoomId, setSubscribeTale, roomId } = useTalePlay();
+  const { connect, createRoom } = useTaleRoom();
+
+  useEffect(() => {
+    const handleTale = async () => {
+      try {
+        await connect();
+        const playRoom = await createRoom();
+
+        setRoomId(playRoom.roomId);
+
+        await setBaseTale();
+        await setSubscribeTale(playRoom.roomId);
+      } catch (error) {
+        console.error('Tale Start Error 발생:', error);
+      }
+    };
+    handleTale();
+  }, []);
+
   return (
     // 전체 컨테이너 (1024x668)
     <div className="relative w-[1024px] h-[668px]">

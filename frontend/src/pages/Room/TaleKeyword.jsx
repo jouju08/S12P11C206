@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
-import FairyChatBubble from '@/components/Common/FairyChatBubble';
+import FairyChatBubble from '@/components/common/FairyChatBubble';
+import { useTalePlay } from '@/store/tale/playStore';
+import { useTaleRoom } from '@/store/roomStore';
 
 // 확인용 더미데이터
 const ParticipationList = [
@@ -17,8 +19,22 @@ const TaleKeyword = () => {
   const [recordedAudio, setRecordedAudio] = useState(null); // 녹음된 오디오 데이터
   const canvasRef = useRef(null); // 글쓰기 캔버스 참조
 
-  // 확인 버튼 눌리면 백엔드로 input, png, wav 넘겨서 읽힌 값 응답 받아와야함 (axios)
-  // 응답 값 모두 str?
+  const { isSingle } = useTaleRoom();
+
+  const {
+    tale,
+    page,
+    setCurrentKeyword,
+    submitTotal,
+    setPage,
+    addKeyword,
+    keywords,
+  } = useTalePlay(); // 동화 API
+
+  const sentences = tale?.['sentenceOwnerPairs']?.filter(
+    (item) => item.sentence
+  );
+
   const handleConfirm = () => {
     if (mode === 'typing' && inputText.trim()) {
       setIsNextActive(true);
@@ -27,10 +43,26 @@ const TaleKeyword = () => {
       const pngData = canvas.toDataURL('image/png');
       console.log('PNG Data:', pngData); // PNG 데이터를 잠시 저장
       setIsNextActive(true);
-    } else if (mode === 'voice') {
-      setIsNextActive(true);
     }
   };
+
+  //싱글모드 대응
+  const handleSubmitTextSingle = async (keyword) => {
+    try {
+      const response = await submitTotal(keyword);
+
+      if (response.data.status == 'SU') {
+        setPage();
+        addKeyword(keyword);
+      }
+    } catch {
+      return false;
+    }
+  };
+
+  const handleSumbitVoiceSingle = async (voice) => {};
+
+  const handleSubmitPictureSingle = async (picture) => {};
 
   const handleReset = () => {
     setInputText('');
@@ -43,20 +75,24 @@ const TaleKeyword = () => {
     setIsNextActive(false);
   };
 
-  // 다음 버튼으로 인해 백엔드로 키워드를 보냄
   const handleNext = () => {
-    if (isNextActive == true) {
-      if (mode === 'typing') {
-        console.log('⌨️ Sending text to backend:', inputText);
-      } else if (mode === 'voice') {
-        console.log('🔊 Sending audio to backend:', recordedAudio);
-      } else if (mode === 'writing') {
-        const canvas = canvasRef.current;
-        const pngData = canvas.toDataURL('image/png');
-        console.log('✍🏻 Sending PNG to backend:', pngData);
-      }
-    } else {
-      console.log('❌ next disable');
+    if (mode === 'typing' && isSingle) {
+      handleSubmitTextSingle(inputText);
+      handleReset();
+    } else if (mode === 'typing' && !isSingle) {
+      console.log('Sending text to backend:', inputText);
+    } else if (mode === 'voice' && isSingle) {
+      console.log('Sending audio to backend:', recordedAudio);
+    } else if (mode === 'voice' && !isSingle) {
+      console.log('Sending audio to backend:', recordedAudio);
+    } else if (mode === 'writing' && isSingle) {
+      const canvas = canvasRef.current;
+      const pngData = canvas.toDataURL('image/png');
+      console.log('Sending PNG to backend:', pngData);
+    } else if (mode === 'writing' && !isSingle) {
+      const canvas = canvasRef.current;
+      const pngData = canvas.toDataURL('image/png');
+      console.log('Sending PNG to backend:', pngData);
     }
   };
 
