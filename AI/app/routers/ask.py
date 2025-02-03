@@ -1,7 +1,7 @@
 """
 Ask Controller
 """
-from fastapi import APIRouter, UploadFile
+from fastapi import APIRouter, UploadFile, Form, File
 import config
 import app.core.util as util
 import app.core.audio as audio_service
@@ -53,3 +53,18 @@ def handwrite_to_word(file: UploadFile):
             message="지원하지 않는 파일 형식입니다. 지원하는 형식은 jpg, jpeg, png, pdf, tif, tiff 입니다.",
             data=None
         )
+
+
+@router.post("/ai-picture")
+def submit_picture(roomId: str = Form(...),
+                   order: str = Form(...),
+                   file: UploadFile = File(...)):
+    """
+    손그림에서 그림을 생성하는 API
+    """
+    picture_service.submit_picture(roomId, order, file)
+    return response_dto.ApiResponse(
+        status=Status.SUCCESS,
+        message="OK",
+        data=None
+    )

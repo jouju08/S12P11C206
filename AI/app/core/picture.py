@@ -5,7 +5,7 @@ import uuid
 import time
 import json
 import requests
-import httpx
+import base64
 import config
 from requests_toolbelt import MultipartEncoder
 import config
@@ -13,9 +13,11 @@ import app.core.llm as llm_service
 import app.models.common as common
 import app.models.request as request_dto
 import app.models.response as response_dto
-from fastapi import UploadFile
+from fastapi import UploadFile, Form
 
 AI_IMG_2_IMG_ENDPOINT = config.AI_IMG_2_IMG_SERVER + "/make_image"
+SPRING_SERVER_URL_ENDPOINT = config.SPRING_SERVER_URL + \
+    "/api/tale/submit/ai-picture"
 
 
 def handwrite_to_word(file):
@@ -59,36 +61,37 @@ def is_image_suffix_ok(file: UploadFile):
     return file_suffix in ["jpg", "jpeg", "png", "pdf", "tif", "tiff"]
 
 
-def generate_img2img(pictureRequestDto: request_dto.GeneratePictureRequestDto):
+def generate_img2img(roomId: int, order: int, prompt: str, negativePrompt: str, image: UploadFile):
     """
     "http://localhost:7582"로 POST 요청을 보내고,
     응답의 텍스트를 반환하는 함수.
     """
-    """async with httpx.AsyncClient() as client:
-        response = await client.post(AI_IMG_2_IMG_ENDPOINT, json=pictureRequestDto.model_dump_json())
-        response.raise_for_status()  # 에러 발생 시 예외 발생
-        return response.text  # 또는 response.json() 등 필요한 처리"""
-    request = MultipartEncoder(fields={
-        'roomId': str(pictureRequestDto.roomId),
-        'order': str(pictureRequestDto.order),
-        'prompt': pictureRequestDto.promptSet.prompt,
-        'negativePrompt': pictureRequestDto.promptSet.negativePrompt,
-        'image': pictureRequestDto.image
-    })
-    headers = {'Content-Type': request.content_type}
-    result = requests.post(AI_IMG_2_IMG_ENDPOINT,
-                           data=request, headers=headers)
-    print(result.text)
+    fields = {
+        'roomId': roomId,
+        'order': order,
+        'prompt': prompt,
+        'negativePrompt': negativePrompt
+    }
+    file = {
+        'image': (image.filename, image.file.read(), 'image/png')
+    }
+    result = requests.post(AI_IMG_2_IMG_ENDPOINT, data=fields, files=file)
+
     return result.text
 
 
-"""    
-    img_base_64 = base64.b64encode(img).decode('utf-8')
-
-
-    task_id = post_novita_api(img_base_64, pictureRequestDto.promptSet)
-    image_url = get_novita_image(task_id)
-    return response_dto.URLResponseDto(url=image_url)"""
+def submit_picture(roomId: int, order: int, image: UploadFile):
+    print("submit_picture")
+    file = {
+        'file': (image.filename, image.file.read(), 'image/png')
+    }
+    fields = {
+        'roomId': roomId,
+        'order': order,
+    }
+    result = requests.post(config.SPRING_SERVER_URL +
+                           "/api/tale/submitt/ai-picture", data=fields, files=file)
+    return
 
 
 def post_novita_api(img_base_64, prompts: common.PromptSet):

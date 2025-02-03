@@ -58,13 +58,14 @@ async def generate_img2img(roomId: int = Form(...),
     """
     손그림에서 그림을 생성하는 API
     """
-    image_bytes = await image.read()
-    image_bytes = base64.b64encode(image_bytes).decode('utf-8')
-    pictureRequestDto = request_dto.GeneratePictureRequestDto(
-        roomId=roomId, order=order, image=image_bytes, promptSet=common.PromptSet(prompt=prompt, negativePrompt=negativePrompt))
 
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
-        data=picture_service.generate_img2img(pictureRequestDto)
+        data=picture_service.generate_img2img(
+            roomId=roomId,
+            order=order,
+            prompt=prompt,
+            negativePrompt=negativePrompt,
+            image=image)
     )

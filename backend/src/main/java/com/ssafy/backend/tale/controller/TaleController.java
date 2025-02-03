@@ -103,8 +103,19 @@ public class TaleController {
     @PostMapping("/submit/ai-picture")
     public ApiResponse<String> submitAIPicture(@ModelAttribute SubmitFileRequestDto submitFileRequestDto){
         System.out.println("submitFileRequestDto = " + submitFileRequestDto);
-        aiServerRequestService.requestTestAIPicture(submitFileRequestDto);
-        //taleService.saveAIPicture(submitFileRequestDto);
+        taleService.saveAIPicture(submitFileRequestDto);
         return ApiResponse.<String>builder().build();
     }
+
+    // AI 서버에서 그림이 완성됐을때 여기로 제출합니다. (테스트용)
+//    @PostMapping("/submitt/ai-picture")
+//    public ApiResponse<String> submitAIPictures(@ModelAttribute SubmitFileRequestDto submitFileRequestDto){
+//        System.out.println("submitFileRequestDto = " + submitFileRequestDto);
+//        System.out.println(
+//                "submitaipicture 도착햇다아아아아랑ㄴㅁ;러ㅏㅇ니라ㅓ마;ㅣㄹㅇ"
+//        );
+//        //aiServerRequestService.requestTestAIPicture(submitFileRequestDto);
+//        //taleService.saveAIPicture(submitFileRequestDto);
+//        return ApiResponse.<String>builder().build();
+//    }
 }

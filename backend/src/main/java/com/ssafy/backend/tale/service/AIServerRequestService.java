@@ -75,23 +75,37 @@ public class AIServerRequestService {
     public void requestAIPicture(long roomId){
         //웹소켓으로 동화 제작이 끝났음을 알림
         taleRoomNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
-
         //각 페이지마다 ai 그림 생성 요청
-        for(int i=0; i<4; i++){
+        TaleMemberDto taleMemberDto = null;
+        for (int i = 0; i < 4; i++) {
             // AI 서버에 이미지를 보내기 위해 promptset과 original image url을 담은 dto를 생성
-            TaleMemberDto taleMemberDto = taleService.getTaleMemberDtoFromRedis(roomId, i);
+            taleMemberDto = taleService.getTaleMemberDtoFromRedis(roomId, i);
             byte[] originImageByte = s3Service.getFileAsBytes(taleMemberDto.getOrginImg());
-            MultipartFile originImage = new CustomMultipartFile(originImageByte, "originImage.png", "image/png");
+            // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
+            int finalI = i;
+            ByteArrayResource fileResource = new ByteArrayResource(originImageByte) {
+                @Override
+                public String getFilename() {
+                    return roomId + "_" + finalI + ".png";
+                }
+            };
 
             PromptSet promptSet = taleMemberDto.getPromptSet();
-            AIPictureRequestDto aIPictureRequestDto = new AIPictureRequestDto(roomId, i, originImage, promptSet);
+            MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+            parts.add("roomId", roomId);
+            parts.add("order", i);
+            parts.add("image", fileResource);
+            parts.add("prompt", promptSet.getPrompt());
+            parts.add("negativePrompt", promptSet.getNegativePrompt());
 
             webClient.post()
                     .uri("/gen/picture")
-                    .bodyValue(aIPictureRequestDto)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData(parts))
                     .retrieve()
                     .bodyToMono(void.class)
-                    .subscribe();
+                    .subscribe(unused -> System.out.println("요청 성공"),
+                            error -> System.err.println("요청 실패: " + error.getMessage()));
         }
     }
 
