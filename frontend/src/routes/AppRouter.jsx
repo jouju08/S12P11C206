@@ -26,9 +26,6 @@ const Share = lazy(() => import('@/pages/Room/Share'));
 const TaleStart = lazy(() => import('@/pages/Room/TaleStart'));
 const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));
 
-const TaleStart = lazy(() => import('@/pages/Room/TaleStart'));
-const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));
-
 //인증된 사용자
 const ProtectedLayout = () => {
   const { isAuthenticated, fetchUser } = useUser();
