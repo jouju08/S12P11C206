@@ -7,6 +7,7 @@ import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
+import com.ssafy.backend.tale.dto.response.TextResponseDto;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
 import lombok.RequiredArgsConstructor;
@@ -44,14 +45,14 @@ public class TaleController {
 
     // todo : 키워드 음성 정보 확인
     @PostMapping("/keyword/voice")
-    public ApiResponse<String> keywordVoice(@RequestBody KeywordFileRequestDto keywordFileRequestDto){
-        return ApiResponse.<String>builder().data("keyword.getKeyword()").build();
+    public ApiResponse<TextResponseDto> keywordVoice(@ModelAttribute KeywordFileRequestDto keywordFileRequestDto){
+        return aiServerRequestService.requestVoiceKeyword(keywordFileRequestDto);
     }
 
     // todo : 키워드 손글씨 정보 확인
     @PostMapping("/keyword/handwrite")
-    public ApiResponse<String> keywordHandwrite(@RequestBody KeywordFileRequestDto keywordFileRequestDto){
-        return ApiResponse.<String>builder().data("keyword.getKeyword()").build();
+    public ApiResponse<TextResponseDto> keywordHandwrite(@ModelAttribute KeywordFileRequestDto keywordFileRequestDto){
+        return aiServerRequestService.requestHandWriteKeyword(keywordFileRequestDto);
     }
 
     // 키워드 최종선택

@@ -11,6 +11,7 @@ import com.ssafy.backend.tale.dto.response.GenerateTaleResponseDto;
 import com.ssafy.backend.tale.dto.common.PageInfo;
 import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 
+import com.ssafy.backend.tale.dto.response.TextResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -22,6 +23,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.w3c.dom.Text;
 import reactor.core.publisher.Mono;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
@@ -80,15 +82,9 @@ public class AIServerRequestService {
         for (int i = 0; i < 4; i++) {
             // AI 서버에 이미지를 보내기 위해 promptset과 original image url을 담은 dto를 생성
             taleMemberDto = taleService.getTaleMemberDtoFromRedis(roomId, i);
-            byte[] originImageByte = s3Service.getFileAsBytes(taleMemberDto.getOrginImg());
             // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
             int finalI = i;
-            ByteArrayResource fileResource = new ByteArrayResource(originImageByte) {
-                @Override
-                public String getFilename() {
-                    return roomId + "_" + finalI + ".png";
-                }
-            };
+            ByteArrayResource fileResource = getByteArrayResource(s3Service.getFileAsBytes(taleMemberDto.getOrginImg()), "origin_" + roomId + "_" + finalI + ".png");
 
             PromptSet promptSet = taleMemberDto.getPromptSet();
             MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
@@ -112,40 +108,59 @@ public class AIServerRequestService {
     public void requestTestAIPicture(SubmitFileRequestDto submitFileRequestDto) {
         System.out.println("submitFileRequestDto = " + submitFileRequestDto);
 
-        try {
-            // 이미 컨트롤러에서 읽어온 파일 바이트 배열을 사용합니다.
-            byte[] fileBytes = submitFileRequestDto.getFile().getBytes();
-            // 파일 이름 등 추가 정보를 얻기 위해 원래의 MultipartFile을 참조할 수 있다면 사용합니다.
-            String originalFilename = submitFileRequestDto.getFile().getOriginalFilename();
+        // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
+        ByteArrayResource fileResource = getByteArrayResource(submitFileRequestDto.getFile());
+        PromptSet promptSet = new PromptSet("긍정 프롬프트", "부정 프롬프트");
 
-            // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
-            ByteArrayResource fileResource = new ByteArrayResource(fileBytes) {
-                @Override
-                public String getFilename() {
-                    return originalFilename;
-                }
-            };
-            PromptSet promptSet = new PromptSet("긍정 프롬프트", "부정 프롬프트");
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+        parts.add("roomId", 55555);
+        parts.add("order", 4444);
+        parts.add("image", fileResource);
+        parts.add("prompt", promptSet.getPrompt());
+        parts.add("negativePrompt", promptSet.getNegativePrompt());
+        System.out.println("parts = " + parts);
 
-            MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-            parts.add("roomId", 55555);
-            parts.add("order", 4444);
-            parts.add("image", fileResource);
-            parts.add("prompt", promptSet.getPrompt());
-            parts.add("negativePrompt", promptSet.getNegativePrompt());
-            System.out.println("parts = " + parts);
+        webClient.post()
+                .uri("/gen/picture")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(parts))
+                .retrieve()
+                .bodyToMono(void.class)
+                .subscribe(unused -> System.out.println("요청 성공"),
+                        error -> System.err.println("요청 실패: " + error.getMessage()));
 
-            webClient.post()
-                    .uri("/gen/picture")
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .body(BodyInserters.fromMultipartData(parts))
-                    .retrieve()
-                    .bodyToMono(void.class)
-                    .subscribe(unused -> System.out.println("요청 성공"),
-                            error -> System.err.println("요청 실패: " + error.getMessage()));
-        } catch (IOException e) {
-            System.err.println("서비스 처리 중 오류 발생: " + e.getMessage());
-        }
+    }
+
+    public ApiResponse<TextResponseDto> requestVoiceKeyword(KeywordFileRequestDto keywordFileRequestDto) {
+        // ByteArrayResource 생성
+        ByteArrayResource fileResource = getByteArrayResource(keywordFileRequestDto.getKeyword());
+
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+        parts.add("file", fileResource);
+
+        return webClient.post()
+                .uri("/ask/voice-to-word")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(parts))
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<TextResponseDto>>(){})
+                .block();
+    }
+
+    public ApiResponse<TextResponseDto> requestHandWriteKeyword(KeywordFileRequestDto keywordFileRequestDto) {
+        // ByteArrayResource 생성
+        ByteArrayResource fileResource = getByteArrayResource(keywordFileRequestDto.getKeyword());
+
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+        parts.add("file", fileResource);
+
+        return webClient.post()
+                .uri("/ask/handwrite-to-word")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(parts))
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<TextResponseDto>>(){})
+                .block();
     }
 
     private void handleGenerateTaleResponse(long roomId,GenerateTaleRequestDto generateTaleRequestDto, ApiResponse<GenerateTaleResponseDto> response){
@@ -195,6 +210,24 @@ public class AIServerRequestService {
         return Mono.just(CustomMultipartFile.convertToMultipartFile(dataBuffer, fileName, contentType));
     }
 
+    private ByteArrayResource getByteArrayResource(MultipartFile file) {
+        try {
+            byte[] fileBytes = file.getBytes();
+            return getByteArrayResource(fileBytes, file.getOriginalFilename());
+        } catch (IOException e) {
+            System.err.println("파일 변환 중 오류 발생: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private ByteArrayResource getByteArrayResource(byte[] file, String fileName) {
+        return new ByteArrayResource(file) {
+            @Override
+            public String getFilename() {
+                return fileName;
+            }
+        };
+    }
 
 
     public String requestTest(){
