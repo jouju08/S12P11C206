@@ -302,6 +302,17 @@ public class TaleService {
         return cnt;
     }
 
+    //redis의 tale_member를 mysql에 저장합니다.
+    public void saveTaleFromRedis(long roomId) {
+        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
+        for (int i = 0; i < 4; i++) {
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMembers.get(i));
+            TaleMember taleMember = TaleMemberDto.parse(taleMemberDto);
+            taleMembers.set(i, taleMember);
+        }
+        taleMemberRepository.saveAll(taleMembers);
+    }
+
     public TaleMemberDto getTaleMemberDtoFromRedis(long roomId, int order){
         // 레디스에서 tale_member를 불러옵니다.
         TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
@@ -309,7 +320,11 @@ public class TaleService {
     }
 
     // 동화 AI 그림을 저장합니다.
-    public void saveAIPicture(long roomId, int order, MultipartFile imageFile){
+    public void saveAIPicture(SubmitFileRequestDto submitFileRequestDto){
+        long roomId = submitFileRequestDto.getRoomId();
+        int order = submitFileRequestDto.getOrder();
+        MultipartFile imageFile = submitFileRequestDto.getFile();
+
         // 레디스에서 tale_member를 불러옵니다.
         TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
         TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);

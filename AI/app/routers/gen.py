@@ -1,14 +1,16 @@
 """
 Gen Controller
 """
-from fastapi import APIRouter, UploadFile, BackgroundTasks
+from fastapi import APIRouter, UploadFile, BackgroundTasks, Form, File
 import config
 import app.core.llm as llm_service
 import app.core.audio as audio_service
 import app.core.picture as picture_service
+import base64
 import app.models.request as request_dto
 import app.models.response as response_dto
 import app.models.response.Status as Status
+import app.models.common as common
 
 router = APIRouter(prefix=f"{config.API_BASE_URL}/gen", tags=["gen"])
 
@@ -47,16 +49,22 @@ def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.G
     )
 
 
-@router.post("/picture", description="손그림에서 그림을 생성하는 API", response_model=response_dto.ApiResponse[response_dto.URLResponseDto])
-def generate_img2img(pictureRequestDto: request_dto.GeneratePictureRequestDto, picture: UploadFile):
+@router.post("/picture", description="손그림에서 그림을 생성하는 API", response_model=response_dto.ApiResponse[str])
+async def generate_img2img(roomId: int = Form(...),
+                           order: int = Form(...),
+                           prompt: str = Form(...),
+                           negativePrompt: str = Form(...),
+                           image: UploadFile = File(...)):
     """
     손그림에서 그림을 생성하는 API
     """
-    if not picture_service.is_image_suffix_ok(picture):
-        raise ValueError("지원하지 않는 이미지 확장자입니다.")
-    file_bytes = picture.file.read()
+    image_bytes = await image.read()
+    image_bytes = base64.b64encode(image_bytes).decode('utf-8')
+    pictureRequestDto = request_dto.GeneratePictureRequestDto(
+        roomId=roomId, order=order, image=image_bytes, promptSet=common.PromptSet(prompt=prompt, negativePrompt=negativePrompt))
+
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
-        data=picture_service.generate_img2img(pictureRequestDto, file_bytes)
+        data=picture_service.generate_img2img(pictureRequestDto)
     )

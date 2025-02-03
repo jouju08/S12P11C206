@@ -13,8 +13,13 @@ import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -23,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.netty.http.client.HttpClient;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -74,7 +80,9 @@ public class AIServerRequestService {
         for(int i=0; i<4; i++){
             // AI 서버에 이미지를 보내기 위해 promptset과 original image url을 담은 dto를 생성
             TaleMemberDto taleMemberDto = taleService.getTaleMemberDtoFromRedis(roomId, i);
-            byte[] originImage = s3Service.getFileAsBytes(taleMemberDto.getOrginImg());
+            byte[] originImageByte = s3Service.getFileAsBytes(taleMemberDto.getOrginImg());
+            MultipartFile originImage = new CustomMultipartFile(originImageByte, "originImage.png", "image/png");
+
             PromptSet promptSet = taleMemberDto.getPromptSet();
             AIPictureRequestDto aIPictureRequestDto = new AIPictureRequestDto(roomId, i, originImage, promptSet);
 
@@ -84,6 +92,45 @@ public class AIServerRequestService {
                     .retrieve()
                     .bodyToMono(void.class)
                     .subscribe();
+        }
+    }
+
+    public void requestTestAIPicture(SubmitFileRequestDto submitFileRequestDto) {
+        System.out.println("submitFileRequestDto = " + submitFileRequestDto);
+
+        try {
+            // 이미 컨트롤러에서 읽어온 파일 바이트 배열을 사용합니다.
+            byte[] fileBytes = submitFileRequestDto.getFile().getBytes();
+            // 파일 이름 등 추가 정보를 얻기 위해 원래의 MultipartFile을 참조할 수 있다면 사용합니다.
+            String originalFilename = submitFileRequestDto.getFile().getOriginalFilename();
+
+            // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
+            ByteArrayResource fileResource = new ByteArrayResource(fileBytes) {
+                @Override
+                public String getFilename() {
+                    return originalFilename;
+                }
+            };
+            PromptSet promptSet = new PromptSet("긍정 프롬프트", "부정 프롬프트");
+
+            MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+            parts.add("roomId", 55555);
+            parts.add("order", 4444);
+            parts.add("image", fileResource);
+            parts.add("prompt", promptSet.getPrompt());
+            parts.add("negativePrompt", promptSet.getNegativePrompt());
+            System.out.println("parts = " + parts);
+
+            webClient.post()
+                    .uri("/gen/picture")
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData(parts))
+                    .retrieve()
+                    .bodyToMono(void.class)
+                    .subscribe(unused -> System.out.println("요청 성공"),
+                            error -> System.err.println("요청 실패: " + error.getMessage()));
+        } catch (IOException e) {
+            System.err.println("서비스 처리 중 오류 발생: " + e.getMessage());
         }
     }
 

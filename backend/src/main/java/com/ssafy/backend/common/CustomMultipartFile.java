@@ -1,6 +1,7 @@
 package com.ssafy.backend.common;
 
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
 
@@ -44,8 +45,13 @@ public class CustomMultipartFile implements MultipartFile {
     }
 
     @Override
-    public byte[] getBytes() throws IOException {
-        return fileContent;
+    public byte[] getBytes() {
+        try{
+            return fileContent;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
     }
 
     @Override
@@ -65,5 +71,14 @@ public class CustomMultipartFile implements MultipartFile {
         dataBuffer.read(bytes);
         MultipartFile multipartFile = new CustomMultipartFile(bytes, fileName, contentType);
         return multipartFile;
+    }
+    public static MultipartFile convertToMultipartFile(byte[] data, String fileName, String contentType) {
+        DataBuffer dataBuffer = convertByteArrayToDataBuffer(data);
+        return convertToMultipartFile(dataBuffer, fileName, contentType);
+    }
+
+    public static DataBuffer convertByteArrayToDataBuffer(byte[] bytes) {
+        DefaultDataBufferFactory factory = new DefaultDataBufferFactory();
+        return factory.wrap(bytes);
     }
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 
 // AI 서버에 이미지를 보내기 위한 DTO
@@ -16,6 +17,6 @@ import lombok.Setter;
 public class AIPictureRequestDto {
     private long roomId;
     private int order;
-    private byte[] image;
+    private MultipartFile image;
     private PromptSet promptSet;
 }
