@@ -152,5 +152,4 @@ public class TaleController {
 //        //taleService.saveAIPicture(submitFileRequestDto);
 //        return ApiResponse.<String>builder().build();
 //    }
->>>>>>> backend/src/main/java/com/ssafy/backend/tale/controller/TaleController.java
 }
