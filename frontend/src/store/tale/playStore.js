@@ -26,16 +26,23 @@ const drawDirection = [];
 
 //완성된 햇동화
 const hotTale = {
-  hotTaleTitle: 'title',
-  hotTaleScript: 'script',
-  taleHotScriptVoice: 'url',
-  keywordSentences: [
-    { owner: 'usename1', sentence: `[1]` },
-    { owner: 'usename2', sentence: `[1]` },
-    { owner: 'usename3', sentence: `[1]` },
-    { owner: 'usename4', sentence: `[1]` },
-  ],
-  taleStartImage: 'url',
+  // hotTaleTitle: 'title',
+  // hotTaleScript: 'script',
+  // taleHotScriptVoice: 'url',
+  // keywordSentences: [
+  //   { owner: 'usename1', sentence: `[1]` },
+  //   { owner: 'usename2', sentence: `[1]` },
+  //   { owner: 'usename3', sentence: `[1]` },
+  //   { owner: 'usename4', sentence: `[1]` },
+  // ],
+  // taleStartImage: 'url',
+  orderNum: 0, // 0 ~ 3
+  memberId: 1,
+  taleId: 1, // 동화 id (방 id)
+  orginImg: 'url', // 손그림 이미지
+  img: 'url', // AI가 그린 이미지
+  voice: 'url', // 스크립트 읽는 동화 연기 voice, wav형식
+  script: 'str', // 동화내용
 };
 
 const playActions = (set, get) => ({
@@ -141,6 +148,17 @@ const playActions = (set, get) => ({
 
     return response;
   },
+
+  // action
+  // tale axios -> roomid, page(1~4)
+  setHotTale: (pageNum) => {
+    const response = await taleAPI.taleHot(get().roomId, pageNum);
+    const hotPage = response.data['data']
+
+    set((state) => {
+      state.hotTale = hotPage;
+    });
+  },
 });
 
 const usePlayStore = create(
@@ -183,6 +201,7 @@ export const useTalePlay = () => {
   const currentClient = usePlayStore((state) => state.currentClient);
   const setSubscribeTale = usePlayStore((state) => state.setSubscribeTale);
   const setDrawDirection = usePlayStore((state) => state.setDrawDirection);
+  const setHotTale = usePlayStore((state) => state.setHotTale);
 
   return {
     tale,
@@ -207,5 +226,7 @@ export const useTalePlay = () => {
     submitPicture,
     setSubscribeTale,
     setDrawDirection,
+
+    setHotTale
   };
 };
