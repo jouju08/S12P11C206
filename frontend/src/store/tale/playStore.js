@@ -90,14 +90,45 @@ const playActions = (set, get) => ({
       state.page = state.page + 1;
     }),
 
+  setHotTalePage: () => {
+    set((state) => {
+      state.hotTalePage = state.hotTalePage + 1;
+    });
+  },
+
   addKeyword: (keyword) => {
     set((state) => {
       state.keywords = [...state.keywords, keyword];
     });
   },
 
+  submitTyping: (typing) => {},
+
+  submitVoice: (voice) => {},
+
+  submitHandWrite: (paint) => {},
+
+  // Keyword 최종 제출
   submitTotal: async (keyword) => {
     //MeberId로 order 가져오기
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) => item.owner === userStore.getState().memberId
+    )?.['order'];
+
+    const data = {
+      memberId: userStore.getState().memberId,
+      order,
+      roomId: get().roomId,
+      keyword: keyword,
+    };
+
+    const response = await taleAPI.taleSubmitTotal(data);
+
+    return response;
+  },
+
+  //싱글모드 대응
+  submitTotalSingle: async (keyword) => {
     let order = get().tale?.sentenceOwnerPairs?.find(
       (item) =>
         item.owner === userStore.getState().memberId &&
@@ -116,14 +147,16 @@ const playActions = (set, get) => ({
     return response;
   },
 
+  // < ------------------------------------------------------->
+  // <!--바뀐 문장들 그리고 제출 부분 -->
   setDrawDirection: (directions) => {
     set((state) => {
       state.drawDirection = directions;
     });
   },
 
+  //4인모드
   submitPicture: async (picture) => {
-    //싱글 모드 차례대로 가져오기
     let order = get().tale?.sentenceOwnerPairs?.find(
       (item) =>
         item.owner === userStore.getState().memberId &&
@@ -141,21 +174,45 @@ const playActions = (set, get) => ({
 
     return response;
   },
+
+  //싱글 모드 차례대로 가져오기
+  submitPictureSingle: async (picture) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) => item.owner === userStore.getState().memberId
+    )?.['order'];
+
+    const formData = new FormData();
+
+    formData.append('order', String(order));
+    formData.append('roomId', String(get().roomId));
+    formData.append('memberId', String(userStore.getState().memberId));
+    formData.append('file', picture);
+
+    const response = await taleAPI.taleSubmitPicture(formData);
+
+    return response;
+  },
 });
+
+const initialState = {
+  tale: { ...tale },
+  hotTale: { ...hotTale },
+  roomId: 1,
+  currentKeyword: '',
+  inputType: '',
+  page: 0,
+  hotTalePage: 0,
+  keywords: [],
+  currentClient,
+  drawDirection,
+};
 
 const usePlayStore = create(
   devtools(
     immer((set, get) => ({
-      tale: { ...tale },
-      hotTale: { ...hotTale },
-      roomId: 1,
-      currentKeyword: '',
-      inputType: '',
-      page: 0,
-      keywords: [],
-      currentClient,
-      drawDirection,
+      ...initialState,
       ...playActions(set, get),
+      resetState: () => set(() => ({ ...initialState })),
     }))
   )
 );
@@ -178,7 +235,16 @@ export const useTalePlay = () => {
 
   const addKeyword = usePlayStore((state) => state.addKeyword);
   const submitTotal = usePlayStore((state) => state.submitTotal);
+  const submitTotalSingle = usePlayStore((state) => state.submitTotalSingle);
+
+  const submitTyping = usePlayStore((state) => state.submitTyping);
+  const submitVoice = usePlayStore((state) => state.submitVoice);
+  const submitHandWrite = usePlayStore((state) => state.submitHandWrite);
+
   const submitPicture = usePlayStore((state) => state.submitPicture);
+  const submitPictureSingle = usePlayStore(
+    (state) => state.submitPictureSingle
+  );
 
   const currentClient = usePlayStore((state) => state.currentClient);
   const setSubscribeTale = usePlayStore((state) => state.setSubscribeTale);
@@ -203,8 +269,16 @@ export const useTalePlay = () => {
 
     addKeyword,
     currentClient,
+
+    submitTyping,
+    submitVoice,
+    submitHandWrite,
+
     submitTotal,
+    submitTotalSingle,
+
     submitPicture,
+    submitPictureSingle,
     setSubscribeTale,
     setDrawDirection,
   };
