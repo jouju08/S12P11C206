@@ -5,12 +5,15 @@ import base64
 import io
 import time
 from fastapi.responses import StreamingResponse
+from fastapi import Response
 from openai import OpenAI
 from pydub import AudioSegment
 import config
+import app.core.util as util
 import app.core.chains as chains
 import app.models.request as request_dto
 import app.models.response as response_dto
+from requests_toolbelt import MultipartEncoder
 
 
 def is_audio_length_ok(file):
@@ -26,12 +29,14 @@ def transcript_audio(file):
     audio 파일을 텍스트로 변환하는 함수
     audio -> text 변환
     """
-    client = OpenAI()
-    transcription = client.audio.transcriptions.create(
-        model="whisper-1",
-        file=file
-    )
-
+    with open(file, "rb") as audio:
+        client = OpenAI()
+        transcription = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio,
+            language="ko"
+        )
+    util.delete_file(file)
     return response_dto.TextResponseDto(text=transcription.text)
 
 
@@ -78,14 +83,13 @@ def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
     )
     # wav 파일로 변환하여 반환
     filename = f"{time.time_ns()}_script_read.wav"
-    headers = {
-        "Content-Disposition": f"attachment; filename={filename}",
-    }
     response_data = base64.b64decode(response.choices[0].message.audio.data)
+    # multipart 데이터 생성
 
-    result = StreamingResponse(
-        io.BytesIO(response_data),
-        headers=headers,
-        media_type="audio/wav"
+    return Response(
+        content=response_data,
+        media_type='application/octet-stream',
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"'
+        }
     )
-    return result

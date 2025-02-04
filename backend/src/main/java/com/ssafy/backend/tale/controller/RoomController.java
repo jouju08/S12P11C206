@@ -1,10 +1,10 @@
 package com.ssafy.backend.tale.controller;
 
-import com.ssafy.backend.tale.dto.Room;
+import com.ssafy.backend.tale.dto.common.Room;
 import com.ssafy.backend.tale.dto.request.JoinRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.LeaveRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.MakeRoomRequestDto;
-import com.ssafy.backend.tale.dto.response.RoomInfo;
+import com.ssafy.backend.tale.dto.common.RoomInfo;
 import com.ssafy.backend.tale.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
