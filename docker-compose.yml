@@ -36,6 +36,8 @@ services:
       - oauth_kakao_client_id=${oauth_kakao_client_id}
       - oauth_kakao_secert=${oauth_kakao_secert}
       - oauth_kakao_redirect_uri=${oauth_kakao_redirect_uri}
+      - OPENVIDU_URL=http://i12c206.p.ssafy.io:4443/
+      - OPENVIDU_SECRET=MY_SECRET
   # frontend
   frontend:
     build: ./frontend
@@ -137,6 +139,9 @@ services:
       - OPENVIDU_CERTIFICATE=/certs/fullchain.pem
       - OPENVIDU_PRIVATE_KEY=/certs/privkey.pem
       - OPENVIDU_URL=http://i12c206.p.ssafy.io:4443/
+      - CERTIFICATE_TYPE=letsencrypt
+      - LETSENCRYPT_EMAIL=joker901010@gmail.com
+      - HTTPS_PORT=4443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/openvidu/recordings:/opt/openvidu/recordings
