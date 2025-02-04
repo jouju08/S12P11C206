@@ -90,12 +90,25 @@ const playActions = (set, get) => ({
       state.page = state.page + 1;
     }),
 
+  setHotTalePage: () => {
+    set((state) => {
+      state.hotTalePage = state.hotTalePage + 1;
+    });
+  },
+
   addKeyword: (keyword) => {
     set((state) => {
       state.keywords = [...state.keywords, keyword];
     });
   },
 
+  submitTyping: (typing) => {},
+
+  submitVoice: (voice) => {},
+
+  submitHandWrite: (paint) => {},
+
+  // Keyword 최종 제출
   submitTotal: async (keyword) => {
     //MeberId로 order 가져오기
     let order = get().tale?.sentenceOwnerPairs?.find(
@@ -134,6 +147,8 @@ const playActions = (set, get) => ({
     return response;
   },
 
+  // < ------------------------------------------------------->
+  // <!--바뀐 문장들 그리고 제출 부분 -->
   setDrawDirection: (directions) => {
     set((state) => {
       state.drawDirection = directions;
@@ -179,19 +194,25 @@ const playActions = (set, get) => ({
   },
 });
 
+const initialState = {
+  tale: { ...tale },
+  hotTale: { ...hotTale },
+  roomId: 1,
+  currentKeyword: '',
+  inputType: '',
+  page: 0,
+  hotTalePage: 0,
+  keywords: [],
+  currentClient,
+  drawDirection,
+};
+
 const usePlayStore = create(
   devtools(
     immer((set, get) => ({
-      tale: { ...tale },
-      hotTale: { ...hotTale },
-      roomId: 1,
-      currentKeyword: '',
-      inputType: '',
-      page: 0,
-      keywords: [],
-      currentClient,
-      drawDirection,
+      ...initialState,
       ...playActions(set, get),
+      resetState: () => set(() => ({ ...initialState })),
     }))
   )
 );
@@ -215,6 +236,11 @@ export const useTalePlay = () => {
   const addKeyword = usePlayStore((state) => state.addKeyword);
   const submitTotal = usePlayStore((state) => state.submitTotal);
   const submitTotalSingle = usePlayStore((state) => state.submitTotalSingle);
+
+  const submitTyping = usePlayStore((state) => state.submitTyping);
+  const submitVoice = usePlayStore((state) => state.submitVoice);
+  const submitHandWrite = usePlayStore((state) => state.submitHandWrite);
+
   const submitPicture = usePlayStore((state) => state.submitPicture);
   const submitPictureSingle = usePlayStore(
     (state) => state.submitPictureSingle
@@ -243,8 +269,14 @@ export const useTalePlay = () => {
 
     addKeyword,
     currentClient,
+
+    submitTyping,
+    submitVoice,
+    submitHandWrite,
+
     submitTotal,
     submitTotalSingle,
+
     submitPicture,
     submitPictureSingle,
     setSubscribeTale,

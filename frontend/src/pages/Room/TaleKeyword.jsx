@@ -73,7 +73,19 @@ const TaleKeyword = () => {
     }
   };
 
-  const handleSumbitVoiceSingle = async (voice) => {};
+  const handleSumbitVoiceSingle = async (voice) => {
+    try {
+      const response = await submitTotalSingle(keyword);
+
+      if (response.data.status == 'SU') {
+        setPage();
+        addKeyword(keyword);
+        return true;
+      }
+    } catch {
+      return false;
+    }
+  };
 
   const handleSubmitPictureSingle = async (picture) => {};
 

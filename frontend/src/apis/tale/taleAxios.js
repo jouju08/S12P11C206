@@ -10,11 +10,28 @@ import { api } from '@/store/userStore';
 const taleAPI = {
   startTale: (roomId) => api.get(`/tale/start/${roomId}`),
 
-  taleKeyWordVoice: () => api.post('/tale/keyword/voice'),
-  taleKeyWordHandWrite: () => api.post('/tale/keyword/handwrite'),
-  taleKeyWordTyping: (keyword) => api.post('/tale/keyword/typing', { keyword }),
+  //키워드 확인 API
+  taleKeyWordVoice: (data) =>
+    api.post('/tale/keyword/voice', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
+  taleKeyWordHandWrite: (data) =>
+    api.post('/tale/keyword/handwrite', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
+  taleKeyWordTyping: (data) =>
+    api.post('/tale/keyword/typing', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }),
 
-  taleSubmitTotal: (data) => api.post('/tale/submit/keyword', data), //키워드 최종 제출
+  //최종 키워드 제출
+  taleSubmitTotal: (data) => api.post('/tale/submit/keyword', { data }), //키워드 최종 제출
 
   taleSubmitPicture: (data) =>
     api.post('/tale/submit/picture', data, {
