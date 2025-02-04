@@ -76,23 +76,48 @@ const HotTale = () => {
       </div>
 
       {/* 이전 화살표 */}
-      <div
+      {/* <div
         onClick={() => setPageNum((prev) => prev - 1)}
         className="absolute bottom-3 right-24">
         <img
           src="/Common/arrow-left.png"
-          alt="다음 화살표"
+          alt="이전 화살표"
           className="w-[50px] h-[50px] "
         />
-      </div>
+      </div> */}
       {/* 다음 화살표 */}
-      <div
+      {/* <div
         onClick={() => setPageNum((prev) => prev + 1)}
         className="absolute bottom-3 right-3">
         <img
           src="/Common/arrow-left.png"
           alt="다음 화살표"
           className="w-[50px] h-[50px] -scale-x-100"
+        />
+      </div> */}
+
+      {/* 이전 화살표 */}
+      <div
+        onClick={() => pageNum > 0 && setPageNum((prev) => prev - 1)}
+        className={`absolute bottom-3 right-24 ${pageNum <= 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+        <img
+          src={'/Common/arrow-left.png'}
+          alt="이전 화살표"
+          className={`w-[50px] h-[50px] ${pageNum <= 0 ? 'opacity-50 grayscale' : ''}`}
+        />
+      </div>
+
+      {/* 몇 페이지인지 */}
+      <span className="absolute bottom-3 right-12">{pageNum + 1}</span>
+
+      {/* 다음 화살표 */}
+      <div
+        onClick={() => pageNum < 4 && setPageNum((prev) => prev + 1)}
+        className={`absolute bottom-3 right-3 ${pageNum >= 4 ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+        <img
+          src={'/Common/arrow-left.png'}
+          alt="다음 화살표"
+          className={`w-[50px] h-[50px] -scale-x-100 ${pageNum >= 4 ? 'opacity-50 grayscale' : ''}`}
         />
       </div>
     </div>
