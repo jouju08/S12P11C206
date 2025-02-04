@@ -15,7 +15,7 @@ import io.openvidu.java.client.Session;
 
 @RestController
 @RequestMapping("/api/openvidu")
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class OpenViduController {
 
@@ -40,6 +40,15 @@ public class OpenViduController {
 //                    .body("Error generating token: " + e.getMessage());
 //        }
 //    }
+    @PostMapping("/test")
+    public String test(@RequestBody String body) throws OpenViduJavaClientException {
+        return "성공";
+    }
+
+    @GetMapping("/testget")
+    public String testget(@RequestBody String body) throws OpenViduJavaClientException {
+        return "성공";
+    }
 
     @PostMapping("/sessions")
     public ResponseEntity<String> initializeSession(
