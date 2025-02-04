@@ -16,6 +16,7 @@ import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 import com.ssafy.backend.tale.dto.common.PageInfo;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
+import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -226,6 +227,33 @@ public class TaleService {
         generateTaleRequestDto.setSentences(keywordList);
 
         return generateTaleRequestDto;
+    }
+
+    public TalePageResponseDto getTempTalePage(long roomId, int order){
+        // 레디스에서 tale_page를 불러옵니다.
+        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(roomId, order);
+        return parseTalePage(taleMemberDto);
+    }
+
+    public TalePageResponseDto getTalePage(long roomId, int order){
+        // mySQL에서 tale_page를 불러옵니다.
+        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
+        if(taleMember == null)
+            throw new RuntimeException("유효하지 않은 동화페이지입니다.");
+        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+        return parseTalePage(taleMemberDto);
+    }
+
+    private TalePageResponseDto parseTalePage(TaleMemberDto taleMemberDto){
+        TalePageResponseDto talePageResponseDto = new TalePageResponseDto();
+        talePageResponseDto.setOrderNum(taleMemberDto.getOrderNum());
+        talePageResponseDto.setMemberId(taleMemberDto.getMemberId());
+        talePageResponseDto.setTaleId(taleMemberDto.getTaleId());
+        talePageResponseDto.setOriginImg(taleMemberDto.getOrginImg());
+        talePageResponseDto.setImg(taleMemberDto.getImg());
+        talePageResponseDto.setVoice(taleMemberDto.getVoice());
+        talePageResponseDto.setScript(taleMemberDto.getScript());
+        return talePageResponseDto;
     }
 
     // 전체 동화 내용을 저장하고, 각 참가자별 그림 그릴 문장을 반환합니다.

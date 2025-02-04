@@ -7,6 +7,7 @@ import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
+import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
 import com.ssafy.backend.tale.dto.response.TextResponseDto;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
@@ -88,9 +89,16 @@ public class TaleController {
     }
 
     // 햇동화 요청
+    // redis에서 동화 정보를 가져와서 반환
     @GetMapping("/temp/{roomId}/{page}")
-    public ApiResponse<TaleMemberDto> getTempTale(@PathVariable long roomId, @PathVariable int page){
-        return ApiResponse.<TaleMemberDto>builder().data(taleService.getTaleMemberDtoFromRedis(roomId, page)).build();
+    public ApiResponse<TalePageResponseDto> getTempTale(@PathVariable long roomId, @PathVariable int page){
+        return ApiResponse.<TalePageResponseDto>builder().data(taleService.getTempTalePage(roomId, page)).build();
+    }
+    // 동화 요청
+    // mySQL에서 동화 정보를 가져와서 반환
+    @GetMapping("/{taleId}/{page}")
+    public ApiResponse<TalePageResponseDto> getTale(@PathVariable long taleId, @PathVariable int page){
+        return ApiResponse.<TalePageResponseDto>builder().data(taleService.getTalePage(taleId, page)).build();
     }
 
     // 햇동화 다읽음
