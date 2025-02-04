@@ -142,6 +142,7 @@ services:
       - CERTIFICATE_TYPE=letsencrypt
       - LETSENCRYPT_EMAIL=joker901010@gmail.com
       - HTTPS_PORT=4443
+      - OPENVIDU_PUBLICURL=https://i12c206.p.ssafy.io
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/openvidu/recordings:/opt/openvidu/recordings
