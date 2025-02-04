@@ -1,11 +1,9 @@
-package com.ssafy.backend.tale.dto;
+package com.ssafy.backend.tale.dto.common;
 
 import com.ssafy.backend.db.entity.Member;
 import lombok.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /*

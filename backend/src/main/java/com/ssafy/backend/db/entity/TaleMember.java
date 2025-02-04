@@ -33,6 +33,15 @@ public class TaleMember extends Common{
     @Column(length = 255)
     private String voice;      // 나레이션 음성
 
+    @Column(length = 255)
+    private String imgScript;  // 삽화 설명
+
+    @Column(length = 1024)
+    private String prompt;     // 이미지 생성 긍정 프롬프트
+
+    @Column(length = 1024)
+    private String negativePrompt;     // 이미지 생성 부정 프롬프트
+
     @Lob
     private String script;     // 스크립트
 

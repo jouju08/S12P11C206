@@ -1,4 +1,5 @@
 import time
+import os
 
 
 def save_file(file, save_mode: str, file_name: str):
@@ -10,3 +11,10 @@ def save_file(file, save_mode: str, file_name: str):
         f.write(file)
 
     return file_path
+
+
+def delete_file(file_path: str):
+    """
+    파일을 삭제하는 함수
+    """
+    os.remove(file_path)

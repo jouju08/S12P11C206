@@ -1,9 +1,13 @@
 import React from 'react';
 import { useState } from 'react';
+import TaleLayout from '@/common/layout/TaleLayout';
+import Lobby from '@/pages/Room/Lobby';
 
 // sweetAlert2 with react
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+
+import '@/styles/swalModal.css';
 
 // swal test, modal에는 추후 만들 방만들기 컴포넌트로 대체
 const MyComponent = () => (
@@ -30,9 +34,19 @@ export default function FairyTaleRoom({ item }) {
   // 동화방 click 이벤트 발생 시, 모달 띄움
   const showGameModal = () => {
     withReactContent(Swal).fire({
-      title: <i>확인용</i>,
-      html: <MyComponent />, // 여기에 jsx 컴포넌트 가능
+      // html: <MyComponent />, // 여기에 jsx 컴포넌트 가능
+      html: (
+        <iframe
+          src="/tale/lobby"
+          className="w-full h-[768px]"
+        />
+      ), // 여기에 jsx 컴포넌트 가능
       showConfirmButton: true,
+      allowOutsideClick: false,
+      customClass: {
+        popup: 'h-[768px] w-[1024px]',
+      },
+      animation: false,
     });
   };
 
@@ -40,7 +54,7 @@ export default function FairyTaleRoom({ item }) {
     <div
       className="cursor-pointer"
       onClick={showGameModal}>
-      <div className="w-[275px] h-[270px] bg-gray-50 rounded-[30px] flex-col justify-center items-start inline-flex overflow-hidden">
+      <div className="w-[275px] w- h-[270px] bg-gray-50 rounded-[30px] flex-col justify-center items-start inline-flex overflow-hidden">
         <div className="w-[275px] h-[156px] overflow-hidden relative">
           {/* 백에서 가져온 cover 쓰기 */}
           <img
