@@ -5,6 +5,7 @@ import com.ssafy.backend.guide.model.Guide;
 import com.ssafy.backend.guide.service.GuideService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /*
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class GuideController {
 
     private final GuideService guideService;
