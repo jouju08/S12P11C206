@@ -99,6 +99,24 @@ const playActions = (set, get) => ({
   submitTotal: async (keyword) => {
     //MeberId로 order 가져오기
     let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) => item.owner === userStore.getState().memberId
+    )?.['order'];
+
+    const data = {
+      memberId: userStore.getState().memberId,
+      order,
+      roomId: get().roomId,
+      keyword: keyword,
+    };
+
+    const response = await taleAPI.taleSubmitTotal(data);
+
+    return response;
+  },
+
+  //싱글모드 대응
+  submitTotalSingle: async (keyword) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
       (item) =>
         item.owner === userStore.getState().memberId &&
         item.order === get().page
@@ -122,12 +140,30 @@ const playActions = (set, get) => ({
     });
   },
 
+  //4인모드
   submitPicture: async (picture) => {
-    //싱글 모드 차례대로 가져오기
     let order = get().tale?.sentenceOwnerPairs?.find(
       (item) =>
         item.owner === userStore.getState().memberId &&
         item.order === get().page
+    )?.['order'];
+
+    const formData = new FormData();
+
+    formData.append('order', String(order));
+    formData.append('roomId', String(get().roomId));
+    formData.append('memberId', String(userStore.getState().memberId));
+    formData.append('file', picture);
+
+    const response = await taleAPI.taleSubmitPicture(formData);
+
+    return response;
+  },
+
+  //싱글 모드 차례대로 가져오기
+  submitPictureSingle: async (picture) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) => item.owner === userStore.getState().memberId
     )?.['order'];
 
     const formData = new FormData();
@@ -178,7 +214,11 @@ export const useTalePlay = () => {
 
   const addKeyword = usePlayStore((state) => state.addKeyword);
   const submitTotal = usePlayStore((state) => state.submitTotal);
+  const submitTotalSingle = usePlayStore((state) => state.submitTotalSingle);
   const submitPicture = usePlayStore((state) => state.submitPicture);
+  const submitPictureSingle = usePlayStore(
+    (state) => state.submitPictureSingle
+  );
 
   const currentClient = usePlayStore((state) => state.currentClient);
   const setSubscribeTale = usePlayStore((state) => state.setSubscribeTale);
@@ -204,7 +244,9 @@ export const useTalePlay = () => {
     addKeyword,
     currentClient,
     submitTotal,
+    submitTotalSingle,
     submitPicture,
+    submitPictureSingle,
     setSubscribeTale,
     setDrawDirection,
   };
