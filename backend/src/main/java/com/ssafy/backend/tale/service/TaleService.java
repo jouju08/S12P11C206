@@ -229,14 +229,14 @@ public class TaleService {
         return generateTaleRequestDto;
     }
 
+    // 레디스에서 tale_page를 불러옵니다.
     public TalePageResponseDto getTempTalePage(long roomId, int order){
-        // 레디스에서 tale_page를 불러옵니다.
         TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(roomId, order);
         return parseTalePage(taleMemberDto);
     }
 
+    // mySQL에서 tale_page를 불러옵니다.
     public TalePageResponseDto getTalePage(long roomId, int order){
-        // mySQL에서 tale_page를 불러옵니다.
         TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
         if(taleMember == null)
             throw new RuntimeException("유효하지 않은 동화페이지입니다.");
@@ -244,6 +244,7 @@ public class TaleService {
         return parseTalePage(taleMemberDto);
     }
 
+    // tale_memberDto를 tale_page로 변환합니다.
     private TalePageResponseDto parseTalePage(TaleMemberDto taleMemberDto){
         TalePageResponseDto talePageResponseDto = new TalePageResponseDto();
         talePageResponseDto.setOrderNum(taleMemberDto.getOrderNum());
@@ -261,16 +262,20 @@ public class TaleService {
         List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
         List<SentenceOwnerPair> sentenceOwnerPairs = new ArrayList<>();
         for(int i = 0; i < 4; i++){
+            // redis에서 페이지 순서대로 tale_member를 불러옵니다.
             TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMembers.get(i));
             SentenceOwnerPair sentenceOwnerPair = new SentenceOwnerPair();
 
             int order = taleMemberDto.getOrderNum();
 
+            // 페이지 내용과 그림 그릴 문장을 저장합니다.
             taleMemberDto.setScript(pages.get(order).getFullText());
             taleMemberDto.setImgScript(pages.get(order).getExtractedSentence());
+
             // taleMember를 다시 저장합니다.
             setTaleMemberDtoToRedis(taleMemberDto);
 
+            // 반환할 객체에 저장합니다.
             sentenceOwnerPair.setOrder(order);
             sentenceOwnerPair.setOwner(taleMemberDto.getMemberId());
             sentenceOwnerPair.setSentence(pages.get(order).getExtractedSentence());

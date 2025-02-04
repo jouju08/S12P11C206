@@ -39,12 +39,6 @@ public class TaleController {
                 .build();
     }
 
-    // 키워드 타이핑 정보 확인
-    @PostMapping("/keyword/typing")
-    public ApiResponse<String> keywordTyping(@RequestBody KeywordRequestDto keywordRequestDto){
-        return ApiResponse.<String>builder().data(keywordRequestDto.getKeyword()).build();
-    }
-
     // 키워드 음성 정보 확인
     @PostMapping("/keyword/voice")
     public ApiResponse<TextResponseDto> keywordVoice(@ModelAttribute KeywordFileRequestDto keywordFileRequestDto){
@@ -56,6 +50,13 @@ public class TaleController {
     public ApiResponse<TextResponseDto> keywordHandwrite(@ModelAttribute KeywordFileRequestDto keywordFileRequestDto){
         return aiServerRequestService.requestHandWriteKeyword(keywordFileRequestDto);
     }
+
+    // 키워드 타이핑 정보 확인
+    @PostMapping("/keyword/typing")
+    public ApiResponse<String> keywordTyping(@RequestBody KeywordRequestDto keywordRequestDto){
+        return ApiResponse.<String>builder().data(keywordRequestDto.getKeyword()).build();
+    }
+
 
     // 키워드 최종선택
     @PostMapping("/submit/keyword")
@@ -96,6 +97,7 @@ public class TaleController {
     public ApiResponse<TalePageResponseDto> getTempTale(@PathVariable long roomId, @PathVariable int page){
         return ApiResponse.<TalePageResponseDto>builder().data(taleService.getTempTalePage(roomId, page)).build();
     }
+
     // 동화 요청
     // mySQL에서 동화 정보를 가져와서 반환
     @GetMapping("/{taleId}/{page}")
