@@ -59,10 +59,11 @@ public class OpenViduController {
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
 
-    @PostMapping("/sessions/{sessionId}/connections")
-    public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
-                                                   @RequestBody(required = false) Map<String, Object> params)
+    @PostMapping("/sessions/connections")
+    public ResponseEntity<String> createConnection(@RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
+        String sessionId = params.get("sessionId").toString();
+        params.remove("sessionId");
         System.out.println("Creating connection for session: " + sessionId);
         String token = openViduService.createConnection(sessionId, params);
         if (token == null) {
