@@ -49,12 +49,12 @@ public class TaleController {
         return ApiResponse.<List<Tale>>builder().data(taleList).build();
     }
 
-    //동화 디테일
-    @GetMapping("/{taleId}")
-    public ApiResponse<Tale> getDetail(@PathVariable long taleId) {
-        Tale tale=taleService.getByTale(taleId);
-        return ApiResponse.<Tale>builder().data(tale).build();
-    }
+//    //동화 디테일
+//    @GetMapping("/detail/{taleId}")?
+//    public ApiResponse<Tale> getDetail(@PathVariable long taleId) {
+//        Tale tale=taleService.getByTale(taleId);
+//        return ApiResponse.<Tale>builder().data(tale).build();
+//    }
 
     // 동화 제작 시작
     // 방의정보를 보고 동화의 정보를 불러와서 키워드 문장을 매칭시킵니다.
