@@ -25,6 +25,10 @@ const Lobby = lazy(() => import('@/pages/Room/Lobby'));
 const Share = lazy(() => import('@/pages/Room/Share'));
 const TaleStart = lazy(() => import('@/pages/Room/TaleStart'));
 const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));
+const TaleSentenceDrawing = lazy(
+  () => import('@/pages/Room/TaleSentenceDrawing')
+);
+
 //인증된 사용자
 const ProtectedLayout = () => {
   const { isAuthenticated, fetchUser } = useUser();
@@ -78,6 +82,7 @@ const router = createBrowserRouter([
           { path: 'share', element: <Share /> },
           { path: 'taleStart', element: <TaleStart /> },
           { path: 'taleKeyword', element: <TaleKeyword /> },
+          { path: 'taleSentenceDrawing', element: <TaleSentenceDrawing /> },
         ],
       },
     ],

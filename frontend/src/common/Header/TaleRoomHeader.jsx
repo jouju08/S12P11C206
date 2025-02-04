@@ -13,15 +13,15 @@ export default function TaleRoomHeader({ onClose }) {
           className="bg-red-400 w-[160px] h-[70px]">
           나가기
         </div> */}
-        <closeBtn />
+        <CloseBtn />
       </nav>
     </header>
   );
 }
 
-const closeBtn = () => {
+const CloseBtn = () => {
   return (
-    <div className="h-[70px] px-2.5 py-2 bg-main-choose rounded-[100px] justify-start items-center gap-2.5 inline-flex overflow-hidden">
+    <div className="h-[70px] px-5 py-2 bg-main-choose rounded-[100px] justify-start items-center gap-2.5 inline-flex overflow-hidden">
       <div
         className="w-[50px] h-[50px] relative  overflow-hidden"
         style={{ backgroundImage: "url('/Common/close.png')" }}
