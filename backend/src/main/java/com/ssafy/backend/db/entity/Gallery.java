@@ -25,6 +25,9 @@ public class Gallery extends Common {
     @Column(nullable = false)
     private Boolean hasDeleted = false;
 
+    @Column(nullable = false)
+    private String imgPath;//이미지 경로
+
     // Member N:1
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
