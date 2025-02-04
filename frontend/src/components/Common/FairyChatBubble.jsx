@@ -3,7 +3,7 @@ export default function FairyChatBubble({ children }) {
     <div
       className="w-[287px] h-[116px] text-text-first service-bold3 text-center justify-center items-center inline-flex"
       style={{
-        backgroundImage: "url('/Common/fairy-chat-bubble.png')",
+        backgroundImage: "url('/common/fairy-chat-bubble.png')",
       }}>
       {children}
     </div>

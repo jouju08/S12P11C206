@@ -5,6 +5,7 @@ import { shallow } from 'zustand/shallow';
 import { devtools } from 'zustand/middleware';
 import taleAPI from '@/apis/tale/taleAxios';
 import { userStore } from './userStore';
+import { immer } from 'zustand/middleware/immer';
 
 const initialState = {
   rooms: [],
@@ -181,10 +182,11 @@ const roomActions = (set, get) => ({
 
 const useRoomStore = create(
   devtools(
-    (set, get) => ({
+    immer((set, get) => ({
       ...initialState,
       ...roomActions(set, get),
-    }),
+      resetState: () => set(() => ({ ...initialState })),
+    })),
     { name: `room-${tabId}` }
   )
 );
