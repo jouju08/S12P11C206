@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
-import FairyChatBubble from '@/components/common/FairyChatBubble';
+import FairyChatBubble from '@/components/Common/FairyChatBubble';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
