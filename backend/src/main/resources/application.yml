@@ -54,7 +54,7 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
-  accessExpiration: 10000
+  accessExpiration: 10000000
   refreshExpiration: 604800000
 
 aws:

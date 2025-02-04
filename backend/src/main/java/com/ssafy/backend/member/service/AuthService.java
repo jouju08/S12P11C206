@@ -127,6 +127,7 @@ public class AuthService {
      */
     public Map<String, String> refreshAccessToken(String refreshToken) {
         // 리프레시 토큰 유효성 검증
+        System.out.println(refreshToken);
         if (!jwtUtil.validateRefreshToken(refreshToken)) {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
         }

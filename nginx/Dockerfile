@@ -1,3 +1,7 @@
 FROM nginx:alpine
-COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY mime.types /etc/nginx/mime.types
+COPY conf.d/ /etc/nginx/conf.d/
+
+EXPOSE 80 443
+CMD ["nginx", "-g", "daemon off;"]
