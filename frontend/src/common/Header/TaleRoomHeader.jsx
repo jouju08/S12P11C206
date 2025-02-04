@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function TaleRoomHeader({ onClose }) {
   return (
@@ -13,20 +13,38 @@ export default function TaleRoomHeader({ onClose }) {
           className="bg-red-400 w-[160px] h-[70px]">
           나가기
         </div> */}
-        <CloseBtn />
+        <CloseBtn onClose={onClose} />
       </nav>
     </header>
   );
 }
 
-const CloseBtn = () => {
+const CloseBtn = ({ onClose }) => {
+  // const [showModal, setShowModal] = useState(false);
+  // const navigate = useNavigate();
+  // const location = useLocation();
+
+  // const handleExit = () => {
+  //   setShowModal(true);
+  // };
+
+  // const handleConfirm = () => {
+  //   navigate('/room'); // 특정 페이지로 이동
+  // };
+
+  // const handleCancel = () => {
+  //   setShowModal(false);
+  // };
+
   return (
-    <div className="h-[70px] px-5 py-2 bg-main-choose rounded-[100px] justify-start items-center gap-2.5 inline-flex overflow-hidden">
+    <button
+      onClick={onClose}
+      className="h-[70px] px-5 py-2 bg-main-choose rounded-[100px] justify-start items-center gap-2.5 inline-flex overflow-hidden">
       <div
         className="w-[50px] h-[50px] relative  overflow-hidden"
         style={{ backgroundImage: "url('/Common/close.png')" }}
       />
       <div className="text-white service-bold1">나가기</div>
-    </div>
+    </button>
   );
 };
