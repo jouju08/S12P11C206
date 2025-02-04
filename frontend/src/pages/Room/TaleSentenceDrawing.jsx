@@ -31,19 +31,23 @@ const TaleSentenceDrawing = () => {
   // 컴포넌트 마운트 시 타이머 시작
   useEffect(() => {
     const timer = setInterval(() => {
-      // 1초마다 타이머 갱신
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          // 시간이 다 되면 자동으로 확인 버튼 클릭
-          handleConfirm();
-          return 0;
-        }
-        return prev - 1;
-      });
+      if (isSingle && currentStep === 5) {
+        return setTimeLeft(0);
+      } else {
+        // 1초마다 타이머 갱신
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            // 시간이 다 되면 자동으로 확인 버튼 클릭
+            handleConfirm();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [currentStep]);
 
   // 확인 버튼 누름 or 5분 지남
   const handleConfirm = async () => {
@@ -66,12 +70,11 @@ const TaleSentenceDrawing = () => {
       const response = await taleAPI.taleSubmitPicture(formData);
       console.log('🖼️ 그린 그림 제출하고 응답 : ', response);
 
-      // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
-      setPreviousDrawings([...previousDrawings, response.data]);
-
+      setCurrentStep((prev) => prev + 1);
       // 싱글모드 - 몇번째 그림 그리고 있는가
       if (currentStep < 4) {
-        setCurrentStep((prev) => prev + 1);
+        // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
+        setPreviousDrawings([...previousDrawings, response.data]);
         setTimeLeft(300);
         // 그려진 그림 초기화
         excalidrawAPIRef.current.resetScene();
@@ -126,10 +129,12 @@ const TaleSentenceDrawing = () => {
 
         <div className="w-[600px] mx-auto rounded-[10px] border border-gray-200 text-center py-2 bg-white story-basic2 text-text-first">
           {/* currentStep은 1부터 시작하므로 인덱스로 사용할 때는 -1 */}
-          {sentences[currentStep - 1]}
+          {currentStep === 5 && isSingle
+            ? sentences[3]
+            : sentences[currentStep - 1]}
         </div>
 
-        <div className="w-[590px] h-[420px] ml-[55px] mt-[40px]">
+        <div className="w-[590px] h-[420px] ml-[55px] mt-[40px] relative">
           <Excalidraw
             excalidrawAPI={(api) => {
               excalidrawAPIRef.current = api;
@@ -140,12 +145,15 @@ const TaleSentenceDrawing = () => {
               scrollToContent: false,
             }}
           />
+          {currentStep === 5 && (
+            <div className="w-full h-full bg-[rgba(0,0,0,0.3)] absolute top-0 left-0 z-10 rounded-xl" />
+          )}
         </div>
 
         <button
-          onClick={currentStep === 4 ? () => navigate('/story') : handleConfirm}
+          onClick={currentStep === 5 ? () => navigate('/story') : handleConfirm}
           className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
-          {currentStep === 4 ? '동화보러가기' : '확인'}
+          {currentStep === 5 ? '동화보러가기' : '확인'}
         </button>
       </section>
 
