@@ -75,8 +75,6 @@ public class AIServerRequestService {
     }
 
     public void requestAIPicture(long roomId){
-        //웹소켓으로 동화 제작이 끝났음을 알림
-        webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
         //각 페이지마다 ai 그림 생성 요청
         TaleMemberDto taleMemberDto = null;
         for (int i = 0; i < 4; i++) {
