@@ -15,3 +15,4 @@ NOVITA_API_KEY = os.getenv('NOVITA_API_KEY')
 
 # Architecture
 SPRING_SERVER_URL = os.getenv("SPRING_SERVER_URL")
+AI_IMG_2_IMG_SERVER = os.getenv("AI_IMG_2_IMG_SERVER")

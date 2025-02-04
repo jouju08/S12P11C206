@@ -1,4 +1,4 @@
-package com.ssafy.backend.tale.dto.response;
+package com.ssafy.backend.tale.dto.common;
 
 import lombok.*;
 

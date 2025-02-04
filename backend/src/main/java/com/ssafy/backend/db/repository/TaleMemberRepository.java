@@ -6,9 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TaleMemberRepository extends JpaRepository<TaleMember, Long> {
-    Optional<PictureDto> findPictureByTaleId(Long id);
+    TaleMember findByMemberIdAndTaleId(Long memberId, Long taleId);
+    TaleMember findByTaleIdAndOrderNum(Long taleId, int order);
+    List<TaleMember> findByTaleId(Long taleId);
+
 }

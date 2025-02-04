@@ -47,15 +47,19 @@ dependencies {
     // web socket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
+    // openvidu
+    implementation group: 'io.openvidu', name: 'openvidu-java-client', version: '2.31.0'
 
-    //
-    //---
+    // 토큰
     implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.5'
 
     // email authentication
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // http request, web client
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 }
 
