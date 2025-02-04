@@ -68,7 +68,7 @@ public class TaleController {
             aiServerRequestService.requestGenerateTale(keywordRequestDto.getRoomId(), generateTaleRequestDto);
         }
         // 4. 일단 응답은 ok
-        return ApiResponse.<String>builder().build();
+        return ApiResponse.<String>builder().data("OK").build();
     }
 
     // 동화 손그림 제출

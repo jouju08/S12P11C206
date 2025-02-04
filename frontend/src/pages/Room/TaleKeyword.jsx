@@ -17,6 +17,8 @@ const TaleKeyword = () => {
   const [inputText, setInputText] = useState(''); // 타자 입력 텍스트
   const [isNextActive, setIsNextActive] = useState(false); // 다음 버튼 활성화 상태
   const [recordedAudio, setRecordedAudio] = useState(null); // 녹음된 오디오 데이터
+
+  const [order] = useState(0);
   const canvasRef = useRef(null); // 글쓰기 캔버스 참조
 
   const { isSingle } = useTaleRoom();
@@ -54,6 +56,7 @@ const TaleKeyword = () => {
       if (response.data.status == 'SU') {
         setPage();
         addKeyword(keyword);
+        return true;
       }
     } catch {
       return false;
@@ -77,8 +80,13 @@ const TaleKeyword = () => {
 
   const handleNext = () => {
     if (mode === 'typing' && isSingle) {
-      handleSubmitTextSingle(inputText);
-      handleReset();
+      const state = handleSubmitTextSingle(inputText);
+
+      state.then((resolve) => {
+        if (resolve === true) {
+          handleReset();
+        }
+      });
     } else if (mode === 'typing' && !isSingle) {
       console.log('Sending text to backend:', inputText);
     } else if (mode === 'voice' && isSingle) {

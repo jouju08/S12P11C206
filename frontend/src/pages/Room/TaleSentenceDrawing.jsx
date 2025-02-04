@@ -1,10 +1,13 @@
-import { useEffect, useState, useRef } from 'react';
-import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import {
+  Excalidraw,
+  exportToBlob,
+  exportToCanvas,
+} from '@excalidraw/excalidraw';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useTaleRoom } from '@/store/roomStore';
-
-import taleAPI from '@/apis/tale/taleAxios';
+import { useTalePlay } from '@/store/tale/playStore';
 
 // 백에서 문장 4개가 어떻게 넘어오는지 모르겠음
 // 그냥 받았다고 치자
@@ -19,6 +22,15 @@ const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
   const excalidrawAPIRef = useRef(null);
   const navigate = useNavigate();
+
+  const { drawDirection, submitPicture } = useTalePlay();
+
+  //AI에서 받은 문장들
+  const sortedSentences = useMemo(() => {
+    return drawDirection
+      ? [...drawDirection].sort((a, b) => a.order - b.order)
+      : [];
+  }, [drawDirection]);
 
   // 싱글모드인가 아닌가
   const { isSingle } = useTaleRoom();
@@ -49,25 +61,50 @@ const TaleSentenceDrawing = () => {
   const handleConfirm = async () => {
     if (!excalidrawAPIRef.current) return;
 
-    // 현재 그린 그림을 PNG 형식으로 변환
-    const exportedImage = await exportToBlob({
-      elements: excalidrawAPIRef.current.getSceneElements(),
-      appState: excalidrawAPIRef.current.getAppState(),
-      type: 'image/png',
-      quality: 1,
-    });
-
-    // 이미지를 FormData로 변환하여 백엔드로 전송 준비
-    const formData = new FormData();
-    formData.append('drawing', exportedImage);
+    const elements = excalidrawAPIRef.current.getSceneElements();
+    const appState = excalidrawAPIRef.current.getAppState();
+    const files = excalidrawAPIRef.current.getFiles();
 
     try {
-      // 백엔드로 그린 그림 제출 (이렇게 쓰는 거 맞나 확인)
-      const response = await taleAPI.taleSubmitPicture(formData);
+      // 백엔드로 그린 그림 제출
+      // 현재 그린 그림을 PNG 형식으로 변환
+      const exportedImage = await exportToBlob({
+        elements,
+        appState,
+        files,
+        mimeType: 'image/png',
+      });
+
+      //파일이름용
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const fileName = `canvas-${timestamp}.png`;
+
+      const file = new File([blob], fileName, { type: 'image/png' });
+
+      if (!file) {
+        console.log('Fail File');
+        return;
+      } else {
+        const response = await submitPicture(file);
+        console.log(response);
+      }
+
       console.log('🖼️ 그린 그림 제출하고 응답 : ', response);
 
+      // 싱글모드 canvas
+      const drawing = await exportToCanvas({
+        elements,
+        appState,
+        file,
+        getDimensions: () => {
+          return { width: 235, height: 168 };
+        },
+      });
+
+      const ctx = drawing.getContext('2d');
+
       // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
-      setPreviousDrawings([...previousDrawings, response.data]);
+      setPreviousDrawings([...previousDrawings, ctx.toDataURL()]);
 
       // 싱글모드 - 몇번째 그림 그리고 있는가
       if (currentStep < 4) {
