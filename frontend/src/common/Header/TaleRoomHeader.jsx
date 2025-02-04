@@ -4,8 +4,13 @@ export default function TaleRoomHeader({ onClose }) {
   return (
     <header className="bg-main-background shadow-md sticky top-0 z-50">
       <nav className="w-[1024px] h-[100px] px-[20px] flex flex-row justify-between mx-auto items-center">
-        {/* logo - 다음에 link 사이 img 넣기기 */}
-        <div className="w-[200px] h-[70px] bg-[#ffafaf]">로고</div>
+        <div className="w-[141px] h-[70px]">
+          <img
+            src="/Common/logo-blue.png"
+            alt="로고"
+            className="h-[70px]"
+          />
+        </div>
         {/* 책 이름 가져오기 */}
         <div className="text-text-first service-accent1">책 제목</div>
         {/* <div
@@ -39,12 +44,21 @@ const CloseBtn = ({ onClose }) => {
   return (
     <button
       onClick={onClose}
-      className="h-[70px] px-5 py-2 bg-main-choose rounded-[100px] justify-start items-center gap-2.5 inline-flex overflow-hidden">
-      <div
-        className="w-[50px] h-[50px] relative  overflow-hidden"
-        style={{ backgroundImage: "url('/Common/close.png')" }}
+      className="h-[70px] pl-3 pr-5 bg-main-choose rounded-[100px] justify-center items-center inline-flex overflow-hidden">
+      {/* <div
+        className="w-[50px] h-[50px] relative overflow-hidden"
+        style={{
+          backgroundImage: "url('/Common/close.png')",
+        }}
+      /> */}
+      <img
+        src="/Common/close.png"
+        alt="나가기"
+        className="w-[40px] h-[40px]"
       />
-      <div className="text-white service-bold1">나가기</div>
+      <div className="text-white service-bold1 h-full leading-[70px]">
+        나가기
+      </div>
     </button>
   );
 };
