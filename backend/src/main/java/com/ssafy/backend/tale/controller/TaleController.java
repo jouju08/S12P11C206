@@ -30,6 +30,21 @@ public class TaleController {
     private final AIServerRequestService aiServerRequestService;
     private final WebSocketNotiService webSocketNotiService;
 
+    @GetMapping("/my-tale")
+    public ApiResponse<List<Tale>> getMyTale(Authentication authentication) {
+        User user=(User) authentication.getPrincipal();
+        Long UserId=memberRepository.findByLoginId(user.getUsername()).get().getId();
+        List<Tale> taleList=taleService.getByUserId(UserId);
+        return ApiResponse.<List<Tale>>builder().data(taleList).build();
+    }
+
+    //동화 디테일
+    @GetMapping("/{taleId}")
+    public ApiResponse<Tale> getDetail(@PathVariable long taleId) {
+        Tale tale=taleService.getByTale(taleId);
+        return ApiResponse.<Tale>builder().data(tale).build();
+    }
+
     // 동화 제작 시작
     // 방의정보를 보고 동화의 정보를 불러와서 키워드 문장을 매칭시킵니다.
     @GetMapping("/start/{roomId}")
@@ -137,4 +152,5 @@ public class TaleController {
 //        //taleService.saveAIPicture(submitFileRequestDto);
 //        return ApiResponse.<String>builder().build();
 //    }
+>>>>>>> backend/src/main/java/com/ssafy/backend/tale/controller/TaleController.java
 }
