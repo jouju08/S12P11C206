@@ -1,4 +1,4 @@
-package com.ssafy.backend.tale.service;
+package com.ssafy.backend.common;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -11,9 +11,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class TaleRoomNotiService {
+public class WebSocketNotiService {
     private final SimpMessagingTemplate messagingTemplate;
-    private String baseDestination = "/topic/tale/";
     public void sendNotification(String destination, Object message) {
         messagingTemplate.convertAndSend(destination, message);
     }

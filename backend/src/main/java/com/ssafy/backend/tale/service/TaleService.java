@@ -32,7 +32,7 @@ import java.util.*;
  *      1. startMakingTale, keywordSubmit 메소드 완성 (2025.02.01)
  *      2. redis에 tale_member 저장, 불러오기 메소드 추가 (2025.02.02)
  *      3. save~ 메소드 추가 (2025.02.02)
- *      4. todo: save TaleMemberDto to mysql (2025.02.02) -> mysql 테이블 수정 필요
+ *      4. save TaleMemberDto to mysql / getTaleMemberDtoFromRedis 메소드 추가 (2025.02.02)
  * */
 
 @Service
@@ -337,8 +337,21 @@ public class TaleService {
         setTaleMemberDtoToRedis(taleMemberDto);
     }
 
+    // AI 그림이 완성된 페이지의 수를 반환합니다.
+    public int getCompletedAIPictureCnt(long roomId){
+        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
+        int cnt = 0;
+        for (int i = 0; i < 4; i++) {
+            TaleMemberDto participant = getTaleMemberDtoFromRedis(taleMembers.get(i));
+            if(participant.getImg() != null)
+                cnt++;
+        }
+
+        return cnt;
+    }
+
+    // 레디스에서 방 정보를 불러옵니다.
     private Room getRoomFromRedis(long roomId) {
-        // 레디스에서 방 정보를 불러옵니다.
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         Room room = (Room)ops.get("tale-" + roomId);
         if(room == null)
@@ -359,6 +372,6 @@ public class TaleService {
     private void setTaleMemberDtoToRedis(TaleMemberDto taleMemberDto){
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         ops.set("tale_member-"+taleMemberDto.getId(), taleMemberDto);
-        System.out.println("UPDATE!!!!!!!!!!!!!!!! taleMemberDto\n" + taleMemberDto);
+        System.out.println("생성되고 있는 동화 정보 수정 (TaleService)\n" + taleMemberDto);
     }
 }

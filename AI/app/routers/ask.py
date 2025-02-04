@@ -42,11 +42,21 @@ def handwrite_to_word(file: UploadFile):
     """
     if picture_service.is_image_suffix_ok(file):
         file_bytes = file.file.read()
+        response = picture_service.handwrite_to_word(file_bytes)
+
+        if response is None:
+            return response_dto.ApiResponse(
+                status=Status.BAD_REQUEST,
+                message="BAD REQUEST",
+                detail="손글씨를 인식할 수 없습니다."
+            )
+
         return response_dto.ApiResponse(
             status=Status.SUCCESS,
             message="OK",
-            data=picture_service.handwrite_to_word(file_bytes)
+            data=response
         )
+
     else:
         return response_dto.ApiResponse(
             status=Status.BAD_REQUEST,

@@ -29,7 +29,7 @@ def handwrite_to_word(file):
     request_json = {
         'images': [
             {
-                'format': 'jpg',
+                'format': 'png',
                 'name': 'demo'
             }
         ],
@@ -46,9 +46,14 @@ def handwrite_to_word(file):
     }
     response = requests.request(
         "POST", config.NAVER_OCR_INVOKE_URL, headers=headers, data=payload, files=files)
-    response_json = json.load(response.text)
+
+    response_json = response.json()
+
     result = ' '.join([item['inferText']
                       for item in response_json['images'][0]['fields']])
+
+    if response_json['images'][0]['fields'] == []:
+        return None
 
     return response_dto.TextResponseDto(text=result)
 

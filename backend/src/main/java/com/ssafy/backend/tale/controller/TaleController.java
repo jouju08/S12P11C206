@@ -7,6 +7,7 @@ import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
+import com.ssafy.backend.tale.dto.response.TextResponseDto;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
  *  description : 동화 제작 관련 컨트롤러,
  *  update
  *      1. keyword submit 구현 (2025.02.01)
+ *      2. ai picture submit 구현 / temp tale get 구현 / temp tale end 구현 ai picture submit 구현 (2025.02.01)
  * */
 @RestController
 @RequiredArgsConstructor
@@ -42,16 +44,16 @@ public class TaleController {
         return ApiResponse.<String>builder().data(keywordRequestDto.getKeyword()).build();
     }
 
-    // todo : 키워드 음성 정보 확인
+    // 키워드 음성 정보 확인
     @PostMapping("/keyword/voice")
-    public ApiResponse<String> keywordVoice(@RequestBody KeywordFileRequestDto keywordFileRequestDto){
-        return ApiResponse.<String>builder().data("keyword.getKeyword()").build();
+    public ApiResponse<TextResponseDto> keywordVoice(@ModelAttribute KeywordFileRequestDto keywordFileRequestDto){
+        return aiServerRequestService.requestVoiceKeyword(keywordFileRequestDto);
     }
 
-    // todo : 키워드 손글씨 정보 확인
+    //  키워드 손글씨 정보 확인
     @PostMapping("/keyword/handwrite")
-    public ApiResponse<String> keywordHandwrite(@RequestBody KeywordFileRequestDto keywordFileRequestDto){
-        return ApiResponse.<String>builder().data("keyword.getKeyword()").build();
+    public ApiResponse<TextResponseDto> keywordHandwrite(@ModelAttribute KeywordFileRequestDto keywordFileRequestDto){
+        return aiServerRequestService.requestHandWriteKeyword(keywordFileRequestDto);
     }
 
     // 키워드 최종선택
@@ -85,25 +87,30 @@ public class TaleController {
         return ApiResponse.<String>builder().build();
     }
 
-    // todo : 햇동화 요청
+    // 햇동화 요청
     @GetMapping("/temp/{roomId}/{page}")
     public ApiResponse<TaleMemberDto> getTempTale(@PathVariable long roomId, @PathVariable int page){
         return ApiResponse.<TaleMemberDto>builder().data(taleService.getTaleMemberDtoFromRedis(roomId, page)).build();
     }
 
-    // todo : 햇동화 다읽음
+    // 햇동화 다읽음
     @GetMapping("/temp/end/{roomId}")
-    public ApiResponse<String> submitScriptVoice(@PathVariable long roomId){
+    public ApiResponse<Boolean> submitScriptVoice(@PathVariable long roomId){
         // AI 그림이 완성됐는지 확인하고 그 결과를 알려주기
-        return ApiResponse.<String>builder().data(Long.toString(roomId)).build();
+        return ApiResponse.<Boolean>builder().data(taleService.getCompletedAIPictureCnt(roomId) >= 4).build();
     }
 
-    // todo : AI 그림 제출
+    // AI 그림 제출
     // AI 서버에서 그림이 완성됐을때 여기로 제출합니다.
     @PostMapping("/submit/ai-picture")
     public ApiResponse<String> submitAIPicture(@ModelAttribute SubmitFileRequestDto submitFileRequestDto){
         System.out.println("submitFileRequestDto = " + submitFileRequestDto);
         taleService.saveAIPicture(submitFileRequestDto);
+        if(taleService.getCompletedAIPictureCnt(submitFileRequestDto.getRoomId()) >= 4){
+            // 4명이 모두 그림을 제출했을 때,
+            taleService.saveTaleFromRedis(submitFileRequestDto.getRoomId());
+        }
+
         return ApiResponse.<String>builder().build();
     }
 
