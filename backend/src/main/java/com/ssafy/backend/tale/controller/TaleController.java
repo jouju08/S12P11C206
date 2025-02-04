@@ -1,7 +1,7 @@
 package com.ssafy.backend.tale.controller;
 
 import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.tale.dto.common.TaleMemberDto;
+import com.ssafy.backend.common.WebSocketNotiService;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
@@ -13,7 +13,6 @@ import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *  author : HEO-hyunjun
@@ -29,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class TaleController {
     private final TaleService taleService;
     private final AIServerRequestService aiServerRequestService;
+    private final WebSocketNotiService webSocketNotiService;
 
     // 동화 제작 시작
     // 방의정보를 보고 동화의 정보를 불러와서 키워드 문장을 매칭시킵니다.
@@ -76,13 +76,15 @@ public class TaleController {
     @PostMapping("/submit/picture")
     public ApiResponse<String> submitHandPicture(@ModelAttribute SubmitFileRequestDto submitFileRequestDto){
         if(taleService.saveHandPicture(submitFileRequestDto) >= 4){
+            long roomId = submitFileRequestDto.getRoomId();
             // 4명이 모두 그림을 제출했을 때,
             //  1. tale_member들을 mysql에 저장
-            taleService.saveTaleFromRedis(submitFileRequestDto.getRoomId());
+            taleService.saveTaleFromRedis(roomId);
 
             //  2. 동화 완성을 websocket으로 알림
+            webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
             //  3. ai 쪽으로 그림 생성 요청
-            aiServerRequestService.requestAIPicture(submitFileRequestDto.getRoomId());
+            aiServerRequestService.requestAIPicture(roomId);
         }
         
         return ApiResponse.<String>builder().build();
