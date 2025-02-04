@@ -151,9 +151,9 @@ const playActions = (set, get) => ({
 
   // action
   // tale axios -> roomid, page(1~4)
-  setHotTale: (pageNum) => {
+  setHotTale: async (pageNum) => {
     const response = await taleAPI.taleHot(get().roomId, pageNum);
-    const hotPage = response.data['data']
+    const hotPage = response.data['data'];
 
     set((state) => {
       state.hotTale = hotPage;
@@ -227,6 +227,6 @@ export const useTalePlay = () => {
     setSubscribeTale,
     setDrawDirection,
 
-    setHotTale
+    setHotTale,
   };
 };
