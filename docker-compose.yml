@@ -37,7 +37,7 @@ services:
       - oauth_kakao_secert=${oauth_kakao_secert}
       - oauth_kakao_redirect_uri=${oauth_kakao_redirect_uri}
       - OPENVIDU_URL=https://i12c206.p.ssafy.io:8443
-      # - OPENVIDU_SECRET=MY_SECRET
+      - OPENVIDU_SECRET=MY_SECRET
       - AI_SERVER_URL=${AI_SERVER_URL}
   # frontend
   frontend:
