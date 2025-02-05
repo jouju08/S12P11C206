@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
 import { useEffect } from 'react';
 import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
+
+import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
+import TaleNavigation from '@/components/Common/TaleNavigation';
 
 // 확인용 더미데이터
 const ParticipationList = [
@@ -96,28 +98,10 @@ const HotTale = () => {
         />
       </div> */}
 
-      {/* 이전 화살표 */}
-      <div
-        onClick={() => pageNum > 0 && setPageNum((prev) => prev - 1)}
-        className={`absolute bottom-3 right-24 ${pageNum <= 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-        <img
-          src={'/Common/arrow-left.png'}
-          alt="이전 화살표"
-          className={`w-[50px] h-[50px] ${pageNum <= 0 ? 'opacity-50 grayscale' : ''}`}
-        />
-      </div>
-
-      {/* 몇 페이지인지 */}
-      <span className="absolute bottom-3 right-12">{pageNum + 1}</span>
-
-      {/* 다음 화살표 */}
-      <div
-        onClick={() => pageNum < 4 && setPageNum((prev) => prev + 1)}
-        className={`absolute bottom-3 right-3 ${pageNum >= 4 ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-        <img
-          src={'/Common/arrow-left.png'}
-          alt="다음 화살표"
-          className={`w-[50px] h-[50px] -scale-x-100 ${pageNum >= 4 ? 'opacity-50 grayscale' : ''}`}
+      <div className="absolute bottom-3 right-1/3 transform -translate-x-1/2 -translate-y-1/2">
+        <TaleNavigation
+          pageNum={pageNum}
+          setPageNum={setPageNum}
         />
       </div>
     </div>
@@ -125,3 +109,34 @@ const HotTale = () => {
 };
 
 export default HotTale;
+
+// const TaleNavigation = ({ pageNum, setPageNum }) => {
+//   return (
+//     <div className="flex justify-between w-[175px]">
+//       {/* 이전 화살표 */}
+//       <div
+//         onClick={() => pageNum > 0 && setPageNum((prev) => prev - 1)}
+//         className={`${pageNum <= 0 ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+//         <img
+//           src={'/Common/arrow-left.png'}
+//           alt="이전 화살표"
+//           className={`w-[50px] h-[50px] ${pageNum <= 0 ? 'opacity-50 grayscale' : ''}`}
+//         />
+//       </div>
+
+//       {/* 몇 페이지인지 */}
+//       <span className="service-accent1 text-right">{pageNum + 1}</span>
+
+//       {/* 다음 화살표 */}
+//       <div
+//         onClick={() => pageNum < 3 && setPageNum((prev) => prev + 1)}
+//         className={`${pageNum >= 3 ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+//         <img
+//           src={'/Common/arrow-left.png'}
+//           alt="다음 화살표"
+//           className={`w-[50px] h-[50px] -scale-x-100 ${pageNum >= 3 ? 'opacity-50 grayscale' : ''}`}
+//         />
+//       </div>
+//     </div>
+//   );
+// };
