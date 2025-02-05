@@ -43,6 +43,7 @@ const TaleSentenceDrawing = () => {
 
   // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
   const [currentStep, setCurrentStep] = useState(0);
+
   // 싱글모드일때 사용, 이전에 그린 그림들 저장
   const [previousDrawings, setPreviousDrawings] = useState([]);
 
@@ -52,27 +53,29 @@ const TaleSentenceDrawing = () => {
   // 컴포넌트 마운트 시 타이머 시작
   useEffect(() => {
     const timer = setInterval(() => {
-      // 1초마다 타이머 갱신
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          // 시간이 다 되면 자동으로 확인 버튼 클릭
-          handleConfirm();
-          return 0;
-        }
-        return prev - 1;
-      });
+      if (isSingle && currentStep === 4) {
+        return setTimeLeft(0);
+      } else {
+        // 1초마다 타이머 갱신
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            // 시간이 다 되면 자동으로 확인 버튼 클릭
+            handleConfirm();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [currentStep]);
 
   //Loading 처리
   useEffect(() => {
     if (drawDirection.length > 0) {
       setLoading(false);
     }
-
-    console.log(sortedSentences);
   }, [drawDirection]);
 
   // 확인 버튼 누름 or 5분 지남
@@ -191,7 +194,6 @@ const TaleSentenceDrawing = () => {
                 src="/TaleSentenceDrawing/crayon.png"
               />
             </div>
-
             <div className="w-[600px] mx-auto rounded-[10px] border border-gray-200 text-center py-2 bg-white story-basic2 text-text-first">
               {/* currentStep은 1부터 시작하므로 인덱스로 사용할 때는 -1 */}
               {sortedSentences[currentStep]?.sentence}
@@ -213,7 +215,6 @@ const TaleSentenceDrawing = () => {
                 }}
               />
             </div>
-
             <button
               onClick={
                 currentStep === 3

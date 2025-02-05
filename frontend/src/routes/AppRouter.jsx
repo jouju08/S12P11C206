@@ -28,6 +28,7 @@ const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));
 const TaleSentenceDrawing = lazy(
   () => import('@/pages/Room/TaleSentenceDrawing')
 );
+const HotTale = lazy(() => import('@/pages/Room/HotTale'));
 
 //인증된 사용자
 const ProtectedLayout = () => {
@@ -83,6 +84,7 @@ const router = createBrowserRouter([
           { path: 'taleStart', element: <TaleStart /> },
           { path: 'taleKeyword', element: <TaleKeyword /> },
           { path: 'taleSentenceDrawing', element: <TaleSentenceDrawing /> },
+          { path: 'hotTale', element: <HotTale /> },
         ],
       },
     ],
