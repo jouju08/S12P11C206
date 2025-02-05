@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Footer from '../Footer';
 import AuthHeader from '../Header/AuthHeader';
 import DefaultHeader from '../Header/DefaultHeader';
@@ -6,8 +6,13 @@ import { useUser } from '@/store/userStore';
 
 export default function MainLayout() {
   const { isAuthenticated } = useUser();
+  const location = useLocation();
+
+  const isCollectionPage = location.pathname === '/collection';
+
   return (
-    <div className="bg-main-background">
+    <div
+      className={`${isCollectionPage ? 'bg-main-beige' : 'bg-main-background'}`}>
       {isAuthenticated ? <AuthHeader /> : <DefaultHeader />}
       {/* 최소 높이 주는 css 삭제 */}
       <div className="flex w-3/4 justify-center items-center mx-auto border-solid border-2 border-indigo-600">

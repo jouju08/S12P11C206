@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export default function DefaultHeader() {
   const { logout } = useUser();
   return (
-    <header className="bg-main-background">
+    <header className="shadow-md">
       <div className="w-[1024px] h-[100px] relative m-auto">
         {/* logo */}
         <Link
