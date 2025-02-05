@@ -4,6 +4,7 @@ import FairyChatBubble from '@/components/Common/FairyChatBubble';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
+import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
 
 // 확인용 더미데이터
 const ParticipationList = [
@@ -27,44 +28,108 @@ const TaleKeyword = () => {
   // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
   const [currentStep, setCurrentStep] = useState(0);
 
+  const {
+    tale,
+    currentKeyword,
+    setCurrentKeyword,
+
+    submitTyping,
+    submitVoice,
+    submitHandWrite,
+
+    submitTypingSingle,
+    submitVoiceSingle,
+    submitHandWriteSingle,
+
+    submitTotal,
+    submitTotalSingle,
+    addKeyword,
+    keywords,
+    setPage,
+    addPage,
+  } = useTalePlay(); // 동화 API
+
   useEffect(() => {
     if (currentStep >= 4) {
       navigate('/tale/taleSentenceDrawing');
     }
   }, [currentStep]); // 페이지 넘어가는 side effect
 
-  const {
-    tale,
-    setCurrentKeyword,
-    submitTotal,
-    submitTotalSingle,
-    addKeyword,
-    keywords,
-    setPage,
-  } = useTalePlay(); // 동화 API
+  //unmounted reset page(count) for next play
+  useEffect(() => {
+    return () => {
+      setPage(0);
+    };
+  }, []);
 
   const sentences = tale?.['sentenceOwnerPairs']?.filter(
     (item) => item.sentence
   );
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (mode === 'typing' && inputText.trim()) {
-      setIsNextActive(true);
+      const response = isSingle
+        ? await submitTypingSingle(inputText)
+        : await submitTyping(inputText);
+
+      response.then((resovle) => {
+        if (resovle !== false) {
+          setIsNextActive(true);
+          setCurrentKeyword(resovle);
+        }
+      });
+    } else if (mode === 'voice') {
+      const response = isSingle
+        ? await submitVoiceSingle(recordedAudio)
+        : await submitVoice(recordedAudio);
+      response.then((resovle) => {
+        if (resovle !== false) {
+          setIsNextActive(true);
+          setCurrentKeyword(resovle);
+        }
+      });
     } else if (mode === 'writing') {
-      const canvas = canvasRef.current;
-      const pngData = canvas.toDataURL('image/png');
-      console.log('PNG Data:', pngData); // PNG 데이터를 잠시 저장
-      setIsNextActive(true);
+      const handwriteFile = await exportToBlob({
+        elements: excalidrawAPIRef.current.getSceneElements(),
+        appState: excalidrawAPIRef.current.getAppState(),
+        files: excalidrawAPIRef.current.getFiles(),
+        mimeType: 'image/png',
+      });
+
+      const file = new File([handwriteFile], `file`, { type: 'image/png' });
+
+      const response = isSingle
+        ? await submitHandWriteSingle(file)
+        : await submitHandWrite(file);
+
+      response.then((resovle) => {
+        if (resovle !== false) {
+          setIsNextActive(true);
+          setCurrentKeyword(resovle);
+        }
+      });
+    }
+  };
+
+  const handleSubmit = async (keyword) => {
+    try {
+      const response = await submitTotal(keyword);
+      if (response.data.status == 'SU') {
+        addKeyword(keyword);
+        return true;
+      }
+    } catch {
+      return false;
     }
   };
 
   //싱글모드 대응
-  const handleSubmitTextSingle = async (keyword) => {
+  const handleSubmitSingle = async (keyword) => {
     try {
       const response = await submitTotalSingle(keyword);
 
       if (response.data.status == 'SU') {
-        setPage();
+        addPage();
         addKeyword(keyword);
         return true;
       }
@@ -72,22 +137,6 @@ const TaleKeyword = () => {
       return false;
     }
   };
-
-  const handleSumbitVoiceSingle = async (voice) => {
-    try {
-      const response = await submitTotalSingle(keyword);
-
-      if (response.data.status == 'SU') {
-        setPage();
-        addKeyword(keyword);
-        return true;
-      }
-    } catch {
-      return false;
-    }
-  };
-
-  const handleSubmitPictureSingle = async (picture) => {};
 
   const handleReset = () => {
     setInputText('');
@@ -102,8 +151,7 @@ const TaleKeyword = () => {
 
   const handleNext = () => {
     if (mode === 'typing' && isSingle) {
-      handleSubmitTextSingle(inputText).then((resolve) => {
-        console.log(resolve);
+      handleSubmitSingle(inputText).then((resolve) => {
         if (resolve == true) {
           handleReset();
           setCurrentStep((prev) => prev + 1);
@@ -248,11 +296,28 @@ const TaleKeyword = () => {
 
       {mode === 'writing' && (
         <div className="absolute bottom-[140px] left-[333px] flex items-center gap-4">
-          <canvas
+          <div className="w-[470px] h-[165px]">
+            <Excalidraw
+              excalidrawAPI={(api) => {
+                canvasRef.current = api;
+              }}
+              initialData={{
+                elements: [],
+                appState: {
+                  viewBackgroundColor: null,
+                  scrollX: 0,
+                  scrollY: 0,
+                },
+                scrollToContent: false,
+              }}
+            />
+          </div>
+
+          {/* <canvas
             ref={canvasRef}
             width={470}
             height={165}
-            className="border border-gray-200 rounded-xl bg-white"></canvas>
+            className="border border-gray-200 rounded-xl bg-white"></canvas> */}
 
           <ConfirmBtn onClick={handleConfirm} />
         </div>

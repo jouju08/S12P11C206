@@ -23,12 +23,7 @@ const taleAPI = {
         'Content-Type': 'multipart/form-data',
       },
     }),
-  taleKeyWordTyping: (data) =>
-    api.post('/tale/keyword/typing', data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    }),
+  taleKeyWordTyping: (data) => api.post('/tale/keyword/typing', data),
 
   //최종 키워드 제출
   taleSubmitTotal: (data) => api.post('/tale/submit/keyword', { data }), //키워드 최종 제출
