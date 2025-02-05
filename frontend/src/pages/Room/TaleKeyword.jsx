@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
-import FairyChatBubble from '@/components/common/FairyChatBubble';
+import FairyChatBubble from '@/components/Common/FairyChatBubble';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
+import { useNavigate } from 'react-router-dom';
 
 // 확인용 더미데이터
 const ParticipationList = [
@@ -19,16 +20,27 @@ const TaleKeyword = () => {
   const [recordedAudio, setRecordedAudio] = useState(null); // 녹음된 오디오 데이터
   const canvasRef = useRef(null); // 글쓰기 캔버스 참조
 
+  const navigate = useNavigate();
+
   const { isSingle } = useTaleRoom();
+
+  // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
+  const [currentStep, setCurrentStep] = useState(0);
+
+  useEffect(() => {
+    if (currentStep >= 4) {
+      navigate('/tale/taleSentenceDrawing');
+    }
+  }, [currentStep]); // 페이지 넘어가는 side effect
 
   const {
     tale,
-    page,
     setCurrentKeyword,
     submitTotal,
-    setPage,
+    submitTotalSingle,
     addKeyword,
     keywords,
+    setPage,
   } = useTalePlay(); // 동화 API
 
   const sentences = tale?.['sentenceOwnerPairs']?.filter(
@@ -49,18 +61,31 @@ const TaleKeyword = () => {
   //싱글모드 대응
   const handleSubmitTextSingle = async (keyword) => {
     try {
-      const response = await submitTotal(keyword);
+      const response = await submitTotalSingle(keyword);
 
       if (response.data.status == 'SU') {
         setPage();
         addKeyword(keyword);
+        return true;
       }
     } catch {
       return false;
     }
   };
 
-  const handleSumbitVoiceSingle = async (voice) => {};
+  const handleSumbitVoiceSingle = async (voice) => {
+    try {
+      const response = await submitTotalSingle(keyword);
+
+      if (response.data.status == 'SU') {
+        setPage();
+        addKeyword(keyword);
+        return true;
+      }
+    } catch {
+      return false;
+    }
+  };
 
   const handleSubmitPictureSingle = async (picture) => {};
 
@@ -77,8 +102,13 @@ const TaleKeyword = () => {
 
   const handleNext = () => {
     if (mode === 'typing' && isSingle) {
-      handleSubmitTextSingle(inputText);
-      handleReset();
+      handleSubmitTextSingle(inputText).then((resolve) => {
+        console.log(resolve);
+        if (resolve == true) {
+          handleReset();
+          setCurrentStep((prev) => prev + 1);
+        }
+      });
     } else if (mode === 'typing' && !isSingle) {
       console.log('Sending text to backend:', inputText);
     } else if (mode === 'voice' && isSingle) {

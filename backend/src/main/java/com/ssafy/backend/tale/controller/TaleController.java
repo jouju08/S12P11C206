@@ -1,18 +1,28 @@
 package com.ssafy.backend.tale.controller;
 
 import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.tale.dto.common.TaleMemberDto;
+import com.ssafy.backend.common.WebSocketNotiService;
+import com.ssafy.backend.db.entity.Tale;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
+import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
 import com.ssafy.backend.tale.dto.response.TextResponseDto;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import com.ssafy.backend.db.repository.MemberRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  *  author : HEO-hyunjun
@@ -28,6 +38,23 @@ import org.springframework.web.multipart.MultipartFile;
 public class TaleController {
     private final TaleService taleService;
     private final AIServerRequestService aiServerRequestService;
+    private final WebSocketNotiService webSocketNotiService;
+    private final MemberRepository memberRepository;
+
+    @GetMapping("/my-tale")
+    public ApiResponse<List<Tale>> getMyTale(Authentication authentication) {
+        User user=(User) authentication.getPrincipal();
+        Long UserId=memberRepository.findByLoginId(user.getUsername()).get().getId();
+        List<Tale> taleList= taleService.getByUserId(UserId);
+        return ApiResponse.<List<Tale>>builder().data(taleList).build();
+    }
+
+//    //동화 디테일
+//    @GetMapping("/detail/{taleId}")?
+//    public ApiResponse<Tale> getDetail(@PathVariable long taleId) {
+//        Tale tale=taleService.getByTale(taleId);
+//        return ApiResponse.<Tale>builder().data(tale).build();
+//    }
 
     // 동화 제작 시작
     // 방의정보를 보고 동화의 정보를 불러와서 키워드 문장을 매칭시킵니다.
@@ -36,12 +63,6 @@ public class TaleController {
         return ApiResponse.<StartTaleMakingResponseDto>builder()
                 .data(taleService.startMakingTale(roomId))
                 .build();
-    }
-
-    // 키워드 타이핑 정보 확인
-    @PostMapping("/keyword/typing")
-    public ApiResponse<String> keywordTyping(@RequestBody KeywordRequestDto keywordRequestDto){
-        return ApiResponse.<String>builder().data(keywordRequestDto.getKeyword()).build();
     }
 
     // 키워드 음성 정보 확인
@@ -56,6 +77,13 @@ public class TaleController {
         return aiServerRequestService.requestHandWriteKeyword(keywordFileRequestDto);
     }
 
+    // 키워드 타이핑 정보 확인
+    @PostMapping("/keyword/typing")
+    public ApiResponse<String> keywordTyping(@RequestBody KeywordRequestDto keywordRequestDto){
+        return ApiResponse.<String>builder().data(keywordRequestDto.getKeyword()).build();
+    }
+
+
     // 키워드 최종선택
     @PostMapping("/submit/keyword")
     public ApiResponse<String> keywordSubmit(@RequestBody KeywordRequestDto keywordRequestDto){
@@ -68,29 +96,39 @@ public class TaleController {
             aiServerRequestService.requestGenerateTale(keywordRequestDto.getRoomId(), generateTaleRequestDto);
         }
         // 4. 일단 응답은 ok
-        return ApiResponse.<String>builder().build();
+        return ApiResponse.<String>builder().data("OK").build();
     }
 
     // 동화 손그림 제출
     @PostMapping("/submit/picture")
     public ApiResponse<String> submitHandPicture(@ModelAttribute SubmitFileRequestDto submitFileRequestDto){
         if(taleService.saveHandPicture(submitFileRequestDto) >= 4){
+            long roomId = submitFileRequestDto.getRoomId();
             // 4명이 모두 그림을 제출했을 때,
             //  1. tale_member들을 mysql에 저장
-            taleService.saveTaleFromRedis(submitFileRequestDto.getRoomId());
+            taleService.saveTaleFromRedis(roomId);
 
             //  2. 동화 완성을 websocket으로 알림
+            webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
             //  3. ai 쪽으로 그림 생성 요청
-            aiServerRequestService.requestAIPicture(submitFileRequestDto.getRoomId());
+            aiServerRequestService.requestAIPicture(roomId);
         }
         
         return ApiResponse.<String>builder().build();
     }
 
     // 햇동화 요청
+    // redis에서 동화 정보를 가져와서 반환
     @GetMapping("/temp/{roomId}/{page}")
-    public ApiResponse<TaleMemberDto> getTempTale(@PathVariable long roomId, @PathVariable int page){
-        return ApiResponse.<TaleMemberDto>builder().data(taleService.getTaleMemberDtoFromRedis(roomId, page)).build();
+    public ApiResponse<TalePageResponseDto> getTempTale(@PathVariable long roomId, @PathVariable int page){
+        return ApiResponse.<TalePageResponseDto>builder().data(taleService.getTempTalePage(roomId, page)).build();
+    }
+
+    // 동화 요청
+    // mySQL에서 동화 정보를 가져와서 반환
+    @GetMapping("/{taleId}/{page}")
+    public ApiResponse<TalePageResponseDto> getTale(@PathVariable long taleId, @PathVariable int page){
+        return ApiResponse.<TalePageResponseDto>builder().data(taleService.getTalePage(taleId, page)).build();
     }
 
     // 햇동화 다읽음

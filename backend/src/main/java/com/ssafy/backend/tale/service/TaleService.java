@@ -3,6 +3,7 @@ package com.ssafy.backend.tale.service;
 import com.ssafy.backend.common.S3Service;
 import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.entity.Member;
+import com.ssafy.backend.db.entity.Tale;
 import com.ssafy.backend.db.entity.TaleMember;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
@@ -16,6 +17,7 @@ import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 import com.ssafy.backend.tale.dto.common.PageInfo;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
+import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -45,6 +47,20 @@ public class TaleService {
     private final MemberRepository memberRepository;
     private final TaleMemberRepository taleMemberRepository;
     private final S3Service s3Service;
+
+    //내가 참여한 동화 목록 불러오기
+    public List<Tale> getByUserId(Long userId) {
+        Member member= memberRepository.getById(userId);
+        List<Tale> taleList=member.getTales();
+        return taleList;
+    }
+
+    //내가 참여한 동화의 디테일 확인
+    public  Tale getByTale(Long taleId) {
+        Tale tale=taleRepository.getById(taleId);
+        return tale;
+    }
+
     // 동화 제작 시작
     // -> 방의정보를 보고 동화의 정보를 불러와서 키워드 문장을 매칭시킵니다.
     public StartTaleMakingResponseDto startMakingTale(long roomId) {
@@ -228,21 +244,53 @@ public class TaleService {
         return generateTaleRequestDto;
     }
 
+    // 레디스에서 tale_page를 불러옵니다.
+    public TalePageResponseDto getTempTalePage(long roomId, int order){
+        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(roomId, order);
+        return parseTalePage(taleMemberDto);
+    }
+
+    // mySQL에서 tale_page를 불러옵니다.
+    public TalePageResponseDto getTalePage(long roomId, int order){
+        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
+        if(taleMember == null)
+            throw new RuntimeException("유효하지 않은 동화페이지입니다.");
+        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+        return parseTalePage(taleMemberDto);
+    }
+
+    // tale_memberDto를 tale_page로 변환합니다.
+    private TalePageResponseDto parseTalePage(TaleMemberDto taleMemberDto){
+        TalePageResponseDto talePageResponseDto = new TalePageResponseDto();
+        talePageResponseDto.setOrderNum(taleMemberDto.getOrderNum());
+        talePageResponseDto.setMemberId(taleMemberDto.getMemberId());
+        talePageResponseDto.setTaleId(taleMemberDto.getTaleId());
+        talePageResponseDto.setOriginImg(taleMemberDto.getOrginImg());
+        talePageResponseDto.setImg(taleMemberDto.getImg());
+        talePageResponseDto.setVoice(taleMemberDto.getVoice());
+        talePageResponseDto.setScript(taleMemberDto.getScript());
+        return talePageResponseDto;
+    }
+
     // 전체 동화 내용을 저장하고, 각 참가자별 그림 그릴 문장을 반환합니다.
     public List<SentenceOwnerPair> saveTaleText(long roomId, List<PageInfo> pages){
         List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
         List<SentenceOwnerPair> sentenceOwnerPairs = new ArrayList<>();
         for(int i = 0; i < 4; i++){
+            // redis에서 페이지 순서대로 tale_member를 불러옵니다.
             TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMembers.get(i));
             SentenceOwnerPair sentenceOwnerPair = new SentenceOwnerPair();
 
             int order = taleMemberDto.getOrderNum();
 
+            // 페이지 내용과 그림 그릴 문장을 저장합니다.
             taleMemberDto.setScript(pages.get(order).getFullText());
             taleMemberDto.setImgScript(pages.get(order).getExtractedSentence());
+
             // taleMember를 다시 저장합니다.
             setTaleMemberDtoToRedis(taleMemberDto);
 
+            // 반환할 객체에 저장합니다.
             sentenceOwnerPair.setOrder(order);
             sentenceOwnerPair.setOwner(taleMemberDto.getMemberId());
             sentenceOwnerPair.setSentence(pages.get(order).getExtractedSentence());

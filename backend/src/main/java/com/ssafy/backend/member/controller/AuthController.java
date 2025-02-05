@@ -7,6 +7,7 @@ import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.dto.FindIdDto;
 import com.ssafy.backend.member.dto.request.LoginRequest;
+import com.ssafy.backend.member.dto.request.RefreshTokenRequestDto;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
 import com.ssafy.backend.member.dto.response.LoginResponseDto;
 import com.ssafy.backend.member.service.*;
@@ -79,7 +80,9 @@ public class AuthController {
      * Refresh 토큰으로 Access 토큰 재발급
      */
     @PostMapping("/refresh")
-    public ApiResponse<Map<String, String>> refreshAccessTokenByRefreshToken(@RequestBody String refreshToken) {
+    public ApiResponse<Map<String, String>> refreshAccessTokenByRefreshToken(@RequestBody RefreshTokenRequestDto refreshTokenDto) {
+        String refreshToken = refreshTokenDto.getRefreshToken();
+        System.out.println(refreshToken);
         return ApiResponse.<Map<String, String>>builder().data(authService.refreshAccessToken(refreshToken)).build();
     }
 
