@@ -52,19 +52,23 @@ const TaleSentenceDrawing = () => {
   // 컴포넌트 마운트 시 타이머 시작
   useEffect(() => {
     const timer = setInterval(() => {
-      // 1초마다 타이머 갱신
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          // 시간이 다 되면 자동으로 확인 버튼 클릭
-          handleConfirm();
-          return 0;
-        }
-        return prev - 1;
-      });
+      if (isSingle && currentStep === 5) {
+        return setTimeLeft(0);
+      } else {
+        // 1초마다 타이머 갱신
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            // 시간이 다 되면 자동으로 확인 버튼 클릭
+            handleConfirm();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [currentStep]);
 
   //Loading 처리
   useEffect(() => {
@@ -168,22 +172,87 @@ const TaleSentenceDrawing = () => {
   }, []);
 
   return (
-    <>
-      {loading ? (
-        <Loading />
-      ) : (
-        <div
-          className="w-[1024px] h-[668px] bg-cover flex"
-          style={{
-            backgroundImage: "url('/TaleSentenceDrawing/field-background.png')",
-          }}>
-          <section className="w-[70%] relative text-center">
-            {/* 내가 그려볼 문장 */}
-            <div className="py-3 justify-start items-center inline-flex overflow-hidden">
-              <div className="w-[240px] h-[53px] relative">
-                <div className="w-[240px] h-5 left-0 top-[33px] absolute bg-main-beige z-0" />
-                <div className="text-center text-text-first service-accent1 relative z-10">
-                  내가 그려볼 문장!
+    <div
+      className="w-[1024px] h-[668px] bg-cover flex"
+      style={{
+        backgroundImage: "url('/TaleSentenceDrawing/field-background.png')",
+      }}>
+      <section className="w-[70%] relative text-center">
+        {/* 내가 그려볼 문장 */}
+        <div className="py-3 justify-start items-center inline-flex overflow-hidden">
+          <div className="w-[240px] h-[53px] relative">
+            <div className="w-[240px] h-5 left-0 top-[33px] absolute bg-main-beige z-0" />
+            <div className="text-center text-text-first service-accent1 relative z-10">
+              내가 그려볼 문장!
+            </div>
+          </div>
+          <img
+            className="w-[50px] h-[50px]"
+            src="/TaleSentenceDrawing/crayon.png"
+          />
+        </div>
+
+        <div className="w-[600px] mx-auto rounded-[10px] border border-gray-200 text-center py-2 bg-white story-basic2 text-text-first">
+          {/* currentStep은 1부터 시작하므로 인덱스로 사용할 때는 -1 */}
+          {currentStep === 5 && isSingle
+            ? sentences[3]
+            : sentences[currentStep - 1]}
+        </div>
+
+        <div className="w-[590px] h-[420px] ml-[55px] mt-[40px] relative">
+          <Excalidraw
+            excalidrawAPI={(api) => {
+              excalidrawAPIRef.current = api;
+            }}
+            initialData={{
+              elements: [],
+              appState: { viewBackgroundColor: null, scrollX: 0, scrollY: 0 },
+              scrollToContent: false,
+            }}
+          />
+          {currentStep === 5 && (
+            <div className="w-full h-full bg-[rgba(0,0,0,0.3)] absolute top-0 left-0 z-10 rounded-xl" />
+          )}
+        </div>
+
+        <button
+          onClick={currentStep === 5 ? () => navigate('/story') : handleConfirm}
+          className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
+          {currentStep === 5 ? '동화보러가기' : '확인'}
+        </button>
+      </section>
+
+      <section className="w-[30%] px-[25px] pt-3">
+        {/* 타이머 */}
+        <div className="relative ml-7 w-[206px] h-[70px] bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] border border-gray-500">
+          <div className="left-[25px] top-0 absolute text-text-firest text-base font-normal font-NPSfont">
+            남은 시간
+          </div>
+          <div className="left-[60px] top-[17px] absolute text-main-carrot service-accent1">
+            {String(Math.floor(timeLeft / 60)).padStart(2, '0')}:
+            {String(timeLeft % 60).padStart(2, '0')}
+          </div>
+          <img
+            src="/TaleSentenceDrawing/time.png"
+            alt="타이머 이미지"
+            className="w-[50px] h-[50px] z-10 absolute top-[15%] left-[-25px]"
+          />
+        </div>
+
+        {/* 그림 보여지는 곳(싱글은 내가 그린거, 멀티는 다른 사람 실시간) */}
+        <div className="mt-5">
+          {/* 싱글 모드일 때 */}
+          {isSingle == true && (
+            <div className="flex flex-col items-center gap-4">
+              {previousDrawings.map((drawing, index) => (
+                <div
+                  key={index}
+                  className="bg-white w-[236px] h-[168px]">
+                  <img
+                    src={drawing}
+                    alt={`Previous drawing ${index + 1}`}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
               </div>
               <img
