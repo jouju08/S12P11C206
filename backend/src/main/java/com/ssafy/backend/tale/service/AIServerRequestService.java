@@ -48,7 +48,7 @@ public class AIServerRequestService {
     private final TaleService taleService;
     private final S3Service s3Service;
 
-    public AIServerRequestService(@Value("${ai.server.url}") String url, WebSocketNotiService webSocketNotiService, TaleService taleService, S3Service s3Service) {
+    public AIServerRequestService(@Value("${AI_SERVER_URL}") String url, WebSocketNotiService webSocketNotiService, TaleService taleService, S3Service s3Service) {
         this.webClient = WebClient.builder()
                 .baseUrl(url)
                 .exchangeStrategies(ExchangeStrategies.builder()
