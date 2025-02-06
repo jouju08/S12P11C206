@@ -71,6 +71,7 @@ public class TaleService {
         TaleResponseDto taleResponseDto = new TaleResponseDto();
         BaseTale baseTale = tale.getBaseTale();
         taleResponseDto.setTaleId(tale.getId());
+        taleResponseDto.setBaseTaleId(baseTale.getId());
         taleResponseDto.setImg(baseTale.getTitleImg());
         taleResponseDto.setTitle(baseTale.getTitle());
         taleResponseDto.setCreatedAt(tale.getCreatedAt());
@@ -518,6 +519,9 @@ public class TaleService {
 
         Member member = memberRepository.getReferenceById(taleMemberDto.getMemberId());
         taleMember.setMember(member);
+
+        Tale tale = taleRepository.getReferenceById(taleMemberDto.getTaleId());
+        taleMember.setTale(tale);
 
         return taleMember;
     }

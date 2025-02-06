@@ -116,3 +116,12 @@ select {
   border-radius: 10px;
   box-shadow: inset 0px 0px 5px white;
 }
+
+/* Canvas용 마우스 커서*/
+.eraser-cursor {
+  cursor: url('/public/circle-outline.svg') 8 8, auto;
+}
+
+.pencil-cursor {
+  cursor: url('/public/circle-outline.svg') 12 12, auto;
+}

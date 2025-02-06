@@ -5,6 +5,7 @@ import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
 import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
+import DrawingBoard from '@/components/common/DrawingBoard';
 
 // 확인용 더미데이터
 const ParticipationList = [
@@ -72,42 +73,52 @@ const TaleKeyword = () => {
         ? await submitTypingSingle(inputText)
         : await submitTyping(inputText);
 
-      response.then((resovle) => {
-        if (resovle !== false) {
-          setIsNextActive(true);
-          setCurrentKeyword(resovle);
-        }
-      });
+      if (response) {
+        setIsNextActive(true);
+        setCurrentKeyword(response);
+      } else {
+        alert('fail keyword');
+      }
     } else if (mode === 'voice') {
       const response = isSingle
         ? await submitVoiceSingle(recordedAudio)
         : await submitVoice(recordedAudio);
-      response.then((resovle) => {
-        if (resovle !== false) {
-          setIsNextActive(true);
-          setCurrentKeyword(resovle);
-        }
-      });
+
+      if (response) {
+        setIsNextActive(true);
+        setCurrentKeyword(response);
+      } else {
+        alert('fail keyword');
+      }
     } else if (mode === 'writing') {
       const handwriteFile = await exportToBlob({
-        elements: excalidrawAPIRef.current.getSceneElements(),
-        appState: excalidrawAPIRef.current.getAppState(),
-        files: excalidrawAPIRef.current.getFiles(),
+        elements: canvasRef.current.getSceneElements(),
+        appState: canvasRef.current.getAppState(),
+        files: canvasRef.current.getFiles(),
         mimeType: 'image/png',
       });
 
-      const file = new File([handwriteFile], `file`, { type: 'image/png' });
+      // const url = URL.createObjectURL(handwriteFile);
+      // const a = document.createElement('a');
+      // a.href = url;
+      // a.download = 'drawing.png';
+      // a.click();
+      // URL.revokeObjectURL(url);
+
+      const file = new File([handwriteFile], `file.png`, { type: 'image/png' });
+
+      console.log(file);
 
       const response = isSingle
         ? await submitHandWriteSingle(file)
         : await submitHandWrite(file);
 
-      response.then((resovle) => {
-        if (resovle !== false) {
-          setIsNextActive(true);
-          setCurrentKeyword(resovle);
-        }
-      });
+      if (response) {
+        setIsNextActive(true);
+        setCurrentKeyword(response);
+      } else {
+        alert('fail keyword');
+      }
     }
   };
 
@@ -117,6 +128,7 @@ const TaleKeyword = () => {
       const response = await submitTotal(keyword);
       if (response.data.status == 'SU') {
         addKeyword(keyword);
+        handleReset();
         return true;
       }
     } catch {
@@ -133,6 +145,7 @@ const TaleKeyword = () => {
       if (response.data.status == 'SU') {
         addPage();
         addKeyword(keyword);
+        handleReset();
         return true;
       }
     } catch {
@@ -288,19 +301,24 @@ const TaleKeyword = () => {
 
       {mode === 'writing' && (
         <div className="absolute bottom-[140px] left-[333px] flex items-center gap-4">
-          <div className="w-[470px] h-[165px]">
+          <div className="w-[470px] h-[300px]">
             <Excalidraw
+              renderMainMenu={() => ''}
+              renderSidebar={() => ''}
               excalidrawAPI={(api) => {
                 canvasRef.current = api;
               }}
               initialData={{
                 elements: [],
                 appState: {
-                  viewBackgroundColor: null,
-                  scrollX: 0,
-                  scrollY: 0,
+                  activeTool: {
+                    type: 'freedraw',
+                    customType: null,
+                    locked: true,
+                  },
+                  scrollX: 100,
+                  scrollY: 100,
                 },
-                scrollToContent: false,
               }}
             />
           </div>
