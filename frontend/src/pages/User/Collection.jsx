@@ -59,18 +59,18 @@ export default function Collection() {
   }, []);
 
   return (
-    <div className="w-[1024px] h-lvh px-[25px]">
+    <div className="w-[1024px] h-fit px-[25px]">
       <h1 className="text-center text-text-first service-accent1 mx-auto mb-3">
         내 동화 책장
       </h1>
 
       {/* select */}
-      <div>
+      <div className="my-[30px] text-right">
         {/* 정렬 선택 */}
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="mr-4 p-2 border rounded">
+          className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px]">
           <option value="전체보기">전체 보기</option>
           <option value="최신순">최신순</option>
           <option value="과거순">과거순</option>
@@ -80,7 +80,7 @@ export default function Collection() {
         <select
           value={filterBy}
           onChange={(e) => setFilterBy(e.target.value)}
-          className="p-2 border rounded">
+          className="border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px]">
           <option value="전체보기">전체 보기</option>
           {uniqueTitles.map((title) => (
             <option
@@ -93,7 +93,9 @@ export default function Collection() {
       </div>
 
       {/* 내가 만든 동화 렌더링 */}
-      <section className="w-[974px] h-[587px] relative overflow-hidden mt-[25px] scr">
+      <section
+        id="need-scrool"
+        className="w-[974px] h-[486px] relative overflow-y-auto mt-[65px] scr pr-4">
         <TaleGrid
           myTaleList={dummy}
           filterBy={filterBy}
@@ -146,7 +148,7 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy }) => {
                   <p>{item.createdAt}</p>
                 </div>
                 <img
-                  className="w-[150px] h-[195px] mx-auto my-4 rounded opacity-90 relative"
+                  className="w-[149px] h-[195px] mx-auto my-4 rounded opacity-90 relative"
                   src={item.taleTitleImg}
                   alt="동화 표지"
                 />
