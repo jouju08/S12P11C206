@@ -1,7 +1,7 @@
 """
 Gen Controller
 """
-from fastapi import APIRouter, UploadFile, BackgroundTasks, Form, File
+from fastapi import APIRouter, UploadFile, Form, File
 import config
 import app.core.llm as llm_service
 import app.core.audio as audio_service
@@ -14,7 +14,7 @@ router = APIRouter(prefix=f"{config.API_BASE_URL}/gen", tags=["gen"])
 
 
 @router.post("/tale", description="동화를 생성하는 API", response_model=response_dto.ApiResponse[response_dto.GenerateTaleResponseDto])
-def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto, background_tasks: BackgroundTasks):
+def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto):
     """
     동화를 생성하는 API
     """
@@ -26,12 +26,12 @@ def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto, background
 
 
 @router.post("/script-read", description="스크립트를 읽어주는 API")
-def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
+def script_read(textRequestDto: request_dto.TextRequestDto):
     """
     스크립트를 읽어주는 API
     """
 
-    return audio_service.script_read(scriptReadRequestDto)
+    return audio_service.script_read(textRequestDto)
 
 
 @router.post("/diffusion-prompts", description="이미지 프롬프트 생성", response_model=response_dto.ApiResponse[response_dto.GenerateDiffusionPromptsResponseDto])
@@ -66,4 +66,16 @@ async def generate_img2img(roomId: int = Form(...),
             prompt=prompt,
             negativePrompt=negativePrompt,
             image=image)
+    )
+
+
+@router.post("/tale-sentences", description="키워드 문장 생성", response_model=response_dto.ApiResponse[str])
+def generate_sentences(generateSentencesRequestDto: request_dto.TextRequestDto):
+    """
+    todo: 키워드 문장 생성
+    """
+    return response_dto.ApiResponse(
+        status=Status.SUCCESS,
+        message="OK",
+        data=llm_service.generate_sentences(generateSentencesRequestDto.text)
     )

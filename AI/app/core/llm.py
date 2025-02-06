@@ -11,6 +11,20 @@ import app.models.response as response_dto
 from app.models.common import PromptSet, PageInfo
 
 
+def generate_sentences(title: str):
+    """
+    제목을 입력받아 동화의 주요 키워드를 담은 문장을 추출하고
+    도입부를 생성하는 함수
+    """
+    sentences = extract_keyword_sentences(title)
+    introduce = generate_introduction(title, sentences[0])
+
+
+def generate_introduction(title: str, first_sentence: str):
+    """
+    """
+
+
 def extract_keyword_sentences(title: str):
     """
     제목을 입력받아 해당 동화의 주요 키워드를 담은 문장을 추출하는 함수
