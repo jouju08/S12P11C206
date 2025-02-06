@@ -39,6 +39,8 @@ services:
       - OPENVIDU_URL=https://i12c206.p.ssafy.io:8443
       - OPENVIDU_SECRET=MY_SECRET
       - AI_SERVER_URL=${AI_SERVER_URL}
+      - LIVEKIT_API_KEY=secret
+      - LIVEKIT_API_SECRET=abababababababababababababababab
   # frontend
   frontend:
     build: ./frontend
