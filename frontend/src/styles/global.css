@@ -93,3 +93,26 @@
     font-size: 20px;
   }
 }
+
+/* select 화살표 변경 */
+select {
+  appearance: none; /* html의 기본적인 디자인 없애기 */
+  -webkit-appearance: none; /* Vendor Prefix */
+  -moz-appearance: none; /* Vendor Prefix */
+  background: url('/Common/select-down.png') no-repeat center right 12px; /* 기존의 우측 화살표를 배경 이미지로 대체 */
+}
+
+/* 스크롤 커스텀 */
+#need-scrool::-webkit-scrollbar {
+  width: 5px;
+}
+
+#need-scrool::-webkit-scrollbar-thumb {
+  background-color: #2f3542;
+  border-radius: 10px;
+}
+#need-scrool::-webkit-scrollbar-track {
+  background-color: grey;
+  border-radius: 10px;
+  box-shadow: inset 0px 0px 5px white;
+}
