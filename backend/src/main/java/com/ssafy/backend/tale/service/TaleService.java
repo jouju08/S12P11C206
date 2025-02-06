@@ -519,6 +519,9 @@ public class TaleService {
         Member member = memberRepository.getReferenceById(taleMemberDto.getMemberId());
         taleMember.setMember(member);
 
+        Tale tale = taleRepository.getReferenceById(taleMemberDto.getTaleId());
+        taleMember.setTale(tale);
+
         return taleMember;
     }
 }
