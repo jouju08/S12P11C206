@@ -5,45 +5,45 @@ import TaleNavigation from '@/components/Common/TaleNavigation';
 const dummy = [
   {
     taleId: 1,
+    baseTaleId: 1,
     title: 'title1',
     createdAt: '2025-01-03',
-    taleTitleImg:
-      'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
   },
   {
     taleId: 2,
+    baseTaleId: 1,
     title: 'title1',
     createdAt: '2025-02-04',
-    taleTitleImg:
-      'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
   },
   {
     taleId: 3,
+    baseTaleId: 2,
     title: 'title2',
     createdAt: '2025-02-01',
-    taleTitleImg:
-      'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale2.png',
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale2.png',
   },
   {
     taleId: 4,
+    baseTaleId: 3,
     title: 'title3',
     createdAt: '2025-02-02',
-    taleTitleImg:
-      'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
   },
   {
     taleId: 5,
+    baseTaleId: 3,
     title: 'title3',
     createdAt: '2025-01-19',
-    taleTitleImg:
-      'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
   },
   {
     taleId: 6,
+    baseTaleId: 3,
     title: 'title3',
     createdAt: '2025-02-01',
-    taleTitleImg:
-      'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
   },
 ];
 
@@ -121,9 +121,15 @@ export default function Collection() {
 }
 
 const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
+  const { taleStart, setTaleStart, setSeeTaleId } = useCollection();
+
   // 보러가기 버튼을 누르면 모달을 띄워줌
-  const handleClick = () => {
-    setShowModal(true);
+  const handleClick = (baseTaleId, taleId) => {
+    setShowModal(true); // 모달 보여주기
+    // 동화 초입부 불러오기
+    setTaleStart(baseTaleId);
+    // 내가 무슨 동화(몇번째 만들어진 동화) 보고 있는지 넘기기
+    setSeeTaleId(taleId);
   };
 
   const filteredTaleList = myTaleList
@@ -158,7 +164,7 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
                 <div className="absolute z-10 pt-[90%] text-center inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                   {/* 보러가기 버튼 누르면 동화책 모달 띄울까? */}
                   <button
-                    onClick={handleClick}
+                    onClick={() => handleClick(item.baseTaleId, item.taleId)}
                     className="bg-main-btn w-[85px] h-[24px] text-center service-regular3 px-3 rounded-xl">
                     보러가기
                   </button>
@@ -168,7 +174,7 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
                 </div>
                 <img
                   className="w-[149px] h-[195px] mx-auto my-4 rounded opacity-90 relative"
-                  src={item.taleTitleImg}
+                  src={item.img}
                   alt="동화 표지"
                 />
               </div>
@@ -193,9 +199,47 @@ const chunk = (arr, size) =>
     arr.slice(i * size, i * size + size)
   );
 
-// 방 나가기 모달
+// 동화 상세보기 모달
 const Modal = ({ handleExit }) => {
   const [pageNum, setPageNum] = useState(0);
+  const [pageDetail, setPageDetail] = useState({
+    originImg: '',
+    img: '',
+    script: '',
+    voice: '',
+  });
+  const { setTaleDetail, taleStart, taleDetail } = useCollection();
+
+  // 제일 처음 모달 렌더링 -> base_tale 초입부 가져오기
+  useEffect(() => {
+    setPageDetail({
+      originImg: taleStart['startImg'],
+      img: '',
+      script: taleStart['startScript'],
+      voice: taleStart['startVoice'],
+    });
+  }, []);
+
+  // pageNum 바뀔 때마다 렌더링
+  useEffect(() => {
+    if (pageNum === -1) {
+      setPageDetail({
+        originImg: taleStart['startImg'],
+        img: '',
+        script: taleStart['startScript'],
+        voice: taleStart['startVoice'],
+      });
+    } else {
+      setTaleDetail(pageNum);
+
+      setPageDetail({
+        originImg: taleDetail['originImg'],
+        img: taleDetail['img'],
+        script: taleDetail['script'],
+        voice: taleDetail['voice'],
+      });
+    }
+  }, [pageNum]);
 
   return (
     <div className="w-[1024px] h-[768px] bg-white rounded-[20px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] border border-gray-200 flex-col justify-center items-start inline-flex overflow-hidden">
@@ -208,7 +252,7 @@ const Modal = ({ handleExit }) => {
           />
         </div>
         <div className="text-text-first absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 service-accent1">
-          내 동화 보기
+          {taleStart['title']}
         </div>
         <button
           onClick={handleExit}
