@@ -7,7 +7,7 @@ export default function AuthHeader() {
   const { logout } = useUser();
 
   return (
-    <header className="bg-main-background shadow-md sticky top-0 z-50">
+    <header className="shadow-md sticky top-0 z-50">
       <nav className="w-[1024px] h-[100px] relative m-auto">
         {/* logo */}
         <Link
