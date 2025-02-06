@@ -15,7 +15,9 @@ import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.dto.FindIdDto;
 import com.ssafy.backend.dto.GalleryDto;
 import com.ssafy.backend.dto.PictureDto;
+import com.ssafy.backend.gallery.dto.GalleryRequestDto;
 import com.ssafy.backend.gallery.service.GalleryService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,67 +37,43 @@ import java.util.Optional;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/gallery")
+@RequestMapping("/api")
+@RequiredArgsConstructor
 public class GalleryController {
     private final GalleryRepository galleryRepository;
     private final TaleMemberRepository taleMemberRepository;
 
-    @Autowired
-    private GalleryService galleryService;
-    @Autowired
-    private MemberRepository memberRepository;
+    private final GalleryService galleryService;
+    private final MemberRepository memberRepository;
 
-    public GalleryController(GalleryRepository galleryRepository,
-                             TaleMemberRepository taleMemberRepository) {
-        this.galleryRepository = galleryRepository;
-        this.taleMemberRepository = taleMemberRepository;
+
+    @PostMapping("/gallery")//게시글 생성
+    public ApiResponse<Object> createBoard(Authentication auth, @RequestBody GalleryRequestDto galleryRequestDto) {
+        System.out.println(galleryRequestDto);
+        galleryService.createBoard(galleryRequestDto.getTaleMemberId(), auth.getName(), galleryRequestDto.isHasOrigin());
+        return ApiResponse.builder().build();
     }
 
-    @PostMapping("/create")//게시글 생성
-    public ApiResponse<Object> createBoard(@RequestBody GalleryDto galleryDto, Authentication auth) {
-        User user = (User) auth.getPrincipal();
-        Member member=memberRepository.findByLoginId(user.getUsername()).orElseThrow(() -> new RuntimeException("User not found"));
-
-        Gallery gallery = new Gallery();
-        gallery.setImgPath(galleryDto.getImgPath());
-        gallery.setHasOrigin(galleryDto.getIsOrigin()); // isOrigin 값을 설정
-        gallery.setMember(member); // 사용자 정보 설정
-
-        // gallery 저장
-        try {
-            galleryRepository.save(gallery);
-
-            return ApiResponse.builder()
-                    .status(ResponseMessage.SUCCESS)
-                    .message("Gallery created successfully")
-                    .data(galleryDto.getImgPath())
-                    .build();
-        }catch(Exception e) {
-            throw new BadRequestException(e.getMessage());
-        }
-    }
-
-    @GetMapping("/view/my-pictures")//게시판에 올릴 사진을 위해 내 사진 정보들 불러옴
+    @GetMapping("/gallery/view/my-pictures")//게시판에 올릴 사진을 위해 내 사진 정보들 불러옴
     public ApiResponse<Optional<PictureDto>> viewMyPictures(Authentication auth) {
         User user = (User) auth.getPrincipal();
         Long userId= memberRepository.findByLoginId(user.getUsername()).get().getId();
         Optional<PictureDto> myPictures=taleMemberRepository.findPictureByTaleId(userId);
         if(myPictures.isPresent()) {
             return ApiResponse.<Optional<PictureDto>>builder()
-                    .data(myPictures).status(ResponseMessage.SUCCESS)
-                    .message(ResponseMessage.SUCCESS).build();
+                    .data(myPictures)
+                    .build();
         }
         else return ApiResponse.<Optional<PictureDto>>builder().data(Optional.empty()).status(ResponseMessage.SUCCESS).build();
     }
 
-    @GetMapping("/pictures/all")//모든 게시판 정보 불러오기
+    @GetMapping("/gallery/pictures/all")//모든 게시판 정보 불러오기
     public ApiResponse<Page<Gallery>> getPictures(@RequestParam(defaultValue = "0") int page,
                                                   @RequestParam(defaultValue = "10") int size){
         try {
             Page<Gallery> allPictures = galleryService.findAllPictures(PageRequest.of(page, size));
             return ApiResponse.<Page<Gallery>>builder()
                     .data(allPictures)
-                    .message(ResponseMessage.SUCCESS)
                     .build();
         }catch (ResourceNotFoundException e) {
             return ApiResponse.<Page<Gallery>>builder().message(ResponseMessage.NOT_FOUND).status(ResponseCode.NOT_FOUND).build();
@@ -105,14 +83,12 @@ public class GalleryController {
 
     }
 
-    @GetMapping("/{pictureId}/detail")//게시판 디테일 불러오기, 사진 아이디 필요
+    @GetMapping("/gallery/{pictureId}/detail")//게시판 디테일 불러오기, 사진 아이디 필요
     public ApiResponse<Optional<Gallery>> getPicturesDetail(@PathVariable Integer pictureId) {
         Optional<Gallery> pictureDetail = galleryService.pictureDetail(pictureId);
         if (pictureDetail.isPresent()) {
             return ApiResponse.<Optional<Gallery>>builder()
                     .data(pictureDetail)
-                    .status(ResponseCode.SUCCESS)
-                    .message(ResponseMessage.SUCCESS)
                     .build();
         } else {
             throw new ResourceNotFoundException("picture not found");
@@ -121,7 +97,7 @@ public class GalleryController {
 
 
 
-    @PostMapping("/like")
+    @PostMapping("/gallery/like")
     public ApiResponse<Object> likeBoard(@RequestBody GalleryDto galleryDto,  Authentication auth) {
         User user = (User) auth.getPrincipal();
         Long userId= memberRepository.findByLoginId(user.getUsername()).get().getId();

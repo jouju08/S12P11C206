@@ -1,14 +1,18 @@
 package com.ssafy.backend.db.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "gallery")
-@Data
+@Builder
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Gallery extends Common {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
