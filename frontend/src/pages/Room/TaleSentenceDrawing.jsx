@@ -29,6 +29,7 @@ const TaleSentenceDrawing = () => {
     setDrawDirection,
     submitPicture,
     submitPictureSingle,
+    addPage,
   } = useTalePlay();
 
   //AI에서 받은 문장들
@@ -110,6 +111,7 @@ const TaleSentenceDrawing = () => {
       //싱글모드 판단
       if (isSingle) {
         const response = await submitPictureSingle(file);
+        addPage();
       } else if (!isSingle) {
         const response = await submitPicture(file);
       }
@@ -145,7 +147,7 @@ const TaleSentenceDrawing = () => {
 
   const moveToReadTale = async () => {
     await handleConfirm();
-    navigate('/hotTale');
+    navigate('/tale/hotTale');
   };
 
   useEffect(() => {

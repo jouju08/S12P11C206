@@ -71,6 +71,7 @@ public class TaleService {
         TaleResponseDto taleResponseDto = new TaleResponseDto();
         BaseTale baseTale = tale.getBaseTale();
         taleResponseDto.setTaleId(tale.getId());
+        taleResponseDto.setBaseTaleId(baseTale.getId());
         taleResponseDto.setImg(baseTale.getTitleImg());
         taleResponseDto.setTitle(baseTale.getTitle());
         taleResponseDto.setCreatedAt(tale.getCreatedAt());
