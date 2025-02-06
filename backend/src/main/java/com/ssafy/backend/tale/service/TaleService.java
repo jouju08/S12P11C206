@@ -51,13 +51,19 @@ public class TaleService {
 
     //내가 참여한 동화 목록 불러오기
     public List<TaleResponseDto> getByUserId(Long memberId) {
-        Member member= memberRepository.getById(memberId);
-        List<Tale> taleList = member.getTales();
+        // tale_member에서 member_id로 tale_id를 찾아서 tale_id로 tale을 찾아서 반환
+        //반환할 객체를 생성합니다.
         List<TaleResponseDto> taleResponseDtoList = new ArrayList<>();
-        for (Tale tale : taleList) {
-            TaleResponseDto taleResponseDto = parseTale(tale);
-            taleResponseDtoList.add(taleResponseDto);
+
+        // memberId로 taleMember를 찾습니다. (참여한 동화 페이지들을 찾습니다.)
+        List<TaleMember> taleMembers = taleMemberRepository.findByMemberId(memberId);
+
+        //각 동화 페이지별로
+        for (TaleMember taleMember : taleMembers) {
+            TaleResponseDto taleResponseDto = parseTale(taleMember.getTale()); // 동화 페이지를 파싱합니다.
+            taleResponseDtoList.add(taleResponseDto); // 반환객체에 추가합니다.
         }
+
         return taleResponseDtoList;
     }
 
