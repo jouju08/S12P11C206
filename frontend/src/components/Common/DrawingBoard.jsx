@@ -1,45 +1,61 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 
-export default function DrawingBoard({ width, height }) {
-  // canvas ref 및 상태 변수들
+const DrawingBoard = forwardRef(({ width, height, usePalette }, ref) => {
   const canvasRef = useRef(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [lineColor, setLineColor] = useState('#000000'); // 기본 색: 검정
+  const [lineColor, setLineColor] = useState('#000000');
   const [lineWidth, setLineWidth] = useState(5);
+  const [isDrawing, setIsDrawing] = useState(false);
   const [isEraser, setIsEraser] = useState(false);
+  const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 });
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
 
   const colors = [
-    '#000000', // 검정
-    '#FF0000', // 빨강
-    '#00FF00', // 초록
-    '#0000FF', // 파랑
-    '#FFFF00', // 노랑
-    '#FF00FF', // 핑크/마젠타
-    '#00FFFF', // 청록
-    '#800080', // 보라
+    { name: 'Black', value: '#000000' },
+    { name: 'Red', value: '#FF0000' },
+    { name: 'Green', value: '#00FF00' },
+    { name: 'Blue', value: '#0000FF' },
+    { name: 'Yellow', value: '#FFFF00' },
+    { name: 'Magenta', value: '#FF00FF' },
+    { name: 'Cyan', value: '#00FFFF' },
+    { name: 'Orange', value: '#FFA500' },
   ];
 
-  // 초기 canvas 크기와 context 속성 설정
   useEffect(() => {
     const canvas = canvasRef.current;
-    // 원하는 캔버스 크기 (예: 창의 80%)
-    canvas.width = window.innerWidth * 0.8;
-    canvas.height = window.innerHeight * 0.8;
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'white';
+
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-  }, []);
+  }, [width, height]);
 
-  // 이전 좌표를 저장할 변수
-  let lastX = 0;
-  let lastY = 0;
+  useImperativeHandle(ref, () => ({
+    getPNGFile: () => {
+      return new Promise((resolve) => {
+        const canvas = canvasRef.current;
+        canvas.toBlob((blob) => {
+          const file = new File([blob], 'drawing.png', { type: 'image/png' });
+          resolve(file);
+        }, 'image/png');
+      });
+    },
+  }));
 
-  // 마우스 이벤트 핸들러
   const handleMouseDown = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    lastX = e.clientX - rect.left;
-    lastY = e.clientY - rect.top;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setLastPosition({ x, y });
     setIsDrawing(true);
   };
 
@@ -51,102 +67,107 @@ export default function DrawingBoard({ width, height }) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // 지우개 모드와 일반 그리기 모드 구분
+    ctx.beginPath();
+    ctx.moveTo(lastPosition.x, lastPosition.y);
+    ctx.lineTo(x, y);
+
+    // console.log(lastPosition.x, lastPosition.y);
+    // console.log(x, y);
+
     if (isEraser) {
       ctx.globalCompositeOperation = 'destination-out';
-      ctx.lineWidth = 20; // 지우개 두께 (원하는 값으로 조정)
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
+      ctx.lineWidth = 35;
     } else {
       ctx.globalCompositeOperation = 'source-over';
       ctx.strokeStyle = lineColor;
       ctx.lineWidth = lineWidth;
     }
 
-    ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(x, y);
     ctx.stroke();
-
-    lastX = x;
-    lastY = y;
+    setLastPosition({ x, y });
   };
 
   const handleMouseUp = () => {
     setIsDrawing(false);
   };
 
-  // 전체 지우기 기능
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   };
 
-  // canvas 내용을 blob으로 변환하여 PNG 파일로 저장
-  const saveCanvas = () => {
-    const canvas = canvasRef.current;
-    canvas.toBlob((blob) => {
-      // blob을 Object URL로 변환하여 다운로드 링크 생성
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'drawing.png';
-      a.click();
-      URL.revokeObjectURL(url);
-    }, 'image/png');
-  };
-
   return (
-    <div>
-      <div style={{ marginBottom: '10px' }}>
-        {/* 8가지 색상 팔레트 */}
-        {colors.map((color) => (
-          <button
-            key={color}
-            onClick={() => {
-              setIsEraser(false); // 색상을 선택하면 지우개 모드 해제
-              setLineColor(color);
-            }}
-            style={{
-              backgroundColor: color,
-              width: '30px',
-              height: '30px',
-              margin: '0 5px',
-              border:
-                currentColor === color && !isEraser ? '2px solid #000' : 'none',
-              cursor: 'pointer',
-            }}
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2 items-center">
+        {usePalette && (
+          <div className="relative">
+            <button
+              className="w-10 h-10 rounded-full border-2 border-gray-300 shadow-sm"
+              style={{ backgroundColor: lineColor }}
+              aria-label="Color picker"
+              onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
+            />
+            {isColorPickerOpen && (
+              <div className="absolute left-0 mt-2 p-4 bg-white rounded-lg shadow-lg z-10 min-w-[300px]">
+                <div className="grid grid-cols-4 gap-3 content-center place-items-center place-content-center">
+                  {colors.map((color) => (
+                    <button
+                      className="w-8 h-8 rounded-full border border-gray-200 hover:border-gray-400 transition-transform duration-300 hover:scale-125"
+                      key={color.value}
+                      onClick={() => {
+                        setIsEraser(false);
+                        setLineColor(color.value);
+                        setIsColorPickerOpen(false);
+                      }}
+                      style={{
+                        backgroundColor: color.value,
+                      }}
+                      title={color.name}
+                    />
+                  ))}
+                </div>
+                <div className="mt-4">
+                  <input
+                    type="color"
+                    value={lineColor}
+                    onChange={(e) => setLineColor(e.target.value)}
+                    className="w-full h-8 px-10 cursor-pointer bg-white"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="flex flex-col gap-4">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsEraser((prev) => !prev)}
+              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+              {isEraser ? '그리기 ' : '지우개 '}
+            </button>
+
+            <button
+              onClick={clearCanvas}
+              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+              전체지우기
+            </button>
+          </div>
+          <canvas
+            ref={canvasRef}
+            // className={` ${isEraser ? 'eraser-cursor' : 'cursor-crosshair'} border bg-white`}
+            className={`${isEraser ? 'cursor-crosshair' : 'cursor-pointer'} border-2 border-gray-200 rounded bg-white`}
+            style={{ width, height }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
           />
-        ))}
-
-        {/* 지우개 모드 토글 버튼 */}
-        <button
-          onClick={() => setIsEraser((prev) => !prev)}
-          style={{ marginRight: '5px' }}>
-          {isEraser ? '그리기 모드' : '지우개 모드'}
-        </button>
-
-        {/* 전체 지우기 버튼 */}
-        <button
-          onClick={clearCanvas}
-          style={{ marginRight: '5px' }}>
-          전체 지우기
-        </button>
+        </div>
       </div>
-
-      {/* 그림을 그릴 캔버스 */}
-      <canvas
-        ref={canvasRef}
-        width={width}
-        height={height}
-        style={{
-          border: '1px solid #000',
-          cursor: isEraser ? 'crosshair' : 'pointer',
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      />
     </div>
   );
-}
+});
+
+export default DrawingBoard;

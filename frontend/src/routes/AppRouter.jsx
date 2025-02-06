@@ -12,6 +12,8 @@ import {
   useLocation,
 } from 'react-router-dom';
 import KakaoCallback from '@/components/kakao/KakaoCallback';
+import DrawingBoard from '@/components/common/DrawingBoard';
+import CanvasTest from '@/pages/CanvasTest';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
 const Login = lazy(() => import('@/pages/User/Login'));
@@ -68,6 +70,7 @@ const router = createBrowserRouter([
           { path: 'gallery', element: <Gallery /> },
           { path: 'profile', element: <Profile /> },
           { path: 'upload', element: <FileTest /> },
+          { path: 'canvas', element: <CanvasTest /> },
         ],
       },
     ],
