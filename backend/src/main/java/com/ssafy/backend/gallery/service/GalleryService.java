@@ -19,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,8 +31,8 @@ public class GalleryService {
     private final TaleMemberRepository taleMemberRepository;
 
 
-    public Page<Gallery> findAllPictures(Pageable pageable) {
-        return galleryRepository.findAllPictures(pageable);
+    public List<Gallery> findAllPictures() {
+        return galleryRepository.findAll();
     }
 
     public Optional<Gallery> pictureDetail(Integer id) {
@@ -46,20 +47,16 @@ public class GalleryService {
     @Transactional
     public void createBoard(long taleMemberId, String loginId, boolean hasOrigin) {
 
-        // Fetch TaleMember safely. If not found, throw an exception.
         TaleMember taleMember = taleMemberRepository.findById(taleMemberId)
                 .orElseThrow(() -> new EntityNotFoundException("TaleMember not found with id: " + taleMemberId));
 
-        // Fetch Member safely.
         Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new EntityNotFoundException("Member not found with loginId: " + loginId));
 
-        // Check if the member ID of the logged-in user matches the one in TaleMember
         if (member.getId().longValue() != taleMember.getMember().getId().longValue()) {
             throw new AuthorizationDeniedException("잘못된 회원 접근입니다.");
         }
 
-        // Use the appropriate image path
         String imgPath = hasOrigin ? taleMember.getOrginImg() : taleMember.getImg();
 
         try {

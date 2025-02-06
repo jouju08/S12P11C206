@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -57,15 +58,14 @@ public class GalleryController {
     }
 
     @GetMapping("/gallery/pictures/all")//모든 게시판 정보 불러오기
-    public ApiResponse<Page<Gallery>> getPictures(@RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "10") int size) {
+    public ApiResponse<List<Gallery>> getPictures() {
         try {
-            Page<Gallery> allPictures = galleryService.findAllPictures(PageRequest.of(page, size));
-            return ApiResponse.<Page<Gallery>>builder()
+            List<Gallery> allPictures = galleryService.findAllPictures();
+            return ApiResponse.<List<Gallery>>builder()
                     .data(allPictures)
                     .build();
         } catch (ResourceNotFoundException e) {
-            return ApiResponse.<Page<Gallery>>builder().message(ResponseMessage.NOT_FOUND).status(ResponseCode.NOT_FOUND).build();
+            return ApiResponse.<List<Gallery>>builder().message(ResponseMessage.NOT_FOUND).status(ResponseCode.NOT_FOUND).build();
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());
         }
