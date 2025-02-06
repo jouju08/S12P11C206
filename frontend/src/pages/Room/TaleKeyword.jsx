@@ -111,8 +111,9 @@ const TaleKeyword = () => {
     }
   };
 
-  const handleSubmit = async (keyword) => {
+  const handleSubmit = async () => {
     try {
+      const keyword = currentKeyword;
       const response = await submitTotal(keyword);
       if (response.data.status == 'SU') {
         addKeyword(keyword);
@@ -124,8 +125,9 @@ const TaleKeyword = () => {
   };
 
   //싱글모드 대응
-  const handleSubmitSingle = async (keyword) => {
+  const handleSubmitSingle = async () => {
     try {
+      const keyword = currentKeyword;
       const response = await submitTotalSingle(keyword);
 
       if (response.data.status == 'SU') {
@@ -142,35 +144,25 @@ const TaleKeyword = () => {
     setInputText('');
     setRecordedAudio(null);
     if (canvasRef.current) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvasRef.current.resetScene();
     }
     setIsNextActive(false);
   };
 
   const handleNext = () => {
-    if (mode === 'typing' && isSingle) {
+    if (isSingle) {
       handleSubmitSingle(inputText).then((resolve) => {
         if (resolve == true) {
           handleReset();
           setCurrentStep((prev) => prev + 1);
         }
       });
-    } else if (mode === 'typing' && !isSingle) {
-      console.log('Sending text to backend:', inputText);
-    } else if (mode === 'voice' && isSingle) {
-      console.log('Sending audio to backend:', recordedAudio);
-    } else if (mode === 'voice' && !isSingle) {
-      console.log('Sending audio to backend:', recordedAudio);
-    } else if (mode === 'writing' && isSingle) {
-      const canvas = canvasRef.current;
-      const pngData = canvas.toDataURL('image/png');
-      console.log('Sending PNG to backend:', pngData);
-    } else if (mode === 'writing' && !isSingle) {
-      const canvas = canvasRef.current;
-      const pngData = canvas.toDataURL('image/png');
-      console.log('Sending PNG to backend:', pngData);
+    } else if (!isSingle) {
+      handleSubmit().then((resolve) => {
+        if (resovle == true) {
+          handleReset();
+        }
+      });
     }
   };
 
