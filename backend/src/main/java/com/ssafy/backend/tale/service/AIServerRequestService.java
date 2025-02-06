@@ -74,13 +74,26 @@ public class AIServerRequestService {
                 );
     }
 
-    public boolean isAIPictureServerAlive(){
-        ApiResponse<Boolean> response = webClient.get()
-                .uri("/ask/can-draw-picture")
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<ApiResponse<Boolean>>(){})
-                .block();
-        return response.getData();
+    public ApiResponse<Boolean> isAIPictureServerAlive(){
+        try {
+            ApiResponse<Boolean> response = webClient.get()
+                    .uri("/ask/can-draw-picture")
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<ApiResponse<Boolean>>() {
+                    })
+                    .block();
+            String message = null;
+            if (response.getData()) {
+                message = "외부 FastAPI서버가 열려있습니다.";
+            } else {
+                message = "외부 FastAPI서버가 닫혀있습니다.";
+            }
+            response.setMessage(message);
+
+            return response;
+        } catch (Exception e) {
+            return ApiResponse.<Boolean>builder().message("로컬 FastAPI서버가 닫혀있습니다.").data(false).build();
+        }
     }
 
     public void requestAIPicture(long roomId){

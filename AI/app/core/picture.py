@@ -70,7 +70,10 @@ def can_draw_picture():
     """
     그림을 그릴 수 있는지 확인하는 함수
     """
-    response = requests.get(config.AI_IMG_2_IMG_SERVER + "/")
+    try:
+        response = requests.get(config.AI_IMG_2_IMG_SERVER + "/", timeout=1)
+    except Exception:
+        return False
     return response.status_code == 200
 
 

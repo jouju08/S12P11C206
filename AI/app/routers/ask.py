@@ -12,6 +12,18 @@ import app.models.response.Status as Status
 router = APIRouter(prefix=f"{config.API_BASE_URL}/ask", tags=["ask"])
 
 
+@router. get("/can-draw-picture", description="그림을 그릴 수 있는지 확인하는 API", response_model=response_dto.ApiResponse[bool])
+def can_draw_picture():
+    """
+    그림을 그릴 수 있는지 확인하는 API
+    """
+    return response_dto.ApiResponse(
+        status=Status.SUCCESS,
+        message="OK",
+        data=picture_service.can_draw_picture()
+    )
+
+
 @router.post("/voice-to-word", description="음성에서 단어를 텍스트로 변환하는 API", response_model=response_dto.ApiResponse[response_dto.TextResponseDto])
 def transcript_audio(file: UploadFile):
     """
