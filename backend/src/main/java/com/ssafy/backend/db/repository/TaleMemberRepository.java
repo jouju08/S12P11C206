@@ -15,4 +15,6 @@ public interface TaleMemberRepository extends JpaRepository<TaleMember, Long> {
     List<TaleMember> findByTaleId(Long taleId);
 
     Optional<PictureDto> findPictureByTaleId(Long userId);
+
+    List<TaleMember> findByMemberId(Long memberId);
 }

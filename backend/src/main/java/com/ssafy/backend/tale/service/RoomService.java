@@ -26,7 +26,7 @@ import java.util.List;
  *  date : 2025.01.23
  *  description : 방 서비스
  *  update
- *      1.
+ *      1. tale에 member가 삭제됨에 따라 makeRoom에서 빈방을 만들때 member를 저장하는 부분 주석처리 (heo-hyunjun, 2025.02.06)
  * */
 
 
@@ -52,7 +52,7 @@ public class RoomService {
         Long creatorId = makeRoomDto.getMemberId();
         tempMember.setId(makeRoomDto.getMemberId());
         tempBaseTale.setId(makeRoomDto.getBaseTaleId());
-        tempRoom.setMember(tempMember);
+//        tempRoom.setMember(tempMember); // tale에 member가 삭제됨에 따라 주석처리
         tempRoom.setBaseTale(tempBaseTale);
         tempRoom.setPartiCnt(makeRoomDto.getPartiCnt());
         Tale tale = taleRepository.save(tempRoom);

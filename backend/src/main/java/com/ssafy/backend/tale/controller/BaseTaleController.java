@@ -29,7 +29,7 @@ import java.util.Optional;
  * */
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/tale")
+@RequestMapping("/api/base-tale")
 public class BaseTaleController {
     private final BaseTaleService baseTaleService;
     private final MemberRepository memberRepository;
@@ -40,10 +40,9 @@ public class BaseTaleController {
         return ApiResponse.<List<BaseTale>>builder().data(baseTaleService.getList()).build();
     }
 
-    @GetMapping("/{taleId}")
-    public ApiResponse<BaseTale> getTale(@PathVariable long taleId) {
-        System.out.println(taleId);
-        return ApiResponse.<BaseTale>builder().data(baseTaleService.getById(taleId)).build();
+    @GetMapping("/{baseTaleId}")
+    public ApiResponse<BaseTale> getTale(@PathVariable long baseTaleId) {
+        return ApiResponse.<BaseTale>builder().data(baseTaleService.getById(baseTaleId)).build();
     }
 
 

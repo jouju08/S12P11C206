@@ -8,18 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import io.openvidu.java.client.OpenViduHttpException;
-import io.openvidu.java.client.OpenViduJavaClientException;
-import io.openvidu.java.client.Session;
+//import io.openvidu.java.client.OpenViduHttpException;
+//import io.openvidu.java.client.OpenViduJavaClientException;
+//import io.openvidu.java.client.Session;
 
 
-@RestController
-@RequestMapping("/api/openvidu")
+/**
+ * OpenVidu 버전 변경으로 사용안함.
+ */
+//@RestController
+//@RequestMapping("/api/openvidu")
 //@CrossOrigin(origins = "*")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class OpenViduController {
 
-    private final OpenViduService openViduService;
+    //private final OpenViduService openViduService;
 
     /**
      * 임시 테스트용 기반 접속 포인트
@@ -40,35 +43,35 @@ public class OpenViduController {
 //                    .body("Error generating token: " + e.getMessage());
 //        }
 //    }
-    @PostMapping("/test")
-    public String test(@RequestBody String body) throws OpenViduJavaClientException {
-        return "성공";
-    }
+//    @PostMapping("/test")
+//    public String test(@RequestBody String body) throws OpenViduJavaClientException {
+//        return "성공";
+//    }
+//
+//    @GetMapping("/testget")
+//    public String testget(@RequestBody String body) throws OpenViduJavaClientException {
+//        return "성공";
+//    }
 
-    @GetMapping("/testget")
-    public String testget(@RequestBody String body) throws OpenViduJavaClientException {
-        return "성공";
-    }
-
-    @PostMapping("/sessions")
-    public ResponseEntity<String> initializeSession(
-            @RequestBody(required = false) Map<String, Object> params)
-            throws OpenViduJavaClientException, OpenViduHttpException {
-        System.out.println("Initializing session with params: " + params);
-        Session session = openViduService.createSession(params);
-        return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
-    }
-
-    @PostMapping("/sessions/connections")
-    public ResponseEntity<String> createConnection(@RequestBody(required = false) Map<String, Object> params)
-            throws OpenViduJavaClientException, OpenViduHttpException {
-        String sessionId = params.get("sessionId").toString();
-        params.remove("sessionId");
-        System.out.println("Creating connection for session: " + sessionId);
-        String token = openViduService.createConnection(sessionId, params);
-        if (token == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(token, HttpStatus.OK);
-    }
+//    @PostMapping("/sessions")
+//    public ResponseEntity<String> initializeSession(
+//            @RequestBody(required = false) Map<String, Object> params)
+//            throws OpenViduJavaClientException, OpenViduHttpException {
+//        System.out.println("Initializing session with params: " + params);
+//        Session session = openViduService.createSession(params);
+//        return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
+//    }
+//
+//    @PostMapping("/sessions/connections")
+//    public ResponseEntity<String> createConnection(@RequestBody(required = false) Map<String, Object> params)
+//            throws OpenViduJavaClientException, OpenViduHttpException {
+//        String sessionId = params.get("sessionId").toString();
+//        params.remove("sessionId");
+//        System.out.println("Creating connection for session: " + sessionId);
+//        String token = openViduService.createConnection(sessionId, params);
+//        if (token == null) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//        return new ResponseEntity<>(token, HttpStatus.OK);
+//    }
 }

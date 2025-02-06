@@ -103,9 +103,9 @@ public class Member extends Common{
     @JsonIgnore
     private List<TaleInvitation> sentInvitations = new ArrayList<>();
 
-    // Tale (Member 1 : N Tale)
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @Builder.Default
-    @JsonIgnore
-    private List<Tale> tales = new ArrayList<>();
+//    // Tale (Member 1 : N Tale)
+//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+//    @Builder.Default
+//    @JsonIgnore
+//    private List<Tale> tales = new ArrayList<>();
 }

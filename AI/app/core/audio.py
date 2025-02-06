@@ -2,9 +2,7 @@
 Audio Service
 """
 import base64
-import io
 import time
-from fastapi.responses import StreamingResponse
 from fastapi import Response
 from openai import OpenAI
 from pydub import AudioSegment
@@ -13,7 +11,6 @@ import app.core.util as util
 import app.core.chains as chains
 import app.models.request as request_dto
 import app.models.response as response_dto
-from requests_toolbelt import MultipartEncoder
 
 
 def is_audio_length_ok(file):

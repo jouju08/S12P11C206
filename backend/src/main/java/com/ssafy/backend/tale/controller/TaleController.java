@@ -2,13 +2,13 @@ package com.ssafy.backend.tale.controller;
 
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.WebSocketNotiService;
-import com.ssafy.backend.db.entity.Tale;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
 import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
+import com.ssafy.backend.tale.dto.response.TaleResponseDto;
 import com.ssafy.backend.tale.dto.response.TextResponseDto;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
@@ -42,14 +42,14 @@ public class TaleController {
     private final MemberRepository memberRepository;
 
     @GetMapping("/my-tale")
-    public ApiResponse<List<Tale>> getMyTale(Authentication authentication) {
+    public ApiResponse<List<TaleResponseDto>> getMyTale(Authentication authentication) {
         User user=(User) authentication.getPrincipal();
         Long UserId=memberRepository.findByLoginId(user.getUsername()).get().getId();
-        List<Tale> taleList= taleService.getByUserId(UserId);
-        return ApiResponse.<List<Tale>>builder().data(taleList).build();
+        List<TaleResponseDto> taleList= taleService.getByUserId(UserId);
+        return ApiResponse.<List<TaleResponseDto>>builder().data(taleList).build();
     }
 
-//    //동화 디테일
+//    //제작한 동화 디테일
 //    @GetMapping("/detail/{taleId}")?
 //    public ApiResponse<Tale> getDetail(@PathVariable long taleId) {
 //        Tale tale=taleService.getByTale(taleId);
@@ -98,6 +98,10 @@ public class TaleController {
         // 4. 일단 응답은 ok
         return ApiResponse.<String>builder().data("OK").build();
     }
+    @GetMapping("/test/aiPictrue/alive")
+    public ApiResponse<Boolean> isAIPictureServerAlive(){
+        return aiServerRequestService.isAIPictureServerAlive();
+    }
 
     // 동화 손그림 제출
     @PostMapping("/submit/picture")
@@ -111,7 +115,12 @@ public class TaleController {
             //  2. 동화 완성을 websocket으로 알림
             webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
             //  3. ai 쪽으로 그림 생성 요청
-            aiServerRequestService.requestAIPicture(roomId);
+
+            if(aiServerRequestService.isAIPictureServerAlive().getData()){ // 그림생성 AI 서버가 켜져있을 경우
+                aiServerRequestService.requestAIPicture(roomId); // ai 쪽으로 그림 생성 요청
+            }else{// 그림생성 AI 서버가 꺼져있을 경우
+                taleService.deleteTaleFromRedis(roomId); // redis에서 동화 정보 삭제
+            }
         }
         
         return ApiResponse.<String>builder().build();
@@ -146,7 +155,11 @@ public class TaleController {
         taleService.saveAIPicture(submitFileRequestDto);
         if(taleService.getCompletedAIPictureCnt(submitFileRequestDto.getRoomId()) >= 4){
             // 4명이 모두 그림을 제출했을 때,
+            // 1. tale_member들을 mysql에 저장
             taleService.saveTaleFromRedis(submitFileRequestDto.getRoomId());
+
+            // 2. redis에서 동화 정보 삭제
+            taleService.deleteTaleFromRedis(submitFileRequestDto.getRoomId());
         }
 
         return ApiResponse.<String>builder().build();
