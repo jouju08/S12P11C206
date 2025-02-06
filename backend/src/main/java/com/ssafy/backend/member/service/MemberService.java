@@ -28,67 +28,51 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public GetMemberResponseDTO getMember(String loginId) {
-        try{
-            Member member = memberRepository.getMemberByLoginIdEquals(loginId)
-                    .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + loginId));
+        Member member = memberRepository.getMemberByLoginIdEquals(loginId)
+                .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + loginId));
 
-            return GetMemberResponseDTO.builder()
-                    .id(member.getId())
-                    .loginId(member.getLoginId())
-                    .email(member.getEmail())
-                    .nickname(member.getNickname())
-                    .loginType(member.getLoginType())
-                    .birth(member.getBirth())
-                    .profileImg(member.getProfileImg())
-                    .build();
-        } catch (BadRequestException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BadRequestException("잘못된 요청입니다.");
-        }
+        return GetMemberResponseDTO.builder()
+                .id(member.getId())
+                .loginId(member.getLoginId())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .loginType(member.getLoginType())
+                .birth(member.getBirth())
+                .profileImg(member.getProfileImg())
+                .build();
     }
 
     @Transactional
     public void deleteMember(String loginId) {
-        try {
-            int updatedRows = memberRepository.softDeleteByLoginId(loginId);
-            if (updatedRows == 0) {
-                throw new BadRequestException("아이디를 찾지 못했습니다.: " + loginId);
-            }
-        } catch (Exception e) {
-            throw new BadRequestException("잘못된 요청입니다.");
+        int updatedRows = memberRepository.softDeleteByLoginId(loginId);
+        if (updatedRows == 0) {
+            throw new BadRequestException("아이디를 찾지 못했습니다.: " + loginId);
         }
     }
 
     @Transactional
     public void updateMember(String LoginId, UpdateMemberRequestDTO updateMemberRequestDTO) {
-        try {
-            Member member = new Member();
-            System.out.println(LoginId);
-            member = memberRepository.getMemberByLoginIdEquals(LoginId).get();
-            System.out.println(updateMemberRequestDTO);
-            if (updateMemberRequestDTO.getNickname() != null) {
-                member.setNickname(updateMemberRequestDTO.getNickname());
-            }
+        Member member = memberRepository.getMemberByLoginIdEquals(LoginId)
+                .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + LoginId));
 
-            if (updateMemberRequestDTO.getEmail() != null) {
-                member.setEmail(updateMemberRequestDTO.getEmail());
-            }
+        if (updateMemberRequestDTO.getNickname() != null) {
+            member.setNickname(updateMemberRequestDTO.getNickname());
+        }
 
-            if (updateMemberRequestDTO.getBirth() != null) {
-                member.setBirth(updateMemberRequestDTO.getBirth());
-            }
-            System.out.println("여기까지 옴");
+        if (updateMemberRequestDTO.getEmail() != null) {
+            member.setEmail(updateMemberRequestDTO.getEmail());
+        }
 
-        } catch (Exception e) {
-            throw new BadRequestException(e.getMessage());
+        if (updateMemberRequestDTO.getBirth() != null) {
+            member.setBirth(updateMemberRequestDTO.getBirth());
         }
     }
 
     @Transactional
     public void updateProfileImage(String loginId, MultipartFile profileImage) {
         try {
-            Member member = memberRepository.getMemberByLoginIdEquals(loginId).get();
+            Member member = memberRepository.getMemberByLoginIdEquals(loginId)
+                    .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + loginId));
 
             if (member.getProfileImg() == null || member.getProfileImg().isEmpty() ) {
                 if (profileImage != null || !profileImage.isEmpty()) {
@@ -108,18 +92,15 @@ public class MemberService {
     @Transactional
     public void changePassword(String loginId, ChangePasswordRequestDTO changePasswordRequestDTO) {
 
-        try {
-            Member member = memberRepository.getMemberByLoginIdEquals(loginId).get();
+        Member member = memberRepository.getMemberByLoginIdEquals(loginId)
+                .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + loginId));
 
-            if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), member.getPassword())) {
-                throw new BadRequestException("비밀번호 불일치");
-            }
-
-            member.setPassword(passwordEncoder.encode(changePasswordRequestDTO.getNewPassword()));
-            memberRepository.save(member);
-        } catch (Exception e) {
-            throw new BadRequestException(e.getMessage());
+        if (!passwordEncoder.matches(changePasswordRequestDTO.getOldPassword(), member.getPassword())) {
+            throw new BadRequestException("비밀번호 불일치");
         }
+
+        member.setPassword(passwordEncoder.encode(changePasswordRequestDTO.getNewPassword()));
+        memberRepository.save(member);
 
     }
 }

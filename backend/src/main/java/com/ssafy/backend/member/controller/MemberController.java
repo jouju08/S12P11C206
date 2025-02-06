@@ -1,11 +1,14 @@
 package com.ssafy.backend.member.controller;
 
 import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.common.auth.JwtUtil;
+import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.entity.Tale;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
 import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
+import com.ssafy.backend.member.service.AuthService;
 import com.ssafy.backend.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +28,14 @@ import java.util.Optional;
 public class MemberController {
 
     private final MemberService memberService;
+    private final JwtUtil jwtUtil;
 
     // 회원 정보 조회
     @GetMapping("/mypage")
-    public ApiResponse<GetMemberResponseDTO> getMember(Authentication authentication) {
-        String loginId = authentication.getName();
+    public ApiResponse<GetMemberResponseDTO> getMember(@RequestHeader("Authorization") String token) {
+        String loginId = extractLoginId(token);
         GetMemberResponseDTO memberResponse = memberService.getMember(loginId);
-        return ApiResponse.<GetMemberResponseDTO>builder()  
+        return ApiResponse.<GetMemberResponseDTO>builder()
                 .data(memberResponse)
                 .build();
     }
@@ -39,10 +43,10 @@ public class MemberController {
     // 회원 정보 수정
     @PatchMapping("/mypage")
     public ApiResponse<Void> updateMember(
-            Authentication authentication,
+            @RequestHeader("Authorization") String token,
             @Valid @RequestBody UpdateMemberRequestDTO updateMemberRequestDTO) {
 
-        String loginId = authentication.getName();
+        String loginId = extractLoginId(token);
         memberService.updateMember(loginId, updateMemberRequestDTO);
 
         return ApiResponse.<Void>builder()
@@ -52,8 +56,8 @@ public class MemberController {
 
     // 회원 탈퇴
     @DeleteMapping("/delete")
-    public ApiResponse<Void> deleteMember(Authentication authentication) {
-        String loginId = authentication.getName();
+    public ApiResponse<Void> deleteMember(@RequestHeader("Authorization") String token) {
+        String loginId = extractLoginId(token);
         memberService.deleteMember(loginId);
 
         return ApiResponse.<Void>builder()
@@ -64,10 +68,10 @@ public class MemberController {
     // 비밀번호 수정
     @PatchMapping("/change-password")
     public ApiResponse<Void> changePassword(
-            Authentication authentication,
+            @RequestHeader("Authorization") String token,
             @Valid @RequestBody ChangePasswordRequestDTO changePasswordRequestDTO) {
 
-        String loginId = authentication.getName();
+        String loginId = extractLoginId(token);
         memberService.changePassword(loginId, changePasswordRequestDTO);
 
         return ApiResponse.<Void>builder()
@@ -78,15 +82,23 @@ public class MemberController {
     // 프로필 사진 변경
     @PatchMapping("/profile-image")
     public ApiResponse<Void> updateProfileImage(
-            Authentication authentication,
+            @RequestHeader("Authorization") String token,
             @RequestParam("profileImage") MultipartFile profileImage) {
 
-        String loginId = authentication.getName();
+        String loginId = extractLoginId(token);
         memberService.updateProfileImage(loginId, profileImage);
 
         return ApiResponse.<Void>builder()
                 .data(null)
                 .build();
+    }
+
+    private String extractLoginId(String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new BadRequestException("유효하지 않은 토큰입니다.");
+        }
+        String accessToken = token.substring(7);
+        return jwtUtil.extractUsername(accessToken);
     }
 
 }
