@@ -9,18 +9,16 @@ import com.ssafy.backend.db.repository.GalleryLikeRepository;
 import com.ssafy.backend.db.repository.GalleryRepository;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
-import com.ssafy.backend.dto.GalleryDto;
+import com.ssafy.backend.gallery.dto.GalleryDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,23 +40,6 @@ public class GalleryService {
             return result;
         } catch (Exception e) {
             return Optional.empty();
-        }
-    }
-
-    public Boolean galleryLike(Long galleryId, Long userId) {
-        Member member = memberRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
-        Gallery gallery = galleryRepository.findById(galleryId).orElseThrow(() -> new ResourceNotFoundException("Gallery not found: " + galleryId));
-        Optional<GalleryLike> galleryLike = galleryLikeRepository.findByMemberAndGallery(member, gallery);
-        if (galleryLike.isPresent()) {//이미 좋아요 눌러져 있어서 취소
-            galleryLikeRepository.delete(galleryLike.get());
-            return false;
-        } else {//좋아요 누르기
-            GalleryLike galleryLike1 = new GalleryLike();
-            galleryLike1.setGallery(gallery);
-            galleryLike1.setMember(member);
-            galleryLikeRepository.save(galleryLike1);
-            return true;
         }
     }
 
@@ -94,5 +75,33 @@ public class GalleryService {
         }
     }
 
+
+    @Transactional
+    public boolean like(Authentication auth, GalleryDto galleryDto) {
+        if (galleryDto.getHasLiked() == null)
+            throw new RuntimeException("잘못된 요청! hasLiked 값을 넣어주세요");
+
+        // 회원 조회 시 값이 없으면
+        Member member = memberRepository.findByLoginId(auth.getName())
+                .orElseThrow(() -> new EntityNotFoundException("로그인한 사용자를 찾을 수 없습니다."));
+        Long memberId = member.getId();
+
+        if (!galleryDto.getHasLiked()) {
+            // 좋아요 처리
+            galleryLikeRepository.save(GalleryLike.builder()
+                    .memberId(memberId)
+                    .galleryId(galleryDto.getId())
+                    .build());
+            return true;
+        } else {
+            // 좋아요 취소 처리
+            System.out.println("memberId = " + memberId);
+            System.out.println("galleryDto.getId() = " + galleryDto.getId());
+            GalleryLike galleryLike = galleryLikeRepository.findByGalleryIdAndMemberId(galleryDto.getId(), memberId)
+                    .orElseThrow(() -> new EntityNotFoundException("좋아요 정보를 찾을 수 없습니다."));
+            galleryLikeRepository.delete(galleryLike);
+            return false;
+        }
+    }
 
 }
