@@ -2,7 +2,6 @@ package com.ssafy.backend.tale.controller;
 
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.WebSocketNotiService;
-import com.ssafy.backend.db.entity.Tale;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
@@ -112,6 +111,7 @@ public class TaleController {
             //  2. 동화 완성을 websocket으로 알림
             webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
             //  3. ai 쪽으로 그림 생성 요청
+            // todo: 그림생성 AI 서버가 꺼져있을 경우, tale 삭제 로직 추가
             aiServerRequestService.requestAIPicture(roomId);
         }
         
@@ -147,7 +147,11 @@ public class TaleController {
         taleService.saveAIPicture(submitFileRequestDto);
         if(taleService.getCompletedAIPictureCnt(submitFileRequestDto.getRoomId()) >= 4){
             // 4명이 모두 그림을 제출했을 때,
+            // 1. tale_member들을 mysql에 저장
             taleService.saveTaleFromRedis(submitFileRequestDto.getRoomId());
+
+            // 2. redis에서 동화 정보 삭제
+            taleService.deleteTaleFromRedis(submitFileRequestDto.getRoomId());
         }
 
         return ApiResponse.<String>builder().build();

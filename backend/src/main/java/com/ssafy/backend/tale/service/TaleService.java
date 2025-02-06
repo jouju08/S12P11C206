@@ -50,8 +50,8 @@ public class TaleService {
     private final S3Service s3Service;
 
     //내가 참여한 동화 목록 불러오기
-    public List<TaleResponseDto> getByUserId(Long userId) {
-        Member member= memberRepository.getById(userId);
+    public List<TaleResponseDto> getByUserId(Long memberId) {
+        Member member= memberRepository.getById(memberId);
         List<Tale> taleList = member.getTales();
         List<TaleResponseDto> taleResponseDtoList = new ArrayList<>();
         for (Tale tale : taleList) {
@@ -71,12 +71,6 @@ public class TaleService {
         return taleResponseDto;
     }
 
-    //내가 참여한 동화의 디테일 확인
-    public  Tale getByTale(Long taleId) {
-        Tale tale=taleRepository.getById(taleId);
-        return tale;
-    }
-
     // 동화 제작 시작
     // -> 방의정보를 보고 동화의 정보를 불러와서 키워드 문장을 매칭시킵니다.
     public StartTaleMakingResponseDto startMakingTale(long roomId) {
@@ -86,19 +80,19 @@ public class TaleService {
         room.setRoomId(roomId);
         room = roomService.getRoom(room);
 
-
         //방의 동화 정보를 불러옵니다.
-        BaseTale tale = baseTaleService.getById(room.getBaseTaleId());
+        BaseTale baseTale = baseTaleService.getById(room.getBaseTaleId());
+
         boolean[] keywordCheck = new boolean[4]; // 중복 선택을 방지하기 위한 방문배열
 
         //반환할 객체를 생성합니다.
         StartTaleMakingResponseDto startTaleMakingResponseDto = new StartTaleMakingResponseDto();
 
         //고정적인 정보에 대해 작성합니다.
-        startTaleMakingResponseDto.setTaleTitle(tale.getTitle());
-        startTaleMakingResponseDto.setTaleStartScript(tale.getStartScript());
-        startTaleMakingResponseDto.setTaleStartScriptVoice(tale.getStartVoice());
-        startTaleMakingResponseDto.setTaleStartImage(tale.getStartImg());
+        startTaleMakingResponseDto.setTaleTitle(baseTale.getTitle());
+        startTaleMakingResponseDto.setTaleStartScript(baseTale.getStartScript());
+        startTaleMakingResponseDto.setTaleStartScriptVoice(baseTale.getStartVoice());
+        startTaleMakingResponseDto.setTaleStartImage(baseTale.getStartImg());
 
         //참가자과 키워드 문장을 매칭합니다.
         List<Member> participants = new ArrayList<>(room.getParticipants().values());
@@ -106,16 +100,16 @@ public class TaleService {
 
         //키워드 리스트를 생성합니다.
         List<String> keywordList = new ArrayList<>();
-        keywordList.add(tale.getKeyword1());
-        keywordList.add(tale.getKeyword2());
-        keywordList.add(tale.getKeyword3());
-        keywordList.add(tale.getKeyword4());
+        keywordList.add(baseTale.getKeyword1());
+        keywordList.add(baseTale.getKeyword2());
+        keywordList.add(baseTale.getKeyword3());
+        keywordList.add(baseTale.getKeyword4());
 
         List<String> keywordSentenceList = new ArrayList<>();
-        keywordSentenceList.add(tale.getKeywordSentence1());
-        keywordSentenceList.add(tale.getKeywordSentence2());
-        keywordSentenceList.add(tale.getKeywordSentence3());
-        keywordSentenceList.add(tale.getKeywordSentence4());
+        keywordSentenceList.add(baseTale.getKeywordSentence1());
+        keywordSentenceList.add(baseTale.getKeywordSentence2());
+        keywordSentenceList.add(baseTale.getKeywordSentence3());
+        keywordSentenceList.add(baseTale.getKeywordSentence4());
 
         int order = -1;
         int memberCnt = 0;
@@ -401,6 +395,15 @@ public class TaleService {
                 cnt++;
         }
         return cnt;
+    }
+
+    public void deleteTaleFromRedis(long roomId){
+        for(int i = 0; i < 4; i++){
+            TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, i);
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+            redisTemplate.delete("tale_member-"+taleMemberDto.getId());
+        }
+        redisTemplate.delete("tale-"+roomId);
     }
 
     //redis의 tale_member를 mysql에 저장합니다.
