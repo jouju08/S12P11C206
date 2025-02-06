@@ -5,15 +5,11 @@ import uuid
 import time
 import json
 import requests
-import base64
 import config
-from requests_toolbelt import MultipartEncoder
 import config
-import app.core.llm as llm_service
 import app.models.common as common
-import app.models.request as request_dto
 import app.models.response as response_dto
-from fastapi import UploadFile, Form
+from fastapi import UploadFile
 
 AI_IMG_2_IMG_ENDPOINT = config.AI_IMG_2_IMG_SERVER + "/make_image"
 SPRING_SERVER_URL_ENDPOINT = config.SPRING_SERVER_URL + \

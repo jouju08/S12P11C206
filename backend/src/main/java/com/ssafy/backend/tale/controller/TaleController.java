@@ -98,6 +98,10 @@ public class TaleController {
         // 4. 일단 응답은 ok
         return ApiResponse.<String>builder().data("OK").build();
     }
+    @GetMapping("/test/aiPictrue/alive")
+    public ApiResponse<Boolean> isAIPictureServerAlive(){
+        return aiServerRequestService.isAIPictureServerAlive();
+    }
 
     // 동화 손그림 제출
     @PostMapping("/submit/picture")

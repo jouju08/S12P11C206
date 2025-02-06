@@ -6,11 +6,9 @@ import config
 import app.core.llm as llm_service
 import app.core.audio as audio_service
 import app.core.picture as picture_service
-import base64
 import app.models.request as request_dto
 import app.models.response as response_dto
 import app.models.response.Status as Status
-import app.models.common as common
 
 router = APIRouter(prefix=f"{config.API_BASE_URL}/gen", tags=["gen"])
 
