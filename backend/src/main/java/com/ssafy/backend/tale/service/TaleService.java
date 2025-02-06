@@ -18,6 +18,7 @@ import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 import com.ssafy.backend.tale.dto.common.PageInfo;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
 import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
+import com.ssafy.backend.tale.dto.response.TaleResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -49,10 +50,25 @@ public class TaleService {
     private final S3Service s3Service;
 
     //내가 참여한 동화 목록 불러오기
-    public List<Tale> getByUserId(Long userId) {
+    public List<TaleResponseDto> getByUserId(Long userId) {
         Member member= memberRepository.getById(userId);
-        List<Tale> taleList=member.getTales();
-        return taleList;
+        List<Tale> taleList = member.getTales();
+        List<TaleResponseDto> taleResponseDtoList = new ArrayList<>();
+        for (Tale tale : taleList) {
+            TaleResponseDto taleResponseDto = parseTale(tale);
+            taleResponseDtoList.add(taleResponseDto);
+        }
+        return taleResponseDtoList;
+    }
+
+    private TaleResponseDto parseTale(Tale tale){
+        TaleResponseDto taleResponseDto = new TaleResponseDto();
+        BaseTale baseTale = tale.getBaseTale();
+        taleResponseDto.setTaleId(tale.getId());
+        taleResponseDto.setImg(baseTale.getTitleImg());
+        taleResponseDto.setTitle(baseTale.getTitle());
+        taleResponseDto.setCreatedAt(tale.getCreatedAt());
+        return taleResponseDto;
     }
 
     //내가 참여한 동화의 디테일 확인
@@ -69,6 +85,7 @@ public class TaleService {
         Room room = new Room();
         room.setRoomId(roomId);
         room = roomService.getRoom(room);
+
 
         //방의 동화 정보를 불러옵니다.
         BaseTale tale = baseTaleService.getById(room.getBaseTaleId());
@@ -246,23 +263,52 @@ public class TaleService {
 
     // 레디스에서 tale_page를 불러옵니다.
     public TalePageResponseDto getTempTalePage(long roomId, int order){
-        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(roomId, order);
-        return parseTalePage(taleMemberDto);
+        TalePageResponseDto talePageResponseDto = null;
+        if(order-- == 0){ //order가 0인경우 -> baseTale에서 불러와야함.
+            BaseTale baseTale = getBaseTaleByRoomId(roomId);
+            talePageResponseDto = parseTalePage(baseTale);
+        }else { // 그 외에 경우 원래 order대로 받아오면됨
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(roomId, order);
+            talePageResponseDto = parseTalePage(taleMemberDto);
+        }
+        return talePageResponseDto;
     }
 
     // mySQL에서 tale_page를 불러옵니다.
     public TalePageResponseDto getTalePage(long roomId, int order){
-        TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
-        if(taleMember == null)
-            throw new RuntimeException("유효하지 않은 동화페이지입니다.");
-        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
-        return parseTalePage(taleMemberDto);
+        TalePageResponseDto talePageResponseDto = null;
+
+        if(order-- == 0){ //order가 0인경우 -> baseTale에서 불러와야함.
+            BaseTale baseTale = getBaseTaleByRoomId(roomId);
+            talePageResponseDto = parseTalePage(baseTale);
+        }else { // 그 외에 경우 원래 order대로 받아오면됨
+            TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
+            if(taleMember == null)
+                throw new RuntimeException("유효하지 않은 동화페이지입니다.");
+
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+            talePageResponseDto = parseTalePage(taleMemberDto);
+        }
+
+        return talePageResponseDto;
+    }
+
+    private TalePageResponseDto parseTalePage(BaseTale baseTale){
+        TalePageResponseDto talePageResponseDto = new TalePageResponseDto();
+        talePageResponseDto.setOrderNum(0); // baseTale이 0번째 페이지이므로 0을 설정합니다.
+        talePageResponseDto.setMemberId(-1);
+        talePageResponseDto.setTaleId(baseTale.getId());
+        talePageResponseDto.setOriginImg(baseTale.getStartImg());
+        talePageResponseDto.setImg(baseTale.getStartImg());
+        talePageResponseDto.setVoice(baseTale.getStartVoice());
+        talePageResponseDto.setScript(baseTale.getStartScript());
+        return talePageResponseDto;
     }
 
     // tale_memberDto를 tale_page로 변환합니다.
     private TalePageResponseDto parseTalePage(TaleMemberDto taleMemberDto){
         TalePageResponseDto talePageResponseDto = new TalePageResponseDto();
-        talePageResponseDto.setOrderNum(taleMemberDto.getOrderNum());
+        talePageResponseDto.setOrderNum(taleMemberDto.getOrderNum()+1); // baseTale이 0번째 페이지이므로 +1을 해줍니다.
         talePageResponseDto.setMemberId(taleMemberDto.getMemberId());
         talePageResponseDto.setTaleId(taleMemberDto.getTaleId());
         talePageResponseDto.setOriginImg(taleMemberDto.getOrginImg());
@@ -270,6 +316,13 @@ public class TaleService {
         talePageResponseDto.setVoice(taleMemberDto.getVoice());
         talePageResponseDto.setScript(taleMemberDto.getScript());
         return talePageResponseDto;
+    }
+
+    private BaseTale getBaseTaleByRoomId(long roomId){
+        Room room = new Room();
+        room.setRoomId(roomId);
+        room = roomService.getRoom(room);
+        return baseTaleService.getById(room.getBaseTaleId());
     }
 
     // 전체 동화 내용을 저장하고, 각 참가자별 그림 그릴 문장을 반환합니다.

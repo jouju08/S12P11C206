@@ -9,6 +9,7 @@ import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
 import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
+import com.ssafy.backend.tale.dto.response.TaleResponseDto;
 import com.ssafy.backend.tale.dto.response.TextResponseDto;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
@@ -42,14 +43,14 @@ public class TaleController {
     private final MemberRepository memberRepository;
 
     @GetMapping("/my-tale")
-    public ApiResponse<List<Tale>> getMyTale(Authentication authentication) {
+    public ApiResponse<List<TaleResponseDto>> getMyTale(Authentication authentication) {
         User user=(User) authentication.getPrincipal();
         Long UserId=memberRepository.findByLoginId(user.getUsername()).get().getId();
-        List<Tale> taleList= taleService.getByUserId(UserId);
-        return ApiResponse.<List<Tale>>builder().data(taleList).build();
+        List<TaleResponseDto> taleList= taleService.getByUserId(UserId);
+        return ApiResponse.<List<TaleResponseDto>>builder().data(taleList).build();
     }
 
-//    //동화 디테일
+//    //제작한 동화 디테일
 //    @GetMapping("/detail/{taleId}")?
 //    public ApiResponse<Tale> getDetail(@PathVariable long taleId) {
 //        Tale tale=taleService.getByTale(taleId);
