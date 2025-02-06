@@ -5,15 +5,11 @@ import uuid
 import time
 import json
 import requests
-import base64
 import config
-from requests_toolbelt import MultipartEncoder
 import config
-import app.core.llm as llm_service
 import app.models.common as common
-import app.models.request as request_dto
 import app.models.response as response_dto
-from fastapi import UploadFile, Form
+from fastapi import UploadFile
 
 AI_IMG_2_IMG_ENDPOINT = config.AI_IMG_2_IMG_SERVER + "/make_image"
 SPRING_SERVER_URL_ENDPOINT = config.SPRING_SERVER_URL + \
@@ -64,6 +60,17 @@ def is_image_suffix_ok(file: UploadFile):
     """
     file_suffix = file.filename.split(".")[-1]
     return file_suffix in ["jpg", "jpeg", "png", "pdf", "tif", "tiff"]
+
+
+def can_draw_picture():
+    """
+    그림을 그릴 수 있는지 확인하는 함수
+    """
+    try:
+        response = requests.get(config.AI_IMG_2_IMG_SERVER + "/", timeout=1)
+    except Exception:
+        return False
+    return response.status_code == 200
 
 
 def generate_img2img(roomId: int, order: int, prompt: str, negativePrompt: str, image: UploadFile):

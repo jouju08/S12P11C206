@@ -36,7 +36,7 @@ services:
       - oauth_kakao_client_id=${oauth_kakao_client_id}
       - oauth_kakao_secert=${oauth_kakao_secert}
       - oauth_kakao_redirect_uri=${oauth_kakao_redirect_uri}
-      - OPENVIDU_URL=http://i12c206.p.ssafy.io:4443/
+      - OPENVIDU_URL=https://i12c206.p.ssafy.io:8443
       - OPENVIDU_SECRET=MY_SECRET
       - AI_SERVER_URL=${AI_SERVER_URL}
   # frontend
@@ -127,29 +127,6 @@ services:
       - API_BASE_URL=${API_BASE_URL}
       - MAX_AUDIO_LENGTH=${MAX_AUDIO_LENGTH}
       - SPRING_SERVER=${SPRING_SERVER}
-
-  # openvidu:
-  #   image: openvidu/openvidu-dev:2.31.0
-  #   ports:
-  #     - "4443:4443"
-  #   environment:
-  #     - OPENVIDU_SECRET=MY_SECRET
-  #     - OPENVIDU_RECORDING=true
-  #     - OPENVIDU_RECORDING_PATH=/opt/openvidu/recordings
-  #     - OPENVIDU_DOMAIN_OR_PUBLIC_IP=i12c206.p.ssafy.io
-  #     - OPENVIDU_CERTIFICATE=/certs/fullchain.pem
-  #     - OPENVIDU_PRIVATE_KEY=/certs/privkey.pem
-  #     - OPENVIDU_URL=http://i12c206.p.ssafy.io:4443/
-  #     - CERTIFICATE_TYPE=letsencrypt
-  #     - LETSENCRYPT_EMAIL=joker901010@gmail.com
-  #     - HTTPS_PORT=4443
-  #     - OPENVIDU_PUBLICURL=https://i12c206.p.ssafy.io
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #     - /opt/openvidu/recordings:/opt/openvidu/recordings
-  #     - /etc/letsencrypt/live/i12c206.p.ssafy.io:/certs:ro
-  #   networks:
-  #     - app-network
 
 
 volumes:

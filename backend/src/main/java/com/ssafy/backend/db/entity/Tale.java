@@ -32,8 +32,8 @@ public class Tale extends Common{
     @JoinColumn(name = "base_tale_id", nullable = false)
     private BaseTale baseTale;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "member_id", nullable = false)
+//    private Member member;
 
 }
