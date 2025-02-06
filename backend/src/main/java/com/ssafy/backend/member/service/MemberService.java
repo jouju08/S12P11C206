@@ -5,17 +5,13 @@ import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
-import com.ssafy.backend.member.dto.request.RegisterRequest;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
 import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
