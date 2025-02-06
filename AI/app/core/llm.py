@@ -18,11 +18,21 @@ def generate_sentences(title: str):
     """
     sentences = extract_keyword_sentences(title)
     introduce = generate_introduction(title, sentences[0])
+    return response_dto.GenerateSentencesResponseDto(
+        introduction=introduce,
+        sentences=sentences)
 
 
 def generate_introduction(title: str, first_sentence: str):
     """
+    제목과 첫 문장을 입력받아 도입부를 생성하는 함수
     """
+
+    llm = ChatOpenAI(temperature=0.1, model_name="gpt-4o-mini")
+    chain = chains.generate_introduce_prompt | llm | StrOutputParser()
+    response = chain.invoke(
+        {"title": title, "sentence": first_sentence})
+    return response
 
 
 def extract_keyword_sentences(title: str):
@@ -32,7 +42,7 @@ def extract_keyword_sentences(title: str):
 
     # 체인 생성
     chain = chains.extract_sentence_from_title_prompt | ChatOpenAI(
-        temperature=0.7, model="gpt-4o") | chains.NumberdListParser()
+        temperature=0.7, model="gpt-3.5-turbo") | chains.NumberdListParser()
     # 체인 실행
     response = chain.invoke({"question": title})
 

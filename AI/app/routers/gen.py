@@ -69,7 +69,7 @@ async def generate_img2img(roomId: int = Form(...),
     )
 
 
-@router.post("/tale-sentences", description="키워드 문장 생성", response_model=response_dto.ApiResponse[str])
+@router.post("/tale-sentences", description="키워드 문장 생성", response_model=response_dto.ApiResponse[response_dto.GenerateSentenceResponseDto])
 def generate_sentences(generateSentencesRequestDto: request_dto.TextRequestDto):
     """
     todo: 키워드 문장 생성
