@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Service
 public class LiveKitService {
 
-    @Value("${livekit.api.key}")
+    @Value("${LIVEKIT_API_KEY}")
     private String LIVEKIT_API_KEY;
 
-    @Value("${livekit.api.secret}")
+    @Value("${LIVEKIT_API_SECRET}")
     private String LIVEKIT_API_SECRET;
 
     public String createToken(String roomId, String loginId){
