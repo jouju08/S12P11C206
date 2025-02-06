@@ -74,9 +74,19 @@ public class AIServerRequestService {
                 );
     }
 
+    public boolean isAIPictureServerAlive(){
+        ApiResponse<Boolean> response = webClient.get()
+                .uri("/ask/can-draw-picture")
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<Boolean>>(){})
+                .block();
+        return response.getData();
+    }
+
     public void requestAIPicture(long roomId){
         //각 페이지마다 ai 그림 생성 요청
         TaleMemberDto taleMemberDto = null;
+
         for (int i = 0; i < 4; i++) {
             // AI 서버에 이미지를 보내기 위해 promptset과 original image url을 담은 dto를 생성
             taleMemberDto = taleService.getTaleMemberDtoFromRedis(roomId, i);

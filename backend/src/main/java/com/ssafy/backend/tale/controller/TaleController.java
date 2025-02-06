@@ -111,8 +111,12 @@ public class TaleController {
             //  2. 동화 완성을 websocket으로 알림
             webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
             //  3. ai 쪽으로 그림 생성 요청
-            // todo: 그림생성 AI 서버가 꺼져있을 경우, tale 삭제 로직 추가
-            aiServerRequestService.requestAIPicture(roomId);
+
+            if(aiServerRequestService.isAIPictureServerAlive()){ // 그림생성 AI 서버가 켜져있을 경우
+                aiServerRequestService.requestAIPicture(roomId); // ai 쪽으로 그림 생성 요청
+            }else{// 그림생성 AI 서버가 꺼져있을 경우
+                taleService.deleteTaleFromRedis(roomId); // redis에서 동화 정보 삭제
+            }
         }
         
         return ApiResponse.<String>builder().build();

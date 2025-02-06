@@ -66,6 +66,14 @@ def is_image_suffix_ok(file: UploadFile):
     return file_suffix in ["jpg", "jpeg", "png", "pdf", "tif", "tiff"]
 
 
+def can_draw_picture():
+    """
+    그림을 그릴 수 있는지 확인하는 함수
+    """
+    response = requests.get(config.AI_IMG_2_IMG_SERVER + "/")
+    return response.status_code == 200
+
+
 def generate_img2img(roomId: int, order: int, prompt: str, negativePrompt: str, image: UploadFile):
     """
     "http://localhost:7582"로 POST 요청을 보내고,
