@@ -70,7 +70,7 @@ export default function Collection() {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px]">
+          className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50">
           <option value="전체보기">전체 보기</option>
           <option value="최신순">최신순</option>
           <option value="과거순">과거순</option>
@@ -80,7 +80,7 @@ export default function Collection() {
         <select
           value={filterBy}
           onChange={(e) => setFilterBy(e.target.value)}
-          className="border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px]">
+          className="border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50">
           <option value="전체보기">전체 보기</option>
           {uniqueTitles.map((title) => (
             <option
