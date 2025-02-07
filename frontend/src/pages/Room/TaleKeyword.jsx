@@ -91,12 +91,13 @@ const TaleKeyword = () => {
         alert('fail keyword');
       }
     } else if (mode === 'writing') {
-      const handwriteFile = await exportToBlob({
-        elements: canvasRef.current.getSceneElements(),
-        appState: canvasRef.current.getAppState(),
-        files: canvasRef.current.getFiles(),
-        mimeType: 'image/png',
-      });
+      const file = await canvasRef.current.getPNGFile();
+      // const handwriteFile = await exportToBlob({
+      //   elements: canvasRef.current.getSceneElements(),
+      //   appState: canvasRef.current.getAppState(),
+      //   files: canvasRef.current.getFiles(),
+      //   mimeType: 'image/png',
+      // });
 
       // const url = URL.createObjectURL(handwriteFile);
       // const a = document.createElement('a');
@@ -105,9 +106,7 @@ const TaleKeyword = () => {
       // a.click();
       // URL.revokeObjectURL(url);
 
-      const file = new File([handwriteFile], `file.png`, { type: 'image/png' });
-
-      console.log(file);
+      // const file = new File([handwriteFile], `file.png`, { type: 'image/png' });
 
       const response = isSingle
         ? await submitHandWriteSingle(file)
@@ -156,9 +155,16 @@ const TaleKeyword = () => {
   const handleReset = () => {
     setInputText('');
     setRecordedAudio(null);
-    if (canvasRef.current) {
-      canvasRef.current.resetScene();
+    // if (canvasRef.current) {
+    //   canvasRef.current.resetScene();
+    // }
+
+    if (canvasRef.current.canvas) {
+      const canvas = canvasRef.current.canvas;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+
     setIsNextActive(false);
   };
 
@@ -300,9 +306,15 @@ const TaleKeyword = () => {
       )}
 
       {mode === 'writing' && (
-        <div className="absolute bottom-[140px] left-[333px] flex items-center gap-4">
-          <div className="w-[470px] h-[300px]">
-            <Excalidraw
+        <div className="absolute bottom-[140px] left-[500px] flex items-center gap-4">
+          <div className="relative">
+            <DrawingBoard
+              ref={canvasRef}
+              width={300}
+              height={100}
+              usePalette={false}
+            />
+            {/* <Excalidraw
               renderMainMenu={() => ''}
               renderSidebar={() => ''}
               excalidrawAPI={(api) => {
@@ -320,7 +332,7 @@ const TaleKeyword = () => {
                   scrollY: 100,
                 },
               }}
-            />
+            /> */}
           </div>
 
           {/* <canvas
@@ -328,8 +340,9 @@ const TaleKeyword = () => {
             width={470}
             height={165}
             className="border border-gray-200 rounded-xl bg-white"></canvas> */}
-
-          <ConfirmBtn onClick={handleConfirm} />
+          <div className="pb-12">
+            <ConfirmBtn onClick={handleConfirm} />
+          </div>
         </div>
       )}
 

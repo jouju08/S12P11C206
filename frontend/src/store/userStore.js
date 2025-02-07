@@ -159,6 +159,9 @@ const userActions = (set, get) => ({
         onRefreshed(data.accessToken);
 
         console.log('[refreshAccessToken] 새 accessToken 설정 완료:');
+
+        set({ accessToken: data.accessToken });
+
         return data.accessToken;
       } else {
         console.log('[refreshAccessToken] refreshToken 만료됨 → 강제 로그아웃');
