@@ -71,6 +71,7 @@ public class TaleService {
         TaleResponseDto taleResponseDto = new TaleResponseDto();
         BaseTale baseTale = tale.getBaseTale();
         taleResponseDto.setTaleId(tale.getId());
+        taleResponseDto.setBaseTaleId(baseTale.getId());
         taleResponseDto.setImg(baseTale.getTitleImg());
         taleResponseDto.setTitle(baseTale.getTitle());
         taleResponseDto.setCreatedAt(tale.getCreatedAt());
@@ -156,7 +157,7 @@ public class TaleService {
         // 3. tale_member dto로 변환
         List<TaleMemberDto> taleMemberDtos = new ArrayList<>();
         for(int i = 0; i < 4; i++){
-            TaleMemberDto taleMemberDto = TaleMemberDto.parse(taleMembers.get(i));
+            TaleMemberDto taleMemberDto = taleMember2taleMemberDto(taleMembers.get(i));
             taleMemberDto.setKeyword(null); // 단어를 선택하지 않음으로 초기화합니다. (mysql에는 저장되어있지만 redis에는 저장되어있지 않습니다.)
             taleMemberDtos.add(taleMemberDto);
         }
@@ -209,7 +210,7 @@ public class TaleService {
         if(taleMember == null)
             throw new RuntimeException("유효하지 않은 참가자입니다.");
 
-        TaleMemberDto taleMemberDto = TaleMemberDto.parse(taleMember);
+        TaleMemberDto taleMemberDto = taleMember2taleMemberDto(taleMember);
 
         taleMemberDto.setKeyword(keywordRequestDto.getKeyword());
         setTaleMemberDtoToRedis(taleMemberDto);
@@ -417,7 +418,8 @@ public class TaleService {
         List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
         for (int i = 0; i < 4; i++) {
             TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMembers.get(i));
-            TaleMember taleMember = TaleMemberDto.parse(taleMemberDto);
+            TaleMember taleMember = taleMemberDto2taleMember(taleMemberDto);
+
             taleMembers.set(i, taleMember);
         }
         taleMemberRepository.saveAll(taleMembers);
@@ -483,5 +485,44 @@ public class TaleService {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         ops.set("tale_member-"+taleMemberDto.getId(), taleMemberDto);
         System.out.println("생성되고 있는 동화 정보 수정 (TaleService)\n" + taleMemberDto);
+    }
+
+    private TaleMemberDto taleMember2taleMemberDto(TaleMember taleMember) {
+        TaleMemberDto taleMemberDto = new TaleMemberDto();
+        taleMemberDto.setId(taleMember.getId());
+        taleMemberDto.setHas_host(taleMember.getHas_host());
+        taleMemberDto.setKeyword(taleMember.getKeyword());
+        taleMemberDto.setOrderNum(taleMember.getOrderNum());
+        taleMemberDto.setOrginImg(taleMember.getOrginImg());
+        taleMemberDto.setImg(taleMember.getImg());
+        taleMemberDto.setVoice(taleMember.getVoice());
+        taleMemberDto.setScript(taleMember.getScript());
+        taleMemberDto.setTaleId(taleMember.getTale().getId());
+        taleMemberDto.setMemberId(taleMember.getMember().getId());
+        taleMemberDto.setPromptSet(new PromptSet(taleMember.getPrompt(), taleMember.getNegativePrompt()));
+
+        return taleMemberDto;
+    }
+
+    private TaleMember taleMemberDto2taleMember(TaleMemberDto taleMemberDto) {
+        TaleMember taleMember = new TaleMember();
+        taleMember.setId(taleMemberDto.getId());
+        taleMember.setHas_host(taleMemberDto.getHas_host());
+        taleMember.setKeyword(taleMemberDto.getKeyword());
+        taleMember.setOrderNum(taleMemberDto.getOrderNum());
+        taleMember.setOrginImg(taleMemberDto.getOrginImg());
+        taleMember.setImg(taleMemberDto.getImg());
+        taleMember.setVoice(taleMemberDto.getVoice());
+        taleMember.setScript(taleMemberDto.getScript());
+        taleMember.setPrompt(taleMemberDto.getPromptSet().getPrompt());
+        taleMember.setNegativePrompt(taleMemberDto.getPromptSet().getNegativePrompt());
+
+        Member member = memberRepository.getReferenceById(taleMemberDto.getMemberId());
+        taleMember.setMember(member);
+
+        Tale tale = taleRepository.getReferenceById(taleMemberDto.getTaleId());
+        taleMember.setTale(tale);
+
+        return taleMember;
     }
 }

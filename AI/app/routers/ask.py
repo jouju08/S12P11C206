@@ -60,7 +60,7 @@ def handwrite_to_word(file: UploadFile):
             return response_dto.ApiResponse(
                 status=Status.BAD_REQUEST,
                 message="BAD REQUEST",
-                detail="손글씨를 인식할 수 없습니다."
+                data=response_dto.TextResponseDto(text="손글씨를 인식할 수 없습니다.")
             )
 
         return response_dto.ApiResponse(

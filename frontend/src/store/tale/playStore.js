@@ -67,8 +67,9 @@ const playActions = (set, get) => ({
     if (client && client.connected) {
       client.subscribe(`/topic/tale/${roomId}`, (message) => {
         get().setDrawDirection(JSON.parse(message.body));
+        console.log(JSON.parse(message.body));
       });
-      console.log('Subscribe Sucex');
+      console.log('Subscribe Su');
     }
 
     console.log(usePlayStore.getState().drawDirection);
@@ -207,11 +208,11 @@ const playActions = (set, get) => ({
     formData.append('order', String(order));
     formData.append('roomId', String(get().roomId));
     formData.append('memberId', String(userStore.getState().memberId));
-    formData.append('file', voice);
+    formData.append('keyword', voice);
 
     const response = await taleAPI.taleKeyWordVoice(formData);
 
-    if (response.data.data) {
+    if (response) {
       return response.data.data;
     } else {
       return false;
@@ -231,11 +232,13 @@ const playActions = (set, get) => ({
     formData.append('order', String(order));
     formData.append('roomId', String(get().roomId));
     formData.append('memberId', String(userStore.getState().memberId));
-    formData.append('file', paint);
+    formData.append('keyword', paint);
 
     const response = await taleAPI.taleKeyWordHandWrite(formData);
 
-    if (response.data.data) {
+    console.log(response.data);
+
+    if (response) {
       return response.data.data;
     } else {
       return false;
@@ -324,9 +327,22 @@ const playActions = (set, get) => ({
     formData.append('memberId', String(userStore.getState().memberId));
     formData.append('file', picture);
 
+    console.log(picture);
+
     const response = await taleAPI.taleSubmitPicture(formData);
 
     return response;
+  },
+
+  // action
+  // tale axios -> roomid, page(1~4)
+  setHotTale: async (pageNum) => {
+    const response = await taleAPI.taleHot(get().roomId, pageNum);
+    const hotPage = response.data['data'];
+
+    set((state) => {
+      state.hotTale = hotPage;
+    });
   },
 });
 
@@ -392,6 +408,7 @@ export const useTalePlay = () => {
   const currentClient = usePlayStore((state) => state.currentClient);
   const setSubscribeTale = usePlayStore((state) => state.setSubscribeTale);
   const setDrawDirection = usePlayStore((state) => state.setDrawDirection);
+  const setHotTale = usePlayStore((state) => state.setHotTale);
 
   return {
     tale,
@@ -429,5 +446,7 @@ export const useTalePlay = () => {
     submitPictureSingle,
     setSubscribeTale,
     setDrawDirection,
+
+    setHotTale,
   };
 };

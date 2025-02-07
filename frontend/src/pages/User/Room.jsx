@@ -93,7 +93,7 @@ export default function Room() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/tale/list');
+        const response = await axios.get('/api/base-tale/list');
         console.log('✅ 가져온 데이터', response.data);
         // 응답 데이터 구조 확인 후 배열 접근
         setTaleList(response.data.data || []);
