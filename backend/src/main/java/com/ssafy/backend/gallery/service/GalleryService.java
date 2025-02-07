@@ -41,7 +41,7 @@ public class GalleryService {
         try {
             Optional<Gallery> gallery = galleryRepository.findById(id);
             boolean hasLiked = !galleryLikeRepository.findByGalleryIdAndMemberId(gallery.get().getId(), memberRepository.findByLoginId(auth.getName()).get().getId()).isEmpty();
-            GalleryResponseDto result = GalleryResponseDto.builder()
+            return GalleryResponseDto.builder()
                     .galleryId(gallery.get().getId())
                     .taleTitle(gallery.get().getTaleMember().getTale().getBaseTale().getTitle())
                     .img(gallery.get().getTaleMember().getImg())
@@ -54,7 +54,6 @@ public class GalleryService {
                     .taleId(gallery.get().getTaleMember().getTale().getId())
                     .baseTaleId(gallery.get().getTaleMember().getTale().getBaseTale().getId())
                     .build();
-            return result;
         } catch (Exception e) {
             return null;
         }
