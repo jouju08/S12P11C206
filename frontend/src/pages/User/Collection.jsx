@@ -2,50 +2,50 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useCollection } from '@/store/collectionStore';
 import TaleNavigation from '@/components/Common/TaleNavigation';
 
-const dummy = [
-  {
-    taleId: 1,
-    baseTaleId: 1,
-    title: 'title1',
-    createdAt: '2025-01-03',
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-  },
-  {
-    taleId: 2,
-    baseTaleId: 1,
-    title: 'title1',
-    createdAt: '2025-02-04',
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-  },
-  {
-    taleId: 3,
-    baseTaleId: 2,
-    title: 'title2',
-    createdAt: '2025-02-01',
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale2.png',
-  },
-  {
-    taleId: 4,
-    baseTaleId: 3,
-    title: 'title3',
-    createdAt: '2025-02-02',
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
-  },
-  {
-    taleId: 5,
-    baseTaleId: 3,
-    title: 'title3',
-    createdAt: '2025-01-19',
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
-  },
-  {
-    taleId: 6,
-    baseTaleId: 3,
-    title: 'title3',
-    createdAt: '2025-02-01',
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
-  },
-];
+// const dummy = [
+//   {
+//     taleId: 6,
+//     baseTaleId: 1,
+//     title: 'title1',
+//     createdAt: '2025-01-03',
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+//   },
+//   {
+//     taleId: 7,
+//     baseTaleId: 1,
+//     title: 'title1',
+//     createdAt: '2025-02-04',
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+//   },
+//   {
+//     taleId: 8,
+//     baseTaleId: 1,
+//     title: 'title2',
+//     createdAt: '2025-02-01',
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale2.png',
+//   },
+//   {
+//     taleId: 9,
+//     baseTaleId: 1,
+//     title: 'title3',
+//     createdAt: '2025-02-02',
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
+//   },
+//   {
+//     taleId: 10,
+//     baseTaleId: 1,
+//     title: 'title3',
+//     createdAt: '2025-01-19',
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
+//   },
+//   {
+//     taleId: 11,
+//     baseTaleId: 1,
+//     title: 'title3',
+//     createdAt: '2025-02-01',
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale3.png',
+//   },
+// ];
 
 export default function Collection() {
   const { memberId, myTaleList, setMyTaleList } = useCollection();
@@ -54,7 +54,7 @@ export default function Collection() {
   const [showModal, setShowModal] = useState(false);
 
   // 고유한 타이틀 목록 추출
-  const uniqueTitles = [...new Set(dummy.map((item) => item.title))];
+  const uniqueTitles = [...new Set(myTaleList.map((item) => item.title))];
 
   const handleExit = () => {
     setShowModal(false);
@@ -103,7 +103,7 @@ export default function Collection() {
         id="need-scrool"
         className="w-[974px] h-[486px] relative overflow-y-auto mt-[65px] scr pr-4">
         <TaleGrid
-          myTaleList={dummy}
+          myTaleList={myTaleList}
           filterBy={filterBy}
           sortBy={sortBy}
           setShowModal={setShowModal}
@@ -113,7 +113,10 @@ export default function Collection() {
       {/* 동화 모달 */}
       {showModal && (
         <div className="absolute top-0 left-0 z-50 w-full h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
-          <Modal handleExit={handleExit} />
+          <Modal
+            handleExit={handleExit}
+            showModal={showModal}
+          />
         </div>
       )}
     </div>
@@ -138,9 +141,15 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
     )
     .sort((a, b) => {
       if (sortBy === '최신순')
-        return new Date(b.createdAt) - new Date(a.createdAt);
+        return (
+          new Date(b.createdAt.slice(0, 10)) -
+          new Date(a.createdAt.slice(0, 10))
+        );
       if (sortBy === '과거순')
-        return new Date(a.createdAt) - new Date(b.createdAt);
+        return (
+          new Date(a.createdAt.slice(0, 10)) -
+          new Date(b.createdAt.slice(0, 10))
+        );
       return 0;
     });
 
@@ -169,8 +178,8 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
                     보러가기
                   </button>
 
-                  {/* 확인용 */}
-                  <p>{item.createdAt}</p>
+                  {/* 확인용 - 나중에 지우기!!!*/}
+                  <p className="text-white">{item.createdAt.slice(0, 10)}</p>
                 </div>
                 <img
                   className="w-[149px] h-[195px] mx-auto my-4 rounded opacity-90 relative"
@@ -200,45 +209,15 @@ const chunk = (arr, size) =>
   );
 
 // 동화 상세보기 모달
-const Modal = ({ handleExit }) => {
+const Modal = ({ handleExit, showModal }) => {
   const [pageNum, setPageNum] = useState(0);
-  const [pageDetail, setPageDetail] = useState({
-    originImg: '',
-    img: '',
-    script: '',
-    voice: '',
-  });
+  const [isOrigin, setIsOrigin] = useState(false); // 오리지널 그림인가? : 아니요
   const { setTaleDetail, taleStart, taleDetail } = useCollection();
-
-  // 제일 처음 모달 렌더링 -> base_tale 초입부 가져오기
-  useEffect(() => {
-    setPageDetail({
-      originImg: taleStart['startImg'],
-      img: '',
-      script: taleStart['startScript'],
-      voice: taleStart['startVoice'],
-    });
-  }, []);
 
   // pageNum 바뀔 때마다 렌더링
   useEffect(() => {
-    if (pageNum === -1) {
-      setPageDetail({
-        originImg: taleStart['startImg'],
-        img: '',
-        script: taleStart['startScript'],
-        voice: taleStart['startVoice'],
-      });
-    } else {
-      setTaleDetail(pageNum);
-
-      setPageDetail({
-        originImg: taleDetail['originImg'],
-        img: taleDetail['img'],
-        script: taleDetail['script'],
-        voice: taleDetail['voice'],
-      });
-    }
+    setTaleDetail(pageNum);
+    setIsOrigin(false);
   }, [pageNum]);
 
   return (
@@ -273,20 +252,46 @@ const Modal = ({ handleExit }) => {
           src="/Collection/modal-open-book.png"
         />
         {/* 음향 - 데이터 받아오면 바꾸기*/}
-        <div className="text-right pr-20 mt-2">
-          <AudioPlayer audioSrc="/Collection/test-audio.wav" />
-        </div>
-        {/* 버튼 역할을 하게 하자 - 원래 그림 보기 */}
-        <div className="w-[200px] h-[100px] absolute top-[115px] left-[90px] flex items-center cursor-pointer">
+        {pageNum === 0 ? (
+          // base-tale 시작 음향
+          <div className="text-right pr-20 mt-2">
+            <AudioPlayer
+              pageNum={pageNum}
+              audioSrc={taleStart['startVoice']}
+            />
+          </div>
+        ) : (
+          // 그외 페이지 시작 음향
+          <div className="text-right pr-20 mt-2">
+            {/* <AudioPlayer audioSrc={taleDetail['voice']} /> */}
+            <AudioPlayer
+              pageNum={pageNum}
+              audioSrc="/Collection/test-audio.wav"
+            />
+          </div>
+        )}
+
+        {/* 요정 버튼 */}
+        <button
+          onClick={() => {
+            setIsOrigin(!isOrigin);
+          }}
+          className="w-[200px] h-[100px] absolute top-[115px] left-[90px] flex items-center cursor-pointer">
           <img
             src="/Collection/fairy-magic.png"
-            className="w-[100px]"
+            className="w-[100px] transition-transform duration-200 hover:scale-105"
             alt="그림 바꾸기"
           />
-          <span className="text-text-second service-regular3">
-            원래 그림 보기
-          </span>
-        </div>
+          {isOrigin ? (
+            <span className="text-text-second service-regular3">
+              AI 그림 보기
+            </span>
+          ) : (
+            <span className="text-text-second service-regular3">
+              원래 그림 보기
+            </span>
+          )}
+        </button>
 
         {/* 이미지와 스크립트는 absolute */}
         {/* 이미지 데이터 받아오면 바꾸기 */}
@@ -302,13 +307,18 @@ const Modal = ({ handleExit }) => {
 
         <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex justify-center items-center">
           <p className="text-text-first story-basic2">
-            옛날 옛적에 아기돼지 삼형제가 살고 있었습니다.
+            {/* 옛날 옛적에 아기돼지 삼형제가 살고 있었습니다.
             <br />
             이들은 각자 자신만의 집을 짓기로 결정했어요.
             <br />
             늑대는 첫째 돼지의 집에 와서 말했어요.
             <br />
-            "문을 열어라!"
+            "문을 열어라!" */}
+            {pageNum === 0 ? (
+              <span>{taleStart['startScript']}</span>
+            ) : (
+              <span>{taleDetail['script']}</span>
+            )}
           </p>
         </div>
         <div className="absolute bottom-3 left-1/2  transform -translate-x-1/2 -translate-y-1/2">
@@ -322,14 +332,16 @@ const Modal = ({ handleExit }) => {
   );
 };
 
-const AudioPlayer = ({ audioSrc }) => {
+const AudioPlayer = ({ audioSrc, pageNum }) => {
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef(null);
 
+  // 페이지가 바뀔 때마다
   useEffect(() => {
-    // 컴포넌트 마운트 시 자동 재생
-    audioRef.current.play();
-  }, []);
+    audioRef.current.currentTime = 0; // 처음으로 되감기
+    audioRef.current.play(); // 자동재생
+    setIsMuted(false);
+  }, [pageNum]);
 
   const handleToggleAudio = () => {
     if (isMuted) {
