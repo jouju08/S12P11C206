@@ -46,8 +46,10 @@ def extract_keyword_sentences(title: str):
         temperature=0.7, model="gpt-3.5-turbo") | chains.NumberdListParser()
     # 체인 실행
     response = chain.invoke({"question": title})
-
-    return response
+    sentences = []
+    for sentence in response:
+        sentences.append(sentence.replace("XX", "xx"))
+    return sentences
 
 
 def write_tale(title, introduction, sentences):
@@ -96,6 +98,7 @@ def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
                           generate_tale_request.introduction,
                           generate_tale_request.sentences)
     print("contents: ", contents)
+
     sentences = extract_sentence_from_tale(contents)
     print("sentences:", sentences)
 
@@ -104,7 +107,7 @@ def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
         page = PageInfo(
             extractedSentence=sentence, fullText=contents[i])
         pages.append(page)
-    print(pages)
+    print("pages" + pages)
     return response_dto.GenerateTaleResponseDto(pages=pages)
 
 
@@ -140,7 +143,6 @@ def generate_tale_image(title: str):
     """
     제목을 입력받아 이미지 프롬프트를 생성하는 함수
     """
-    print(f"generate_tale_image: title = {title}")
 
     chain = chains.generate_tale_image_prompt | ChatOpenAI(
         temperature=0.1, model="gpt-3.5-turbo") | chains.GenerateTaleImageOutputParser()
@@ -155,8 +157,6 @@ def generate_tale_intro_image(generate_intro_image_request: request_dto.Generate
     """
     제목과 도입부를 입력받아 이미지 프롬프트를 생성하는 함수
     """
-    print(
-        f"generate_tale_intro_image: \ntitle = {generate_intro_image_request.title}\n intro = {generate_intro_image_request.intro}")
 
     chain = chains.generate_tale_intro_image_prompt | ChatOpenAI(
         temperature=0.1, model="gpt-4o-mini") | chains.GenerateTaleImageOutputParser()

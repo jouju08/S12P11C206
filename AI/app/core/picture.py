@@ -6,7 +6,6 @@ import time
 import json
 import requests
 import config
-import base64
 import app.models.common as common
 import app.models.response as response_dto
 from fastapi import UploadFile
@@ -143,7 +142,7 @@ def post_novita_api(prompts: common.PromptSet, webhook_url):
             "negative_prompt": prompts.negativePrompt,
             "height": 512,
             "width": 512,
-            "image_num": 1,
+            "image_num": 4,
             "steps": 20,
             "seed": -1,
             "clip_skip": 1,
