@@ -119,7 +119,9 @@ public class AuthController {
 
     @GetMapping("/check-nickname/{nickname}")
     public ApiResponse<Object> isDuplicatedNickname(@PathVariable String nickname){
+        System.out.println("닉네임"+nickname);
         Optional<Member> member = authService.findByNickname(nickname);
+
         if(member.isPresent()){
             return ApiResponse.builder()
                     .data("Duplicated Nickname")

@@ -33,15 +33,15 @@ public class MemberController {
 
     // 회원 정보 수정
     @PatchMapping("/mypage")
-    public ApiResponse<Void> updateMember(
+    public ApiResponse<GetMemberResponseDTO> updateMember(
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody UpdateMemberRequestDTO updateMemberRequestDTO) {
 
         String loginId = extractLoginId(token);
-        memberService.updateMember(loginId, updateMemberRequestDTO);
+        GetMemberResponseDTO memberResponse = memberService.updateMember(loginId, updateMemberRequestDTO);
 
-        return ApiResponse.<Void>builder()
-                .data(null)
+        return ApiResponse.<GetMemberResponseDTO>builder()
+                .data(memberResponse)
                 .build();
     }
 
