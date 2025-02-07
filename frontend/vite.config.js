@@ -16,7 +16,13 @@ export default defineConfig({
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, ''),
         secure: false,
+      },
+
+      '/ws': {
+        target: 'wss://i12c206.p.ssafy.io:8080/ws',
+        changeOrigin: true,
         ws: true,
+        rewrite: (path) => path.replace(/^\/sock/, ''),
       },
     },
   },
