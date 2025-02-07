@@ -10,6 +10,8 @@ import app.models.request as request_dto
 import app.models.response as response_dto
 import app.models.response.Status as Status
 
+from app.models.common import PromptSet
+
 router = APIRouter(prefix=f"{config.API_BASE_URL}/gen", tags=["gen"])
 
 
@@ -47,26 +49,36 @@ def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.G
     )
 
 
-@router.post("/picture", description="손그림에서 그림을 생성하는 API", response_model=response_dto.ApiResponse[str])
-async def generate_img2img(roomId: int = Form(...),
-                           order: int = Form(...),
-                           prompt: str = Form(...),
-                           negativePrompt: str = Form(...),
-                           image: UploadFile = File(...)):
+@router.post("/upgrade_handpicture", description="손그림에서 그림을 생성하는 API", response_model=response_dto.ApiResponse[str])
+async def upgrade_handpicture(roomId: int = Form(...),
+                              order: int = Form(...),
+                              prompt: str = Form(...),
+                              negativePrompt: str = Form(...),
+                              image: UploadFile = File(...)):
     """
     손그림에서 그림을 생성하는 API
+    spring에서 손그림을 받아 이미지 생성 요청 전달
     """
 
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
-        data=picture_service.generate_img2img(
+        data=picture_service.upgrade_handpicture(
             roomId=roomId,
             order=order,
             prompt=prompt,
             negativePrompt=negativePrompt,
             image=image)
     )
+
+
+# @router.post("/text-to-image")
+# def text_to_image(prompt: request_dto.TextRequestDto):
+#     """
+#     텍스트를 이미지로 변환하는 API
+#     """
+#     print(prompt)
+#     return picture_service.post_novita_api(PromptSet(prompt=prompt.text, negativePrompt=""))
 
 
 @router.post("/tale-sentences", description="키워드 문장 생성", response_model=response_dto.ApiResponse[response_dto.GenerateSentenceResponseDto])
