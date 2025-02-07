@@ -14,5 +14,5 @@ import java.util.Optional;
 public interface GalleryLikeRepository extends JpaRepository<GalleryLike, Long> {
     @Query("SELECT g FROM GalleryLike g WHERE g.member = :member AND g.gallery = :gallery")
     Optional<GalleryLike> findByMemberAndGallery(@Param("member") Member member, @Param("gallery") Gallery gallery);
-
+    Optional<GalleryLike> findByGalleryIdAndMemberId(Long galleryId, Long memberId);
 }

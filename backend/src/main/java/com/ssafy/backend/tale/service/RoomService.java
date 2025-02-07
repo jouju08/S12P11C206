@@ -15,11 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /*
  *  author : park byeongju
@@ -40,6 +38,7 @@ public class RoomService {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    @Transactional
     public Room makeRoom(MakeRoomRequestDto makeRoomDto) {
 
         System.out.println(makeRoomDto);
@@ -78,13 +77,14 @@ public class RoomService {
         List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
         // roomList 없으면 생성
         if (roomList == null) roomList = new ArrayList<RoomInfo>();
-        String baseTaleTitle = baseTaleRepository.findById(room.getBaseTaleId()).get().getTitle();
+        Optional<BaseTale> baseTale = baseTaleRepository.findById(room.getBaseTaleId());
         roomList.add(RoomInfo.builder()
                 .roomId(room.getRoomId())
                 .hostMemberId(creator.getId())
                 .hostNickname(creator.getNickname())
                 .hostProfileImg(creator.getProfileImg())
-                .taleTitle(baseTaleTitle)
+                .taleTitle(baseTale.get().getTitle())
+                .taleTitleImg(baseTale.get().getTitleImg())
                 .participantsCnt(room.getMaxParticipantsCnt())
                 .participantsCnt(room.getParticipants().size())
                 .build());
