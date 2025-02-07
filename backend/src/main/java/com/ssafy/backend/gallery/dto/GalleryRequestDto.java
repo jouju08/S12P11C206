@@ -7,5 +7,6 @@ import lombok.ToString;
 @ToString
 public class GalleryRequestDto {
     private Long taleMemberId;
+    private Long galleryId;
     private boolean hasOrigin;
 }

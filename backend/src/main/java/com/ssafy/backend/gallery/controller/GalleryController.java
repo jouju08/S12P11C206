@@ -11,6 +11,7 @@ import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.gallery.dto.GalleryDto;
 import com.ssafy.backend.dto.PictureDto;
+import com.ssafy.backend.gallery.dto.GalleryListResponseDto;
 import com.ssafy.backend.gallery.dto.GalleryRequestDto;
 import com.ssafy.backend.gallery.dto.GalleryResponseDto;
 import com.ssafy.backend.gallery.service.GalleryService;
@@ -44,7 +45,29 @@ public class GalleryController {
         galleryService.createBoard(galleryRequestDto.getTaleMemberId(), auth.getName(), galleryRequestDto.isHasOrigin());
         return ApiResponse.builder().build();
     }
-    @GetMapping("/gallery")//게시판 디테일 불러오기, 사진 아이디 필요
+
+    @GetMapping("/gallery")//모든 게시판 정보 불러오기
+    public ApiResponse<List<GalleryListResponseDto>> getPictures(Authentication auth) {
+        try {
+            List<GalleryListResponseDto> allPictures = galleryService.findAllPictures(auth);
+            return ApiResponse.<List<GalleryListResponseDto>>builder()
+                    .data(allPictures)
+                    .build();
+        } catch (ResourceNotFoundException e) {
+            return ApiResponse.<List<GalleryListResponseDto>>builder().message(ResponseMessage.NOT_FOUND).status(ResponseCode.NOT_FOUND).build();
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
+
+    }
+
+    @DeleteMapping("/gallery")
+    public ApiResponse deletePicture(Authentication auth, @RequestParam GalleryRequestDto galleryRequestDto) {
+        galleryService.delete(auth, galleryRequestDto);
+        return ApiResponse.builder().build();
+    }
+
+    @GetMapping("/gallery/detail")//게시판 디테일 불러오기, 사진 아이디 필요
     public ApiResponse<GalleryResponseDto> getPicturesDetail(Authentication auth, @RequestParam Integer id) {
         GalleryResponseDto pictureDetail = galleryService.pictureDetail(auth, id);
         if (pictureDetail != null) {
@@ -69,20 +92,7 @@ public class GalleryController {
             return ApiResponse.<Optional<PictureDto>>builder().data(Optional.empty()).status(ResponseMessage.SUCCESS).build();
     }
 
-    @GetMapping("/gallery/pictures/all")//모든 게시판 정보 불러오기
-    public ApiResponse<List<Gallery>> getPictures() {
-        try {
-            List<Gallery> allPictures = galleryService.findAllPictures();
-            return ApiResponse.<List<Gallery>>builder()
-                    .data(allPictures)
-                    .build();
-        } catch (ResourceNotFoundException e) {
-            return ApiResponse.<List<Gallery>>builder().message(ResponseMessage.NOT_FOUND).status(ResponseCode.NOT_FOUND).build();
-        } catch (Exception e) {
-            throw new BadRequestException(e.getMessage());
-        }
 
-    }
 
 
 

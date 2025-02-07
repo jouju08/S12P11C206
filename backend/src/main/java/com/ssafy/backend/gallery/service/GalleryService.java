@@ -10,16 +10,17 @@ import com.ssafy.backend.db.repository.GalleryRepository;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.gallery.dto.GalleryDto;
+import com.ssafy.backend.gallery.dto.GalleryListResponseDto;
+import com.ssafy.backend.gallery.dto.GalleryRequestDto;
 import com.ssafy.backend.gallery.dto.GalleryResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,14 +33,34 @@ public class GalleryService {
     private final TaleMemberRepository taleMemberRepository;
 
 
-    public List<Gallery> findAllPictures() {
-        return galleryRepository.findAll();
+    @Transactional
+    public List<GalleryListResponseDto> findAllPictures(Authentication auth) {
+        Long userId = memberRepository.findByLoginId(auth.getName()).get().getId();
+        List<GalleryListResponseDto> result = new ArrayList<GalleryListResponseDto>();
+        List<Gallery> galleries = galleryRepository.findAllPictures();
+
+        for(Gallery gallery : galleries) {
+            GalleryListResponseDto dto = new GalleryListResponseDto();
+            dto.setGalleryId(gallery.getId());
+            dto.setImg(gallery.getImgPath());
+            dto.setAuthorId(gallery.getMember().getId());
+            dto.setAuthorNickname(gallery.getMember().getNickname());
+            dto.setAuthorProfileImg(gallery.getMember().getProfileImg());
+            dto.setLikeCnt(gallery.getGalleryLikes().size());
+            dto.setCreatedAt(gallery.getCreatedAt());
+            result.add(dto);
+        }
+
+        return result;
     }
 
     @Transactional
     public GalleryResponseDto pictureDetail(Authentication auth, Integer id) {
         try {
             Optional<Gallery> gallery = galleryRepository.findById(id);
+            if(gallery.get().getHasDeleted()){
+                throw new ResourceNotFoundException("삭제된 게시글에 대한 요청입니다.");
+            }
             boolean hasLiked = !galleryLikeRepository.findByGalleryIdAndMemberId(gallery.get().getId(), memberRepository.findByLoginId(auth.getName()).get().getId()).isEmpty();
             return GalleryResponseDto.builder()
                     .galleryId(gallery.get().getId())
@@ -76,6 +97,7 @@ public class GalleryService {
 
         try {
             galleryRepository.save(Gallery.builder()
+                    .taleMember(taleMember)
                     .hasOrigin(hasOrigin)
                     .imgPath(imgPath)
                     .member(member)
@@ -116,4 +138,12 @@ public class GalleryService {
         }
     }
 
+    @Transactional
+    public void delete(Authentication auth, GalleryRequestDto galleryRequestDto) {
+        Optional<Gallery> gallery = galleryRepository.findById(galleryRequestDto.getGalleryId());
+        if (gallery.get().getMember().getId() == memberRepository.findByLoginId(auth.getName()).get().getId()) {
+            throw new AuthorizationDeniedException("삭제 권한이 없습니다.");
+        }
+        gallery.get().setHasDeleted(true);
+    }
 }
