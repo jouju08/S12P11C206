@@ -14,6 +14,7 @@ router = APIRouter(prefix=f"{config.API_BASE_URL}/submit", tags=["submit"])
 
 
 @router.post("/upgrade-handpicture")
+@util.logger
 def upgrade_handpicture_submit(roomId: str = Form(...),
                                order: str = Form(...),
                                file: UploadFile = File(...)):
@@ -29,6 +30,7 @@ def upgrade_handpicture_submit(roomId: str = Form(...),
 
 
 @router.post("/gen-tale-image")
+@util.logger
 async def gen_tale_image_submit(request: Request):
     """
     novita 에서 동화 표지 이미지 생성이 완료됐을때, webhook으로 호출되는 API 
@@ -46,6 +48,7 @@ async def gen_tale_image_submit(request: Request):
 
 
 @router.post("/gen-tale-intro-image")
+@util.logger
 async def gen_tale_intro_image_submit(request: Request):
     """
     novita 에서 서버에서 동화 도입부 이미지 생성이 완료됐을때, webhook으로 호출되는 API 

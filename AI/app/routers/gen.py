@@ -6,6 +6,7 @@ import config
 import app.core.llm as llm_service
 import app.core.audio as audio_service
 import app.core.picture as picture_service
+import app.core.util as util
 import app.models.request as request_dto
 import app.models.response as response_dto
 import app.models.response.Status as Status
@@ -16,6 +17,7 @@ router = APIRouter(prefix=f"{config.API_BASE_URL}/gen", tags=["gen"])
 
 
 @router.post("/tale", description="동화를 생성하는 API", response_model=response_dto.ApiResponse[response_dto.GenerateTaleResponseDto])
+@util.logger
 def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto):
     """
     동화를 생성하는 API
@@ -28,6 +30,7 @@ def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto):
 
 
 @router.post("/script-read", description="스크립트를 읽어주는 API")
+@util.logger
 def script_read(textRequestDto: request_dto.TextRequestDto):
     """
     스크립트를 읽어주는 API
@@ -37,6 +40,7 @@ def script_read(textRequestDto: request_dto.TextRequestDto):
 
 
 @router.post("/diffusion-prompts", description="이미지 프롬프트 생성", response_model=response_dto.ApiResponse[response_dto.GenerateDiffusionPromptsResponseDto])
+@util.logger
 def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.GenerateDiffusionPromptsRequestDto):
     """
     이미지 프롬프트 생성
@@ -50,6 +54,7 @@ def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.G
 
 
 @router.post("/upgrade_handpicture", description="손그림에서 그림을 생성하는 API", response_model=response_dto.ApiResponse[str])
+@util.logger
 async def upgrade_handpicture(roomId: int = Form(...),
                               order: int = Form(...),
                               prompt: str = Form(...),
@@ -82,6 +87,7 @@ async def upgrade_handpicture(roomId: int = Form(...),
 
 
 @router.post("/tale-sentences", description="키워드 문장 생성", response_model=response_dto.ApiResponse[response_dto.GenerateSentencesResponseDto])
+@util.logger
 def generate_sentences(generateSentencesRequestDto: request_dto.TextRequestDto):
     """
     todo: 키워드 문장 생성

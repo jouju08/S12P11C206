@@ -5,6 +5,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
 import app.core.chains as chains
+import app.core.util as util
 
 import app.models.request as request_dto
 import app.models.response as response_dto
