@@ -55,4 +55,7 @@ public class TaleMember extends Common{
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @OneToMany
+    private List<Gallery> galleries;
+
 }

@@ -1,13 +1,8 @@
-package com.ssafy.backend.dto;
+package com.ssafy.backend.gallery.dto;
 
-import com.ssafy.backend.db.entity.Gallery;
-import com.ssafy.backend.db.entity.GalleryLike;
-import com.ssafy.backend.db.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,5 +11,7 @@ public class GalleryDto {
     private Long id;
     private String imgPath;
     private Boolean isOrigin;
+    // 좋아요 상태면 true, 아니면 false
+    private Boolean hasLiked;
 }
 
