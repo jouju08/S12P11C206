@@ -327,6 +327,8 @@ const playActions = (set, get) => ({
     formData.append('memberId', String(userStore.getState().memberId));
     formData.append('file', picture);
 
+    console.log(picture);
+
     const response = await taleAPI.taleSubmitPicture(formData);
 
     return response;

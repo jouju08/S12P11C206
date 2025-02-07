@@ -15,15 +15,17 @@ const DrawingBoard = forwardRef(({ width, height, usePalette }, ref) => {
   const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 });
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
 
+  const border = 'border-2 border-gray-200 rounded-2xl';
+
   const colors = [
-    { name: 'Black', value: '#000000' },
-    { name: 'Red', value: '#FF0000' },
-    { name: 'Green', value: '#00FF00' },
-    { name: 'Blue', value: '#0000FF' },
-    { name: 'Yellow', value: '#FFFF00' },
-    { name: 'Magenta', value: '#FF00FF' },
-    { name: 'Cyan', value: '#00FFFF' },
-    { name: 'Orange', value: '#FFA500' },
+    { name: '검정색', value: '#000000' },
+    { name: '빨간색', value: '#FF0000' },
+    { name: '초록색', value: '#00FF00' },
+    { name: '파란색', value: '#0000FF' },
+    { name: '노란색', value: '#FFFF00' },
+    { name: '분홍색', value: '#FF00FF' },
+    { name: '하늘색', value: '#00FFFF' },
+    { name: '주항색', value: '#FFA500' },
   ];
 
   useEffect(() => {
@@ -31,9 +33,12 @@ const DrawingBoard = forwardRef(({ width, height, usePalette }, ref) => {
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
-    ctx.fillStyle = 'white';
 
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (!usePalette) {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
   }, [width, height]);
@@ -48,6 +53,14 @@ const DrawingBoard = forwardRef(({ width, height, usePalette }, ref) => {
         }, 'image/png');
       });
     },
+
+    clearCanvas: () => {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    },
+
+    canvas: canvasRef.current,
   }));
 
   const handleMouseDown = (e) => {
@@ -92,6 +105,52 @@ const DrawingBoard = forwardRef(({ width, height, usePalette }, ref) => {
     setIsDrawing(false);
   };
 
+  /////
+
+  const handleTouchDown = (e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    setLastPosition({ x, y });
+    setIsDrawing(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    ctx.beginPath();
+    ctx.moveTo(lastPosition.x, lastPosition.y);
+    ctx.lineTo(x, y);
+
+    // console.log(lastPosition.x, lastPosition.y);
+    // console.log(x, y);
+
+    if (isEraser) {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
+      ctx.lineWidth = 35;
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = lineWidth;
+    }
+
+    ctx.stroke();
+    setLastPosition({ x, y });
+  };
+
+  const handleTouchUp = () => {
+    setIsDrawing(false);
+  };
+
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -100,9 +159,9 @@ const DrawingBoard = forwardRef(({ width, height, usePalette }, ref) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 items-center relative">
         {usePalette && (
-          <div className="relative">
+          <div className="absolute inset-0 top-6">
             <button
               className="w-10 h-10 rounded-full border-2 border-gray-300 shadow-sm"
               style={{ backgroundColor: lineColor }}
@@ -110,7 +169,7 @@ const DrawingBoard = forwardRef(({ width, height, usePalette }, ref) => {
               onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
             />
             {isColorPickerOpen && (
-              <div className="absolute left-0 mt-2 p-4 bg-white rounded-lg shadow-lg z-10 min-w-[300px]">
+              <div className="absolute left-36 mt-2 p-4 bg-white rounded-lg shadow-lg z-10 min-w-[300px]">
                 <div className="grid grid-cols-4 gap-3 content-center place-items-center place-content-center">
                   {colors.map((color) => (
                     <button
@@ -140,30 +199,35 @@ const DrawingBoard = forwardRef(({ width, height, usePalette }, ref) => {
             )}
           </div>
         )}
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setIsEraser((prev) => !prev)}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-              {isEraser ? '그리기 ' : '지우개 '}
-            </button>
+      </div>
+      <div className="flex flex-col gap-4">
+        <canvas
+          ref={canvasRef}
+          // className={` ${isEraser ? 'eraser-cursor' : 'cursor-crosshair'} border bg-white`}
+          className={`${isEraser ? 'cursor-crosshair' : 'cursor-pointer'}  ${usePalette ? `` : `${border}`} md:cursor-pointer`}
+          style={{ width, height }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchDown}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchUp}
+          onTouchCancel={handleTouchUp}
+        />
 
-            <button
-              onClick={clearCanvas}
-              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-              전체지우기
-            </button>
-          </div>
-          <canvas
-            ref={canvasRef}
-            // className={` ${isEraser ? 'eraser-cursor' : 'cursor-crosshair'} border bg-white`}
-            className={`${isEraser ? 'cursor-crosshair' : 'cursor-pointer'} border-2 border-gray-200 rounded bg-white`}
-            style={{ width, height }}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-          />
+        <div className="flex justify-evenly gap-2">
+          <button
+            onClick={() => setIsEraser((prev) => !prev)}
+            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
+            {isEraser ? '그리기 ' : '지우개 '}
+          </button>
+
+          <button
+            onClick={clearCanvas}
+            className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
+            전체지우기
+          </button>
         </div>
       </div>
     </div>
