@@ -10,6 +10,7 @@ import com.ssafy.backend.db.repository.GalleryRepository;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.gallery.dto.GalleryDto;
+import com.ssafy.backend.gallery.dto.GalleryResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,12 +36,27 @@ public class GalleryService {
         return galleryRepository.findAll();
     }
 
-    public Optional<Gallery> pictureDetail(Integer id) {
+    @Transactional
+    public GalleryResponseDto pictureDetail(Authentication auth, Integer id) {
         try {
-            Optional<Gallery> result = galleryRepository.findById(id);
+            Optional<Gallery> gallery = galleryRepository.findById(id);
+            boolean hasLiked = !galleryLikeRepository.findByGalleryIdAndMemberId(gallery.get().getId(), memberRepository.findByLoginId(auth.getName()).get().getId()).isEmpty();
+            GalleryResponseDto result = GalleryResponseDto.builder()
+                    .galleryId(gallery.get().getId())
+                    .taleTitle(gallery.get().getTaleMember().getTale().getBaseTale().getTitle())
+                    .img(gallery.get().getTaleMember().getImg())
+                    .originImg(gallery.get().getTaleMember().getOrginImg())
+                    .likeCount(gallery.get().getGalleryLikes().size())
+                    .hasOrigin(gallery.get().getHasOrigin())
+                    .hasLiked(hasLiked)
+                    .author(gallery.get().getMember().getNickname())
+                    .authorMemberId(gallery.get().getMember().getId())
+                    .taleId(gallery.get().getTaleMember().getTale().getId())
+                    .baseTaleId(gallery.get().getTaleMember().getTale().getBaseTale().getId())
+                    .build();
             return result;
         } catch (Exception e) {
-            return Optional.empty();
+            return null;
         }
     }
 

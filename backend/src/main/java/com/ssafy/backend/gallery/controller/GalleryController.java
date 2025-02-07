@@ -12,6 +12,7 @@ import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.gallery.dto.GalleryDto;
 import com.ssafy.backend.dto.PictureDto;
 import com.ssafy.backend.gallery.dto.GalleryRequestDto;
+import com.ssafy.backend.gallery.dto.GalleryResponseDto;
 import com.ssafy.backend.gallery.service.GalleryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,17 @@ public class GalleryController {
         galleryService.createBoard(galleryRequestDto.getTaleMemberId(), auth.getName(), galleryRequestDto.isHasOrigin());
         return ApiResponse.builder().build();
     }
+    @GetMapping("/gallery")//게시판 디테일 불러오기, 사진 아이디 필요
+    public ApiResponse<GalleryResponseDto> getPicturesDetail(Authentication auth, @RequestParam Integer id) {
+        GalleryResponseDto pictureDetail = galleryService.pictureDetail(auth, id);
+        if (pictureDetail != null) {
+            return ApiResponse.<GalleryResponseDto>builder()
+                    .data(pictureDetail)
+                    .build();
+        } else {
+            throw new ResourceNotFoundException("picture not found");
+        }
+    }
 
     @GetMapping("/gallery/view/my-pictures")//게시판에 올릴 사진을 위해 내 사진 정보들 불러옴
     public ApiResponse<Optional<PictureDto>> viewMyPictures(Authentication auth) {
@@ -72,17 +84,7 @@ public class GalleryController {
 
     }
 
-    @GetMapping("/gallery/{pictureId}/detail")//게시판 디테일 불러오기, 사진 아이디 필요
-    public ApiResponse<Optional<Gallery>> getPicturesDetail(@PathVariable Integer pictureId) {
-        Optional<Gallery> pictureDetail = galleryService.pictureDetail(pictureId);
-        if (pictureDetail.isPresent()) {
-            return ApiResponse.<Optional<Gallery>>builder()
-                    .data(pictureDetail)
-                    .build();
-        } else {
-            throw new ResourceNotFoundException("picture not found");
-        }
-    }
+
 
 
     @PostMapping("/gallery/like")
