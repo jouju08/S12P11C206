@@ -1,4 +1,4 @@
-import DrawingBoard from '@/components/common/DrawingBoard';
+import DrawingBoard from '@/components/Common/DrawingBoard';
 import React from 'react';
 
 export default function CanvasTest() {

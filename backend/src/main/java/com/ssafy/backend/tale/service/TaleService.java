@@ -57,9 +57,14 @@ public class TaleService {
 
         // memberId로 taleMember를 찾습니다. (참여한 동화 페이지들을 찾습니다.)
         List<TaleMember> taleMembers = taleMemberRepository.findByMemberId(memberId);
-
+        HashSet<Long> taleIdSet = new HashSet<>();
         //각 동화 페이지별로
         for (TaleMember taleMember : taleMembers) {
+            Long taleId = taleMember.getTale().getId();
+            if(taleIdSet.contains(taleId)) // 중복된 tale은 제외합니다.
+                continue;
+
+            taleIdSet.add(taleId);
             TaleResponseDto taleResponseDto = parseTale(taleMember.getTale()); // 동화 페이지를 파싱합니다.
             taleResponseDtoList.add(taleResponseDto); // 반환객체에 추가합니다.
         }

@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
 import { Loading } from '@/common/Loading';
-import DrawingBoard from '@/components/common/DrawingBoard';
+import DrawingBoard from '@/components/Common/DrawingBoard';
 
 // 백에서 문장 4개가 어떻게 넘어오는지 모르겠음
 // 그냥 받았다고 치자
