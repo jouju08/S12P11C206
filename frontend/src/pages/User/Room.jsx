@@ -5,6 +5,7 @@ import NumSearch from '@/components/Room/NumSearch';
 import RoomBtn from '@/components/Room/RoomBtn';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 import axios from 'axios';
+import { api } from '@/store/userStore';
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -93,7 +94,7 @@ export default function Room() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('/api/base-tale/list');
+        const response = await api.get('/base-tale/list');
         console.log('✅ 가져온 데이터', response.data);
         // 응답 데이터 구조 확인 후 배열 접근
         setTaleList(response.data.data || []);

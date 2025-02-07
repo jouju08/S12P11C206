@@ -265,7 +265,10 @@ api.interceptors.request.use(
   (request) => {
     const accessToken = userStore.getState().accessToken;
 
-    if (isTokenExpired(accessToken)) {
+    console.log(api.defaults.headers.common['Authorization']);
+
+    if (!isTokenExpired(accessToken)) {
+      console.log(accessToken);
       api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
       return request;
     } else {

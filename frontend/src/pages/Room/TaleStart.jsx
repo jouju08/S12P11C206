@@ -3,6 +3,7 @@ import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useEffect, useState, useRef } from 'react';
 import { useTaleRoom } from '@/store/roomStore';
+import { useViduHook } from '@/store/tale/viduStore';
 
 // 확인용 더미데이터
 const ParticipationList = [
@@ -15,6 +16,7 @@ const ParticipationList = [
 const TaleStart = () => {
   const { setBaseTale, setRoomId, setSubscribeTale, roomId } = useTalePlay();
   const { connect, createRoom } = useTaleRoom();
+  const { getTokenByAxios } = useViduHook();
 
   useEffect(() => {
     const handleTale = async () => {
@@ -26,6 +28,7 @@ const TaleStart = () => {
 
         await setBaseTale();
         await setSubscribeTale(playRoom.roomId);
+        // await getTokenByAxios(playRoom.roomId);
       } catch (error) {
         console.error('Tale Start Error 발생:', error);
       }

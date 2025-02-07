@@ -17,11 +17,16 @@ export default defineConfig({
         secure: false,
       },
 
-      '/ws': {
-        target: 'wss://i12c206.p.ssafy.io:8080/ws',
+      // '/ws': {
+      //   target: 'http://localhost:8080/ws',
+      //   changeOrigin: true,
+      //   ws: true,
+      //   // rewrite: (path) => path.replace(/^\/sock/, ''),
+      // },
+
+      '/vidu': {
+        target: 'wss://i12c206.p.ssafy.io:8443/',
         changeOrigin: true,
-        ws: true,
-        rewrite: (path) => path.replace(/^\/sock/, ''),
       },
     },
   },

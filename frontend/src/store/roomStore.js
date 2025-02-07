@@ -22,7 +22,7 @@ const roomActions = (set, get) => ({
   connect: async () => {
     return new Promise((resolve, reject) => {
       console.log(get().memberId);
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL);
       const stompClient = new Client({
         webSocketFactory: () => socket,
 

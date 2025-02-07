@@ -64,7 +64,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
                         .requestMatchers("/api/auth/logout", "/api/auth/kakao/callback").permitAll()
-                        .requestMatchers("/**").permitAll() // 임시로 다 열기
+//                        .requestMatchers("/**").permitAll() // 임시로 다 열기
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .defaultSuccessUrl("/api/auth/kakao/callback")) // 인증 성공 후 처리 경로
