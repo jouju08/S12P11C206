@@ -2,3 +2,4 @@ from .GenerateTaleRequestDto import GenerateTaleRequestDto
 from .TextRequestDto import TextRequestDto
 from .GeneratePictureRequestDto import GeneratePictureRequestDto
 from .GenerateDiffusionPromptsRequestDto import GenerateDiffusionPromptsRequestDto
+from .GenerateIntroImageRequestDto import GenerateIntroImageRequestDto

@@ -6,7 +6,7 @@ import app.core.picture as picture_service
 import app.models.request as request_dto
 import app.models.response as response_dto
 import app.models.response.Status as Status
-import json
+import app.core.util as util
 
 import app.models.common as common
 
@@ -20,6 +20,9 @@ def upgrade_handpicture_submit(roomId: str = Form(...),
     """
     그림 FastAPI 서버에서 손그림 이미지 생성이 완료됐을때, webhook으로 호출되는 API 
     """
+    print(
+        f"@@@@@upgrade_handpicture_submit@@@@@\n|  roomId = {roomId}\n|  order = {order}\n|  file = {file.filename}")
+
     picture_service.upgrade_handpicture_submit(roomId, order, file)
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
@@ -29,10 +32,16 @@ def upgrade_handpicture_submit(roomId: str = Form(...),
 
 
 @router.post("/gen-tale-image")
-def gen_tale_image_submit(request: Request):
+async def gen_tale_image_submit(request: Request):
     """
     novita 에서 동화 표지 이미지 생성이 완료됐을때, webhook으로 호출되는 API 
     """
+    request = await request.body()
+    print("@@@@@gen_tale_image_submit@@@@@")
+    util.pprint_request(request)
+    request = util.parse_request(request)
+    picture_service.return_novita_image(
+        request, picture_service.SPRING_GEN_TALE_IMG_WEBHOOK)
 
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
@@ -42,11 +51,16 @@ def gen_tale_image_submit(request: Request):
 
 
 @router.post("/gen-tale-intro-image")
-def gen_tale_intro_image_submit(request: Request):
+async def gen_tale_intro_image_submit(request: Request):
     """
     novita 에서 서버에서 동화 도입부 이미지 생성이 완료됐을때, webhook으로 호출되는 API 
     """
-
+    request = await request.body()
+    print("@@@@@gen_tale_image_submit@@@@@")
+    util.pprint_request(request)
+    request = util.parse_request(request)
+    picture_service.return_novita_image(
+        request, picture_service.SPRING_GEN_TALE_INTRO_IMG_WEBHOOK)
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",

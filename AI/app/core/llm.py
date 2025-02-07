@@ -9,6 +9,7 @@ import app.core.chains as chains
 import app.models.request as request_dto
 import app.models.response as response_dto
 from app.models.common import PromptSet, PageInfo
+import app.core.picture as picture_service
 
 
 def generate_sentences(title: str):
@@ -46,7 +47,7 @@ def extract_keyword_sentences(title: str):
     # 체인 실행
     response = chain.invoke({"question": title})
 
-    return response_dto.ExtractKeywordSentencesResponseDto(sentences=response)
+    return response
 
 
 def write_tale(title, introduction, sentences):
@@ -133,3 +134,40 @@ def generate_diffusion_prompts(generate_diffusion_prompts_request: request_dto.G
         prompts.append(prompt)
 
     return response_dto.GenerateDiffusionPromptsResponseDto(prompts=prompts)
+
+
+def generate_tale_image(title: str):
+    """
+    제목을 입력받아 이미지 프롬프트를 생성하는 함수
+    """
+    print(f"generate_tale_image: title = {title}")
+
+    chain = chains.generate_tale_image_prompt | ChatOpenAI(
+        temperature=0.1, model="gpt-3.5-turbo") | chains.GenerateTaleImageOutputParser()
+    response = chain.invoke({"title": title})
+    prompt_set = PromptSet(prompt=response["Prompt"],
+                           negativePrompt=response["Negative Prompt"])
+    picture_service.post_novita_api(
+        prompt_set, picture_service.GEN_TALE_IMG_WEBHOOK)
+
+
+def generate_tale_intro_image(generate_intro_image_request: request_dto.GenerateIntroImageRequestDto):
+    """
+    제목과 도입부를 입력받아 이미지 프롬프트를 생성하는 함수
+    """
+    print(
+        f"generate_tale_intro_image: \ntitle = {generate_intro_image_request.title}\n intro = {generate_intro_image_request.intro}")
+
+    chain = chains.generate_tale_intro_image_prompt | ChatOpenAI(
+        temperature=0.1, model="gpt-4o-mini") | chains.GenerateTaleImageOutputParser()
+
+    response = chain.invoke({
+        "title": generate_intro_image_request.title,
+        "intro": generate_intro_image_request.intro
+    })
+
+    prompt_set = PromptSet(prompt=response["Prompt"],
+                           negativePrompt=response["Negative Prompt"])
+
+    picture_service.post_novita_api(
+        prompt_set, picture_service.GEN_TALE_INTRO_IMG_WEBHOOK)

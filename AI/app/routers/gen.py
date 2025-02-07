@@ -1,7 +1,7 @@
 """
 Gen Controller
 """
-from fastapi import APIRouter, UploadFile, Form, File
+from fastapi import APIRouter, UploadFile, Form, File, BackgroundTasks
 import config
 import app.core.llm as llm_service
 import app.core.audio as audio_service
@@ -81,7 +81,7 @@ async def upgrade_handpicture(roomId: int = Form(...),
 #     return picture_service.post_novita_api(PromptSet(prompt=prompt.text, negativePrompt=""))
 
 
-@router.post("/tale-sentences", description="키워드 문장 생성", response_model=response_dto.ApiResponse[response_dto.GenerateSentenceResponseDto])
+@router.post("/tale-sentences", description="키워드 문장 생성", response_model=response_dto.ApiResponse[response_dto.GenerateSentencesResponseDto])
 def generate_sentences(generateSentencesRequestDto: request_dto.TextRequestDto):
     """
     todo: 키워드 문장 생성
@@ -90,4 +90,41 @@ def generate_sentences(generateSentencesRequestDto: request_dto.TextRequestDto):
         status=Status.SUCCESS,
         message="OK",
         data=llm_service.generate_sentences(generateSentencesRequestDto.text)
+    )
+
+
+@router.post("/tale-image", response_model=response_dto.ApiResponse[str])
+def generate_tale_image(title: request_dto.TextRequestDto, backgroundTask: BackgroundTasks):
+    """
+    todo: 동화 이미지 생성
+    title을 받고 
+    1. 이미지 생성할 수 있도록 diffusion prompt 생성
+    2. 이미지 생성
+    3. webhook으로 이미지 전송
+    """
+    backgroundTask.add_task(
+        llm_service.generate_tale_image, title.text)
+
+    return response_dto.ApiResponse(
+        status=Status.SUCCESS,
+        message="OK",
+        data="OK"
+    )
+
+
+@router.post("/tale-intro-image", description="도입부 이미지 생성", response_model=response_dto.ApiResponse[str])
+def generate_tale_intro_image(generateIntroImageRequestDto: request_dto.GenerateIntroImageRequestDto, backgroundTask: BackgroundTasks):
+    """
+    todo: 도입부 이미지 생성
+    title, intro를 받고
+    1. 이미지 생성할 수 있도록 diffusion prompt 생성
+    2. 이미지 생성
+    3. webhook으로 이미지 전송
+    """
+    backgroundTask.add_task(
+        llm_service.generate_tale_intro_image, generateIntroImageRequestDto)
+    return response_dto.ApiResponse(
+        status=Status.SUCCESS,
+        message="OK",
+        data="OK"
     )

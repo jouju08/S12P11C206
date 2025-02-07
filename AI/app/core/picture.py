@@ -12,6 +12,8 @@ import app.models.response as response_dto
 from fastapi import UploadFile
 
 AI_IMG_2_IMG_ENDPOINT = config.AI_IMG_2_IMG_SERVER + "/make_image"  # 그림 AI 서버 주소
+# 현재 서버 주소
+
 UPGRADE_HANDPICTURE_WEBHOOK = config.PUBLIC_HOST_URL + \
     "/submit/upgrade-handpicture"  # 그림 AI서버에서 돌려받을 주소
 SPRING_UPGRADE_PICTURE_WEBHOOK = config.SPRING_SERVER_URL + \
@@ -119,21 +121,24 @@ def upgrade_handpicture_submit(roomId: int, order: int, image: UploadFile):
     requests.post(SPRING_UPGRADE_PICTURE_WEBHOOK, data=fields, files=file)
 
 
-def post_novita_api(prompts: common.PromptSet):
+def post_novita_api(prompts: common.PromptSet, webhook_url):
     """
     novita API에 이미지 생성 요청을 보내는 함수
     """
+    print(
+        f"@@@@@post_novita_api@@@@@ \n|  prompt = {prompts.prompt}\n|  negattive prompt = {prompts.negativePrompt}\n|  webhook url = {webhook_url}")
+
     url = "https://api.novita.ai/v3/async/txt2img"
     payload = {
         "event_type": "ASYNC_TASK_RESULT",
         "extra": {
             "response_image_type": "png",
             "webhook": {
-                "url": GEN_TALE_IMG_WEBHOOK
+                "url": webhook_url
             }
         },
         "request": {
-            "model_name": "sd_xl_base_1.0.safetensors",
+            "model_name": 'fustercluck_v2_233009.safetensors',
             "prompt": prompts.prompt,
             "negative_prompt": prompts.negativePrompt,
             "height": 512,
@@ -178,9 +183,18 @@ def return_novita_image(web_hook_request, post_url):
     """
     novita에서 받은 이미지를 spring으로 전송하는 함수
     """
-    image_url = web_hook_request["payload"]["images"][0]["image_url"]
+    print(
+        f"@@@@@return_novita_image@@@@@ \n|  web hook request = {web_hook_request}\n|  post url = {post_url}")
+    image_url = []
+    for image in web_hook_request["payload"]["images"]:
+        image_url.append(image["image_url"])
     field = {
-        'text': image_url
+        'images': image_url
     }
-    response = requests.post(post_url, data=field)
-    return
+    print(f"gen image_url {image_url}")
+    try:
+        requests.post(post_url, data=field)
+    except Exception as e:
+        print("return_novita_image error")
+        print(e)
+        return
