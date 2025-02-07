@@ -1,11 +1,12 @@
 package com.ssafy.backend.db.repository;
 
 import com.ssafy.backend.db.entity.Gallery;
-import com.ssafy.backend.dto.GalleryDto;
+import com.ssafy.backend.gallery.dto.GalleryListResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public interface GalleryRepository extends JpaRepository<Gallery, Long> {
 
     Optional<Gallery> findById(Integer id);
 
-    @Query("SELECT g FROM Gallery g WHERE g.hasDeleted = false")
-    Page<Gallery> findAllPictures(Pageable pageable);
+    @Query("SELECT g FROM Gallery g WHERE g.hasDeleted = false ORDER BY g.createdAt desc")
+    List<Gallery> findAllPictures();
+
 }
