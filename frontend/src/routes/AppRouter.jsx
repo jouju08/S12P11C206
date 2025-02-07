@@ -12,7 +12,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import KakaoCallback from '@/components/kakao/KakaoCallback';
-import DrawingBoard from '@/components/common/DrawingBoard';
+import DrawingBoard from '@/components/Common/DrawingBoard';
 import CanvasTest from '@/pages/CanvasTest';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));

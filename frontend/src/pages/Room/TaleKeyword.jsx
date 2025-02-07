@@ -5,7 +5,7 @@ import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
 import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
-import DrawingBoard from '@/components/common/DrawingBoard';
+import DrawingBoard from '@/components/Common/DrawingBoard';
 
 // 확인용 더미데이터
 const ParticipationList = [
