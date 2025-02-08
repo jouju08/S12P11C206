@@ -25,7 +25,7 @@ export default defineConfig({
       // },
 
       '/vidu': {
-        target: 'wss://i12c206.p.ssafy.io:8443/',
+        target: 'ws://localhost:7880',
         changeOrigin: true,
       },
     },

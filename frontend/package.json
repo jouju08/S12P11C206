@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.17.6",
+    "@livekit/components-react": "^2.8.1",
+    "@livekit/components-styles": "^1.1.4",
     "@stomp/stompjs": "^7.0.0",
     "axios": "^1.7.9",
     "immer": "^10.1.1",
     "js-cookie": "^3.0.5",
+    "livekit-client": "^2.8.1",
     "openvidu-browser": "^2.31.0",
     "postcss-cli": "^11.0.0",
     "react": "^18.3.1",

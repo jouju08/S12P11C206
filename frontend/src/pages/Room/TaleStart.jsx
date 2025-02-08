@@ -28,7 +28,7 @@ const TaleStart = () => {
 
         await setBaseTale();
         await setSubscribeTale(playRoom.roomId);
-        // await getTokenByAxios(playRoom.roomId);
+        await getTokenByAxios(playRoom.roomId);
       } catch (error) {
         console.error('Tale Start Error 발생:', error);
       }
