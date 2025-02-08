@@ -314,7 +314,7 @@ const Modal = ({ handleExit, showModal }) => {
             늑대는 첫째 돼지의 집에 와서 말했어요.
             <br />
             "문을 열어라!" */}
-            {pageNum === 0 ? (
+            {pageNum == 0 ? (
               <span>{taleStart['startScript']}</span>
             ) : (
               <span>{taleDetail['script']}</span>
@@ -323,6 +323,7 @@ const Modal = ({ handleExit, showModal }) => {
         </div>
         <div className="absolute bottom-3 left-1/2  transform -translate-x-1/2 -translate-y-1/2">
           <TaleNavigation
+            maxNum={5}
             pageNum={pageNum}
             setPageNum={setPageNum}
           />

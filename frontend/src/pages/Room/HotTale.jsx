@@ -90,6 +90,7 @@ const HotTale = () => {
 
           <div className="absolute bottom-3 right-1/3 transform -translate-x-1/2 -translate-y-1/2">
             <TaleNavigation
+              maxNum={3}
               pageNum={pageNum}
               setPageNum={setPageNum}
             />
