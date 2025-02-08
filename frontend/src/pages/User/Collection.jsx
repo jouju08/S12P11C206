@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useCollection } from '@/store/collectionStore';
 import TaleNavigation from '@/components/Common/TaleNavigation';
+import { space } from 'postcss/lib/list';
+import AudioPlayer from '@/components/Common/AudioPlayer';
 
 // const dummy = [
 //   {
@@ -220,6 +222,22 @@ const Modal = ({ handleExit, showModal }) => {
     setIsOrigin(false);
   }, [pageNum]);
 
+  const renderPageContent = (pageNum) => {
+    if (pageNum === 0) {
+      return <span>{taleStart['startScript']}</span>;
+    } else if (pageNum === 5) {
+      return (
+        <>
+          <p>동화제목 : {taleStart['title']}</p>
+          <p>글쓴이 : 누구일까요</p>
+          <p>완성날짜 : 언제일까요</p>
+        </>
+      );
+    } else {
+      return <span>{taleDetail['script']}</span>;
+    }
+  };
+
   return (
     <div className="w-[1024px] h-[768px] bg-white rounded-[20px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] border border-gray-200 flex-col justify-center items-start inline-flex overflow-hidden">
       {/* title */}
@@ -252,7 +270,7 @@ const Modal = ({ handleExit, showModal }) => {
           src="/Collection/modal-open-book.png"
         />
         {/* 음향 - 데이터 받아오면 바꾸기*/}
-        {pageNum === 0 ? (
+        {pageNum === 5 ? null : pageNum === 0 ? (
           // base-tale 시작 음향
           <div className="text-right pr-20 mt-2">
             <AudioPlayer
@@ -272,26 +290,28 @@ const Modal = ({ handleExit, showModal }) => {
         )}
 
         {/* 요정 버튼 */}
-        <button
-          onClick={() => {
-            setIsOrigin(!isOrigin);
-          }}
-          className="w-[200px] h-[100px] absolute top-[115px] left-[90px] flex items-center cursor-pointer">
-          <img
-            src="/Collection/fairy-magic.png"
-            className="w-[100px] transition-transform duration-200 hover:scale-105"
-            alt="그림 바꾸기"
-          />
-          {isOrigin ? (
-            <span className="text-text-second service-regular3">
-              AI 그림 보기
-            </span>
-          ) : (
-            <span className="text-text-second service-regular3">
-              원래 그림 보기
-            </span>
-          )}
-        </button>
+        {pageNum === 5 ? null : (
+          <button
+            onClick={() => {
+              setIsOrigin(!isOrigin);
+            }}
+            className="w-[200px] h-[100px] absolute top-[115px] left-[90px] flex items-center cursor-pointer">
+            <img
+              src="/Collection/fairy-magic.png"
+              className="w-[100px] transition-transform duration-200 hover:scale-105"
+              alt="그림 바꾸기"
+            />
+            {isOrigin ? (
+              <span className="text-text-second service-regular3">
+                AI 그림 보기
+              </span>
+            ) : (
+              <span className="text-text-second service-regular3">
+                원래 그림 보기
+              </span>
+            )}
+          </button>
+        )}
 
         {/* 이미지와 스크립트는 absolute */}
         {/* 이미지 데이터 받아오면 바꾸기 */}
@@ -305,7 +325,7 @@ const Modal = ({ handleExit, showModal }) => {
           className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
         />
 
-        <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex justify-center items-center">
+        <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex flex-col justify-center items-center text-text-first story-basic2">
           <p className="text-text-first story-basic2">
             {/* 옛날 옛적에 아기돼지 삼형제가 살고 있었습니다.
             <br />
@@ -314,12 +334,8 @@ const Modal = ({ handleExit, showModal }) => {
             늑대는 첫째 돼지의 집에 와서 말했어요.
             <br />
             "문을 열어라!" */}
-            {pageNum == 0 ? (
-              <span>{taleStart['startScript']}</span>
-            ) : (
-              <span>{taleDetail['script']}</span>
-            )}
           </p>
+          {renderPageContent(pageNum)}
         </div>
         <div className="absolute bottom-3 left-1/2  transform -translate-x-1/2 -translate-y-1/2">
           <TaleNavigation
@@ -333,43 +349,43 @@ const Modal = ({ handleExit, showModal }) => {
   );
 };
 
-const AudioPlayer = ({ audioSrc, pageNum }) => {
-  const [isMuted, setIsMuted] = useState(false);
-  const audioRef = useRef(null);
+// const AudioPlayer = ({ audioSrc, pageNum }) => {
+//   const [isMuted, setIsMuted] = useState(false);
+//   const audioRef = useRef(null);
 
-  // 페이지가 바뀔 때마다
-  useEffect(() => {
-    audioRef.current.currentTime = 0; // 처음으로 되감기
-    audioRef.current.play(); // 자동재생
-    setIsMuted(false);
-  }, [pageNum]);
+//   // 페이지가 바뀔 때마다
+//   useEffect(() => {
+//     audioRef.current.currentTime = 0; // 처음으로 되감기
+//     audioRef.current.play(); // 자동재생
+//     setIsMuted(false);
+//   }, [pageNum]);
 
-  const handleToggleAudio = () => {
-    if (isMuted) {
-      audioRef.current.currentTime = 0; // 처음으로 되감기
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
-    }
-    setIsMuted(!isMuted);
-  };
+//   const handleToggleAudio = () => {
+//     if (isMuted) {
+//       audioRef.current.currentTime = 0; // 처음으로 되감기
+//       audioRef.current.play();
+//     } else {
+//       audioRef.current.pause();
+//     }
+//     setIsMuted(!isMuted);
+//   };
 
-  return (
-    <div className="relative">
-      <audio
-        ref={audioRef}
-        src={audioSrc}
-        autoPlay
-      />
-      <button
-        onClick={handleToggleAudio}
-        className="w-20 h-20 focus:outline-none transition-transform duration-200 hover:scale-105">
-        <img
-          src={isMuted ? '/Collection/mute.png' : '/Collection/speaker.png'}
-          alt={isMuted ? '음소거' : '재생'}
-          className="w-full h-full object-contain"
-        />
-      </button>
-    </div>
-  );
-};
+//   return (
+//     <div className="relative">
+//       <audio
+//         ref={audioRef}
+//         src={audioSrc}
+//         autoPlay
+//       />
+//       <button
+//         onClick={handleToggleAudio}
+//         className="w-20 h-20 focus:outline-none transition-transform duration-200 hover:scale-105">
+//         <img
+//           src={isMuted ? '/Collection/mute.png' : '/Collection/speaker.png'}
+//           alt={isMuted ? '음소거' : '재생'}
+//           className="w-full h-full object-contain"
+//         />
+//       </button>
+//     </div>
+//   );
+// };
