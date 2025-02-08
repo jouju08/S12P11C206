@@ -8,6 +8,7 @@ export default {
       fontFamily: {
         NPSfont: ['NPSfont', ...defaultTheme.fontFamily.sans],
         CuteFont: ['CuteFont', ...defaultTheme.fontFamily.sans],
+        WantedFont: ['Wanted Sans', ...defaultTheme.fontFamily.sans],
       },
       colors: {
         main: {
