@@ -22,6 +22,9 @@ export default {
           point2: '#FFBF78',
           strawberry: '#FFB0B0',
           success: '#A0EE6F',
+          kakao: '#FEE500',
+          authInput: '#F6F3EA',
+          authWrong: '#F6EAEA',
         },
         text: {
           first: '#222222',
