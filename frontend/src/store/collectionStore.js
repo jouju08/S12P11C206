@@ -11,7 +11,7 @@ const taleStart = {
   startScript: 'store start str',
 };
 
-const seeTaleId = 1;
+// const seeTaleId = 1;
 
 const taleDetail = {
   orderNum: 1,
@@ -29,7 +29,7 @@ const initialState = {
   accessToken: userStore.getState().accessToken,
   myTaleList: [],
   taleStart: { ...taleStart },
-  seeTaleId,
+  seeTaleId: 1,
   taleDetail: { ...taleDetail },
 };
 
@@ -68,7 +68,6 @@ const collectionActions = (set, get) => ({
 
       const { title, startVoice, startImg, startScript } = response.data.data;
 
-      // [수정 2] Immer의 draft 사용 방식 변경
       set((state) => {
         state.taleStart.title = title;
         state.taleStart.startVoice = startVoice;
