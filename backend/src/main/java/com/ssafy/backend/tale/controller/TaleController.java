@@ -43,9 +43,9 @@ public class TaleController {
 
     @GetMapping("/my-tale")
     public ApiResponse<List<TaleResponseDto>> getMyTale(Authentication authentication) {
-        User user=(User) authentication.getPrincipal();
-        Long UserId=memberRepository.findByLoginId(user.getUsername()).get().getId();
-        List<TaleResponseDto> taleList= taleService.getByUserId(UserId);
+        String loginId = authentication.getName();
+        Long userId=memberRepository.findByLoginId(loginId).get().getId();
+        List<TaleResponseDto> taleList= taleService.getByUserId(userId);
         return ApiResponse.<List<TaleResponseDto>>builder().data(taleList).build();
     }
 
