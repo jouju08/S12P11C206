@@ -22,6 +22,7 @@ const Room = lazy(() => import('@/pages/User/Room'));
 const Collection = lazy(() => import('@/pages/User/Collection'));
 const Gallery = lazy(() => import('@/pages/User/Gallery'));
 const Profile = lazy(() => import('@/pages/User/Profile'));
+const Sightseeing = lazy(() => import('@/pages/User/Sightseeing'));
 const FileTest = lazy(() => import('@/pages/FileTest'));
 const Lobby = lazy(() => import('@/pages/Room/Lobby'));
 const Share = lazy(() => import('@/pages/Room/Share'));
@@ -72,6 +73,7 @@ const router = createBrowserRouter([
           { path: 'profile', element: <Profile /> },
           { path: 'upload', element: <FileTest /> },
           { path: 'canvas', element: <CanvasTest /> },
+          { path: 'sightseeing', element: <Sightseeing /> },
         ],
       },
     ],
