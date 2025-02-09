@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TaleNavigation = ({ pageNum, setPageNum }) => {
+const TaleNavigation = ({ pageNum, setPageNum, maxNum }) => {
   return (
     <div className="flex justify-between w-[175px]">
       {/* 이전 화살표 */}
@@ -19,12 +19,12 @@ const TaleNavigation = ({ pageNum, setPageNum }) => {
 
       {/* 다음 화살표 */}
       <div
-        onClick={() => pageNum < 3 && setPageNum((prev) => prev + 1)}
-        className={`${pageNum >= 3 ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+        onClick={() => pageNum < maxNum && setPageNum((prev) => prev + 1)}
+        className={`${pageNum >= maxNum ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
         <img
           src={'/Common/arrow-left.png'}
           alt="다음 화살표"
-          className={`w-[50px] h-[50px] -scale-x-100 ${pageNum >= 3 ? 'opacity-50 grayscale' : ''}`}
+          className={`w-[50px] h-[50px] -scale-x-100 ${pageNum >= maxNum ? 'opacity-50 grayscale' : ''}`}
         />
       </div>
     </div>
