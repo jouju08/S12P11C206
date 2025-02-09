@@ -2,6 +2,7 @@ import { use, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 // import authAPI from '@/apis/auth/userAxios';
 import { useUser } from '@/store/userStore';
+import Swal from 'sweetalert2';
 
 export default function Login() {
   const [loginId, setLoginId] = useState('');
@@ -27,6 +28,31 @@ export default function Login() {
     console.log(response);
 
     //response 가져다 쓰면됨
+    
+    const status = response.data.status;
+    if(status === 'NF'){
+      // console.log('사용자 정보 틀림')
+      Swal.fire({
+        title: `<div class="flex justify-center items-center"><div class="w-[84px] h-[84px] bg-[url('/Login/exclamation-circle-solid.png')] bg-cover"></div></div>`,
+        html: `
+          <div class="text-center text-text-first auth-bold2 mb-[20px]">
+            아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.
+          </div>
+        `,
+        width: 430, // 모달의 너비
+        heightAuto: false, // 높이 자동 조정 비활성화
+        padding: '20px', // 내부 여백
+        background: '#fff', // 배경색
+        showConfirmButton: true,
+        confirmButtonText: '확인',
+        customClass: {
+          popup: 'rounded-lg shadow-lg',
+          confirmButton: 'w-[120px] h-[50px] bg-gray-700 text-white auth-regular1 px-6 py-2 rounded-md hover:bg-gray-800',
+          closeButton: 'text-gray-400 hover:text-gray-600'
+        },
+        buttonsStyling: false // 기본 버튼 스타일 제거
+      });
+    }
   };
 
   const handleKakao = (e) => {

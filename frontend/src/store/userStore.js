@@ -74,9 +74,9 @@ const userActions = (set, get) => ({
       // axios 기본 헤더에 토큰 추가
       api.defaults.headers.common['Authorization'] =
         `Bearer ${get().accessToken}`;
-      return true;
+      return response;
     } catch (error) {
-      console.error('로그인 실패:', error);
+      // console.error('로그인 실패:', error);
       return error.response || response;
     }
   },
@@ -97,7 +97,7 @@ const userActions = (set, get) => ({
       // axios 기본 헤더에 토큰 추가
       api.defaults.headers.common['Authorization'] =
         `Bearer ${get().accessToken}`;
-      return true;
+      return response;
     } catch (error) {
       console.error('로그인 실패:', error);
       throw error;
@@ -288,7 +288,7 @@ api.interceptors.response.use(
     if (response.data.status === 'SU') {
       return response;
     } else {
-      return false;
+      return response;
     }
   },
 
