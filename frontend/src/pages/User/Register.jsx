@@ -1,10 +1,10 @@
 import { use, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 // import authAPI from '@/apis/auth/userAxios';
 import { useUser } from '@/store/userStore';
 import Swal from 'sweetalert2';
 
-export default function Login() {
+export default function Register() {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
@@ -106,7 +106,7 @@ export default function Login() {
             <p className="inline-block">|</p>
             <a href="">비밀번호 찾기</a>
             <p className="inline-block">|</p>
-            <Link to='/register'>회원가입</Link>
+            <a href="">회원가입</a>
           </div>
           {/* 카카오 로그인 버튼 */}
           <div className="mt-[20px]">
