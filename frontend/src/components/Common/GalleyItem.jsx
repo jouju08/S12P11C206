@@ -7,7 +7,7 @@ export default function GalleryItem() {
   return (
     <Link
       to={'/'}
-      className="w-[210px] h-[300px] pb-0.5 bg-gray-50 border border-gray-200 flex-col justify-center items-start gap-[5px] inline-flex overflow-hidden">
+      className="w-[210px] h-[300px] pb-0.5 rounded-2xl bg-gray-50 border border-gray-200 flex-col justify-center items-start gap-[5px] inline-flex overflow-hidden">
       {/* 그림 이미지 주소 props 넣기 */}
       <img
         className="w-[210px] h-[210px] bg-center shadow-[0px_4px_4px_0px_rgba(0,0,0,0.15)]"
@@ -25,12 +25,12 @@ export default function GalleryItem() {
             그린 사람 닉네임
           </div>
         </div>
-        <div className="justify-start items-center gap-2 inline-flex overflow-hidden">
+        <div className="justify-start items-center gap-2 inline-flex overflow-hidden pl-[8px]">
           <div className="w-6 h-6">
             {/* 로그인 되어 있는 유저가 찜했는 가 안 했는가 조건부 렌더링 */}
             <img
-              src="/Common/heart.png"
-              alt="찜 아이콘"
+              src="/Common/thumb.png"
+              alt="좋아요 아이콘"
             />
           </div>
           {/* 그림의 좋아요(추천) 수 */}
