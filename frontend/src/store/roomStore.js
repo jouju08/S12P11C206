@@ -8,25 +8,28 @@ import { userStore } from './userStore';
 import { immer } from 'zustand/middleware/immer';
 
 const initialState = {
-  rooms: [],
   currentRoom: null,
   stompClient: null,
-  participants: {},
-  memberId: userStore.getState().memberId,
+  participants: [],
+  baseTaleId: '',
   isSingle: false,
+  isStart: null,
 };
 
 const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
 
 const roomActions = (set, get) => ({
+  //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
       const socket = new SockJS(import.meta.env.VITE_WS_URL);
+
+      console.log(socket);
       const stompClient = new Client({
         webSocketFactory: () => socket,
 
         onConnect: () => {
-          get().subscribeToRooms();
+          get().subscribeMain();
           resolve(stompClient);
         },
 
@@ -37,12 +40,14 @@ const roomActions = (set, get) => ({
         onDisconnect: () => console.log('Disconnected'),
         debug: (str) => console.log(str),
       });
+
       stompClient.activate();
+
       set({ stompClient });
     });
   },
 
-  subscribeToRooms: () => {
+  subscribeMain: async () => {
     const stompClient = get().stompClient;
     if (!stompClient || !stompClient.connected) {
       return;
@@ -50,19 +55,7 @@ const roomActions = (set, get) => ({
 
     stompClient.subscribe(`/topic/rooms`, (message) => {
       const newRoom = JSON.parse(message.body);
-      get().addRoom(newRoom);
-    });
-  },
-
-  subscribeToParticipants: (roomId) => {
-    const stompClient = get().stompClient;
-    if (!stompClient || !stompClient.connected) {
-      return;
-    }
-
-    stompClient.subscribe(`topic/room/${roomId}`, (message) => {
-      const participants = JSON.parse(message.body)['participants'];
-      get().setParticipants(roomId, participants);
+      get().setCurrentRoom(newRoom);
     });
   },
 
@@ -70,8 +63,8 @@ const roomActions = (set, get) => ({
     const stompClient = get().stompClient;
     if (stompClient && stompClient.connected) {
       const data = {
-        memberId: get().memberId,
-        baseTaleId: 1,
+        memberId: userStore.getState().memberId,
+        baseTaleId: get().baseTaleId,
         partiCnt: 4,
       };
 
@@ -82,9 +75,9 @@ const roomActions = (set, get) => ({
 
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          const createRoom = get().rooms[get().rooms.length - 1];
+          const createRoom = get().currentRoom;
           if (createRoom) {
-            get().joinRoom(createRoom.roomId, get().memberId);
+            get().joinRoom(createRoom.roomId, userStore.getState().memberId);
             resolve(createRoom);
           } else {
             reject(new Error('방 생성 실패'));
@@ -97,8 +90,8 @@ const roomActions = (set, get) => ({
   },
 
   joinRoom: (roomId, memberId) => {
-    const stompClient = get().stompClient;
-    const room = { roomId, memberId };
+    const { stompClient, isStart } = get();
+    const room = { roomId: roomId, memberId: memberId };
 
     if (stompClient && stompClient.connected) {
       // 참가 요청
@@ -108,14 +101,23 @@ const roomActions = (set, get) => ({
       });
 
       stompClient.subscribe(`/topic/room/${roomId}`, (message) => {
-        console.log(message);
+        //들어간 방 상태
         get().setCurrentRoom(JSON.parse(message.body));
+
+        //들어와 있는 방인원들
+        const participants = JSON.parse(message.body)['participants'];
+        // get().setParticipants(roomId, participants);
+        get().addParticipant(participants);
+      });
+
+      stompClient.subscribe(`topic/room/start/${roomId}`, (message) => {
+        const startFlag = JSON.parse(message.body);
+        set({ isStart: startFlag });
       });
 
       stompClient.subscribe(`/topic/room/leave/${roomId}`, (message) => {
         const leaveData = JSON.parse(message.body);
         if (leaveData.leaveMemberId !== memberId) {
-          console.log(`${leaveData.memberId} has left the room`);
           get().setCurrentRoom([JSON.parse(message.body)]);
         }
       });
@@ -123,47 +125,38 @@ const roomActions = (set, get) => ({
   },
 
   leaveRoom: () => {
-    const { stompClient, currentRoom, memberId } = get();
+    const { stompClient, currentRoom } = get();
 
     if (stompClient && stompClient.connected) {
-      const room = { roomId: currentRoom.roomId, leaveMemberId: memberId };
-
-      console.log(currentRoom.roomId);
-      console.log(JSON.stringify(room));
+      const room = {
+        roomId: currentRoom.roomId,
+        leaveMemberId: userStore.getState().memberId,
+      };
 
       stompClient.publish({
         destination: `/app/room/leave/${currentRoom.roomId}`,
         body: JSON.stringify(room),
       });
 
-      // stompClient.subscribe(`/topic/room/${currentRoom.roomId}`, (message) => {
-      //   const response = JSON.parse(message.body);
-      //   if (response.status === 'left') {
-      //     console.log(`Member ${memberId} has left the room`);
-      //     // 퇴장 성공 시 상태 업데이트
-      //     set({ currentRoom: null, participants: [] });
-      //   } else {
-      //     console.log('Failed to leave room');
-      //   }
-      // });
-
       stompClient.unsubscribe(`/topic/room/${currentRoom.roomId}`);
-      set({ currentRoom: null, participants: [] });
+      stompClient.unsubscribe(`/topic/room/leave/${currentRoom.roomId}`);
+      stompClient.unsubscribe(`/topci/room/start/${currentRoom.roomId}`);
+
+      set({
+        currentRoom: null,
+        participants: [],
+        participants: {},
+        baseTaleId: '',
+        isSingle: false,
+        isStart: null,
+      });
     }
   },
 
-  setRooms: (rooms) => set({ rooms }),
   setCurrentRoom: (currentRoom) => set({ currentRoom }),
-  setParticipants: (roomId, users) =>
-    set((state) => ({
-      participants: { ...state.participants, [roomId]: users },
-    })),
 
-  addRoom: (room) => set((state) => ({ rooms: [...state.rooms, room] })),
-  removeRoom: (roomId) =>
-    set((state) => ({
-      rooms: state.rooms.filter((room) => room.id !== roomId),
-    })),
+  // setParticipants: (roomId, users) =>
+  //   set((state) => ({ participants: [...state.participants, participant] })),
 
   addParticipant: (participant) =>
     set((state) => ({ participants: [...state.participants, participant] })),
@@ -176,6 +169,10 @@ const roomActions = (set, get) => ({
     })),
 
   setIsSingle: (value) => set((state) => ({ ...state, isSingle: value })),
+  setBaseTaleId: (id) =>
+    set((state) => ({
+      baseTaleId: state.baseTaleId == id ? '' : id,
+    })),
 });
 
 const useRoomStore = create(
@@ -190,56 +187,46 @@ const useRoomStore = create(
 );
 
 export const useTaleRoom = () => {
-  const rooms = useRoomStore((state) => state.rooms, shallow);
   const currentRoom = useRoomStore((state) => state.currentRoom);
   const participants = useRoomStore((state) => state.participants, shallow);
-  const memberId = useRoomStore((state) => state.memberId);
+  const baseTaleId = useRoomStore((state) => state.baseTaleId);
   const isSingle = useRoomStore((state) => state.isSingle);
 
-  const setRooms = useRoomStore((state) => state.setRooms);
   const setCurrentRoom = useRoomStore((state) => state.setCurrentRoom);
   const setParticipants = useRoomStore((state) => state.setParticipants);
 
-  const addRoom = useRoomStore((state) => state.addRoom);
-  const removeRoom = useRoomStore((state) => state.removeRoom);
   const addParticipant = useRoomStore((state) => state.addParticipant);
   const removeParticipant = useRoomStore((state) => state.removeParticipant);
 
   const connect = useRoomStore((state) => state.connect);
+  const subscribeMain = useRoomStore((state) => state.subscribeMain);
   const createRoom = useRoomStore((state) => state.createRoom);
   const joinRoom = useRoomStore((state) => state.joinRoom);
   const leaveRoom = useRoomStore((state) => state.leaveRoom);
 
-  const subscribeToRooms = useRoomStore((state) => state.subscribeToRooms);
-  const subscribeToParticipants = useRoomStore(
-    (state) => state.subscribeToParticipants
-  );
-
   const setIsSingle = useRoomStore((state) => state.setIsSingle);
 
+  const setBaseTaleId = useRoomStore((state) => state.setBaseTaleId);
+
   return {
-    rooms,
     currentRoom,
     participants,
-    memberId,
+    baseTaleId,
     isSingle,
 
-    setRooms,
     setCurrentRoom,
     setParticipants,
-    addRoom,
-    removeRoom,
+
     addParticipant,
     removeParticipant,
     connect,
+    subscribeMain,
     createRoom,
     joinRoom,
     leaveRoom,
 
     setIsSingle,
-
-    subscribeToRooms,
-    subscribeToParticipants,
+    setBaseTaleId,
   };
 };
 

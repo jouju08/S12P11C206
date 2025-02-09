@@ -87,6 +87,7 @@ const TaleSentenceDrawing = () => {
         return;
       }
 
+      //heartbeat
       canvasRef.current.clearCanvas();
 
       try {
@@ -132,23 +133,6 @@ const TaleSentenceDrawing = () => {
       }
     };
   }, [viduRoom]);
-
-  // useEffect(() => {
-  //   if (!canvasRef.current) return;
-  //   const ctx = canvasRef.current.canvas.getContext('2d');
-  //   ctx.beginPath();
-  //   ctx.arc(
-  //     canvasRef.current.canvas.width / 2,
-  //     canvasRef.current.canvas.height / 2,
-  //     50,
-  //     0,
-  //     2 * Math.PI
-  //   );
-  //   ctx.fillStyle = 'blue';
-  //   ctx.fill();
-
-  //   console.log('first');
-  // }, [canvasRef.current]);
 
   // 컴포넌트 마운트 시 타이머 시작
   useEffect(() => {

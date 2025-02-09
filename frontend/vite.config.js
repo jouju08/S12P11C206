@@ -17,16 +17,10 @@ export default defineConfig({
         secure: false,
       },
 
-      // '/ws': {
-      //   target: 'http://localhost:8080/ws',
-      //   changeOrigin: true,
-      //   ws: true,
-      //   // rewrite: (path) => path.replace(/^\/sock/, ''),
-      // },
-
-      '/vidu': {
-        target: 'ws://localhost:7880',
+      '/ws': {
+        target: 'http://localhost:8080/ws',
         changeOrigin: true,
+        ws: true,
       },
     },
   },

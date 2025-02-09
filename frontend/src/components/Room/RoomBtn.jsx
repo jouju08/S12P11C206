@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TaleRoomHeader from '@/common/Header/TaleRoomHeader';
 
 // sweetAlert2 with react
@@ -10,7 +10,8 @@ import { useNavigate } from 'react-router-dom';
 export default function RoomBtn({ isSingle, location, children }) {
   // 동화방 click 이벤트 발생 시, 모달 띄움
 
-  const { setCurrentRoom, setIsSingle } = useTaleRoom();
+  const { connect, createRoom, setCurrentRoom, setIsSingle, setBaseTaleId } =
+    useTaleRoom();
 
   // const showGameModal = () => {
   //   setIsSingle(isSingle);
@@ -36,14 +37,27 @@ export default function RoomBtn({ isSingle, location, children }) {
 
   const navigate = useNavigate();
 
-  const handleTalePlay = () => {
+  //싱글모드 여부
+  const SingleTalePlay = () => {
     setIsSingle(isSingle);
     navigate('/tale/taleStart');
   };
 
+  //멀티 방 만들기
+  const multiTalePlay = async () => {
+    setIsSingle(isSingle);
+    await connect();
+
+    await createRoom();
+
+    navigate('/tale/waiting');
+  };
+
+  const handleRoom = async () => {};
+
   return (
     <div
-      onClick={() => handleTalePlay()}
+      onClick={() => (isSingle ? SingleTalePlay() : multiTalePlay())}
       className="cursor-pointer h-[45px] px-3 py-1 bg-main-btn rounded-[50px] border border-gray-200 justify-center items-center gap-1.5 inline-flex overflow-hidden hover:bg-main-point transition-all ease-linear">
       <div className="w-8 h-8 bg-white/50 rounded-[50px]">
         <img

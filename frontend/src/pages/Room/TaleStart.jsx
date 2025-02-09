@@ -15,7 +15,7 @@ const ParticipationList = [
 
 const TaleStart = () => {
   const { setBaseTale, setRoomId, setSubscribeTale, roomId } = useTalePlay();
-  const { connect, createRoom } = useTaleRoom();
+  const { connect, createRoom, setBaseTaleId } = useTaleRoom();
   const { getTokenByAxios } = useViduHook();
 
   useEffect(() => {

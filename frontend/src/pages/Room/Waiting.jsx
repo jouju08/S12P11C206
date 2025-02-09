@@ -30,10 +30,7 @@ const dummyParticipants = [
 ];
 
 export default function Waiting() {
-  // memberId가 호스트 번호?
-  const { participants, memberId } = useTaleRoom();
-  // 여기 memberId는 로그인한 사람 id? 겹치네..
-  // const {memberId} = userStore();
+  const { participants } = useTaleRoom();
 
   const navigate = useNavigate();
 
@@ -55,9 +52,7 @@ export default function Waiting() {
         className="w-[530px] h-[232px] pl-[30px] absolute top-10 right-16 flex flex-col justify-center items-center">
         <div className="h-fit flex-col justify-center items-center gap-[20px] flex overflow-hidden">
           <div className="text-text-first font-CuteFont text-[25px] text-center">
-            <span className="text-main-carrot">
-              {4 - dummyParticipants.length}
-            </span>{' '}
+            <span className="text-main-carrot">{4 - participants.length}</span>
             명이 오면 시작할 수 있어 <br /> 조금만 더 기다려보자~
           </div>
           {/* 내가 방장이라면 */}
@@ -88,17 +83,17 @@ export default function Waiting() {
       <div className="w-full h-fit flex justify-between items-center mt-[340px] px-[25px]">
         {/* 참여자 명단 */}
         <div className="w-[410px] h-[300px] relative flex flex-col gap-3">
-          {dummyParticipants.map((item, idx) => (
+          {participants.map((item, idx) => (
             <div
               key={idx}
               className="w-full h-[60px] flex items-center justify-end gap-2">
               {/* 왼쪽에 방장은 모두 떠야하고, 내보내기는 방장만 보여야함 */}
               {item.isHost ? (
+                // 내 로그인 정보와 이 방의 호스트 정보가 같다면
                 <div className="w-fit h-[32px] px-[10px] py-1 bg-main-success rounded-2xl justify-center items-center text-center text-text-first service-regular3">
                   방장
                 </div>
               ) : (
-                // 내 로그인 정보와 이 방의 호스트 정보가 같다면
                 <GetOut />
               )}
 

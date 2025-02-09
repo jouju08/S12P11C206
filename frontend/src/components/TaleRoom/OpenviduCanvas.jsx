@@ -27,10 +27,7 @@ export default function OpenviduCanvas({
       </div>
       <video
         ref={videoElement}
-        id={track.sid}
-        autoPlay
-        playsInline
-        muted></video>
+        id={track.sid}></video>
     </div>
   );
 }
