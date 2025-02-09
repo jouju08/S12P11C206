@@ -1,8 +1,14 @@
 package com.ssafy.backend.member.controller;
 
 import com.ssafy.backend.common.ApiResponse;
+<<<<<<< backend/src/main/java/com/ssafy/backend/member/controller/MemberController.java
+import com.ssafy.backend.db.entity.Member;
+import com.ssafy.backend.db.entity.Tale;
+import com.ssafy.backend.dto.MemberDto;
+=======
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.BadRequestException;
+>>>>>>> backend/src/main/java/com/ssafy/backend/member/controller/MemberController.java
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
 import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
@@ -83,6 +89,13 @@ public class MemberController {
                 .data(null)
                 .build();
     }
+
+    @GetMapping("/all")
+    public ApiResponse<List<MemberDto>> getMembers() {
+        List<MemberDto> allMembers=memberService.getAllMembers();
+        return ApiResponse.<List<MemberDto>>builder().data(allMembers).build();
+    }
+
 
     private String extractLoginId(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
