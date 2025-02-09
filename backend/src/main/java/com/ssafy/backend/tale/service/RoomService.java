@@ -84,8 +84,9 @@ public class RoomService {
                 .hostProfileImg(creator.getProfileImg())
                 .taleTitle(baseTale.get().getTitle())
                 .taleTitleImg(baseTale.get().getTitleImg())
-                .participantsCnt(room.getMaxParticipantsCnt())
+                .maxParticipantsCnt(room.getMaxParticipantsCnt())
                 .participantsCnt(room.getParticipants().size())
+                .baseTaleId(baseTale.get().getId())
                 .build());
         ops.set("tale-roomList", roomList);
 
