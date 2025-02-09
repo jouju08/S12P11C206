@@ -2,6 +2,7 @@ import React, { Fragment, useState } from 'react';
 import Participant from '@/components/Waiting/Participant';
 import { useTaleRoom } from '@/store/roomStore';
 import { userStore } from '@/store/userStore';
+import { useNavigate } from 'react-router-dom';
 
 // 더미 데이터
 const dummyParticipants = [
@@ -21,7 +22,7 @@ const dummyParticipants = [
   },
   {
     id: 3,
-    isFriend: 'no', //yet도 해볼것
+    isFriend: 'pending', //pending도 해볼것
     nickname: 'test3',
     profileImg: '/Main/profile-img.png',
     isHost: false,
@@ -33,6 +34,12 @@ export default function Waiting() {
   const { participants, memberId } = useTaleRoom();
   // 여기 memberId는 로그인한 사람 id? 겹치네..
   // const {memberId} = userStore();
+
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/tale/taleStart', { replace: true, relative: 'path' });
+  };
 
   return (
     <div className="w-[1021px] h-[668px] relative">
@@ -85,6 +92,7 @@ export default function Waiting() {
             <div
               key={idx}
               className="w-full h-[60px] flex items-center justify-end gap-2">
+              {/* 왼쪽에 방장은 모두 떠야하고, 내보내기는 방장만 보여야함 */}
               {item.isHost ? (
                 <div className="w-fit h-[32px] px-[10px] py-1 bg-main-success rounded-2xl justify-center items-center text-center text-text-first service-regular3">
                   방장
@@ -94,6 +102,7 @@ export default function Waiting() {
                 <GetOut />
               )}
 
+              {/* 오른쪽 참여자 명단 부분 */}
               <Participant item={item} />
             </div>
           ))}
@@ -127,7 +136,9 @@ export default function Waiting() {
 
           {/* 4명 다 모이면 출발 버튼 */}
           {/* 로그인 되어있는 내가 방장이라면 */}
-          <button className="h-16 px-4 py-3 absolute bottom-6 right-6 bg-white rounded-[64px] border-4 border-main-btn justify-start items-center gap-2.5 inline-flex overflow-hidden">
+          <button
+            onClick={handleClick}
+            className="h-16 px-4 py-3 absolute bottom-6 right-6 bg-white rounded-[64px] border-4 border-main-btn justify-start items-center gap-2.5 inline-flex overflow-hidden">
             <img
               src="/Waiting/play.png"
               alt="출발버튼"
