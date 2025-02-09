@@ -10,6 +10,7 @@ import { create, useStore } from 'zustand';
 import { devtools, persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
 import authAPI from '@/apis/auth/userAxios';
+import { immer } from 'zustand/middleware/immer';
 
 const api = axios.create({
   baseURL: '/api',

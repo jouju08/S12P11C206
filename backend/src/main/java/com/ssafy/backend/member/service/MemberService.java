@@ -47,7 +47,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateMember(String LoginId, UpdateMemberRequestDTO updateMemberRequestDTO) {
+    public GetMemberResponseDTO updateMember(String LoginId, UpdateMemberRequestDTO updateMemberRequestDTO) {
         Member member = memberRepository.getMemberByLoginIdEquals(LoginId)
                 .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + LoginId));
 
@@ -55,13 +55,19 @@ public class MemberService {
             member.setNickname(updateMemberRequestDTO.getNickname());
         }
 
-        if (updateMemberRequestDTO.getEmail() != null) {
-            member.setEmail(updateMemberRequestDTO.getEmail());
-        }
-
         if (updateMemberRequestDTO.getBirth() != null) {
             member.setBirth(updateMemberRequestDTO.getBirth());
         }
+
+        return GetMemberResponseDTO.builder()
+                .id(member.getId())
+                .loginId(member.getLoginId())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .loginType(member.getLoginType())
+                .birth(member.getBirth())
+                .profileImg(member.getProfileImg())
+                .build();
     }
 
     @Transactional

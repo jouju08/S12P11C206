@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ParentNav from '@/components/Parent/common/ParentNav';
 import Edit from '@/components/Parent/Edit';
 import Bookcase from '@/components/Parent/Bookcase'
 import Exhibition from '@/components/Parent/Exhibition'
+import { useProfile } from '@/store/parentStore';
 
 export default function Profile() {
 
   // 선택한 탭 관리
   const [selectedComponent, setSelectedComponent] = useState('edit');
+  
+  const { fetchProfile, nickname, loginId } = useProfile();
+
+  useEffect(() => {
+    fetchProfile(); 
+  }, []);
+
 
   const COMPONENTS = {
     edit: <Edit />,
@@ -19,8 +27,8 @@ export default function Profile() {
     <div className="flex">
       {/* ParentNav에서 탭 변경 핸들러 전달 */}
       <ParentNav
-        nickname="닉네임"
-        loginId="아이디"
+        nickname={nickname}
+        loginId={loginId}
         selectedComponent={selectedComponent} // 현재 선택된 탭 전달
         onTabClick={(tab) => setSelectedComponent(tab)}
       />

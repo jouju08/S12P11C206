@@ -141,7 +141,7 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
-        <div className="h-[270px] text-center">
+        <div className="h-[300px] flex items-center text-center">
           {taleData ? (
             <Swiper
               slidesPerView={3}
