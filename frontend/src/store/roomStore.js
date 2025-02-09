@@ -13,7 +13,7 @@ const initialState = {
   stompClient: null,
   participants: {},
   memberId: userStore.getState().memberId,
-  isSingle: true,
+  isSingle: false,
 };
 
 const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
@@ -21,13 +21,11 @@ const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
 const roomActions = (set, get) => ({
   connect: async () => {
     return new Promise((resolve, reject) => {
-      console.log(get().memberId);
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL);
       const stompClient = new Client({
         webSocketFactory: () => socket,
 
         onConnect: () => {
-          console.log('Socket connected');
           get().subscribeToRooms();
           resolve(stompClient);
         },
