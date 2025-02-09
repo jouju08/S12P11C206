@@ -9,7 +9,8 @@ import app.routers as routers
 import app.core.util as util
 
 app = FastAPI(title="MyFairy AI API")
-util.LogConfig(active_log_file=True, file_name="info.log", mode="a")
+util.LogConfig(active_log_file=True, file_name="info.log",
+               mode="a", string_cut_mode=False)
 
 
 @app.get("/")

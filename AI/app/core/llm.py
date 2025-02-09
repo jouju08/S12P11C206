@@ -150,6 +150,7 @@ def generate_tale_image(title: str):
     response = chain.invoke({"title": title})
     prompt_set = PromptSet(prompt=response["Prompt"],
                            negativePrompt=response["Negative Prompt"])
+    print("prompt_set: ", prompt_set)
     picture_service.post_novita_api(
         prompt_set, picture_service.GEN_TALE_IMG_WEBHOOK)
 

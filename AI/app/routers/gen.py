@@ -53,7 +53,7 @@ def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.G
     )
 
 
-@router.post("/upgrade_handpicture", description="손그림에서 그림을 생성하는 API", response_model=response_dto.ApiResponse[str])
+@router.post("/upgrade-handpicture", description="손그림에서 그림을 생성하는 API", response_model=response_dto.ApiResponse[str])
 @util.logger
 async def upgrade_handpicture(roomId: int = Form(...),
                               order: int = Form(...),
