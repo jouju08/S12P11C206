@@ -23,8 +23,10 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response =  await login({ loginId, password });
-    console.log(response)
+    const response = await login({ loginId, password });
+    console.log(response);
+
+    //response 가져다 쓰면됨
   };
 
   const handleKakao = (e) => {
@@ -32,43 +34,72 @@ export default function Login() {
     window.location.href = KAKAO_AUTH_URL;
   };
 
-
   return (
-    <div className="w-[1024px] h-[605px] mt-[30px] flex bg-[url('/Login/login-background.png')] bg-cover bg-bottom bg-no-repeat" style={{ backgroundSize: '100%' }}>
+    <div
+      className="w-[1024px] h-[605px] mt-[30px] flex bg-[url('/Login/login-background.png')] bg-cover bg-bottom bg-no-repeat"
+      style={{ backgroundSize: '100%' }}>
       {/* 왼쪽쪽 */}
       <div className="w-[18.75%]">
-        <div className="ml-[80px] w-[20px] h-[20px] bg-[url('/Login/back-button.png')] bg-cover bg-left bg-right-[30px] bg-no-repeat hover:cursor-pointer" style={{ backgroundSize: '20px'}}></div>
+        <div
+          className="ml-[80px] w-[20px] h-[20px] bg-[url('/Login/back-button.png')] bg-cover bg-left bg-right-[30px] bg-no-repeat hover:cursor-pointer"
+          style={{ backgroundSize: '20px' }}></div>
       </div>
       {/* 센터터 */}
       <div className="w-[62.5%]">
-        <div className='flex flex-col items-center w-[540] h-[538px] bg-white rounded-[40px]'>
+        <div className="flex flex-col items-center w-[540] h-[538px] bg-white rounded-[40px]">
           {/* 로그인 텍스트 */}
-          <div className='text-text-first auth-bold1 mt-[48px]' >로그인</div>
+          <div className="text-text-first auth-bold1 mt-[48px]">로그인</div>
           {/* 아이디 비번 입력칸 */}
-          <div className='flex flex-col space-y-[10px] mt-[30px]'>
-            <input type="email" id="login-email" onChange={(e) => setLoginId(e.target.value)} className='w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput' placeholder='아이디' />
-            <input type="password" id="login-password" onChange={(e) => setPassword(e.target.value)}  className='w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput' placeholder='비밀번호' />
+          <div className="flex flex-col space-y-[10px] mt-[30px]">
+            <input
+              type="email"
+              id="login-email"
+              onChange={(e) => setLoginId(e.target.value)}
+              className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
+              placeholder="아이디"
+            />
+            <input
+              type="password"
+              id="login-password"
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
+              placeholder="비밀번호"
+            />
           </div>
           {/* 로그인 버튼 */}
-          <div className='mt-[30px]'>
-            <button onClick={handleSubmit} className='w-[445px] h-[65px]  bg-main-btn rounded-[30px] text-text-first auth-regular1' >로그인 하기</button>
+          <div className="mt-[30px]">
+            <button
+              onClick={handleSubmit}
+              className="w-[445px] h-[65px]  bg-main-btn rounded-[30px] text-text-first auth-regular1">
+              로그인 하기
+            </button>
           </div>
           {/* 각종 링크 */}
-          <div className='mt-[20px] space-x-[10px] text-text-second auth-regular2'>
-            <a href="" >아이디 찾기</a><p className='inline-block'>|</p>
-            <a href="" >비밀번호 찾기</a><p className='inline-block'>|</p>
-            <a href="" >회원가입</a>
+          <div className="mt-[20px] space-x-[10px] text-text-second auth-regular2">
+            <a href="">아이디 찾기</a>
+            <p className="inline-block">|</p>
+            <a href="">비밀번호 찾기</a>
+            <p className="inline-block">|</p>
+            <a href="">회원가입</a>
           </div>
           {/* 카카오 로그인 버튼 */}
-          <div className='mt-[20px]'>
-            <button onClick={handleKakao} className="w-[445px] h-[65px] rounded-[30px] text-text-first auth-regular1 bg-main-kakao bg-[url('/Login/kakao-symbol.png')] bg-cover bg-left bg-right-[30px] bg-no-repeat" style={{ backgroundSize: '40px', backgroundPosition: '30px center' }} onClick={handleKakao}>카카오로 로그인 하기</button>
+          <div className="mt-[20px]">
+            <button
+              onClick={handleKakao}
+              className="w-[445px] h-[65px] rounded-[30px] text-text-first auth-regular1 bg-main-kakao bg-[url('/Login/kakao-symbol.png')] bg-cover bg-left bg-right-[30px] bg-no-repeat"
+              style={{
+                backgroundSize: '40px',
+                backgroundPosition: '30px center',
+              }}
+              onClick={handleKakao}>
+              카카오로 로그인 하기
+            </button>
           </div>
         </div>
       </div>
       {/* 오른쪽 공란 */}
       <div className="w-[18.75%]"></div>
     </div>
-
   );
   // return (
   //   <div className="flex h-screen w-full gap-3 bg-gray-500/65">

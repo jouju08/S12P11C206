@@ -57,8 +57,9 @@ const initialState = {
 
 const userActions = (set, get) => ({
   login: async (credentials) => {
+    let response;
     try {
-      const response = await authAPI.login(credentials);
+      response = await authAPI.login(credentials);
       const { member, tokens } = response.data['data'];
 
       set({
@@ -76,7 +77,7 @@ const userActions = (set, get) => ({
       return true;
     } catch (error) {
       console.error('로그인 실패:', error);
-      throw error;
+      return error.response || response;
     }
   },
 
