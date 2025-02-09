@@ -11,6 +11,7 @@ import {
   RouterProvider,
   useLocation,
 } from 'react-router-dom';
+
 import KakaoCallback from '@/components/kakao/KakaoCallback';
 import DrawingBoard from '@/components/Common/DrawingBoard';
 import CanvasTest from '@/pages/CanvasTest';
@@ -31,6 +32,7 @@ const TaleSentenceDrawing = lazy(
   () => import('@/pages/Room/TaleSentenceDrawing')
 );
 const HotTale = lazy(() => import('@/pages/Room/HotTale'));
+const Waiting = lazy(() => import('@/pages/Room/Waiting'));
 
 //인증된 사용자
 const ProtectedLayout = () => {
@@ -84,6 +86,7 @@ const router = createBrowserRouter([
         children: [
           { path: 'lobby', element: <Lobby /> },
           { path: 'share', element: <Share /> },
+          { path: 'waiting', element: <Waiting /> },
           { path: 'taleStart', element: <TaleStart /> },
           { path: 'taleKeyword', element: <TaleKeyword /> },
           { path: 'taleSentenceDrawing', element: <TaleSentenceDrawing /> },

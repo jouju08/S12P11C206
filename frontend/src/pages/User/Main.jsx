@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { userStore } from '@/store/userStore';
+import { api, userStore } from '@/store/userStore';
 
 import NavMenu from '@/components/Main/NavMenu';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
@@ -45,7 +45,7 @@ export default function Main() {
     // 백엔드 API 호출 함수
     async function fetchData() {
       try {
-        const response = await axios.get('/api/tale/rooms');
+        const response = await api.get('/tale/rooms');
         console.log('📌 가져온 데이터:', response.data); // 콘솔 출력
         setTaleData(response.data.data); // 상태에 저장
         // console.log(taleData);
@@ -141,7 +141,7 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
-        <div className="h-[270px] text-center">
+        <div className="h-[300px] flex items-center text-center">
           {taleData ? (
             <Swiper
               slidesPerView={3}

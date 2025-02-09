@@ -10,6 +10,7 @@ import { create, useStore } from 'zustand';
 import { devtools, persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
 import authAPI from '@/apis/auth/userAxios';
+import { immer } from 'zustand/middleware/immer';
 
 const api = axios.create({
   baseURL: '/api',
@@ -158,9 +159,10 @@ const userActions = (set, get) => ({
         isRefreshing = false;
         onRefreshed(data.accessToken);
 
-        console.log('[refreshAccessToken] 새 accessToken 설정 완료:');
-
-        set({ accessToken: data.accessToken });
+        console.log(
+          '[refreshAccessToken] 새 accessToken 설정 완료:',
+          data.accessToken
+        );
 
         return data.accessToken;
       } else {
@@ -189,6 +191,7 @@ const userActions = (set, get) => ({
   fetchUser: async () => {
     const { accessToken, refreshToken, refreshAccessToken, logout } = get();
 
+    console.log('fetch');
     if (!accessToken) {
       console.log('[fetchUser] accessToken 없음 → refreshToken 확인');
 
@@ -263,18 +266,16 @@ export { userStore };
 
 api.interceptors.request.use(
   (request) => {
-    const accessToken = userStore.getState().accessToken;
+    const { accessToken } = userStore.getState();
 
-    console.log(api.defaults.headers.common['Authorization']);
-
-    if (!isTokenExpired(accessToken)) {
-      console.log(accessToken);
-      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-      return request;
-    } else {
+    if (!isTokenExpired(accessToken) && accessToken) {
+      request.headers['Authorization'] = `Bearer ${accessToken}`;
+      console.log(request);
       return request;
     }
+    return request;
   },
+
   (error) => {
     console.log(error);
     return error;
@@ -306,6 +307,8 @@ api.interceptors.response.use(
         delete api.defaults.headers.common['Authorization'];
 
         await refreshAccessToken(); //재발급
+
+        console.log(userStore.getState().accessToken);
 
         originalRequest.headers['Authorization'] =
           `Bearer ${userStore.getState().accessToken}`;

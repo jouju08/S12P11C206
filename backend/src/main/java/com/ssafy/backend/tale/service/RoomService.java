@@ -30,7 +30,6 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-//@Transactional(readOnly = true)
 public class RoomService {
 
     private final BaseTaleRepository baseTaleRepository;
@@ -62,7 +61,7 @@ public class RoomService {
         Room room = new Room();
 
         Member creator = memberRepository.findById(makeRoomDto.getMemberId()).get();
-        creator.setPassword(null);      // 패스워드 주석처리
+//        creator.setPassword(null);      // 패스워드 주석처리 -> 트랜잭셔널 상태에서 비번 적용이 되므로 따로 처리.
         room.setRoomId(tale.getId());
         room.setBaseTaleId(makeRoomDto.getBaseTaleId());
         room.setMemberId(creatorId);
@@ -85,8 +84,9 @@ public class RoomService {
                 .hostProfileImg(creator.getProfileImg())
                 .taleTitle(baseTale.get().getTitle())
                 .taleTitleImg(baseTale.get().getTitleImg())
-                .participantsCnt(room.getMaxParticipantsCnt())
+                .maxParticipantsCnt(room.getMaxParticipantsCnt())
                 .participantsCnt(room.getParticipants().size())
+                .baseTaleId(baseTale.get().getId())
                 .build());
         ops.set("tale-roomList", roomList);
 
