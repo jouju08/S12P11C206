@@ -14,6 +14,7 @@ import { immer } from 'zustand/middleware/immer';
 
 const api = axios.create({
   baseURL: '/api',
+  withCredentials: true,
 });
 
 let isRefreshing = false;

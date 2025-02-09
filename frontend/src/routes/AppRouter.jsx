@@ -62,6 +62,7 @@ const router = createBrowserRouter([
       { index: true, element: <Hero /> },
       { path: 'login', element: <Login /> },
       { path: 'auth/kakao/callback', element: <KakaoCallback /> },
+      { path: 'friends', element: <Friend /> },
       {
         element: <ProtectedLayout />, // 인증된 사용자
         children: [
