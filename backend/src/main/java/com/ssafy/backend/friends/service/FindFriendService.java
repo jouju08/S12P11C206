@@ -37,6 +37,7 @@ public class FindFriendService {
         long myMemberId = getMemberId(myLoginId);
         // 내 친구 ID 목록 가져오기
         List<Long> friendIds = friendRepository.findFriendById(myMemberId);
+        System.out.println(friendIds);
         // 친구 ID 목록으로 친구 정보를 일괄 조회
         return memberRepository.findAllById(friendIds)
                 .stream()
@@ -49,6 +50,24 @@ public class FindFriendService {
         return memberRepository.findByLoginId(loginId)
                 .map(Member::getId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found with loginId: " + loginId));
+    }
+
+    public boolean deleteFriend(String loginId, String friendId) {
+        Long userID = getMemberId(loginId);
+        Long friendID = getMemberId(friendId);
+        Friend friend1=friendRepository.findByUserIdAndFriendId(userID, friendID);
+        Friend friend2=friendRepository.findByUserIdAndFriendId(friendID,userID);
+        System.out.println(friendID);
+        System.out.println(userID);
+        if(friend1==null||friend2==null) {
+            System.out.println(friend1+" "+friend2);
+            return false;
+        }
+        friendRepository.delete(friend1);
+        friendRepository.delete(friend2);
+
+
+        return true;
     }
 }
 

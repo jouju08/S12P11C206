@@ -3,6 +3,7 @@ package com.ssafy.backend.member.controller;
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.entity.Tale;
+import com.ssafy.backend.dto.MemberDto;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
 import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
@@ -87,6 +88,12 @@ public class MemberController {
         return ApiResponse.<Void>builder()
                 .data(null)
                 .build();
+    }
+
+    @GetMapping("/all")
+    public ApiResponse<List<MemberDto>> getMembers() {
+        List<MemberDto> allMembers=memberService.getAllMembers();
+        return ApiResponse.<List<MemberDto>>builder().data(allMembers).build();
     }
 
 }

@@ -4,6 +4,7 @@ import com.ssafy.backend.common.S3Service;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
+import com.ssafy.backend.dto.MemberDto;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
@@ -15,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -121,5 +124,12 @@ public class MemberService {
             throw new BadRequestException(e.getMessage());
         }
 
+    }
+    public List<MemberDto> getAllMembers(){
+        List<MemberDto> members = memberRepository.findAll()
+                .stream()
+                .map(member -> new MemberDto(member.getLoginId(), member.getNickname(), member.getProfileImg()))
+                .collect(Collectors.toList());
+        return members;
     }
 }
