@@ -5,6 +5,7 @@ import functools
 import inspect
 import json
 import re
+import asyncio
 import datetime
 from fastapi import Request, UploadFile
 from pydantic import BaseModel
@@ -26,6 +27,19 @@ def delete_file(file_path: str):
     파일을 삭제하는 함수
     """
     os.remove(file_path)
+
+
+def parse_request(request):
+    """
+    Request를 파싱하는 함수
+    """
+    body_str = request.decode("utf-8")  # 문자열 변환
+    try:
+        parsed_json = json.loads(body_str)  # JSON 변환
+        return parsed_json
+    except json.JSONDecodeError:
+        print("Received Non-JSON Body:", body_str)  # JSON이 아니면 그냥 출력
+        return body_str
 
 
 CUT_MODE = True
@@ -84,7 +98,7 @@ def pretty_print_dict(d, indent=0, base_space_cnt=2):
     return "\n".join(lines)
 
 
-async def print_value(value):
+def print_value(value):
     """
     함수의 파라미터 이름과 인자값을 출력하는 함수
     """
@@ -93,12 +107,7 @@ async def print_value(value):
         print("None")
         return
 
-    if isinstance(value, Request):
-        body_byte = await value.body()
-        body = json.loads(body_byte.decode("utf-8"))
-
-        print(pretty_print_dict(body))
-    elif isinstance(value, BaseModel):
+    if isinstance(value, BaseModel):
         print(pretty_print_dict(value.model_dump()))
     elif isinstance(value, dict):
         print(pretty_print_dict(value))
@@ -114,41 +123,69 @@ async def print_value(value):
 
 
 def logger(func):
-    @functools.wraps(func)
-    async def wrapper(*args, **kwargs):
-        # 함수의 파라미터 이름과 인자값 매핑하기 위해 inspect.signature 사용
-        sig = inspect.signature(func)
-        bound = sig.bind(*args, **kwargs)
-        bound.apply_defaults()  # 기본값이 있는 경우에도 매핑됨
+    # 함수가 코루틴(비동기 함수)인지 확인
+    if inspect.iscoroutinefunction(func):
+        @functools.wraps(func)
+        async def async_wrapper(*args, **kwargs):
+            sig = inspect.signature(func)
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
 
-        # 함수 이름 출력
-        print_currunt_time(append_message=f"{func.__name__}() is called.")
-        print("input")
-        if not bound.arguments:
-            print("No input")
+            print_currunt_time(append_message=f"{func.__name__}() is called.")
+            print("input")
+            if not bound.arguments:
+                print("No input")
+            for param_name, value in bound.arguments.items():
+                print(f"{param_name}:")
+                if isinstance(value, Request):
+                    body_byte = await value.body()
+                    body = json.loads(body_byte.decode("utf-8"))
 
-        for param_name, value in bound.arguments.items():
-            print(param_name)
-            await print_value(value)
+                    print(pretty_print_dict(body))
+                else:
+                    print_value(value)
 
-        print(f"{func.__name__} start ****************************************")
-        start_time = time.time_ns()
-        # 함수 실행 (비동기 함수인지 확인)
-        if inspect.iscoroutinefunction(func):
+            print(f"{func.__name__} start ****************************************")
+            start_time = time.time_ns()
+            # 비동기 함수 호출
             result = await func(*args, **kwargs)
-        else:
+            end_time = time.time_ns()
+            elapsed_time_seconds = (end_time - start_time) / 1_000_000_000
+            print(f"Time: {elapsed_time_seconds:.2f} seconds")
+            print(f"{func.__name__} end ******************************************")
+
+            print("output")
+            print_value(result)
+            return result
+        return async_wrapper
+    else:
+        @functools.wraps(func)
+        def sync_wrapper(*args, **kwargs):
+            sig = inspect.signature(func)
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+
+            print_currunt_time(append_message=f"{func.__name__}() is called.")
+            print("input")
+            if not bound.arguments:
+                print("No input")
+            for param_name, value in bound.arguments.items():
+                print(f"{param_name}:")
+                # 동기 컨텍스트에서 비동기 함수 호출
+                print_value(value)
+
+            print(f"{func.__name__} start ****************************************")
+            start_time = time.time_ns()
             result = func(*args, **kwargs)
-        end_time = time.time_ns()
-        elapsed_time_seconds = (end_time - start_time) / 1_000_000_000
-        print(f"Time: {elapsed_time_seconds:.2f} seconds")
-        print(f"{func.__name__} end ******************************************")
+            end_time = time.time_ns()
+            elapsed_time_seconds = (end_time - start_time) / 1_000_000_000
+            print(f"Time: {elapsed_time_seconds:.2f} seconds")
+            print(f"{func.__name__} end ******************************************")
 
-        # 결과 출력
-        print("output")
-        await print_value(result)
-
-        return result
-    return wrapper
+            print("output")
+            print_value(result)
+            return result
+        return sync_wrapper
 
 
 # ANSI 이스케이프 시퀀스를 제거하기 위한 정규식 패턴
