@@ -4,6 +4,8 @@ import FairyChatBubble from '@/components/Common/FairyChatBubble';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
+import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
+import DrawingBoard from '@/components/Common/DrawingBoard';
 
 // 확인용 더미데이터
 const ParticipationList = [
@@ -27,102 +29,159 @@ const TaleKeyword = () => {
   // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
   const [currentStep, setCurrentStep] = useState(0);
 
+  const {
+    tale,
+    currentKeyword,
+    setCurrentKeyword,
+
+    submitTyping,
+    submitVoice,
+    submitHandWrite,
+
+    submitTypingSingle,
+    submitVoiceSingle,
+    submitHandWriteSingle,
+
+    submitTotal,
+    submitTotalSingle,
+    addKeyword,
+    keywords,
+    setPage,
+    addPage,
+  } = useTalePlay(); // 동화 API
+
   useEffect(() => {
     if (currentStep >= 4) {
       navigate('/tale/taleSentenceDrawing');
     }
   }, [currentStep]); // 페이지 넘어가는 side effect
 
-  const {
-    tale,
-    setCurrentKeyword,
-    submitTotal,
-    submitTotalSingle,
-    addKeyword,
-    keywords,
-    setPage,
-  } = useTalePlay(); // 동화 API
+  //unmounted reset page(count) for next play
+  useEffect(() => {
+    return () => {
+      setPage(0);
+    };
+  }, []);
 
   const sentences = tale?.['sentenceOwnerPairs']?.filter(
     (item) => item.sentence
   );
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (mode === 'typing' && inputText.trim()) {
-      setIsNextActive(true);
+      const response = isSingle
+        ? await submitTypingSingle(inputText)
+        : await submitTyping(inputText);
+
+      if (response) {
+        setIsNextActive(true);
+        setCurrentKeyword(response);
+      } else {
+        alert('fail keyword');
+      }
+    } else if (mode === 'voice') {
+      const response = isSingle
+        ? await submitVoiceSingle(recordedAudio)
+        : await submitVoice(recordedAudio);
+
+      if (response) {
+        setIsNextActive(true);
+        setCurrentKeyword(response);
+      } else {
+        alert('fail keyword');
+      }
     } else if (mode === 'writing') {
-      const canvas = canvasRef.current;
-      const pngData = canvas.toDataURL('image/png');
-      console.log('PNG Data:', pngData); // PNG 데이터를 잠시 저장
-      setIsNextActive(true);
+      const file = await canvasRef.current.getPNGFile();
+      // const handwriteFile = await exportToBlob({
+      //   elements: canvasRef.current.getSceneElements(),
+      //   appState: canvasRef.current.getAppState(),
+      //   files: canvasRef.current.getFiles(),
+      //   mimeType: 'image/png',
+      // });
+
+      // const url = URL.createObjectURL(handwriteFile);
+      // const a = document.createElement('a');
+      // a.href = url;
+      // a.download = 'drawing.png';
+      // a.click();
+      // URL.revokeObjectURL(url);
+
+      // const file = new File([handwriteFile], `file.png`, { type: 'image/png' });
+
+      const response = isSingle
+        ? await submitHandWriteSingle(file)
+        : await submitHandWrite(file);
+
+      if (response) {
+        setIsNextActive(true);
+        setCurrentKeyword(response);
+      } else {
+        alert('fail keyword');
+      }
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const keyword = currentKeyword;
+      const response = await submitTotal(keyword);
+      if (response.data.status == 'SU') {
+        addKeyword(keyword);
+        handleReset();
+        return true;
+      }
+    } catch {
+      return false;
     }
   };
 
   //싱글모드 대응
-  const handleSubmitTextSingle = async (keyword) => {
+  const handleSubmitSingle = async () => {
     try {
+      const keyword = currentKeyword;
       const response = await submitTotalSingle(keyword);
 
       if (response.data.status == 'SU') {
-        setPage();
+        addPage();
         addKeyword(keyword);
+        handleReset();
         return true;
       }
     } catch {
       return false;
     }
   };
-
-  const handleSumbitVoiceSingle = async (voice) => {
-    try {
-      const response = await submitTotalSingle(keyword);
-
-      if (response.data.status == 'SU') {
-        setPage();
-        addKeyword(keyword);
-        return true;
-      }
-    } catch {
-      return false;
-    }
-  };
-
-  const handleSubmitPictureSingle = async (picture) => {};
 
   const handleReset = () => {
     setInputText('');
     setRecordedAudio(null);
-    if (canvasRef.current) {
-      const canvas = canvasRef.current;
+    // if (canvasRef.current) {
+    //   canvasRef.current.resetScene();
+    // }
+
+    if (canvasRef.current.canvas) {
+      const canvas = canvasRef.current.canvas;
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
+
     setIsNextActive(false);
   };
 
   const handleNext = () => {
-    if (mode === 'typing' && isSingle) {
-      handleSubmitTextSingle(inputText).then((resolve) => {
-        console.log(resolve);
+    if (isSingle) {
+      handleSubmitSingle(inputText).then((resolve) => {
         if (resolve == true) {
           handleReset();
           setCurrentStep((prev) => prev + 1);
         }
       });
-    } else if (mode === 'typing' && !isSingle) {
-      console.log('Sending text to backend:', inputText);
-    } else if (mode === 'voice' && isSingle) {
-      console.log('Sending audio to backend:', recordedAudio);
-    } else if (mode === 'voice' && !isSingle) {
-      console.log('Sending audio to backend:', recordedAudio);
-    } else if (mode === 'writing' && isSingle) {
-      const canvas = canvasRef.current;
-      const pngData = canvas.toDataURL('image/png');
-      console.log('Sending PNG to backend:', pngData);
-    } else if (mode === 'writing' && !isSingle) {
-      const canvas = canvasRef.current;
-      const pngData = canvas.toDataURL('image/png');
-      console.log('Sending PNG to backend:', pngData);
+    } else if (!isSingle) {
+      handleSubmit().then((resolve) => {
+        if (resovle == true) {
+          handleReset();
+        }
+      });
     }
   };
 
@@ -247,14 +306,43 @@ const TaleKeyword = () => {
       )}
 
       {mode === 'writing' && (
-        <div className="absolute bottom-[140px] left-[333px] flex items-center gap-4">
-          <canvas
+        <div className="absolute bottom-[140px] left-[500px] flex items-center gap-4">
+          <div className="relative">
+            <DrawingBoard
+              ref={canvasRef}
+              width={300}
+              height={100}
+              usePalette={false}
+            />
+            {/* <Excalidraw
+              renderMainMenu={() => ''}
+              renderSidebar={() => ''}
+              excalidrawAPI={(api) => {
+                canvasRef.current = api;
+              }}
+              initialData={{
+                elements: [],
+                appState: {
+                  activeTool: {
+                    type: 'freedraw',
+                    customType: null,
+                    locked: true,
+                  },
+                  scrollX: 100,
+                  scrollY: 100,
+                },
+              }}
+            /> */}
+          </div>
+
+          {/* <canvas
             ref={canvasRef}
             width={470}
             height={165}
-            className="border border-gray-200 rounded-xl bg-white"></canvas>
-
-          <ConfirmBtn onClick={handleConfirm} />
+            className="border border-gray-200 rounded-xl bg-white"></canvas> */}
+          <div className="pb-12">
+            <ConfirmBtn onClick={handleConfirm} />
+          </div>
         </div>
       )}
 

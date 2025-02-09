@@ -23,6 +23,8 @@ public class RoomInfo {
     private String hostNickname;
     private String hostProfileImg;
     private String taleTitle;
+    private String taleTitleImg;
+    private Long baseTaleId;
     private int participantsCnt;
     private int maxParticipantsCnt;
 

@@ -10,9 +10,11 @@ import { create, useStore } from 'zustand';
 import { devtools, persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
 import authAPI from '@/apis/auth/userAxios';
+import { immer } from 'zustand/middleware/immer';
 
 const api = axios.create({
   baseURL: '/api',
+  withCredentials: true,
 });
 
 let isRefreshing = false;
@@ -56,8 +58,9 @@ const initialState = {
 
 const userActions = (set, get) => ({
   login: async (credentials) => {
+    let response;
     try {
-      const response = await authAPI.login(credentials);
+      response = await authAPI.login(credentials);
       const { member, tokens } = response.data['data'];
 
       set({
@@ -72,10 +75,10 @@ const userActions = (set, get) => ({
       // axios 기본 헤더에 토큰 추가
       api.defaults.headers.common['Authorization'] =
         `Bearer ${get().accessToken}`;
-      return true;
+      return response;
     } catch (error) {
-      console.error('로그인 실패:', error);
-      throw error;
+      // console.error('로그인 실패:', error);
+      return error.response || response;
     }
   },
 
@@ -95,7 +98,7 @@ const userActions = (set, get) => ({
       // axios 기본 헤더에 토큰 추가
       api.defaults.headers.common['Authorization'] =
         `Bearer ${get().accessToken}`;
-      return true;
+      return response;
     } catch (error) {
       console.error('로그인 실패:', error);
       throw error;
@@ -159,6 +162,9 @@ const userActions = (set, get) => ({
         onRefreshed(data.accessToken);
 
         console.log('[refreshAccessToken] 새 accessToken 설정 완료:');
+
+        set({ accessToken: data.accessToken });
+
         return data.accessToken;
       } else {
         console.log('[refreshAccessToken] refreshToken 만료됨 → 강제 로그아웃');
@@ -283,7 +289,7 @@ api.interceptors.response.use(
     if (response.data.status === 'SU') {
       return response;
     } else {
-      return false;
+      return response;
     }
   },
 

@@ -67,8 +67,9 @@ const playActions = (set, get) => ({
     if (client && client.connected) {
       client.subscribe(`/topic/tale/${roomId}`, (message) => {
         get().setDrawDirection(JSON.parse(message.body));
+        console.log(JSON.parse(message.body));
       });
-      console.log('Subscribe Sucex');
+      console.log('Subscribe Su');
     }
 
     console.log(usePlayStore.getState().drawDirection);
@@ -85,9 +86,14 @@ const playActions = (set, get) => ({
       state.inputType = inputType;
     }),
 
-  setPage: () =>
+  addPage: () =>
     set((state) => {
       state.page = state.page + 1;
+    }),
+
+  setPage: (value) =>
+    set((state) => {
+      state.page = value;
     }),
 
   setHotTalePage: () => {
@@ -102,11 +108,144 @@ const playActions = (set, get) => ({
     });
   },
 
-  submitTyping: (typing) => {},
+  submitTyping: async (typing) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) => item.owner === userStore.getState().memberId
+    )?.['order'];
 
-  submitVoice: (voice) => {},
+    const data = {
+      memberId: userStore.getState().memberId,
+      order,
+      roomId: get().roomId,
+      keyword: typing,
+    };
 
-  submitHandWrite: (paint) => {},
+    const response = await taleAPI.taleKeyWordTyping(data);
+
+    if (response.data.data) {
+      return response.data.data;
+    } else {
+      return false;
+    }
+  },
+
+  submitVoice: async (voice) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) => item.owner === userStore.getState().memberId
+    )?.['order'];
+
+    const formData = new FormData();
+
+    formData.append('order', String(order));
+    formData.append('roomId', String(get().roomId));
+    formData.append('memberId', String(userStore.getState().memberId));
+    formData.append('file', voice);
+
+    const response = await taleAPI.taleKeyWordVoice(formData);
+
+    if (response.data.data) {
+      return response.data.data;
+    } else {
+      return false;
+    }
+  },
+
+  submitHandWrite: async (paint) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) => item.owner === userStore.getState().memberId
+    )?.['order'];
+
+    const formData = new FormData();
+
+    formData.append('order', String(order));
+    formData.append('roomId', String(get().roomId));
+    formData.append('memberId', String(userStore.getState().memberId));
+    formData.append('file', paint);
+
+    const response = await taleAPI.taleKeyWordHandWrite(formData);
+
+    if (response.data.data) {
+      return response.data.data;
+    } else {
+      return false;
+    }
+  },
+
+  //싱글모드
+  submitTypingSingle: async (typing) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) =>
+        item.owner === userStore.getState().memberId &&
+        item.order === get().page
+    )?.['order'];
+
+    const data = {
+      memberId: userStore.getState().memberId,
+      order,
+      roomId: get().roomId,
+      keyword: typing,
+    };
+
+    const response = await taleAPI.taleKeyWordTyping(data);
+
+    if (response.data.data) {
+      return response.data.data;
+    } else {
+      return false;
+    }
+  },
+
+  //싱글모드
+  submitVoiceSingle: async (voice) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) =>
+        item.owner === userStore.getState().memberId &&
+        item.order === get().page
+    )?.['order'];
+
+    const formData = new FormData();
+
+    formData.append('order', String(order));
+    formData.append('roomId', String(get().roomId));
+    formData.append('memberId', String(userStore.getState().memberId));
+    formData.append('keyword', voice);
+
+    const response = await taleAPI.taleKeyWordVoice(formData);
+
+    if (response) {
+      return response.data.data;
+    } else {
+      return false;
+    }
+  },
+
+  //싱글모드
+  submitHandWriteSingle: async (paint) => {
+    let order = get().tale?.sentenceOwnerPairs?.find(
+      (item) =>
+        item.owner === userStore.getState().memberId &&
+        item.order === get().page
+    )?.['order'];
+
+    const formData = new FormData();
+
+    formData.append('order', String(order));
+    formData.append('roomId', String(get().roomId));
+    formData.append('memberId', String(userStore.getState().memberId));
+    formData.append('keyword', paint);
+
+    const response = await taleAPI.taleKeyWordHandWrite(formData);
+
+    console.log(response.data);
+
+    if (response) {
+      return response.data.data;
+    } else {
+      return false;
+    }
+  },
+
+  // <!---------------------------------------------------------------------------------------->
 
   // Keyword 최종 제출
   submitTotal: async (keyword) => {
@@ -158,9 +297,7 @@ const playActions = (set, get) => ({
   //4인모드
   submitPicture: async (picture) => {
     let order = get().tale?.sentenceOwnerPairs?.find(
-      (item) =>
-        item.owner === userStore.getState().memberId &&
-        item.order === get().page
+      (item) => item.owner === userStore.getState().memberId
     )?.['order'];
 
     const formData = new FormData();
@@ -178,7 +315,9 @@ const playActions = (set, get) => ({
   //싱글 모드 차례대로 가져오기
   submitPictureSingle: async (picture) => {
     let order = get().tale?.sentenceOwnerPairs?.find(
-      (item) => item.owner === userStore.getState().memberId
+      (item) =>
+        item.owner === userStore.getState().memberId &&
+        item.order === get().page
     )?.['order'];
 
     const formData = new FormData();
@@ -188,9 +327,22 @@ const playActions = (set, get) => ({
     formData.append('memberId', String(userStore.getState().memberId));
     formData.append('file', picture);
 
+    console.log(picture);
+
     const response = await taleAPI.taleSubmitPicture(formData);
 
     return response;
+  },
+
+  // action
+  // tale axios -> roomid, page(1~4)
+  setHotTale: async (pageNum) => {
+    const response = await taleAPI.taleHot(get().roomId, pageNum);
+    const hotPage = response.data['data'];
+
+    set((state) => {
+      state.hotTale = hotPage;
+    });
   },
 });
 
@@ -231,6 +383,7 @@ export const useTalePlay = () => {
   const setBaseTale = usePlayStore((state) => state.setBaseTale, shallow);
   const setCurrentKeyword = usePlayStore((state) => state.setCurrentKeyword);
   const setInputType = usePlayStore((state) => state.setInputType);
+  const addPage = usePlayStore((state) => state.addPage);
   const setPage = usePlayStore((state) => state.setPage);
 
   const addKeyword = usePlayStore((state) => state.addKeyword);
@@ -241,6 +394,12 @@ export const useTalePlay = () => {
   const submitVoice = usePlayStore((state) => state.submitVoice);
   const submitHandWrite = usePlayStore((state) => state.submitHandWrite);
 
+  const submitTypingSingle = usePlayStore((state) => state.submitTypingSingle);
+  const submitVoiceSingle = usePlayStore((state) => state.submitVoiceSingle);
+  const submitHandWriteSingle = usePlayStore(
+    (state) => state.submitHandWriteSingle
+  );
+
   const submitPicture = usePlayStore((state) => state.submitPicture);
   const submitPictureSingle = usePlayStore(
     (state) => state.submitPictureSingle
@@ -249,6 +408,7 @@ export const useTalePlay = () => {
   const currentClient = usePlayStore((state) => state.currentClient);
   const setSubscribeTale = usePlayStore((state) => state.setSubscribeTale);
   const setDrawDirection = usePlayStore((state) => state.setDrawDirection);
+  const setHotTale = usePlayStore((state) => state.setHotTale);
 
   return {
     tale,
@@ -265,6 +425,7 @@ export const useTalePlay = () => {
     setBaseTale,
     setCurrentKeyword,
     setInputType,
+    addPage,
     setPage,
 
     addKeyword,
@@ -274,6 +435,10 @@ export const useTalePlay = () => {
     submitVoice,
     submitHandWrite,
 
+    submitTypingSingle,
+    submitVoiceSingle,
+    submitHandWriteSingle,
+
     submitTotal,
     submitTotalSingle,
 
@@ -281,5 +446,7 @@ export const useTalePlay = () => {
     submitPictureSingle,
     setSubscribeTale,
     setDrawDirection,
+
+    setHotTale,
   };
 };

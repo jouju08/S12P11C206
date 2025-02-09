@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
 import { Loading } from '@/common/Loading';
+import DrawingBoard from '@/components/Common/DrawingBoard';
 
 // 백에서 문장 4개가 어떻게 넘어오는지 모르겠음
 // 그냥 받았다고 치자
@@ -22,6 +23,7 @@ const sentences = [
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
   const excalidrawAPIRef = useRef(null);
+  const canvasRef = useRef(null);
   const navigate = useNavigate();
 
   const {
@@ -29,6 +31,7 @@ const TaleSentenceDrawing = () => {
     setDrawDirection,
     submitPicture,
     submitPictureSingle,
+    addPage,
   } = useTalePlay();
 
   //AI에서 받은 문장들
@@ -43,106 +46,140 @@ const TaleSentenceDrawing = () => {
 
   // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
   const [currentStep, setCurrentStep] = useState(0);
+
   // 싱글모드일때 사용, 이전에 그린 그림들 저장
   const [previousDrawings, setPreviousDrawings] = useState([]);
 
   //메시지 수신 loading
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // 컴포넌트 마운트 시 타이머 시작
   useEffect(() => {
     const timer = setInterval(() => {
-      // 1초마다 타이머 갱신
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          // 시간이 다 되면 자동으로 확인 버튼 클릭
-          handleConfirm();
-          return 0;
-        }
-        return prev - 1;
-      });
+      if (isSingle && currentStep === 4) {
+        return setTimeLeft(0);
+      } else {
+        // 1초마다 타이머 갱신
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            // 시간이 다 되면 자동으로 확인 버튼 클릭
+            handleConfirm();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [currentStep]);
 
   //Loading 처리
   useEffect(() => {
     if (drawDirection.length > 0) {
       setLoading(false);
     }
-
-    console.log(sortedSentences);
   }, [drawDirection]);
 
-  // 확인 버튼 누름 or 5분 지남
   const handleConfirm = async () => {
-    if (!excalidrawAPIRef.current) return false;
+    if (!canvasRef.current) return false;
 
-    const elements = excalidrawAPIRef.current.getSceneElements();
-    const appState = excalidrawAPIRef.current.getAppState();
-    const files = excalidrawAPIRef.current.getFiles();
+    const tmpFile = await canvasRef.current.getPNGFile();
 
-    try {
-      // 백엔드로 그린 그림 제출
-      // 현재 그린 그림을 PNG 형식으로 변환
-      const exportedImage = await exportToBlob({
-        elements,
-        appState,
-        files,
-        mimeType: 'image/png',
-      });
-
-      //파일이름용
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const fileName = `canvas-${timestamp}.png`;
-
-      const file = new File([exportedImage], fileName, { type: 'image/png' });
-
-      if (!file) {
-        console.log('Fail File');
-        return;
-      }
-
-      //싱글모드 판단
-      if (isSingle) {
-        const response = await submitPictureSingle(file);
-      } else if (!isSingle) {
-        const response = await submitPicture(file);
-      }
-
-      // 싱글모드 canvas
-      const drawing = await exportToCanvas({
-        elements,
-        appState,
-        file,
-        getDimensions: () => {
-          return { width: 500, height: 500 };
-        },
-      });
-
-      // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
-      setPreviousDrawings([...previousDrawings, drawing.toDataURL()]);
-
-      // 싱글모드 - 몇번째 그림 그리고 있는가
-      if (currentStep < 3) {
-        setCurrentStep((prev) => prev + 1);
-        setTimeLeft(300);
-        // 그려진 그림 초기화
-        excalidrawAPIRef.current.resetScene();
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error uploading drawing:', error);
+    if (isSingle) {
+      await submitPictureSingle(tmpFile);
+    } else if (!isSingle) {
+      await submitPicture(tmpFile);
     }
 
-    return false;
+    // const response = isSingle
+    //   ? await submitPictureSingle(tmpFile)
+    //   : await submitPicture(tmpFile);
+
+    // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
+    setPreviousDrawings([
+      ...previousDrawings,
+      canvasRef.current.canvas.toDataURL(),
+    ]);
+
+    // 싱글모드 - 몇번째 그림 그리고 있는가
+    if (currentStep < 3) {
+      setCurrentStep((prev) => prev + 1);
+      setTimeLeft(300);
+      // 그려진 그림 초기화
+      canvasRef.current.clearCanvas();
+    }
   };
+
+  // 확인 버튼 누름 or 5분 지남
+  // const handleConfirm = async () => {
+  //   if (!excalidrawAPIRef.current) return false;
+
+  //   const elements = excalidrawAPIRef.current.getSceneElements();
+  //   const appState = excalidrawAPIRef.current.getAppState();
+  //   const files = excalidrawAPIRef.current.getFiles();
+
+  //   try {
+  //     // 백엔드로 그린 그림 제출
+  //     // 현재 그린 그림을 PNG 형식으로 변환
+  //     const exportedImage = await exportToBlob({
+  //       elements,
+  //       appState,
+  //       files,
+  //       mimeType: 'image/png',
+  //     });
+
+  //     //파일이름용
+  //     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  //     const fileName = `canvas-${timestamp}.png`;
+
+  //     const file = new File([exportedImage], fileName, { type: 'image/png' });
+
+  //     if (!file) {
+  //       console.log('Fail File');
+  //       return;
+  //     }
+
+  //     //싱글모드 판단
+  //     if (isSingle) {
+  //       const response = await submitPictureSingle(file);
+  //       addPage();
+  //     } else if (!isSingle) {
+  //       const response = await submitPicture(file);
+  //     }
+
+  //     // 싱글모드 canvas
+  //     const drawing = await exportToCanvas({
+  //       elements,
+  //       appState,
+  //       file,
+  //       getDimensions: () => {
+  //         return { width: 500, height: 500 };
+  //       },
+  //     });
+
+  //     // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
+  //     setPreviousDrawings([...previousDrawings, drawing.toDataURL()]);
+
+  //     // 싱글모드 - 몇번째 그림 그리고 있는가
+  //     if (currentStep < 3) {
+  //       setCurrentStep((prev) => prev + 1);
+  //       setTimeLeft(300);
+  //       // 그려진 그림 초기화
+  //       excalidrawAPIRef.current.resetScene();
+  //     }
+
+  //     return true;
+  //   } catch (error) {
+  //     console.error('Error uploading drawing:', error);
+  //   }
+
+  //   return false;
+  // };
 
   const moveToReadTale = async () => {
     await handleConfirm();
-    navigate('/hotTale');
+    navigate('/tale/hotTale');
   };
 
   useEffect(() => {
@@ -191,14 +228,23 @@ const TaleSentenceDrawing = () => {
                 src="/TaleSentenceDrawing/crayon.png"
               />
             </div>
-
-            <div className="w-[600px] mx-auto rounded-[10px] border border-gray-200 text-center py-2 bg-white story-basic2 text-text-first">
+            <div
+              className="w-[550px] h-[100px] mx-auto rounded-[10px] border border-gray-200 text-center py-2 bg-white story-basic2 text-text-first
+            overflow-y-scroll">
               {/* currentStep은 1부터 시작하므로 인덱스로 사용할 때는 -1 */}
-              {sortedSentences[currentStep]?.sentence}
+              {/* {sortedSentences[currentStep]?.sentence} */}
+              나는 싸피가좋아요 너무좋아요 싸피사랑해 미Chill정도록 사랑해요
+              글자수는 어떻게 될까요 크기가 고정되면 어떻게 될지 너무 궁금해요
             </div>
 
-            <div className="w-[590px] h-[420px] ml-[55px] mt-[40px]">
-              <Excalidraw
+            <div className="w-[590px] h-[420px] ml-[55px]">
+              <DrawingBoard
+                ref={canvasRef}
+                width={590}
+                height={420}
+                usePalette={true}
+              />
+              {/* <Excalidraw
                 excalidrawAPI={(api) => {
                   excalidrawAPIRef.current = api;
                 }}
@@ -211,9 +257,8 @@ const TaleSentenceDrawing = () => {
                   },
                   scrollToContent: false,
                 }}
-              />
+              /> */}
             </div>
-
             <button
               onClick={
                 currentStep === 3
