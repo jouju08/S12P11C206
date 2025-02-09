@@ -17,6 +17,7 @@ import CanvasTest from '@/pages/CanvasTest';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
 const Login = lazy(() => import('@/pages/User/Login'));
+const Register = lazy(() => import('@/pages/User/Register'));
 const Main = lazy(() => import('@/pages/User/Main'));
 const Room = lazy(() => import('@/pages/User/Room'));
 const Collection = lazy(() => import('@/pages/User/Collection'));
@@ -61,6 +62,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Hero /> },
       { path: 'login', element: <Login /> },
+      { path: 'register', element: <Register/>},
       { path: 'auth/kakao/callback', element: <KakaoCallback /> },
       { path: 'friends', element: <Friend /> },
       {
