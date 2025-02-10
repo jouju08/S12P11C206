@@ -111,7 +111,6 @@ export default function Register() {
           {/* 카카오 로그인 버튼 */}
           <div className="mt-[20px]">
             <button
-              onClick={handleKakao}
               className="w-[445px] h-[65px] rounded-[30px] text-text-first auth-regular1 bg-main-kakao bg-[url('/Login/kakao-symbol.png')] bg-cover bg-left bg-right-[30px] bg-no-repeat"
               style={{
                 backgroundSize: '40px',
