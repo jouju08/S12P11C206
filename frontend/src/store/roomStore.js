@@ -112,6 +112,7 @@ const roomActions = (set, get) => ({
 
       //출발시작 받기위한 flag 구독
       stompClient.subscribe(`topic/room/start/${roomId}`, (message) => {
+        console.log(message.body);
         const startFlag = JSON.parse(message.body);
         set({ isStart: startFlag });
       });
@@ -135,7 +136,7 @@ const roomActions = (set, get) => ({
     if (stompClient && stompClient.connected) {
       stompClient.publish({
         destination: `/app/room/start/${currentRoom.roomId}`,
-        body: JSON.stringify(room),
+        body: JSON.stringify(currentRoom),
       });
     }
   },
@@ -225,6 +226,7 @@ export const useTaleRoom = () => {
   const leaveRoom = useRoomStore((state) => state.leaveRoom);
 
   const setIsSingle = useRoomStore((state) => state.setIsSingle);
+  const setIsStart = useRoomStore((state) => state.setIsStart);
 
   const setBaseTaleId = useRoomStore((state) => state.setBaseTaleId);
 
@@ -248,6 +250,7 @@ export const useTaleRoom = () => {
     leaveRoom,
 
     setIsSingle,
+    setIsStart,
     setBaseTaleId,
   };
 };

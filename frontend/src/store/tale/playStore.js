@@ -66,13 +66,15 @@ const playActions = (set, get) => ({
     //그림 문장 채널 구독
     if (client && client.connected) {
       client.subscribe(`/topic/tale/${roomId}`, (message) => {
+        console.log(message.body);
         get().setDrawDirection(JSON.parse(message.body));
-        console.log(JSON.parse(message.body));
       });
-      console.log('Subscribe Su');
+
+      client.subscribe(`/topic/tale/${roomId}/finish`, (message) => {
+        console.log(message.body);
+      });
     }
 
-    console.log(usePlayStore.getState().drawDirection);
     return 1;
   },
 

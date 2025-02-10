@@ -5,7 +5,8 @@ import { userStore, useUser } from '@/store/userStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Waiting() {
-  const { participants, currentRoom, startRoom, isStart } = useTaleRoom();
+  const { participants, currentRoom, startRoom, isStart, setIsStart } =
+    useTaleRoom();
   const { memberId } = useUser();
 
   const [isHost, setIsHost] = useState(false);
@@ -17,11 +18,8 @@ export default function Waiting() {
   };
 
   useEffect(() => {
-    const hostId = currentRoom.memberId;
-    const isFull = currentRoom.full;
-
-    console.log(isFull);
-    console.log(hostId == memberId);
+    const hostId = currentRoom?.memberId;
+    const isFull = currentRoom?.full;
 
     //방장인지 판단
     if (hostId == memberId) {
@@ -46,7 +44,9 @@ export default function Waiting() {
       navigate('/tale/taleStart');
     }
 
-    return () => {};
+    return () => {
+      setIsStart(null);
+    };
   }, [isStart]);
 
   return (
