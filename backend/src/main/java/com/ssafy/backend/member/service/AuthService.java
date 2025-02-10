@@ -1,6 +1,7 @@
 package com.ssafy.backend.member.service;
 
 import com.ssafy.backend.common.auth.JwtUtil;
+import com.ssafy.backend.common.exception.NotFoundUserException;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.member.dto.request.LoginRequest;
@@ -69,11 +70,11 @@ public class AuthService {
     public LoginResponseDto login(LoginRequest request) {
         // 사용자 조회
         Member member = memberRepository.findByLoginId(request.getLoginId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new NotFoundUserException("사용자 정보를 다시 확인하세요."));
 
         // 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new NotFoundUserException("사용자 정보를 다시 확인하세요.");
         }
 
         // JWT 생성
