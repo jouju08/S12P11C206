@@ -50,13 +50,12 @@ public class GalleryService {
         Long userId = memberRepository.findByLoginId(auth.getName()).get().getId();
         List<GalleryListResponseDto> result = new ArrayList<GalleryListResponseDto>();
 
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = PageRequest.of(page, 8);
         System.out.println("page = " + page);
         System.out.println("order = " + order);
 
         try {
             Page<Gallery> galleryPage = galleryRepository.findAllPictures(order.toUpperCase(), pageable);
-
 
             for (Gallery gallery : galleryPage) {
                 GalleryListResponseDto dto = new GalleryListResponseDto();
@@ -65,13 +64,14 @@ public class GalleryService {
                 dto.setAuthorId(gallery.getMember().getId());
                 dto.setAuthorNickname(gallery.getMember().getNickname());
                 dto.setAuthorProfileImg(gallery.getMember().getProfileImg());
-                dto.setLikeCnt(gallery.getGalleryLikes().size());
+                dto.setLikeCnt(gallery.getLikeCnt());
                 dto.setCreatedAt(gallery.getCreatedAt());
                 result.add(dto);
             }
 
             return result;
         } catch (InvalidDataAccessApiUsageException e){
+//            e.printStackTrace();
             throw new NotFoundPage("없는 페이지입니다.");
         }
     }
