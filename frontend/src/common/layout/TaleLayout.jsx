@@ -5,22 +5,30 @@ import { useUser } from '@/store/userStore';
 import { useTalePlay } from '@/store/tale/playStore';
 
 import TaleRoomHeader from '../Header/TaleRoomHeader';
+import { useTaleRoom } from '@/store/roomStore';
+import { useViduHook } from '@/store/tale/viduStore';
 
 export default function TaleLayout() {
   const { isAuthenticated } = useUser();
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
-  const { roomId } = useTalePlay();
+  const { leaveRoom } = useTaleRoom();
+  const { roomId, resetState } = useTalePlay();
+  const { leaveViduRoom } = useViduHook();
 
   // 나가기 버튼 누르면 모달을 띄워줌
   const handleExit = () => {
     setShowModal(true);
   };
 
-  // 방 나가기 확인 (여기서 방 나가는 axios 필요할 듯)
   const handleConfirm = () => {
-    navigate('/room'); // 특정 페이지로 이동
+    //방 나가기전 초기화
+    leaveRoom();
+    leaveViduRoom();
+    resetState();
+
+    navigate('/room');
   };
 
   // 나가기를 취소함 -> 모달 hidden
