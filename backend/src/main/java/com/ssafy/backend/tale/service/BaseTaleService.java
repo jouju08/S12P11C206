@@ -31,6 +31,7 @@ public class BaseTaleService {
 
     public BaseTaleDto parse(BaseTale baseTale){
         BaseTaleDto baseTaleDto = new BaseTaleDto();
+        baseTaleDto.setId(baseTale.getId());
         baseTaleDto.setTitle(baseTale.getTitle());
         baseTaleDto.setTitleImg(baseTale.getTitleImg());
         baseTaleDto.setStartVoice(baseTale.getStartVoice());
@@ -49,6 +50,7 @@ public class BaseTaleService {
 
     public BaseTale parse(BaseTaleDto baseTaleDto) {
         BaseTale baseTale = new BaseTale();
+        baseTale.setId(baseTaleDto.getId());
         baseTale.setTitle(baseTaleDto.getTitle());
         baseTale.setTitleImg(baseTaleDto.getTitleImg());
         baseTale.setStartVoice(baseTaleDto.getStartVoice());
