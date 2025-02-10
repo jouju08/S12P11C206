@@ -15,8 +15,6 @@ import OpenviduCanvas from '@/components/TaleRoom/OpenviduCanvas';
 import { LocalVideoTrack, RoomEvent, Track } from 'livekit-client';
 import { useLocalParticipant } from '@livekit/components-react';
 
-// -
-
 // 백에서 문장 4개가 어떻게 넘어오는지 모르겠음
 // 그냥 받았다고 치자
 const sentences = [
@@ -61,12 +59,11 @@ const TaleSentenceDrawing = () => {
   const [previousDrawings, setPreviousDrawings] = useState([]);
 
   //메시지 수신 loading
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   //livekit
   useEffect(() => {
     const handleVidu = async () => {
-      await getTokenByAxios(2);
       await joinViduRoom();
     };
 
@@ -172,10 +169,6 @@ const TaleSentenceDrawing = () => {
     } else if (!isSingle) {
       await submitPicture(tmpFile);
     }
-
-    // const response = isSingle
-    //   ? await submitPictureSingle(tmpFile)
-    //   : await submitPicture(tmpFile);
 
     // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
     setPreviousDrawings([
@@ -326,20 +319,6 @@ const TaleSentenceDrawing = () => {
                 usePalette={true}
                 useHeartBeat={true}
               />
-              {/* <Excalidraw
-                excalidrawAPI={(api) => {
-                  excalidrawAPIRef.current = api;
-                }}
-                initialData={{
-                  elements: [],
-                  appState: {
-                    viewBackgroundColor: null,
-                    scrollX: 0,
-                    scrollY: 0,
-                  },
-                  scrollToContent: false,
-                }}
-              /> */}
             </div>
             <button
               onClick={

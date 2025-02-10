@@ -24,7 +24,6 @@ const LIVE_KIT_URL = import.meta.env.VITE_OPENVIDU_URL;
 
 const viduActions = (set, get) => ({
   getTokenByAxios: async (roomId) => {
-    console.log(roomId);
     const response = await api.get('/tale/room/token', {
       params: {
         roomId: roomId,
