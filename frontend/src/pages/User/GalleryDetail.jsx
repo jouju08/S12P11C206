@@ -64,7 +64,9 @@ export default function GalleryDetail() {
         {/* 그림 상세내용 */}
         <div className="w-[400px] h-[540px] p-4 relative bg-white overflow-hidden">
           <p className="text-text-second service-regular3">
-            {galleryPage['createdAt'].slice(0, 10)}
+            {galleryPage['createdAt']
+              ? galleryPage['createdAt'].slice(0, 10)
+              : 'createdAt이 안 들어가 잇서여'}
           </p>
           <p className="text-text-first service-bold2 mt-[10px]">
             {galleryPage['taleTitle']}
