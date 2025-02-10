@@ -18,6 +18,8 @@ public class GalleryResponseDto {
     private Long authorMemberId;
     private Long taleId;
 
+    private String sentence;
+
     private Long baseTaleId;
 
     private int likeCount;
