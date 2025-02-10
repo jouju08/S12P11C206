@@ -83,6 +83,25 @@ public class GalleryService {
             if (gallery.get().getHasDeleted()) {
                 throw new ResourceNotFoundException("삭제된 게시글에 대한 요청입니다.");
             }
+            int orderNum = gallery.get().getTaleMember().getOrderNum();
+            String keyword = "";
+            String sentence = "";
+            if(orderNum == 1){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword1();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence1();
+            } else if(orderNum == 2){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword2();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence2();
+            } else if(orderNum == 3){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword3();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence3();
+            } else if(orderNum == 4){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword4();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence4();
+            }
+
+            String replaceSentence = sentence.replace("xx", keyword);
+
             boolean hasLiked = !galleryLikeRepository.findByGalleryIdAndMemberId(gallery.get().getId(), memberRepository.findByLoginId(auth.getName()).get().getId()).isEmpty();
             return GalleryResponseDto.builder()
                     .galleryId(gallery.get().getId())
@@ -96,6 +115,7 @@ public class GalleryService {
                     .authorMemberId(gallery.get().getMember().getId())
                     .taleId(gallery.get().getTaleMember().getTale().getId())
                     .baseTaleId(gallery.get().getTaleMember().getTale().getBaseTale().getId())
+                    .sentence(replaceSentence)
                     .build();
         } catch (Exception e) {
             return null;
