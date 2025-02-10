@@ -223,9 +223,7 @@ const Modal = ({ handleExit, showModal }) => {
   }, [pageNum]);
 
   const renderPageContent = (pageNum) => {
-    if (pageNum === 0) {
-      return <span>{taleStart['startScript']}</span>;
-    } else if (pageNum === 5) {
+    if (pageNum === 4) {
       return (
         <>
           <p>동화제목 : {taleStart['title']}</p>
@@ -270,18 +268,13 @@ const Modal = ({ handleExit, showModal }) => {
           src="/Collection/modal-open-book.png"
         />
         {/* 음향 - 데이터 받아오면 바꾸기*/}
-        {pageNum === 5 ? null : pageNum === 0 ? (
+        {pageNum === 4 ? null : (
           // base-tale 시작 음향
           <div className="text-right pr-20 mt-2">
-            <AudioPlayer
+            {/* <AudioPlayer
               pageNum={pageNum}
-              audioSrc={taleStart['startVoice']}
-            />
-          </div>
-        ) : (
-          // 그외 페이지 시작 음향
-          <div className="text-right pr-20 mt-2">
-            {/* <AudioPlayer audioSrc={taleDetail['voice']} /> */}
+              audioSrc={taleDetail['voice']}
+            /> */}
             <AudioPlayer
               pageNum={pageNum}
               audioSrc="/Collection/test-audio.wav"
@@ -290,7 +283,7 @@ const Modal = ({ handleExit, showModal }) => {
         )}
 
         {/* 요정 버튼 */}
-        {pageNum === 5 ? null : (
+        {pageNum === 4 || pageNum === 0 ? null : (
           <button
             onClick={() => {
               setIsOrigin(!isOrigin);
@@ -315,15 +308,35 @@ const Modal = ({ handleExit, showModal }) => {
 
         {/* 이미지와 스크립트는 absolute */}
         {/* 이미지 데이터 받아오면 바꾸기 */}
-        <img
-          className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
-          src="/TaleStart/test-story-start.jpg"
-        />
-        <img
-          src="/TaleStart/test-story-start.jpg"
-          alt="동화 만든 이미지"
-          className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
-        />
+        {pageNum === 0 ? (
+          <div>
+            <img
+              className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+              src="/Sightseeing/test1.png"
+              // src={taleStart['startImg']}
+            />
+            <img
+              src="/Sightseeing/test1.png"
+              // src={taleStart['startImg']}
+              alt="동화 만든 이미지"
+              className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+            />
+          </div>
+        ) : (
+          <div>
+            <img
+              className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+              src="/TaleStart/test-story-start.jpg"
+              // src={isOrigin ? taleDetail['orginImg'] : taleDetail['img']}
+            />
+            <img
+              src="/TaleStart/test-story-start.jpg"
+              // src={isOrigin ? taleDetail['orginImg'] : taleDetail['img']}
+              alt="동화 만든 이미지"
+              className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+            />
+          </div>
+        )}
 
         <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex flex-col justify-center items-center text-text-first story-basic2">
           <p className="text-text-first story-basic2">
@@ -339,7 +352,7 @@ const Modal = ({ handleExit, showModal }) => {
         </div>
         <div className="absolute bottom-3 left-1/2  transform -translate-x-1/2 -translate-y-1/2">
           <TaleNavigation
-            maxNum={5}
+            maxNum={4}
             pageNum={pageNum}
             setPageNum={setPageNum}
           />
