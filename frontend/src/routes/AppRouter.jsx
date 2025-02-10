@@ -15,6 +15,7 @@ import {
 import KakaoCallback from '@/components/kakao/KakaoCallback';
 import DrawingBoard from '@/components/Common/DrawingBoard';
 import CanvasTest from '@/pages/CanvasTest';
+import Friends from '@/components/Friend/Friend';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
 const Login = lazy(() => import('@/pages/User/Login'));
@@ -65,9 +66,9 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Hero /> },
       { path: 'login', element: <Login /> },
-      { path: 'register', element: <Register/>},
+      { path: 'register', element: <Register /> },
       { path: 'auth/kakao/callback', element: <KakaoCallback /> },
-      { path: 'friends', element: <Friend /> },
+      { path: 'friends', element: <Friends /> },
       {
         element: <ProtectedLayout />, // 인증된 사용자
         children: [
