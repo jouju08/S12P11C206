@@ -5,10 +5,7 @@ import com.ssafy.backend.tale.dto.request.TextRequestDto;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.BaseTaleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
@@ -27,11 +24,49 @@ public class AdminTaleController {
     // 5. BaseTale 저장 API
     // 6. BaseTale 수정 API
 
-    @PostMapping("/test")
-    public void test(@RequestBody TextRequestDto textRequestDto) {
-        System.out.println(textRequestDto.getText());
-        String myText = s3Service.uploadFileFromExternalLink(textRequestDto.getText());
-        System.out.println("myText = " + myText);
+//    @PostMapping("/test")
+//    public void test(@RequestBody TextRequestDto textRequestDto) {
+//        System.out.println(textRequestDto.getText());
+//        String myText = s3Service.uploadFileFromExternalLink(textRequestDto.getText());
+//        System.out.println("myText = " + myText);
+//    }
+    @GetMapping("/tale-sentences/{title}")
+    public void generateTaleSentences(@PathVariable String title) {
+
     }
 
+    @PostMapping("/tale-script-read")
+    public void readTaleScript(@RequestBody TextRequestDto textRequestDto) {
+        
+    }
+
+    @PostMapping("/gen-title-image")
+    public void generateTitleImage() {
+
+    }
+
+    @PostMapping("/set-title-image")
+    public void setTitleImage(@RequestBody TextRequestDto textRequestDto) {
+
+    }
+
+    @PostMapping("/gen-intro-image")
+    public void generateIntroImage() { // requestBody title, intro
+
+    }
+
+    @PostMapping("/set-intro-image")
+    public void setIntroImage(@RequestBody TextRequestDto textRequestDto) {
+
+    }
+
+    @PostMapping("/base-tale")
+    public void saveBaseTale() { // requestBody title, intro, titleImage, introImage
+
+    }
+
+    @PutMapping("/base-tale")
+    public void updateBaseTale() { // requestBody title, intro, titleImage, introImage
+
+    }
 }
