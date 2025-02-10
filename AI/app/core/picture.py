@@ -121,7 +121,6 @@ def upgrade_handpicture_submit(roomId: int, order: int, image: UploadFile):
     requests.post(SPRING_UPGRADE_PICTURE_WEBHOOK, data=fields, files=file)
 
 
-@util.logger
 def post_novita_api(prompts: common.PromptSet, webhook_url):
     """
     novita API에 이미지 생성 요청을 보내는 함수
@@ -177,7 +176,6 @@ def post_novita_api(prompts: common.PromptSet, webhook_url):
 #         print("Received Non-JSON Body:", pretty_json)  # JSON이 아니면 그냥 출력
 #     return
 
-@util.logger
 def return_novita_image(web_hook_request, post_url):
     """
     novita에서 받은 이미지를 spring으로 전송하는 함수
