@@ -33,6 +33,7 @@ const TaleStart = () => {
         console.error('Tale Start Error 발생:', error);
       }
     };
+
     handleTale();
   }, []);
 

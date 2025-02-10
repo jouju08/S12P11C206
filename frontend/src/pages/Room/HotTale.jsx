@@ -29,7 +29,7 @@ const HotTale = () => {
   //Loading 처리
 
   useEffect(() => {
-    if (pageNum !== 4) {
+    if (pageNum !== 5) {
       const handleHotTale = async () => {
         try {
           await setHotTale(pageNum);
@@ -38,12 +38,11 @@ const HotTale = () => {
         }
       };
       handleHotTale();
-      console.log(pageNum);
     }
   }, [pageNum]);
 
   const renderPageContent = (pageNum) => {
-    if (pageNum === 4) {
+    if (pageNum === 5) {
       return (
         <>
           {/* <p>동화제목 : {hotTale['hotTaleTitle']}</p> */}
@@ -53,7 +52,7 @@ const HotTale = () => {
         </>
       );
     } else {
-      return <span>{hotTale['hotTaleScript']}</span>;
+      return <span>{hotTale['script']}</span>;
     }
   };
 
@@ -73,7 +72,7 @@ const HotTale = () => {
           />
           {/* 음향 - 데이터 받아오면 바꾸기*/}
           <div className="text-right pr-20 mt-2">
-            {pageNum === 4 ? null : (
+            {pageNum === 5 ? null : (
               <AudioPlayer
                 pageNum={pageNum}
                 audioSrc="/Collection/test-audio.wav"
@@ -100,21 +99,12 @@ const HotTale = () => {
           />
 
           <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex flex-col justify-center items-center text-text-first story-basic2">
-            {/* <p className="text-text-first story-basic2">
-              옛날 옛적에 아기돼지 삼형제가 살고 있었습니다.
-              <br />
-              이들은 각자 자신만의 집을 짓기로 결정했어요.
-              <br />
-              늑대는 첫째 돼지의 집에 와서 말했어요.
-              <br />
-              "문을 열어라!"
-            </p> */}
             {renderPageContent(pageNum)}
           </div>
 
           <div className="absolute bottom-3 right-1/3 transform -translate-x-1/2 -translate-y-1/2">
             <TaleNavigation
-              maxNum={4}
+              maxNum={5}
               pageNum={pageNum}
               setPageNum={setPageNum}
             />
