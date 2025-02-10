@@ -16,9 +16,11 @@ const renderChildrenBtn = (isFriend) => {
   const { text, bgColor } = buttonConfig[isFriend] || buttonConfig['pending'];
 
   return (
-    <button
-      className={`w-[90px] h-10 p-2 leading-relaxed text-text-second service-regular3 ${bgColor} rounded-2xl shadow-[3px_3px_4px_0px_rgba(0,0,0,0.10)] justify-center items-center`}>
-      {text}
-    </button>
+    <div className="mr-2 mb-[0.33rem] ">
+      <button
+        className={`flex w-[90px] h-10 px-[0.65rem] pt-[0.35rem] leading-relaxed text-text-second service-regular3 ${bgColor} rounded-2xl shadow-[3px_3px_4px_0px_rgba(0,0,0,0.10)] justify-center items-center`}>
+        <span>{text}</span>
+      </button>
+    </div>
   );
 };

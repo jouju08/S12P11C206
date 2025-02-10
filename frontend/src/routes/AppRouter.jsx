@@ -3,6 +3,7 @@ import MainLayout from '@/common/layout/MainLayout';
 import TaleLayout from '@/common/layout/TaleLayout';
 import { Loading } from '@/common/Loading';
 import { useUser } from '@/store/userStore';
+import  Admin  from '@/pages/Admin';
 
 import {
   createBrowserRouter,
@@ -69,6 +70,7 @@ const router = createBrowserRouter([
       { path: 'register', element: <Register /> },
       { path: 'auth/kakao/callback', element: <KakaoCallback /> },
       { path: 'friends', element: <Friends /> },
+      { path: 'admin', element: <Admin /> },
       {
         element: <ProtectedLayout />, // 인증된 사용자
         children: [

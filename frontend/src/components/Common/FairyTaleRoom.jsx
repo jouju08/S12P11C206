@@ -5,6 +5,8 @@ import Lobby from '@/pages/Room/Lobby';
 import { useNavigate } from 'react-router-dom';
 
 import '@/styles/swalModal.css';
+import { useTaleRoom } from '@/store/roomStore';
+import { userStore, useUser } from '@/store/userStore';
 
 // main page에서 창이 불러와 지기 전에 동화 방을 백에서 조회
 // 커버, 인원, 방 번호, 책 이름, 방장 프로필, 닉네임
@@ -20,12 +22,21 @@ export default function FairyTaleRoom({ item }) {
     taleTitle,
   } = item;
 
+  const { connect, joinRoom } = useTaleRoom();
+  const { memberId } = useUser();
+
   const navigate = useNavigate();
+
+  const handleJoinTale = async () => {
+    await connect();
+    await joinRoom(roomId, memberId);
+    navigate('/tale/waiting', { relative: 'path' });
+  };
 
   return (
     <div
       className="cursor-pointer"
-      onClick={() => navigate('/tale/waiting', { relative: 'path' })}>
+      onClick={() => handleJoinTale()}>
       {/* 클릭하면 lobby로 리다이렉트 하자 */}
       <div className="w-[275px] w- h-[300px] bg-gray-50 rounded-[30px] flex-col justify-center items-start inline-flex overflow-hidden">
         <div className="w-[275px] h-[186px] overflow-hidden relative">

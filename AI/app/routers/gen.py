@@ -100,6 +100,7 @@ def generate_sentences(generateSentencesRequestDto: request_dto.TextRequestDto):
 
 
 @router.post("/tale-image", response_model=response_dto.ApiResponse[str])
+@util.logger
 def generate_tale_image(title: request_dto.TextRequestDto, backgroundTask: BackgroundTasks):
     """
     todo: 동화 이미지 생성
@@ -119,6 +120,7 @@ def generate_tale_image(title: request_dto.TextRequestDto, backgroundTask: Backg
 
 
 @router.post("/tale-intro-image", description="도입부 이미지 생성", response_model=response_dto.ApiResponse[str])
+@util.logger
 def generate_tale_intro_image(generateIntroImageRequestDto: request_dto.GenerateIntroImageRequestDto, backgroundTask: BackgroundTasks):
     """
     todo: 도입부 이미지 생성

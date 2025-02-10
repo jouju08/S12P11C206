@@ -67,13 +67,13 @@ const viduActions = (set, get) => ({
 
       try {
         await room.connect(LIVE_KIT_URL, useViduStore.getState().viduToken);
-        await room.localParticipant.setCameraEnabled(true);
+        // await room.localParticipant.setCameraEnabled(true);
 
-        set((state) => {
-          state.localTrack = room.localParticipant.videoTrackPublications
-            .values()
-            .next().value.videoTrack;
-        });
+        // set((state) => {
+        //   state.localTrack = room.localParticipant.videoTrackPublications
+        //     .values()
+        //     .next().value.videoTrack;
+        // });
       } catch (error) {
         console.log(
           'There was an error connecting to the room:',

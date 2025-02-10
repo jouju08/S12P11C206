@@ -51,17 +51,15 @@ const TaleKeyword = () => {
   } = useTalePlay(); // 동화 API
 
   useEffect(() => {
-    if (currentStep >= 4) {
-      navigate('/tale/taleSentenceDrawing');
-    }
-  }, [currentStep]); // 페이지 넘어가는 side effect
-
-  //unmounted reset page(count) for next play
-  useEffect(() => {
-    return () => {
-      setPage(0);
+    const handleUnMount = async () => {
+      if (currentStep >= 4) {
+        await setPage(0);
+        navigate('/tale/taleSentenceDrawing');
+      }
     };
-  }, []);
+
+    handleUnMount();
+  }, [currentStep]); // 페이지 넘어가는 side effect
 
   const sentences = tale?.['sentenceOwnerPairs']?.filter(
     (item) => item.sentence
@@ -126,7 +124,6 @@ const TaleKeyword = () => {
       const response = await submitTotalSingle(keyword);
 
       if (response.data.status == 'SU') {
-        console.log('SFDFDSFD');
         addPage();
         addKeyword(keyword);
         handleReset();
@@ -152,10 +149,10 @@ const TaleKeyword = () => {
     setIsNextActive(false);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     console.log(isSingle);
     if (isSingle) {
-      handleSubmitSingle();
+      await handleSubmitSingle();
       setCurrentStep((prev) => prev + 1);
     } else if (!isSingle) {
       handleSubmit();
