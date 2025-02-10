@@ -92,22 +92,6 @@ const TaleKeyword = () => {
       }
     } else if (mode === 'writing') {
       const file = await canvasRef.current.getPNGFile();
-      // const handwriteFile = await exportToBlob({
-      //   elements: canvasRef.current.getSceneElements(),
-      //   appState: canvasRef.current.getAppState(),
-      //   files: canvasRef.current.getFiles(),
-      //   mimeType: 'image/png',
-      // });
-
-      // const url = URL.createObjectURL(handwriteFile);
-      // const a = document.createElement('a');
-      // a.href = url;
-      // a.download = 'drawing.png';
-      // a.click();
-      // URL.revokeObjectURL(url);
-
-      // const file = new File([handwriteFile], `file.png`, { type: 'image/png' });
-
       const response = isSingle
         ? await submitHandWriteSingle(file)
         : await submitHandWrite(file);
@@ -142,12 +126,15 @@ const TaleKeyword = () => {
       const response = await submitTotalSingle(keyword);
 
       if (response.data.status == 'SU') {
+        console.log('SFDFDSFD');
         addPage();
         addKeyword(keyword);
         handleReset();
         return true;
+      } else {
+        return false;
       }
-    } catch {
+    } catch (error) {
       return false;
     }
   };
@@ -155,11 +142,8 @@ const TaleKeyword = () => {
   const handleReset = () => {
     setInputText('');
     setRecordedAudio(null);
-    // if (canvasRef.current) {
-    //   canvasRef.current.resetScene();
-    // }
 
-    if (canvasRef.current.canvas) {
+    if (canvasRef.current) {
       const canvas = canvasRef.current.canvas;
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -169,19 +153,12 @@ const TaleKeyword = () => {
   };
 
   const handleNext = () => {
+    console.log(isSingle);
     if (isSingle) {
-      handleSubmitSingle(inputText).then((resolve) => {
-        if (resolve == true) {
-          handleReset();
-          setCurrentStep((prev) => prev + 1);
-        }
-      });
+      handleSubmitSingle();
+      setCurrentStep((prev) => prev + 1);
     } else if (!isSingle) {
-      handleSubmit().then((resolve) => {
-        if (resovle == true) {
-          handleReset();
-        }
-      });
+      handleSubmit();
     }
   };
 
@@ -314,32 +291,7 @@ const TaleKeyword = () => {
               height={100}
               usePalette={false}
             />
-            {/* <Excalidraw
-              renderMainMenu={() => ''}
-              renderSidebar={() => ''}
-              excalidrawAPI={(api) => {
-                canvasRef.current = api;
-              }}
-              initialData={{
-                elements: [],
-                appState: {
-                  activeTool: {
-                    type: 'freedraw',
-                    customType: null,
-                    locked: true,
-                  },
-                  scrollX: 100,
-                  scrollY: 100,
-                },
-              }}
-            /> */}
           </div>
-
-          {/* <canvas
-            ref={canvasRef}
-            width={470}
-            height={165}
-            className="border border-gray-200 rounded-xl bg-white"></canvas> */}
           <div className="pb-12">
             <ConfirmBtn onClick={handleConfirm} />
           </div>

@@ -96,9 +96,9 @@ const playActions = (set, get) => ({
       state.page = value;
     }),
 
-  setHotTalePage: () => {
+  setHotTalePage: (page) => {
     set((state) => {
-      state.hotTalePage = state.hotTalePage + 1;
+      state.hotTalePage = page;
     });
   },
 
@@ -410,6 +410,8 @@ export const useTalePlay = () => {
   const setDrawDirection = usePlayStore((state) => state.setDrawDirection);
   const setHotTale = usePlayStore((state) => state.setHotTale);
 
+  const resetState = usePlayStore((state) => state.resetState);
+
   return {
     tale,
     hotTale,
@@ -448,5 +450,6 @@ export const useTalePlay = () => {
     setDrawDirection,
 
     setHotTale,
+    resetState,
   };
 };

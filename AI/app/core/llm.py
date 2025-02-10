@@ -108,7 +108,6 @@ def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
         page = PageInfo(
             extractedSentence=sentence, fullText=contents[i])
         pages.append(page)
-    print("pages" + pages)
     return response_dto.GenerateTaleResponseDto(pages=pages)
 
 
