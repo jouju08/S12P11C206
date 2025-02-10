@@ -1,14 +1,9 @@
 package com.ssafy.backend.member.controller;
 
 import com.ssafy.backend.common.ApiResponse;
-<<<<<<< backend/src/main/java/com/ssafy/backend/member/controller/MemberController.java
-import com.ssafy.backend.db.entity.Member;
-import com.ssafy.backend.db.entity.Tale;
 import com.ssafy.backend.dto.MemberDto;
-=======
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.BadRequestException;
->>>>>>> backend/src/main/java/com/ssafy/backend/member/controller/MemberController.java
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
 import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
@@ -18,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
+import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/member")

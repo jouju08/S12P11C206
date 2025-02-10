@@ -116,8 +116,7 @@ export default function Login() {
               style={{
                 backgroundSize: '40px',
                 backgroundPosition: '30px center',
-              }}
-              onClick={handleKakao}>
+              }}>
               카카오로 로그인 하기
             </button>
           </div>
