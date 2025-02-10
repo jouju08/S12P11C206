@@ -116,6 +116,7 @@ public class GalleryService {
                     .taleId(gallery.get().getTaleMember().getTale().getId())
                     .baseTaleId(gallery.get().getTaleMember().getTale().getBaseTale().getId())
                     .sentence(replaceSentence)
+                    .createdAt(gallery.get().getTaleMember().getCreatedAt())
                     .build();
         } catch (Exception e) {
             return null;
