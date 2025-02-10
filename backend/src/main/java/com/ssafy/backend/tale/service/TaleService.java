@@ -17,9 +17,14 @@ import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 import com.ssafy.backend.tale.dto.common.PageInfo;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
+import com.ssafy.backend.tale.dto.response.TaleDetailResponseDto;
 import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
 import com.ssafy.backend.tale.dto.response.TaleResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
@@ -49,14 +54,27 @@ public class TaleService {
     private final TaleMemberRepository taleMemberRepository;
     private final S3Service s3Service;
 
+    private final int PAGE_SIZE = 10;
+
     //내가 참여한 동화 목록 불러오기
-    public List<TaleResponseDto> getByUserId(Long memberId) {
+    public List<TaleResponseDto> getByUserId(Long memberId, String order, int page, Long baseTaleId) {
+        if(memberId == null)
+            throw new RuntimeException("유효하지 않은 사용자입니다.");
+
+        Sort.Direction direction = order.equals("LATEST") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE, Sort.by(direction, "createdAt"));
+
         // tale_member에서 member_id로 tale_id를 찾아서 tale_id로 tale을 찾아서 반환
         //반환할 객체를 생성합니다.
         List<TaleResponseDto> taleResponseDtoList = new ArrayList<>();
 
         // memberId로 taleMember를 찾습니다. (참여한 동화 페이지들을 찾습니다.)
-        List<TaleMember> taleMembers = taleMemberRepository.findByMemberId(memberId);
+        Page<TaleMember> taleMembers = null;
+        if(baseTaleId == null)
+            taleMembers = taleMemberRepository.findByMemberId(memberId, pageable);
+        else
+            taleMembers = taleMemberRepository.findByMemberIdAndBaseTaleId(memberId, baseTaleId, pageable);
         HashSet<Long> taleIdSet = new HashSet<>();
         //각 동화 페이지별로
         for (TaleMember taleMember : taleMembers) {
@@ -70,6 +88,31 @@ public class TaleService {
         }
 
         return taleResponseDtoList;
+    }
+
+    // 동화 디테일을 불러옵니다.
+    public TaleDetailResponseDto getByTaleId(long taleId) {
+        Tale tale = taleRepository.getReferenceById(taleId);
+        TaleDetailResponseDto taleDetailResponseDto = new TaleDetailResponseDto();
+        taleDetailResponseDto.setTaleId(tale.getId());
+        taleDetailResponseDto.setBaseTaleId(tale.getBaseTale().getId());
+
+        // 참가자들을 파싱합니다.
+        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(taleId);
+        List<String> participants = new ArrayList<>();
+        HashSet<Long> taleMemberIdSet = new HashSet<>();
+
+        for (TaleMember taleMember : taleMembers) {
+            if(taleMemberIdSet.contains(taleMember.getId())) // 중복된 taleMember는 제외합니다.
+                continue;
+
+            taleMemberIdSet.add(taleMember.getId());
+            participants.add(taleMember.getMember().getNickname());
+        }
+        taleDetailResponseDto.setParticipants(participants);
+
+        taleDetailResponseDto.setCreatedAt(tale.getCreatedAt());
+        return taleDetailResponseDto;
     }
 
     private TaleResponseDto parseTale(Tale tale){
