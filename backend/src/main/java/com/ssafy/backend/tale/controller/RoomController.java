@@ -64,7 +64,7 @@ public class RoomController {
     @SendTo("/topic/room/start/{roomId}")
     public String start(@PathVariable String roomId, Room room) {
         String destination = "/topic/room/start/" + roomId;
-        String message = "start"
+        String message = "start";
         messagingTemplate.convertAndSend(destination, message);
         return message;
     }
