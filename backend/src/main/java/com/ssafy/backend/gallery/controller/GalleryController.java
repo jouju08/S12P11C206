@@ -49,8 +49,7 @@ public class GalleryController {
     @GetMapping("/gallery")
     public ApiResponse<List<GalleryListResponseDto>> getPictures(
             Authentication auth,
-            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "LATEST") String order)  {
         List<GalleryListResponseDto> allPictures = galleryService.findAllPictures(auth, --page, order);
         return ApiResponse.<List<GalleryListResponseDto>>builder()

@@ -14,8 +14,9 @@ const ParticipationList = [
 ];
 
 const TaleStart = () => {
-  const { setBaseTale, setRoomId, setSubscribeTale, roomId } = useTalePlay();
-  const { connect, createRoom, setBaseTaleId } = useTaleRoom();
+  const { setBaseTale, setRoomId, setSubscribeTale, roomId, tale } =
+    useTalePlay();
+  const { connect, createRoom, setBaseTaleId, participants } = useTaleRoom();
   const { getTokenByAxios } = useViduHook();
 
   useEffect(() => {
@@ -72,6 +73,7 @@ const TaleStart = () => {
 
       <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex justify-center items-center">
         <p className="text-text-first story-basic2">
+          <>{}</>
           옛날 옛적에 아기돼지 삼형제가 살고 있었습니다.
           <br />
           이들은 각자 자신만의 집을 짓기로 결정했어요.

@@ -141,8 +141,8 @@ export default function Sightseeing() {
             value={sortBy}
             onChange={handleSortChange}
             className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50">
-            <option value="date">최신순</option>
-            <option value="famous">인기순</option>
+            <option value="LATEST">최신순</option>
+            <option value="POP">인기순</option>
           </select>
         </div>
 

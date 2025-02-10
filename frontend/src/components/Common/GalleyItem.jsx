@@ -17,7 +17,7 @@ export default function GalleryItem({ item }) {
 
   return (
     <Link
-      to={'/'}
+      to={`/gallery/${galleryId}`}
       className="w-[210px] h-[300px] pb-0.5 rounded-2xl bg-gray-50 border border-gray-200 flex-col justify-center items-start gap-[5px] inline-flex overflow-hidden">
       {/* 그림 이미지 주소 props 넣기 */}
       <img

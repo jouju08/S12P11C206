@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BaseTaleDto {
-
+    private Long id;
     private String title;
     private String titleImg;
     private String startVoice;

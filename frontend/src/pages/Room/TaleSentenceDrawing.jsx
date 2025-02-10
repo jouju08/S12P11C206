@@ -166,6 +166,7 @@ const TaleSentenceDrawing = () => {
 
     if (isSingle) {
       await submitPictureSingle(tmpFile);
+      addPage();
     } else if (!isSingle) {
       await submitPicture(tmpFile);
     }
