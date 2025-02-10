@@ -14,7 +14,7 @@ const sightseeingActions = (set, get) => ({
   setDrawingList: async () => {
     try {
       const response = await api.get('/gallery', {
-        params: { sort: get().sortBy },
+        params: { order: get().sortBy },
       });
 
       // 응답 데이터가 정상이면 drawingList 업데이트

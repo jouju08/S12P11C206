@@ -105,7 +105,7 @@ export default function Main() {
     async function fetchData() {
       try {
         const response = await api.get('/gallery', {
-          params: { sort: 'famous' },
+          params: { order: 'famous' },
         });
         console.log('📌 인기있는 그림 데이터:', response.data); // 콘솔 출력
         setdrawingData(response.data.data); // 상태에 저장
