@@ -7,14 +7,14 @@ import { immer } from 'zustand/middleware/immer';
 const initialState = {
   drawingList: [],
   memberId: userStore.getState().memberId,
-  sortBy: 'date', // 초기값: 최신순("date")
+  sortBy: 'LATEST', // 초기값: 최신순("date")
 };
 
 const sightseeingActions = (set, get) => ({
   setDrawingList: async () => {
     try {
       const response = await api.get('/gallery', {
-        params: { sort: get().sortBy },
+        params: { order: get().sortBy },
       });
 
       // 응답 데이터가 정상이면 drawingList 업데이트

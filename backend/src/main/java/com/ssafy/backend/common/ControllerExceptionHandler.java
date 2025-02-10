@@ -1,6 +1,7 @@
 package com.ssafy.backend.common;
 
 import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.common.exception.NotFoundPage;
 import com.ssafy.backend.common.exception.NotFoundUserException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -30,6 +31,14 @@ public class ControllerExceptionHandler {
                 .data(e.getMessage())
                 .status(ResponseCode.NOT_FOUND)
                 .message(ResponseMessage.NOT_FOUND)
+                .build();
+    }
+    @ExceptionHandler(NotFoundPage.class)
+    public ApiResponse<?> notFoundPageHandler(NotFoundPage e) {
+        return ApiResponse.builder()
+                .data(e.getMessage())
+                .status(ResponseCode.NOT_FOUND_PAGE)
+                .message(ResponseMessage.NOT_FOUND_PAGE)
                 .build();
     }
 
