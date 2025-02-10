@@ -26,5 +26,4 @@ public class ActiveUserController {
         activeUserService.addActiveUser(memeberId);
     }
 
-
 }
