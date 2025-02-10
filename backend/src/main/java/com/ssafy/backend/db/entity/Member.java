@@ -2,18 +2,16 @@ package com.ssafy.backend.db.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "member")
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -105,9 +103,9 @@ public class Member extends Common{
     @JsonIgnore
     private List<TaleInvitation> sentInvitations = new ArrayList<>();
 
-    // Tale (Member 1 : N Tale)
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
-    @Builder.Default
-    @JsonIgnore
-    private List<Tale> tales = new ArrayList<>();
+//    // Tale (Member 1 : N Tale)
+//    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+//    @Builder.Default
+//    @JsonIgnore
+//    private List<Tale> tales = new ArrayList<>();
 }

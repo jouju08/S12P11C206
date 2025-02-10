@@ -6,34 +6,30 @@ import com.ssafy.backend.db.entity.Tale;
 import com.ssafy.backend.db.repository.BaseTaleRepository;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleRepository;
-import com.ssafy.backend.tale.dto.Room;
+import com.ssafy.backend.tale.dto.common.Room;
 import com.ssafy.backend.tale.dto.request.JoinRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.LeaveRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.MakeRoomRequestDto;
-import com.ssafy.backend.tale.dto.response.RoomInfo;
+import com.ssafy.backend.tale.dto.common.RoomInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /*
  *  author : park byeongju
  *  date : 2025.01.23
  *  description : 방 서비스
  *  update
- *      1.
+ *      1. tale에 member가 삭제됨에 따라 makeRoom에서 빈방을 만들때 member를 저장하는 부분 주석처리 (heo-hyunjun, 2025.02.06)
  * */
 
 
 @Service
 @RequiredArgsConstructor
-//@Transactional(readOnly = true)
 public class RoomService {
 
     private final BaseTaleRepository baseTaleRepository;
@@ -41,6 +37,7 @@ public class RoomService {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    @Transactional
     public Room makeRoom(MakeRoomRequestDto makeRoomDto) {
 
         System.out.println(makeRoomDto);
@@ -53,7 +50,7 @@ public class RoomService {
         Long creatorId = makeRoomDto.getMemberId();
         tempMember.setId(makeRoomDto.getMemberId());
         tempBaseTale.setId(makeRoomDto.getBaseTaleId());
-        tempRoom.setMember(tempMember);
+//        tempRoom.setMember(tempMember); // tale에 member가 삭제됨에 따라 주석처리
         tempRoom.setBaseTale(tempBaseTale);
         tempRoom.setPartiCnt(makeRoomDto.getPartiCnt());
         Tale tale = taleRepository.save(tempRoom);
@@ -64,7 +61,7 @@ public class RoomService {
         Room room = new Room();
 
         Member creator = memberRepository.findById(makeRoomDto.getMemberId()).get();
-        creator.setPassword(null);      // 패스워드 주석처리
+//        creator.setPassword(null);      // 패스워드 주석처리 -> 트랜잭셔널 상태에서 비번 적용이 되므로 따로 처리.
         room.setRoomId(tale.getId());
         room.setBaseTaleId(makeRoomDto.getBaseTaleId());
         room.setMemberId(creatorId);
@@ -73,21 +70,23 @@ public class RoomService {
 
         // 3. Redis에 room id 값으로 저장
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-        ops.set(room.getRoomId().toString(), room);
+        ops.set("tale-" + room.getRoomId().toString(), room);
 
         // RoomInfo List 갱신 및 저장
         List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
         // roomList 없으면 생성
         if (roomList == null) roomList = new ArrayList<RoomInfo>();
-        String baseTaleTitle = baseTaleRepository.findById(room.getBaseTaleId()).get().getTitle();
+        Optional<BaseTale> baseTale = baseTaleRepository.findById(room.getBaseTaleId());
         roomList.add(RoomInfo.builder()
                 .roomId(room.getRoomId())
                 .hostMemberId(creator.getId())
                 .hostNickname(creator.getNickname())
                 .hostProfileImg(creator.getProfileImg())
-                .taleTitle(baseTaleTitle)
-                .participantsCnt(room.getMaxParticipantsCnt())
+                .taleTitle(baseTale.get().getTitle())
+                .taleTitleImg(baseTale.get().getTitleImg())
+                .maxParticipantsCnt(room.getMaxParticipantsCnt())
                 .participantsCnt(room.getParticipants().size())
+                .baseTaleId(baseTale.get().getId())
                 .build());
         ops.set("tale-roomList", roomList);
 
@@ -112,7 +111,7 @@ public class RoomService {
         if (cnt == room.getMaxParticipantsCnt()) room.setFull(true);
 
         //redis room 갱신
-        ops.set(room.getRoomId().toString(), room);
+        ops.set("tale-"+room.getRoomId().toString(), room);
         //redis room list 갱신
         List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
 //        if(roomList != null){
@@ -158,12 +157,14 @@ public class RoomService {
     public Room leaveRoom(LeaveRoomRequestDto leaveRoomRequestDto) {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
-
+        System.out.println(leaveRoomRequestDto);
         Room room = (Room) ops.get("tale-" + leaveRoomRequestDto.getRoomId().toString());
         if (room == null) throw new RuntimeException("유효하지 않은 방입니다.");
 
         // Room 갱신
+        System.out.println("room = " + room);
         Member leaveMember = room.getParticipants().get(leaveRoomRequestDto.getLeaveMemberId());
+        System.out.println("leaveMember = " + leaveMember);
         room.getParticipants().remove(leaveMember.getId());
         room.setFull(false);
 
@@ -194,9 +195,11 @@ public class RoomService {
         for (RoomInfo roomInfo : roomList) {
             if (roomInfo.getRoomId().equals(leaveRoomRequestDto.getRoomId())) {
                 roomInfo.setParticipantsCnt(room.getParticipants().size());
-                roomInfo.setHostMemberId(nextHostMember.getId());
-                roomInfo.setHostNickname(nextHostMember.getNickname());
-                roomInfo.setHostProfileImg(nextHostMember.getProfileImg());
+                if(nextHostMember != null) { // 호스트 변경이 없는 경우
+                    roomInfo.setHostMemberId(nextHostMember.getId());
+                    roomInfo.setHostNickname(nextHostMember.getNickname());
+                    roomInfo.setHostProfileImg(nextHostMember.getProfileImg());
+                }
                 ops.set("tale-roomList", roomList);
                 break;
             }

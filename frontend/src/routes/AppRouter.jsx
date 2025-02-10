@@ -1,70 +1,87 @@
+import React, { Suspense, lazy, useEffect } from 'react';
 import MainLayout from '@/common/layout/MainLayout';
 import TaleLayout from '@/common/layout/TaleLayout';
 import { Loading } from '@/common/Loading';
+import { useUser } from '@/store/userStore';
 
-import Hero from '@/pages/User/Hero';
-import Login from '@/pages/User/Login';
-import Main from '@/pages/User/Main';
-import Share from '@/pages/Room/Share';
-import Room from '@/pages/User/Room';
-import Collection from '@/pages/User/Collection';
-import Gallery from '@/pages/User/Gallery';
-import Profile from '@/pages/User/Profile';
-
-import React, { Suspense } from 'react';
 import {
-  BrowserRouter,
   createBrowserRouter,
-  Route,
+  Navigate,
+  Outlet,
   RouterProvider,
-  Routes,
+  useLocation,
 } from 'react-router-dom';
-import FileTest from '@/pages/FileTest';
-import Lobby from '@/pages/Room/Lobby';
 
-// Suspense Lazy Wrapper
-const withSuspense = (Component) => (
-  <Suspense fallback={<Loading />}>
-    <Component />
-  </Suspense>
+import KakaoCallback from '@/components/kakao/KakaoCallback';
+import DrawingBoard from '@/components/Common/DrawingBoard';
+import CanvasTest from '@/pages/CanvasTest';
+import Friends from '@/components/Friend/Friend';
+
+const Hero = lazy(() => import('@/pages/User/Hero'));
+const Login = lazy(() => import('@/pages/User/Login'));
+const Register = lazy(() => import('@/pages/User/Register'));
+const Main = lazy(() => import('@/pages/User/Main'));
+const Room = lazy(() => import('@/pages/User/Room'));
+const Collection = lazy(() => import('@/pages/User/Collection'));
+const Gallery = lazy(() => import('@/pages/User/Gallery'));
+const GalleryDetail = lazy(() => import('@/pages/User/GalleryDetail'));
+const Profile = lazy(() => import('@/pages/User/Profile'));
+const Sightseeing = lazy(() => import('@/pages/User/Sightseeing'));
+const FileTest = lazy(() => import('@/pages/FileTest'));
+const Lobby = lazy(() => import('@/pages/Room/Lobby'));
+const Share = lazy(() => import('@/pages/Room/Share'));
+const TaleStart = lazy(() => import('@/pages/Room/TaleStart'));
+const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));
+const TaleSentenceDrawing = lazy(
+  () => import('@/pages/Room/TaleSentenceDrawing')
 );
+const HotTale = lazy(() => import('@/pages/Room/HotTale'));
+const Waiting = lazy(() => import('@/pages/Room/Waiting'));
+
+//인증된 사용자
+const ProtectedLayout = () => {
+  const { isAuthenticated, fetchUser } = useUser();
+  const location = useLocation();
+
+  useEffect(() => {
+    fetchUser();
+  }, [location.pathname]);
+
+  return isAuthenticated ? (
+    <Suspense fallback={<Loading />}>
+      <Outlet />
+    </Suspense>
+  ) : (
+    <Navigate
+      to="/login"
+      replace
+    />
+  );
+};
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <MainLayout />, // header(common header, auth header), footer
+    element: <MainLayout />,
     children: [
+      { index: true, element: <Hero /> },
+      { path: 'login', element: <Login /> },
+      { path: 'register', element: <Register /> },
+      { path: 'auth/kakao/callback', element: <KakaoCallback /> },
+      { path: 'friends', element: <Friends /> },
       {
-        index: true,
-        element: withSuspense(Hero),
-      },
-      {
-        path: 'login',
-        element: withSuspense(Login),
-      },
-      {
-        path: 'main',
-        element: withSuspense(Main),
-      },
-      {
-        path: 'room',
-        element: withSuspense(Room),
-      },
-      {
-        path: 'collection',
-        element: withSuspense(Collection),
-      },
-      {
-        path: 'gallery',
-        element: withSuspense(Gallery),
-      },
-      {
-        path: 'profile',
-        element: withSuspense(Profile),
-      },
-      {
-        path: 'upload',
-        element: withSuspense(FileTest),
+        element: <ProtectedLayout />, // 인증된 사용자
+        children: [
+          { path: 'main', element: <Main /> },
+          { path: 'room', element: <Room /> },
+          { path: 'collection', element: <Collection /> },
+          { path: 'gallery', element: <Gallery /> },
+          { path: 'gallery/:galleryId', element: <GalleryDetail /> },
+          { path: 'profile', element: <Profile /> },
+          { path: 'upload', element: <FileTest /> },
+          { path: 'canvas', element: <CanvasTest /> },
+          { path: 'sightseeing', element: <Sightseeing /> },
+        ],
       },
     ],
   },
@@ -73,16 +90,19 @@ const router = createBrowserRouter([
     element: <TaleLayout />,
     children: [
       {
-        path: 'lobby',
-        element: withSuspense(Lobby),
-      },
-      {
-        path: 'share',
-        element: withSuspense(Share),
+        element: <ProtectedLayout />, // 인증된 사용자
+        children: [
+          { path: 'lobby', element: <Lobby /> },
+          { path: 'share', element: <Share /> },
+          { path: 'waiting', element: <Waiting /> },
+          { path: 'taleStart', element: <TaleStart /> },
+          { path: 'taleKeyword', element: <TaleKeyword /> },
+          { path: 'taleSentenceDrawing', element: <TaleSentenceDrawing /> },
+          { path: 'hotTale', element: <HotTale /> },
+        ],
       },
     ],
   },
-  {},
 ]);
 
 export default function AppRouter() {

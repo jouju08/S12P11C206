@@ -1,6 +1,7 @@
 package com.ssafy.backend.common;
 
 import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.common.exception.NotFoundUserException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -15,11 +16,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ControllerExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
-    public ApiResponse<?> badRequestHandler(Exception e) {
+    public ApiResponse<?> badRequestHandler(BadRequestException e) {
         return ApiResponse.builder()
                 .data(e.getMessage())
                 .status(ResponseCode.BAD_REQUEST)
                 .message(ResponseMessage.BAD_REQUEST)
+                .build();
+    }
+
+    @ExceptionHandler(NotFoundUserException.class)
+    public ApiResponse<?> badRequestHandler(NotFoundUserException e) {
+        return ApiResponse.builder()
+                .data(e.getMessage())
+                .status(ResponseCode.NOT_FOUND)
+                .message(ResponseMessage.NOT_FOUND)
                 .build();
     }
 
@@ -42,4 +52,5 @@ public class ControllerExceptionHandler {
                 .message(ResponseMessage.SERVER_ERROR)
                 .build();
     }
+
 }

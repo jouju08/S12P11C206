@@ -1,11 +1,14 @@
 package com.ssafy.backend.db.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
 @Table(name = "gallery_like")
-@Data
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @IdClass(GalleryLikeId.class)
 public class GalleryLike extends Common{
 

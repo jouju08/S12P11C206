@@ -1,3 +1,158 @@
+@import url('https://fastly.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 국민연금체 */
+@font-face {
+  font-family: 'NPSfont';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/NPSfontExtraBold.woff2')
+    format('woff2');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'NPSfont';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/NPSfontRegular.woff2')
+    format('woff2');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'NPSfont';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/NPSfontBold.woff2')
+    format('woff2');
+  font-weight: 500;
+}
+
+/* 귀염발랄체 */
+@font-face {
+  font-family: 'CuteFont';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.0/insungitCutelivelyjisu.woff2')
+    format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* adding utilities */
+@layer utilities {
+  .service-accent1 {
+    font-family: NPSfont;
+    font-weight: 700;
+    font-size: 32px;
+  }
+  .service-accent2 {
+    font-family: NPSfont;
+    font-weight: 700;
+    font-size: 26px;
+  }
+  .service-accent3 {
+    font-family: NPSfont;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .service-bold1 {
+    font-family: NPSfont;
+    font-weight: 500;
+    font-size: 25px;
+  }
+  .service-bold2 {
+    font-family: NPSfont;
+    font-weight: 500;
+    font-size: 22px;
+  }
+  .service-bold3 {
+    font-family: NPSfont;
+    font-weight: 500;
+    font-size: 18px;
+  }
+  .service-regular1 {
+    font-family: NPSfont;
+    font-weight: 300;
+    font-size: 22px;
+  }
+  .service-regular2 {
+    font-family: NPSfont;
+    font-weight: 300;
+    font-size: 18px;
+  }
+  .service-regular3 {
+    font-family: NPSfont;
+    font-weight: 300;
+    font-size: 16px;
+  }
+  .story-basic1 {
+    font-family: CuteFont;
+    font-size: 28px;
+  }
+  .story-basic2 {
+    font-family: CuteFont;
+    font-size: 24px;
+  }
+  .story-basic3 {
+    font-family: CuteFont;
+    font-size: 20px;
+  }
+
+  .story-basic4 {
+    font-family: CuteFont;
+    font-size: 16px;
+
+    .auth-bold1 {
+      font-family: 'Wanted Sans', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+    }
+    .auth-bold2 {
+      font-family: 'Wanted Sans', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .auth-regular1 {
+      font-family: 'Wanted Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 500;
+    }
+    .auth-regular2 {
+      font-family: 'Wanted Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+
+  /* select 화살표 변경 */
+  select {
+    appearance: none; /* html의 기본적인 디자인 없애기 */
+    -webkit-appearance: none; /* Vendor Prefix */
+    -moz-appearance: none; /* Vendor Prefix */
+    background: url('/Common/select-down.png') no-repeat center right 12px; /* 기존의 우측 화살표를 배경 이미지로 대체 */
+  }
+
+  /* 스크롤 커스텀 */
+  #need-scrool::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  #need-scrool::-webkit-scrollbar-thumb {
+    background-color: #2f3542;
+    border-radius: 10px;
+  }
+  #need-scrool::-webkit-scrollbar-track {
+    background-color: grey;
+    border-radius: 10px;
+    box-shadow: inset 0px 0px 5px white;
+  }
+
+  /* Canvas용 마우스 커서*/
+  .eraser-cursor {
+    cursor:
+      url('/public/circle-outline.svg') 8 8,
+      auto;
+  }
+
+  .pencil-cursor {
+    cursor:
+      url('/public/circle-outline.svg') 12 12,
+      auto;
+  }
+}

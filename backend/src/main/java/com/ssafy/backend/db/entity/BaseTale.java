@@ -1,5 +1,6 @@
 package com.ssafy.backend.db.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -34,7 +35,7 @@ public class BaseTale extends Common{
     @Lob
     private String startScript;  // 시작 스크립트
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20)
     private String keyword1;     // 기본 키워드1
 
     @Column(length = 20)
@@ -46,7 +47,22 @@ public class BaseTale extends Common{
     @Column(length = 20)
     private String keyword4;     // 기본 키워드4
 
+    @Column(length=100)
+    private String keywordSentence1; // 키워드1에 대한 문장
+
+    @Column(length=100)
+    private String keywordSentence2; // 키워드2에 대한 문장
+
+    @Column(length=100)
+    private String keywordSentence3; // 키워드3에 대한 문장
+
+    @Column(length=100)
+    private String keywordSentence4; // 키워드4에 대한 문장
+
+
+
     // Tale (BaseTale 1 : N Tale)
     @OneToMany(mappedBy = "baseTale", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Tale> tales = new ArrayList<>();
 }

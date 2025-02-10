@@ -2,22 +2,20 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-const useRoom = () => {
-  const [client, setClient] = useState(null);
+const useRoom = (roomId) => {
+  const [stompClient, setStompClient] = useState(null);
   const [rooms, setRooms] = useState([]);
-  const [userName, setUserName] = useState(
-    'User' + Math.floor(Math.random() * 1000)
-  );
 
   useEffect(() => {
-    const socket = new SockJS('http://192.168.100.136:8080/ws');
+    const socket = new SockJS(import.meta.env.VITE_WS_URL);
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
       onConnect: () => {
         console.log('Socket connected');
-        client.subscribe(`/topic/rooms/`, (message) => {
+        client.subscribe(`/topic/rooms`, (message) => {
           console.log(message.body);
+          console.log(JSON.parse(message.body));
           setRooms((prev) => [...prev, JSON.parse(message.body)]);
         });
       },
@@ -38,12 +36,14 @@ const useRoom = () => {
       return console.error('Client is not connected');
     }
 
+    console.log('create room');
+
     client.publish({
       destination: '/app/room/create',
       body: JSON.stringify({
-        creatorId: `${userName}`,
-        baseTaleId: 10,
-        partiCnt: Math.floor(Math.random() * 4) + 1,
+        memberId: 1, // host id
+        baseTaleId: 1,
+        partiCnt: 4,
       }),
     });
   };

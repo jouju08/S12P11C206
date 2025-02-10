@@ -1,6 +1,8 @@
 package com.ssafy.backend.member.service;
 
 import com.ssafy.backend.config.RedisConfig;
+import com.ssafy.backend.db.entity.Member;
+import com.ssafy.backend.db.repository.MemberRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +13,14 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class EmailSendService {
+    @Autowired
+    MemberRepository memberRepository;
     @Autowired
     private JavaMailSender javaMailSender;
     @Autowired
@@ -25,6 +30,18 @@ public class EmailSendService {
     /* 이메일 인증에 필요한 정보 */
     @Value("${spring.mail.username}")
     private String serviceName;
+    private String loginId;
+
+
+    //이메일로 db에서 아이디 찾아오기
+    public void findIdByEmail(String email) {
+
+        String id = memberRepository.findByEmail(email)
+                .map(Member::getLoginId)
+                .orElse(null);
+
+        loginId = id;
+    }
 
     /* 랜덤 인증번호 생성 */
     public void makeRandomNum() {
@@ -38,7 +55,7 @@ public class EmailSendService {
     }
 
     /* 이메일 전송 */
-    public void mailSend(String setFrom, String toMail, String title, String content) {
+    public void mailVerifySend(String setFrom, String toMail, String title, String content) {
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(message,true,"utf-8");
@@ -55,6 +72,21 @@ public class EmailSendService {
         valOperations.set(toMail, Integer.toString(authNumber), 180, TimeUnit.SECONDS);
     }
 
+    //아이디 찾기용 이메일 전송
+    public void mailIdSend(String setFrom, String toMail, String title, String content) {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message,true,"utf-8");
+            helper.setFrom(setFrom); // service name
+            helper.setTo(toMail); // customer email
+            helper.setSubject(title); // email title
+            helper.setText(content,true); // content, html: true
+            javaMailSender.send(message);
+        } catch (MessagingException e) {
+            e.printStackTrace(); // 에러 출력
+        }
+    }
+
     /* 이메일 작성 */
     public String joinEmail(String email) {
         makeRandomNum();
@@ -66,9 +98,21 @@ public class EmailSendService {
                         "인증 번호는 " + authNumber + "입니다." +
                         "<br>" +
                         "해당 번호를 회원가입 페이지에 입력해주세요.";
-        mailSend(serviceName, customerMail, title, content);
+        mailVerifySend(serviceName, customerMail, title, content);
         return Integer.toString(authNumber);
     }
+
+    //아이디 찾기 이메일 작성
+    public String findIdEmail(String email) {
+        findIdByEmail(email);
+        String customerMail = email;
+        String title = "My Fairy 아이디 찾기 입니다";
+        String content =
+                "사용자의 아이디는"+loginId+"입니다";
+        mailIdSend(serviceName, customerMail, title, content);
+        return loginId;
+    }
+
 
     /* 인증번호 확인 */
     public Boolean checkAuthNum(String email, String authNum) {

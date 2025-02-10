@@ -6,9 +6,10 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DB_URL}
+    username: ${SPRING_DB_USERNAME}
+    password: ${SPRING_DB_PASSWORD}
+
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -18,23 +19,44 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   data:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-      exprire-time: ${REDIS_EXPIRE_TIME}
+      expire-time: ${REDIS_EXPIRE_TIME}
+
   mail:
-    host: ${SMTP_HOST}
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
+    host: ${SPRING_MAIL_HOST}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
-    port: 587
+    port: ${SPRING_MAIL_PORT}
 
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${oauth_kakao_client_id}
+            client-secret: ${oauth_kakao_secert}
+            redirect-uri: ${oauth_kakao_redirect_uri}
+            authorization-grant-type: authorization_code
+            scope: profile_nickname, account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
 
+jwt:
+  secret: ${JWT_SECRET}
+  accessExpiration: 10000000
+  refreshExpiration: 604800000
 
-# aws s3
 aws:
   s3:
     bucket: ${AWS_S3_BUCKET}

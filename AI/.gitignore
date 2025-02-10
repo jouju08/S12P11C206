@@ -1,5 +1,6 @@
 .venv
 .env
+*.log
 __pycache__
 app/files/*.mp3
 app/files/*.m4a
