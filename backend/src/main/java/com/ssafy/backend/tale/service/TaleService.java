@@ -17,6 +17,7 @@ import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
 import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 import com.ssafy.backend.tale.dto.common.PageInfo;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
+import com.ssafy.backend.tale.dto.response.TaleDetailResponseDto;
 import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
 import com.ssafy.backend.tale.dto.response.TaleResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +71,31 @@ public class TaleService {
         }
 
         return taleResponseDtoList;
+    }
+
+    // 동화 디테일을 불러옵니다.
+    public TaleDetailResponseDto getByTaleId(long taleId) {
+        Tale tale = taleRepository.getReferenceById(taleId);
+        TaleDetailResponseDto taleDetailResponseDto = new TaleDetailResponseDto();
+        taleDetailResponseDto.setTaleId(tale.getId());
+        taleDetailResponseDto.setBaseTaleId(tale.getBaseTale().getId());
+
+        // 참가자들을 파싱합니다.
+        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(taleId);
+        List<String> participants = new ArrayList<>();
+        HashSet<Long> taleMemberIdSet = new HashSet<>();
+
+        for (TaleMember taleMember : taleMembers) {
+            if(taleMemberIdSet.contains(taleMember.getId())) // 중복된 taleMember는 제외합니다.
+                continue;
+
+            taleMemberIdSet.add(taleMember.getId());
+            participants.add(taleMember.getMember().getNickname());
+        }
+        taleDetailResponseDto.setParticipants(participants);
+
+        taleDetailResponseDto.setCreatedAt(tale.getCreatedAt());
+        return taleDetailResponseDto;
     }
 
     private TaleResponseDto parseTale(Tale tale){

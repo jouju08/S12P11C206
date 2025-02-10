@@ -6,10 +6,7 @@ import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
-import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
-import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
-import com.ssafy.backend.tale.dto.response.TaleResponseDto;
-import com.ssafy.backend.tale.dto.response.TextResponseDto;
+import com.ssafy.backend.tale.dto.response.*;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +38,9 @@ public class TaleController {
     private final WebSocketNotiService webSocketNotiService;
     private final MemberRepository memberRepository;
 
+    //todo
+    // order -> 최신순, 과거순
+    // 동화책 id 필터링
     @GetMapping("/my-tale")
     public ApiResponse<List<TaleResponseDto>> getMyTale(Authentication authentication) {
         String loginId = authentication.getName();
@@ -49,12 +49,11 @@ public class TaleController {
         return ApiResponse.<List<TaleResponseDto>>builder().data(taleList).build();
     }
 
-//    //제작한 동화 디테일
-//    @GetMapping("/{taleId}")?
-//    public ApiResponse<Tale> getDetail(@PathVariable long taleId) {
-//        Tale tale=taleService.getByTale(taleId);
-//        return ApiResponse.<Tale>builder().data(tale).build();
-//    }
+    //제작한 동화 디테일
+    @GetMapping("/{taleId}")
+    public ApiResponse<TaleDetailResponseDto> getDetail(@PathVariable long taleId) {
+        return ApiResponse.<TaleDetailResponseDto>builder().data(taleService.getByTaleId(taleId)).build();
+    }
 
     // 동화 제작 시작
     // 방의정보를 보고 동화의 정보를 불러와서 키워드 문장을 매칭시킵니다.
