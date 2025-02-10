@@ -1,42 +1,53 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import Participant from '@/components/Waiting/Participant';
 import { useTaleRoom } from '@/store/roomStore';
-import { userStore } from '@/store/userStore';
-import { useNavigate } from 'react-router-dom';
-
-// 더미 데이터
-const dummyParticipants = [
-  {
-    id: 1,
-    isFriend: 'me',
-    nickname: 'test1',
-    profileImg: '/Main/profile-img.png',
-    isHost: true,
-  },
-  {
-    id: 2,
-    isFriend: 'yes',
-    nickname: 'test2',
-    profileImg: '/Main/profile-img.png',
-    isHost: false,
-  },
-  {
-    id: 3,
-    isFriend: 'pending', //pending도 해볼것
-    nickname: 'test3',
-    profileImg: '/Main/profile-img.png',
-    isHost: false,
-  },
-];
+import { userStore, useUser } from '@/store/userStore';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Waiting() {
-  const { participants } = useTaleRoom();
+  const { participants, currentRoom, startRoom, isStart } = useTaleRoom();
+  const { memberId } = useUser();
 
+  const [isHost, setIsHost] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
   const navigate = useNavigate();
 
-  const handleClick = () => {
-    navigate('/tale/taleStart', { replace: true, relative: 'path' });
+  const handleStart = async () => {
+    await startRoom();
   };
+
+  useEffect(() => {
+    const hostId = currentRoom.memberId;
+    const isFull = currentRoom.full;
+
+    console.log(isFull);
+    console.log(hostId == memberId);
+
+    //방장인지 판단
+    if (hostId == memberId) {
+      setIsHost(true);
+    }
+
+    //방장이면서 4명이 됬는지 판단해서 시작버튼 활성화
+    if (isFull && hostId == memberId) {
+      setIsDisabled(false);
+    } else {
+      setIsDisabled(true);
+    }
+
+    return () => {
+      setIsHost(false);
+      setIsDisabled(false);
+    };
+  }, [currentRoom]);
+
+  useEffect(() => {
+    if (isStart == 'start') {
+      navigate('/tale/taleStart');
+    }
+
+    return () => {};
+  }, [isStart]);
 
   return (
     <div className="w-[1021px] h-[668px] relative">
@@ -85,25 +96,38 @@ export default function Waiting() {
         <div className="w-[410px] h-[300px] relative flex flex-col gap-3">
           {participants.map((item, idx) => (
             <div
-              key={idx}
+              key={item.id}
               className="w-full h-[60px] flex items-center justify-end gap-2">
               {/* 왼쪽에 방장은 모두 떠야하고, 내보내기는 방장만 보여야함 */}
-              {item.isHost ? (
+
+              {item.id == currentRoom.memberId ? (
                 // 내 로그인 정보와 이 방의 호스트 정보가 같다면
-                <div className="w-fit h-[32px] px-[10px] py-1 bg-main-success rounded-2xl justify-center items-center text-center text-text-first service-regular3">
-                  방장
-                </div>
+                <>
+                  <div className="w-fit h-[32px] px-[10px] py-1 bg-main-success rounded-2xl justify-center items-center text-center text-text-first service-regular3">
+                    {item.id == memberId ? `방장/나` : `방장`}
+                  </div>
+                  <Participant
+                    item={item}
+                    isHost={true}
+                  />
+                </>
+              ) : item.id == memberId ? (
+                <>
+                  <div className="w-fit h-[32px] px-[10px] py-1 bg-main-kakao rounded-2xl justify-center items-center text-center text-text-first service-regular3">
+                    나 !!
+                  </div>
+                  <Participant item={item} />
+                </>
               ) : (
-                <GetOut />
+                <Participant item={item} />
               )}
 
               {/* 오른쪽 참여자 명단 부분 */}
-              <Participant item={item} />
             </div>
           ))}
 
           {/* 4자리 중 빈 자리 */}
-          {Array.from({ length: 4 - dummyParticipants.length }, (_, idx) => (
+          {Array.from({ length: 4 - participants.length }, (_, idx) => (
             <div className="w-full h-[60px] leading-[60px] bg-gray-300 rounded-[30px] text-center text-text-white service-regular1">
               같이 할 친구를 기다려봐요!
             </div>
@@ -131,9 +155,13 @@ export default function Waiting() {
 
           {/* 4명 다 모이면 출발 버튼 */}
           {/* 로그인 되어있는 내가 방장이라면 */}
+
           <button
-            onClick={handleClick}
-            className="h-16 px-4 py-3 absolute bottom-6 right-6 bg-white rounded-[64px] border-4 border-main-btn justify-start items-center gap-2.5 inline-flex overflow-hidden">
+            onClick={handleStart}
+            disabled={isDisabled}
+            className={`h-16 px-4 py-3 absolute bottom-6 right-6 rounded-[64px] border-4 justify-start items-center gap-2.5 inline-flex overflow-hidden
+              ${isDisabled ? 'bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed' : 'bg-white border-main-btn text-black'}
+            `}>
             <img
               src="/Waiting/play.png"
               alt="출발버튼"

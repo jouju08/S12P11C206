@@ -106,10 +106,11 @@ const roomActions = (set, get) => ({
 
         //들어와 있는 방인원들
         const participants = JSON.parse(message.body)['participants'];
-        // get().setParticipants(roomId, participants);
+
         get().addParticipant(participants);
       });
 
+      //출발시작 받기위한 flag 구독
       stompClient.subscribe(`topic/room/start/${roomId}`, (message) => {
         const startFlag = JSON.parse(message.body);
         set({ isStart: startFlag });
@@ -118,8 +119,23 @@ const roomActions = (set, get) => ({
       stompClient.subscribe(`/topic/room/leave/${roomId}`, (message) => {
         const leaveData = JSON.parse(message.body);
         if (leaveData.leaveMemberId !== memberId) {
-          get().setCurrentRoom([JSON.parse(message.body)]);
+          get().setCurrentRoom(JSON.parse(message.body));
+
+          const participants = JSON.parse(message.body)['participants'];
+
+          get().addParticipant(participants);
         }
+      });
+    }
+  },
+
+  startRoom: async () => {
+    const { stompClient, currentRoom, isStart } = get();
+
+    if (stompClient && stompClient.connected) {
+      stompClient.publish({
+        destination: `/app/room/start/${currentRoom.roomId}`,
+        body: JSON.stringify(room),
       });
     }
   },
@@ -145,7 +161,6 @@ const roomActions = (set, get) => ({
       set({
         currentRoom: null,
         participants: [],
-        participants: {},
         baseTaleId: '',
         isSingle: false,
         isStart: null,
@@ -159,7 +174,9 @@ const roomActions = (set, get) => ({
   //   set((state) => ({ participants: [...state.participants, participant] })),
 
   addParticipant: (participant) =>
-    set((state) => ({ participants: [...state.participants, participant] })),
+    set((state) => ({
+      participants: [...Object.values(participant)],
+    })),
 
   removeParticipant: (participantId) =>
     set((state) => ({
@@ -168,7 +185,8 @@ const roomActions = (set, get) => ({
       ),
     })),
 
-  setIsSingle: (value) => set((state) => ({ ...state, isSingle: value })),
+  setIsSingle: (value) => set({ isSingle: value }),
+  setIsStart: (value) => set({ isStart: value }),
   setBaseTaleId: (id) =>
     set((state) => ({
       baseTaleId: state.baseTaleId == id ? '' : id,
@@ -188,9 +206,10 @@ const useRoomStore = create(
 
 export const useTaleRoom = () => {
   const currentRoom = useRoomStore((state) => state.currentRoom);
-  const participants = useRoomStore((state) => state.participants, shallow);
+  const participants = useRoomStore((state) => state.participants);
   const baseTaleId = useRoomStore((state) => state.baseTaleId);
   const isSingle = useRoomStore((state) => state.isSingle);
+  const isStart = useRoomStore((state) => state.isStart);
 
   const setCurrentRoom = useRoomStore((state) => state.setCurrentRoom);
   const setParticipants = useRoomStore((state) => state.setParticipants);
@@ -202,6 +221,7 @@ export const useTaleRoom = () => {
   const subscribeMain = useRoomStore((state) => state.subscribeMain);
   const createRoom = useRoomStore((state) => state.createRoom);
   const joinRoom = useRoomStore((state) => state.joinRoom);
+  const startRoom = useRoomStore((state) => state.startRoom);
   const leaveRoom = useRoomStore((state) => state.leaveRoom);
 
   const setIsSingle = useRoomStore((state) => state.setIsSingle);
@@ -213,6 +233,7 @@ export const useTaleRoom = () => {
     participants,
     baseTaleId,
     isSingle,
+    isStart,
 
     setCurrentRoom,
     setParticipants,
@@ -222,6 +243,7 @@ export const useTaleRoom = () => {
     connect,
     subscribeMain,
     createRoom,
+    startRoom,
     joinRoom,
     leaveRoom,
 
