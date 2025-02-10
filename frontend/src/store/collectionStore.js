@@ -8,10 +8,10 @@ const taleStart = {
   title: 'title',
   startVoice: 'url',
   startImg: 'url',
-  startScript: 'str',
+  startScript: 'store start str',
 };
 
-const seeTaleId = 1;
+// const seeTaleId = 1;
 
 const taleDetail = {
   orderNum: 1,
@@ -21,7 +21,7 @@ const taleDetail = {
   orginImg: 'url', // 손그림 이미지
   img: 'url', // AI가 그린 이미지
   voice: 'url', // 스크립트 읽는 동화 연기 voice, wav형식
-  script: 'str', // 동화내용
+  script: 'store detail str', // 동화내용
 };
 
 const initialState = {
@@ -29,7 +29,7 @@ const initialState = {
   accessToken: userStore.getState().accessToken,
   myTaleList: [],
   taleStart: { ...taleStart },
-  seeTaleId,
+  seeTaleId: 1,
   taleDetail: { ...taleDetail },
 };
 
@@ -46,7 +46,7 @@ const collectionActions = (set, get) => ({
       }
 
       // 값 어떻게 넘어오는지 확인 하고
-      const taleList = response.data;
+      const taleList = response.data.data;
       set((state) => {
         state.myTaleList = taleList;
       });
@@ -68,14 +68,24 @@ const collectionActions = (set, get) => ({
 
       const { title, startVoice, startImg, startScript } = response.data.data;
 
+      // [수정 2] Immer의 draft 사용 방식 변경
       set((state) => {
-        state.taleStart = {
-          title,
-          startVoice,
-          startImg,
-          startScript,
-        };
+        state.taleStart.title = title;
+        state.taleStart.startVoice = startVoice;
+        state.taleStart.startImg = startImg;
+        state.taleStart.startScript = startScript;
       });
+
+      // set((state) => {
+      //   state.taleStart = {
+      //     title: response.data.data.title,
+      //     startVoice: response.data.data.startVoice,
+      //     startImg: response.data.data.startImg,
+      //     startScript: response.data.data.startScript,
+      //   };
+
+      // });
+      console.log('도입부 바꼈는지 확인', get().taleStart);
     } catch (error) {
       console.log('동화 초입부 불러오기 실패: ', error);
     }
@@ -88,7 +98,7 @@ const collectionActions = (set, get) => ({
   },
 
   setTaleDetail: async (pageNum) => {
-    const response = await api.get(`/tale/${get().seeTaleId}/${pageNum - 1}`); // 0번째 페이지 호출인데 값이 1 들어옵니다
+    const response = await api.get(`/tale/${get().seeTaleId}/${pageNum - 1}`);
     console.log(
       `${get().seeTaleId}번째 동화 ${get().taleStart['title']}의 ${pageNum - 1} idx 페이지 불러오기: `,
       response
@@ -97,6 +107,7 @@ const collectionActions = (set, get) => ({
     set((state) => {
       state.taleDetail = response.data.data;
     });
+    console.log('디테일 바꼈는지 확인', get().taleDetail);
   },
 });
 

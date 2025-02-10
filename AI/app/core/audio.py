@@ -37,7 +37,7 @@ def transcript_audio(file):
     return response_dto.TextResponseDto(text=transcription.text)
 
 
-def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
+def script_read(textRequestDto: request_dto.TextRequestDto):
     """
     스크립트를 읽어주는 함수
     text -> audio 변환
@@ -61,7 +61,7 @@ def script_read(scriptReadRequestDto: request_dto.ScriptReadRequestDto):
                 "role": "user",
                 "content": [
                     {
-                        "text": scriptReadRequestDto.script,
+                        "text": textRequestDto.text,
                         "type": "text"
                     },
                 ],

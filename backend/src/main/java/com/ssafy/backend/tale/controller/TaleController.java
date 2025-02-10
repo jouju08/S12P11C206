@@ -43,14 +43,14 @@ public class TaleController {
 
     @GetMapping("/my-tale")
     public ApiResponse<List<TaleResponseDto>> getMyTale(Authentication authentication) {
-        User user=(User) authentication.getPrincipal();
-        Long UserId=memberRepository.findByLoginId(user.getUsername()).get().getId();
-        List<TaleResponseDto> taleList= taleService.getByUserId(UserId);
+        String loginId = authentication.getName();
+        Long userId=memberRepository.findByLoginId(loginId).get().getId();
+        List<TaleResponseDto> taleList= taleService.getByUserId(userId);
         return ApiResponse.<List<TaleResponseDto>>builder().data(taleList).build();
     }
 
 //    //제작한 동화 디테일
-//    @GetMapping("/detail/{taleId}")?
+//    @GetMapping("/{taleId}")?
 //    public ApiResponse<Tale> getDetail(@PathVariable long taleId) {
 //        Tale tale=taleService.getByTale(taleId);
 //        return ApiResponse.<Tale>builder().data(tale).build();

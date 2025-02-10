@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,14 +40,15 @@ public class FriendRequestService {
         this.findFriendService=findFriendService;
     }
 
-    public boolean sendFriendRequest(FriendDto friendDto) {
+    public boolean sendFriendRequest(FriendDto friendDto, String proposerLoginId) {
         // 신청자와 수신자 조회
-        Member proposer = memberRepository.findById(friendDto.getProposerId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid proposer ID"));
-        Member recipient = memberRepository.findById(friendDto.getReceiverId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid receiver ID"));
+        Long proposerId =  memberRepository.findByLoginId(proposerLoginId).get().getId();
+        String reciepientLoginId =  friendDto.getReceiverLoginId();
+        System.out.println(reciepientLoginId);
+        Long reciepientId =  memberRepository.findByLoginId(reciepientLoginId).get().getId();
+        System.out.println(reciepientId);
 
-        Optional<FriendRequest> isfriendRequest = friendRequestRepository.findBySenderIdAndReceiverId(friendDto.getProposerId(), friendDto.getReceiverId());
+        Optional<FriendRequest> isfriendRequest = friendRequestRepository.findBySenderIdAndReceiverId(proposerId, reciepientId);
 
         if (isfriendRequest.isPresent() && 'P' == isfriendRequest.get().getResponse()) {//이미 신청 되어있디면 예외처리
             throw new BadRequestException("이미 친구 신청 중");
@@ -56,8 +58,8 @@ public class FriendRequestService {
         }
 
         FriendRequest friendRequest = FriendRequest.builder()
-                .proposerId(proposer.getId())
-                .recipientId(recipient.getId())
+                .proposerId(proposerId)
+                .recipientId(reciepientId)
                 .response('P') // 초기 상태는 대기 상태
                 .build();
         friendRequestRepository.save(friendRequest);//저장
@@ -77,8 +79,6 @@ public class FriendRequestService {
             FriendRequest request = optionalRequest.get();
             request.setResponse('A');//수락했다 표시
             friendRequestRepository.save(request);
-
-
             //양방향 저장
             saveFriendRelation(fromMember, toMember);
             saveFriendRelation(toMember, fromMember);
@@ -88,6 +88,23 @@ public class FriendRequestService {
             return false;
         }
 
+    }
+
+    //내가 보낸 친구 요청
+    public List<MemberDto> getSendFriendRequestService(String loginId){
+        long memberId = findFriendService.getMemberId(loginId);
+        List<FriendRequest> requests = friendRequestRepository.findByProposerId(memberId);
+        if (requests.isEmpty()) {
+            return Collections.emptyList(); // 빈 리스트 반환
+        }
+
+        return requests.stream()
+                .map(request -> {
+                    Member geter = memberRepository.findById(request.getRecipientId())
+                            .orElseThrow(() -> new IllegalArgumentException("Invalid proposer ID"));
+                    return new MemberDto(geter.getLoginId(), geter.getNickname(), geter.getProfileImg());
+                })
+                .collect(Collectors.toList());
     }
 
     //친구 요청 거절
@@ -101,6 +118,7 @@ public class FriendRequestService {
             FriendRequest request = optionalRequest.get();
             request.setResponse('D');//상태 변경
             friendRequestRepository.save(request);//요청 상태 저장
+            System.out.println(request.getResponse());
             return true;
         } else {
             return false;
@@ -109,9 +127,9 @@ public class FriendRequestService {
 
     public List<MemberDto> getFriendRequestService(String loginId){
         long memberId = findFriendService.getMemberId(loginId);
-        Optional<FriendRequest> requests=friendRequestRepository.findByReceiverMemberId(memberId);
+        List<FriendRequest> requests=friendRequestRepository.findByReceiverMemberId(memberId);
         if (requests.isEmpty()) {
-            throw new BadRequestException("Response Dose Not Exist");
+            return Collections.emptyList(); // 빈 리스트 반환
         }
         return requests.stream()
                 .map(request -> {
