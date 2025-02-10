@@ -25,4 +25,6 @@ public class GalleryResponseDto {
     private int likeCount;
     private boolean hasOrigin;
     private boolean hasLiked;
+
+    private String createdAt;
 }
