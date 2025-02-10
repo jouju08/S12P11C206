@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ChildrenBtn from './ChildrenBtn';
+import { useTaleRoom } from '@/store/roomStore';
 
-const Participant = ({ item }) => {
-  const { id, isFriend, nickname, profileImg, isHost } = item;
+const Participant = ({ item, isHost = false }) => {
+  const { id, isFriend, nickname, profileImg } = item;
+  const { currentRoom } = useTaleRoom();
 
   return (
     <div
@@ -18,7 +20,7 @@ const Participant = ({ item }) => {
           />
         </div>
         <div className="absolute top-3 left-[72px] text-text-first service-regular1">
-          {isHost ? '내 닉네임' : '닉네임1'}
+          {item.nickname}
         </div>
         {isHost ? (
           <img

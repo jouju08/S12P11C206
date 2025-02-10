@@ -1,4 +1,5 @@
 @import url('https://fastly.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -98,23 +99,27 @@
     font-family: CuteFont;
     font-size: 16px;
   }
+
   .auth-bold1 {
-    font-family: 'Wanted Sans', sans-serif;
+    font-family: 'Wanted Sans Variable', sans-serif;
     font-size: 36px;
     font-weight: 700;
   }
+
   .auth-bold2 {
-    font-family: 'Wanted Sans', sans-serif;
+    font-family: 'Wanted Sans Variable', sans-serif;
     font-size: 28px;
     font-weight: 700;
   }
+
   .auth-regular1 {
-    font-family: 'Wanted Sans', sans-serif;
+    font-family: 'Wanted Sans Variable', sans-serif;
     font-size: 24px;
     font-weight: 500;
   }
+
   .auth-regular2 {
-    font-family: 'Wanted Sans', sans-serif;
+    font-family: 'Wanted Sans Variable', sans-serif;
     font-size: 18px;
     font-weight: 500;
   }
