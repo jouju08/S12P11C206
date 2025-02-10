@@ -20,4 +20,10 @@ public class BaseTaleService {
     public BaseTale getById(long id){
         return baseTaleRepository.findById(id).get();
     }
+
+    public void save(BaseTale baseTale){
+        baseTaleRepository.save(baseTale);
+    }
+
+    
 }

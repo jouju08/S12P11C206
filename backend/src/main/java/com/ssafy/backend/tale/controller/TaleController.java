@@ -50,7 +50,7 @@ public class TaleController {
     }
 
 //    //제작한 동화 디테일
-//    @GetMapping("/detail/{taleId}")?
+//    @GetMapping("/{taleId}")?
 //    public ApiResponse<Tale> getDetail(@PathVariable long taleId) {
 //        Tale tale=taleService.getByTale(taleId);
 //        return ApiResponse.<Tale>builder().data(tale).build();

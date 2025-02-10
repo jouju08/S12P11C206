@@ -93,6 +93,11 @@
     font-family: CuteFont;
     font-size: 20px;
   }
+
+  .story-basic4 {
+    font-family: CuteFont;
+    font-size: 16px;
+
   .auth-bold1 {
     font-family: 'Wanted Sans', sans-serif;
     font-size: 36px;
@@ -112,6 +117,7 @@
     font-family: 'Wanted Sans', sans-serif;
     font-size: 18px;
     font-weight: 500;
+
   }
 }
 

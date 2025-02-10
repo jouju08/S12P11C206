@@ -11,9 +11,14 @@ import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLConnection;
 import java.util.UUID;
 
 /*
@@ -129,5 +134,98 @@ public class S3Service {
         String fileName = fileKey.substring(fileKey.lastIndexOf("/") + 1);
 
         return new CustomMultipartFile(fileBytes, fileName, contentType);
+    }
+
+
+    /**
+     * 외부 S3 버킷의 파일 URL을 받아서 해당 파일을 다운로드 후,
+     * 우리 S3 버킷에 업로드하고 우리 서비스의 URL을 반환하는 메서드
+     *
+     * @param externalFileUrl 외부 S3 버킷의 파일 URL
+     * @return 우리 S3 버킷에 업로드된 파일의 URL
+     */
+    public String uploadFileFromExternalLink(String externalFileUrl) {
+        try {
+            // URL 생성 및 연결 설정
+            URL url = new URL(externalFileUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                throw new RuntimeException("외부 파일 다운로드 실패, 응답 코드: " + responseCode);
+            }
+            System.out.println("responseCode = " + responseCode);
+
+            // 컨텐츠 타입 추출
+            String contentType = connection.getContentType();
+            System.out.println("contentType = " + contentType);
+
+            // Content-Disposition 헤더에 파일명이 있는지 확인 (예: attachment; filename="example.png")
+            String originalFileName = null;
+            String disposition = connection.getHeaderField("Content-Disposition");
+            if (disposition != null && disposition.contains("filename=")) {
+                int index = disposition.indexOf("filename=") + 9;
+                originalFileName = disposition.substring(index);
+                // 양쪽에 따옴표가 붙어있으면 제거
+                if (originalFileName.startsWith("\"") && originalFileName.endsWith("\"")) {
+                    originalFileName = originalFileName.substring(1, originalFileName.length() - 1);
+                }
+            }
+            // Content-Disposition에 파일명이 없으면 URL의 path에서 추출 (쿼리 파라미터 제외)
+            if (originalFileName == null || originalFileName.isEmpty()) {
+                String path = url.getPath(); // 예: "/prod/…/1b49f4d11fbf432e93740d3c182a41f4.png"
+                originalFileName = path.substring(path.lastIndexOf('/') + 1);
+            }
+            System.out.println("originalFileName = " + originalFileName);
+
+            // 파일 확장자 추출 (예: png)
+            String filenameExtension = StringUtils.getFilenameExtension(originalFileName);
+            System.out.println("filenameExtension = " + filenameExtension);
+
+            // 새로운 파일명 생성 (uuid + 타임스탬프 + 확장자)
+            String uuid = UUID.randomUUID().toString();
+            String newFileName = uuid + System.currentTimeMillis() + (filenameExtension != null ? "." + filenameExtension : "");
+
+            // 응답 스트림을 읽어 byte 배열로 변환
+            try (InputStream inputStream = connection.getInputStream();
+                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, length);
+                }
+                byte[] fileBytes = outputStream.toByteArray();
+
+                // 컨텐츠 타입이 기본값일 경우 파일명을 기반으로 추정 (예: 이미지 파일이면 image/png 등)
+                if ("application/octet-stream".equals(contentType)) {
+                    String guessedContentType = URLConnection.guessContentTypeFromName(originalFileName);
+                    if (guessedContentType != null) {
+                        contentType = guessedContentType;
+                    }
+                }
+
+                // S3 업로드 요청 생성 및 실행
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(newFileName)
+                        .contentType(contentType)
+                        .acl(ObjectCannedACL.PUBLIC_READ)
+                        .build();
+
+                PutObjectResponse response = s3Client.putObject(putObjectRequest,
+                        software.amazon.awssdk.core.sync.RequestBody.fromBytes(fileBytes));
+
+                if (response.sdkHttpResponse().isSuccessful()) {
+                    return filePrefix + newFileName;
+                } else {
+                    throw new RuntimeException("파일 업로드 실패");
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("외부 파일 처리 중 에러 발생", e);
+        }
     }
 }

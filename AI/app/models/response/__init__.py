@@ -2,5 +2,5 @@ from .ApiResponse import ApiResponse
 from .TextResponseDto import TextResponseDto
 from .URLResponseDto import URLResponseDto
 from .GenerateTaleResponseDto import GenerateTaleResponseDto
-from .ExtractKeywordSentencesResponseDto import ExtractKeywordSentencesResponseDto
+from .GenerateSentencesResponseDto import GenerateSentencesResponseDto
 from .GenerateDiffusionPromptsResponseDto import GenerateDiffusionPromptsResponseDto
