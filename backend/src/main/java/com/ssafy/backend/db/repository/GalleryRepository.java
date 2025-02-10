@@ -18,6 +18,13 @@ public interface GalleryRepository extends JpaRepository<Gallery, Long> {
     Optional<Gallery> findById(Integer id);
 
     @Query("SELECT g FROM Gallery g WHERE g.hasDeleted = false ORDER BY g.createdAt desc")
-    List<Gallery> findAllPictures();
+    List<Gallery> findAllPictures_();
+
+    @Query("SELECT g FROM Gallery g WHERE g.hasDeleted = false " +
+            "ORDER BY " +
+            "CASE WHEN :order = 'LATEST' THEN g.createdAt END DESC, " +
+            "CASE WHEN :order = 'POP' THEN g.likeCnt END DESC"
+    )
+    Page<Gallery> findAllPictures(@Param("order") String order, Pageable pageable);
 
 }
