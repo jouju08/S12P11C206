@@ -7,7 +7,7 @@ import { immer } from 'zustand/middleware/immer';
 const initialState = {
   drawingList: [],
   memberId: userStore.getState().memberId,
-  sortBy: 'date', // 초기값: 최신순("date")
+  sortBy: 'LATEST', // 초기값: 최신순("date")
 };
 
 const sightseeingActions = (set, get) => ({
