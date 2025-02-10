@@ -1,5 +1,6 @@
 package com.ssafy.backend.gallery.service;
 
+import com.ssafy.backend.common.exception.NotFoundPage;
 import com.ssafy.backend.common.exception.ResourceNotFoundException;
 import com.ssafy.backend.db.entity.Gallery;
 import com.ssafy.backend.db.entity.GalleryLike;
@@ -15,6 +16,10 @@ import com.ssafy.backend.gallery.dto.GalleryRequestDto;
 import com.ssafy.backend.gallery.dto.GalleryResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -32,35 +37,71 @@ public class GalleryService {
     private final GalleryLikeRepository galleryLikeRepository;
     private final TaleMemberRepository taleMemberRepository;
 
+    private final int PAGE_SIZE = 8;
 
+
+    /*
+     * “date” - 최신순(기본값)
+     *
+     * “famous” - 인기순
+     */
     @Transactional
-    public List<GalleryListResponseDto> findAllPictures(Authentication auth) {
+    public List<GalleryListResponseDto> findAllPictures(Authentication auth, int page, String order) {
         Long userId = memberRepository.findByLoginId(auth.getName()).get().getId();
         List<GalleryListResponseDto> result = new ArrayList<GalleryListResponseDto>();
-        List<Gallery> galleries = galleryRepository.findAllPictures();
 
-        for(Gallery gallery : galleries) {
-            GalleryListResponseDto dto = new GalleryListResponseDto();
-            dto.setGalleryId(gallery.getId());
-            dto.setImg(gallery.getImgPath());
-            dto.setAuthorId(gallery.getMember().getId());
-            dto.setAuthorNickname(gallery.getMember().getNickname());
-            dto.setAuthorProfileImg(gallery.getMember().getProfileImg());
-            dto.setLikeCnt(gallery.getGalleryLikes().size());
-            dto.setCreatedAt(gallery.getCreatedAt());
-            result.add(dto);
+        Pageable pageable = PageRequest.of(page, 8);
+        System.out.println("page = " + page);
+        System.out.println("order = " + order);
+
+        try {
+            Page<Gallery> galleryPage = galleryRepository.findAllPictures(order.toUpperCase(), pageable);
+
+            for (Gallery gallery : galleryPage) {
+                GalleryListResponseDto dto = new GalleryListResponseDto();
+                dto.setGalleryId(gallery.getId());
+                dto.setImg(gallery.getImgPath());
+                dto.setAuthorId(gallery.getMember().getId());
+                dto.setAuthorNickname(gallery.getMember().getNickname());
+                dto.setAuthorProfileImg(gallery.getMember().getProfileImg());
+                dto.setLikeCnt(gallery.getLikeCnt());
+                dto.setCreatedAt(gallery.getCreatedAt());
+                result.add(dto);
+            }
+
+            return result;
+        } catch (InvalidDataAccessApiUsageException e){
+//            e.printStackTrace();
+            throw new NotFoundPage("없는 페이지입니다.");
         }
-
-        return result;
     }
 
     @Transactional
     public GalleryResponseDto pictureDetail(Authentication auth, Integer id) {
         try {
             Optional<Gallery> gallery = galleryRepository.findById(id);
-            if(gallery.get().getHasDeleted()){
+            if (gallery.get().getHasDeleted()) {
                 throw new ResourceNotFoundException("삭제된 게시글에 대한 요청입니다.");
             }
+            int orderNum = gallery.get().getTaleMember().getOrderNum();
+            String keyword = "";
+            String sentence = "";
+            if(orderNum == 1){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword1();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence1();
+            } else if(orderNum == 2){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword2();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence2();
+            } else if(orderNum == 3){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword3();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence3();
+            } else if(orderNum == 4){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword4();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence4();
+            }
+
+            String replaceSentence = sentence.replace("xx", keyword);
+
             boolean hasLiked = !galleryLikeRepository.findByGalleryIdAndMemberId(gallery.get().getId(), memberRepository.findByLoginId(auth.getName()).get().getId()).isEmpty();
             return GalleryResponseDto.builder()
                     .galleryId(gallery.get().getId())
@@ -74,6 +115,8 @@ public class GalleryService {
                     .authorMemberId(gallery.get().getMember().getId())
                     .taleId(gallery.get().getTaleMember().getTale().getId())
                     .baseTaleId(gallery.get().getTaleMember().getTale().getBaseTale().getId())
+                    .sentence(replaceSentence)
+                    .createdAt(gallery.get().getTaleMember().getCreatedAt())
                     .build();
         } catch (Exception e) {
             return null;
@@ -126,6 +169,9 @@ public class GalleryService {
                     .memberId(memberId)
                     .galleryId(galleryDto.getId())
                     .build());
+            Optional<Gallery> gallery = galleryRepository.findById(galleryDto.getId());
+            int likeCount = gallery.get().getGalleryLikes().size();
+            gallery.get().setLikeCnt(likeCount + 1);
             return true;
         } else {
             // 좋아요 취소 처리
@@ -134,6 +180,10 @@ public class GalleryService {
             GalleryLike galleryLike = galleryLikeRepository.findByGalleryIdAndMemberId(galleryDto.getId(), memberId)
                     .orElseThrow(() -> new EntityNotFoundException("좋아요 정보를 찾을 수 없습니다."));
             galleryLikeRepository.delete(galleryLike);
+
+            Optional<Gallery> gallery = galleryRepository.findById(galleryDto.getId());
+            int likeCount = gallery.get().getGalleryLikes().size();
+            gallery.get().setLikeCnt(likeCount - 1);
             return false;
         }
     }

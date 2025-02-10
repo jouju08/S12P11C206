@@ -2,7 +2,10 @@ package com.ssafy.backend.db.repository;
 
 import com.ssafy.backend.db.entity.TaleMember;
 import com.ssafy.backend.dto.PictureDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +20,9 @@ public interface TaleMemberRepository extends JpaRepository<TaleMember, Long> {
     Optional<PictureDto> findPictureByTaleId(Long userId);
 
     List<TaleMember> findByMemberId(Long memberId);
+
+    @Query("SELECT tm FROM TaleMember tm WHERE tm.member.id = :memberId AND tm.tale.baseTale.id = :baseTaleId")
+    Page<TaleMember> findByMemberIdAndBaseTaleId(Long memberId, Long baseTaleId, Pageable pageable);
+
+    Page<TaleMember> findByMemberId(Long memberId, Pageable pageable);
 }
