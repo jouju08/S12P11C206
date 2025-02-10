@@ -46,7 +46,7 @@ public class TaleController {
             Authentication authentication,
             @RequestParam(required = false, defaultValue = "LATEST", value="order") String order,
             @RequestParam(required = false, value="baseTaleId") Long baseTaleId,
-            @RequestParam(required = false, value="page") int page) {
+            @RequestParam(defaultValue="0", value= "page") int page) {
 
         order = order.toUpperCase();
         if(!(order.equals("LATEST") || order.equals("PAST") || order.isEmpty()))
