@@ -1,62 +1,79 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useSightseeing } from '@/store/sightseeingStore';
 import { Link } from 'react-router-dom';
 import GalleryItem from '@/components/Common/GalleyItem';
+import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 
-const dummyDrawingList = [
-  {
-    galleryId: 4,
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-    authorId: 5,
-    authorNickname: '테스터',
-    authorProfileImg: null,
-    hasLiked: false,
-    likeCnt: 0,
-    createdAt: '2025-02-07T11:04:57.572662600',
-  },
-  {
-    galleryId: 3,
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-    authorId: 5,
-    authorNickname: '테스터',
-    authorProfileImg: null,
-    hasLiked: true,
-    likeCnt: 10,
-    createdAt: '2025-02-07T11:02:57.843395',
-  },
-  {
-    galleryId: 2,
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-    authorId: 5,
-    authorNickname: '테스터',
-    authorProfileImg: null,
-    hasLiked: false,
-    likeCnt: 0,
-    createdAt: '2025-02-06T15:23:24.819179600',
-  },
-  {
-    galleryId: 1,
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-    authorId: 5,
-    authorNickname: '테스터',
-    authorProfileImg: null,
-    hasLiked: false,
-    likeCnt: 1,
-    createdAt: '2025-02-06T15:20:39.791333600',
-  },
-];
+// const dummyDrawingList = [
+//   {
+//     galleryId: 4,
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+//     authorId: 5,
+//     authorNickname: '테스터',
+//     authorProfileImg: null,
+//     hasLiked: false,
+//     likeCnt: 0,
+//     createdAt: '2025-02-07T11:04:57.572662600',
+//   },
+//   {
+//     galleryId: 3,
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+//     authorId: 5,
+//     authorNickname: '테스터',
+//     authorProfileImg: null,
+//     hasLiked: true,
+//     likeCnt: 10,
+//     createdAt: '2025-02-07T11:02:57.843395',
+//   },
+//   {
+//     galleryId: 2,
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+//     authorId: 5,
+//     authorNickname: '테스터',
+//     authorProfileImg: null,
+//     hasLiked: false,
+//     likeCnt: 0,
+//     createdAt: '2025-02-06T15:23:24.819179600',
+//   },
+//   {
+//     galleryId: 1,
+//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+//     authorId: 5,
+//     authorNickname: '테스터',
+//     authorProfileImg: null,
+//     hasLiked: false,
+//     likeCnt: 1,
+//     createdAt: '2025-02-06T15:20:39.791333600',
+//   },
+// ];
 
 export default function Sightseeing() {
   // const [sortBy, setSortBy] = useState('최신순');
-  const { drawingList, setDrawingList, sortBy, setSortBy } = useSightseeing();
+  const { drawingList, setDrawingList, sortBy, setSortBy, loadMoreDrawings } =
+    useSightseeing();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setDrawingList();
-  }, [setDrawingList]);
+  }, []);
 
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
   };
+
+  const loadMore = useCallback(async () => {
+    if (!isLoading) {
+      setIsLoading(true);
+      const hasMore = await loadMoreDrawings();
+      setIsLoading(false);
+      if (!hasMore) {
+        // 더 이상 불러올 데이터가 없을 때의 처리
+        console.log('모든 데이터를 불러왔습니다.');
+      }
+    }
+  }, [loadMoreDrawings]);
+
+  const infiniteScrollRef = useInfiniteScroll(loadMore);
 
   return (
     <div className="w-[1024px] h-fit px-[25px]">
@@ -148,23 +165,32 @@ export default function Sightseeing() {
 
         {/* 그림 목록 */}
         <div className="grid grid-flow-row grid-cols-4 gap-4 mt-[30px]">
-          {drawingList.length === 0
-            ? // <div className="w-full h-[300px] service-accent1 text-text-first text-center leading-[300px]">
-              //   아직 게시글이 없어요!
-              // </div>
-              dummyDrawingList.map((item, idx) => (
-                <GalleryItem
-                  item={item}
-                  key={idx}
-                />
-              ))
-            : drawingList.map((item, idx) => (
-                <GalleryItem
-                  item={item}
-                  key={idx}
-                />
-              ))}
+          {drawingList.length === 0 ? (
+            <div className="w-full h-[300px] service-accent1 text-text-first text-center leading-[300px]">
+              아직 게시글이 없어요!
+            </div>
+          ) : (
+            // DrawingList.map((item, idx) => (
+            //   <GalleryItem
+            //     item={item}
+            //     key={idx}
+            //   />
+            // ))
+            drawingList.map((item, idx) => (
+              <GalleryItem
+                item={item}
+                key={idx}
+              />
+            ))
+          )}
         </div>
+
+        {/* Intersection Observer의 타겟 요소 */}
+        <div
+          ref={infiniteScrollRef}
+          style={{ height: '20px' }}></div>
+
+        {isLoading && <div>Loading more...</div>}
       </div>
     </div>
   );
