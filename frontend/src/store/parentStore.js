@@ -45,7 +45,7 @@ const initialProfile = {
       try{
         console.log('프로필 정보', updateData);
         api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
-        const response = await api.post('/member/mypage',updateData);
+        const response = await api.patch('/member/mypage',updateData);
         console.log('프로필 수정 성공', response.data);
         set((state) => {
           state.nickname = response.data.data.nickname;
