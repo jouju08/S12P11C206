@@ -42,13 +42,22 @@ public class TaleController {
     // order -> 최신순, 과거순
     // 동화책 id 필터링
     @GetMapping("/my-tale")
-    public ApiResponse<List<TaleResponseDto>> getMyTale(Authentication authentication) {
+    public ApiResponse<List<TaleResponseDto>> getMyTale(
+            Authentication authentication,
+            @RequestParam(required = false, defaultValue = "LATEST", value="order") String order,
+            @RequestParam(required = false, value="baseTaleId") Long baseTaleId,
+            @RequestParam(required = false, value="page") int page) {
+
+        order = order.toUpperCase();
+        if(!(order.equals("LATEST") || order.equals("PAST") || order.isEmpty()))
+            throw new IllegalArgumentException("order 값이 잘못되었습니다.");
+
         String loginId = authentication.getName();
-        Long userId=memberRepository.findByLoginId(loginId).get().getId();
-        List<TaleResponseDto> taleList= taleService.getByUserId(userId);
+        Long userId = memberRepository.findByLoginId(loginId).get().getId();
+        List<TaleResponseDto> taleList = taleService.getByUserId(userId, order, page, baseTaleId);
         return ApiResponse.<List<TaleResponseDto>>builder().data(taleList).build();
     }
-
+    
     //제작한 동화 디테일
     @GetMapping("/{taleId}")
     public ApiResponse<TaleDetailResponseDto> getDetail(@PathVariable long taleId) {
