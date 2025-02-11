@@ -89,11 +89,11 @@ public class AuthService {
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
 
-
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setTokens(tokens);
         member.setPassword(null);
         loginResponseDto.setMember(member);
+
         return loginResponseDto;
     }
 
