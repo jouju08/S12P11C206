@@ -27,9 +27,13 @@ export default function GalleryDetail() {
   const { galleryPage, setGalleryPage, toggleHasLiked } = useGalleryDetail();
 
   useEffect(() => {
-    setGalleryPage(galleryId);
-    setIsOrigin(galleryPage['hasOrigin']);
-  }, []);
+    const fetchGalleryPage = async () => {
+      await setGalleryPage(galleryId);
+      setIsOrigin(galleryPage['hasOrigin']);
+    };
+
+    fetchGalleryPage();
+  }, [galleryId]);
 
   const handleHeart = () => {
     dummyGalleryPage['hasLiked'] = !dummyGalleryPage['hasLiked'];
