@@ -155,7 +155,8 @@ const TaleKeyword = () => {
       await handleSubmitSingle();
       setCurrentStep((prev) => prev + 1);
     } else if (!isSingle) {
-      handleSubmit();
+      await handleSubmit();
+      setCurrentStep((prev) => prev + 5);
     }
   };
 

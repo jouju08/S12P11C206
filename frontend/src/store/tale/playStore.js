@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { shallow } from 'zustand/shallow';
 import taleAPI from '@/apis/tale/taleAxios';
@@ -39,25 +39,35 @@ const hotTale = {
 };
 
 const playActions = (set, get) => ({
+  startTale: () => {},
+
   setRoomId: (roomId) =>
     set((state) => {
       state.roomId = roomId;
     }),
 
-  setBaseTale: async () => {
-    const response = await taleAPI.startTale(get().roomId);
+  setBaseTale: (rawTale) => {
+    // const response = await taleAPI.startTale(get().roomId);
 
-    const baseTale = response.data['data'];
+    // const baseTale = response.data['data'];
 
-    baseTale?.sentenceOwnerPairs.sort((a, b) => a.order - b.order);
+    if (rawTale !== null) {
+      const baseTale = { ...rawTale };
 
-    set((state) => {
-      state.currentClient = useRoomStore.getState().stompClient;
-    });
+      baseTale?.sentenceOwnerPairs.sort((a, b) => a.order - b.order);
 
-    set((state) => {
-      state.tale = baseTale;
-    });
+      set((state) => {
+        state.currentClient = useRoomStore.getState().stompClient;
+      });
+
+      set((state) => {
+        state.tale = baseTale;
+      });
+
+      return;
+    } else {
+      return;
+    }
   },
 
   setSubscribeTale: async (roomId) => {
@@ -365,12 +375,22 @@ const initialState = {
 
 const usePlayStore = create(
   devtools(
-    immer((set, get) => ({
-      ...initialState,
-      ...playActions(set, get),
-      resetState: () => set(() => ({ ...initialState })),
-    }))
+    subscribeWithSelector(
+      immer((set, get) => ({
+        ...initialState,
+        ...playActions(set, get),
+        resetState: () => set(() => ({ ...initialState })),
+      }))
+    )
   )
+);
+
+//동화시작시 받아온 rawTale Mapping
+useRoomStore.subscribe(
+  (state) => state.rawTale,
+  (rawTale) => {
+    usePlayStore.getState().setBaseTale(rawTale);
+  }
 );
 
 export const useTalePlay = () => {

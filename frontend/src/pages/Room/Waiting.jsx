@@ -5,7 +5,7 @@ import { userStore, useUser } from '@/store/userStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Waiting() {
-  const { participants, currentRoom, startRoom, isStart, setIsStart } =
+  const { participants, currentRoom, startRoom, rawTale, setIsStart } =
     useTaleRoom();
   const { memberId } = useUser();
 
@@ -40,14 +40,12 @@ export default function Waiting() {
   }, [currentRoom]);
 
   useEffect(() => {
-    if (isStart == 'start') {
+    if (rawTale !== null) {
       navigate('/tale/taleStart');
     }
 
-    return () => {
-      setIsStart(null);
-    };
-  }, [isStart]);
+    return () => {};
+  }, [rawTale]);
 
   return (
     <div className="w-[1021px] h-[668px] relative">

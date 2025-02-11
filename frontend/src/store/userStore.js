@@ -158,6 +158,7 @@ const userActions = (set, get) => ({
 
       if (data !== null) {
         set({ accessToken: data.accessToken });
+
         isRefreshing = false;
         onRefreshed(data.accessToken);
 
@@ -193,7 +194,6 @@ const userActions = (set, get) => ({
   fetchUser: async () => {
     const { accessToken, refreshToken, refreshAccessToken, logout } = get();
 
-    console.log('fetch');
     if (!accessToken) {
       console.log('[fetchUser] accessToken 없음 → refreshToken 확인');
 

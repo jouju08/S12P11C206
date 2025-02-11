@@ -4,97 +4,134 @@ import { useTalePlay } from '@/store/tale/playStore';
 import { useEffect, useState, useRef } from 'react';
 import { useTaleRoom } from '@/store/roomStore';
 import { useViduHook } from '@/store/tale/viduStore';
-
-// 확인용 더미데이터
-const ParticipationList = [
-  {
-    id: 1,
-    nickname: '더미데이터',
-  },
-];
+import { useUser } from '@/store/userStore';
+import { Loading } from '@/common/Loading';
 
 const TaleStart = () => {
   const { setBaseTale, setRoomId, setSubscribeTale, roomId, tale } =
     useTalePlay();
-  const { connect, createRoom, setBaseTaleId, participants } = useTaleRoom();
+
+  const {
+    connect,
+    createRoom,
+    startRoom,
+    setBaseTaleId,
+    participants,
+    currentRoom,
+    isSingle,
+  } = useTaleRoom();
+
   const { getTokenByAxios } = useViduHook();
 
+  const { memberId } = useUser();
+
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    const handleTale = async () => {
+    if (tale !== null) {
+      setLoading(false);
+    }
+  }, [tale]);
+
+  useEffect(() => {
+    const handleTaleSingle = async () => {
       try {
         await connect();
         const playRoom = await createRoom();
 
         setRoomId(playRoom.roomId);
 
-        await setBaseTale();
+        await startRoom();
+
         await setSubscribeTale(playRoom.roomId);
         await getTokenByAxios(playRoom.roomId);
+
+        console.log('single');
       } catch (error) {
         console.error('Tale Start Error 발생:', error);
       }
     };
 
-    handleTale();
+    const handleTale = async () => {
+      try {
+        setRoomId(currentRoom.roomId);
+
+        await setSubscribeTale(currentRoom.roomId);
+        await getTokenByAxios(currentRoom.roomId);
+
+        console.log('multi');
+      } catch (error) {
+        console.error('Tale Start Error 발생:', error);
+      }
+    };
+
+    isSingle ? handleTaleSingle() : handleTale();
   }, []);
 
   return (
+    <>
+      {loading ? (
+        <Loading />
+      ) : (
+        <div
+          className="relative w-[1024px] h-[668px]"
+          style={{ backgroundImage: "url('/TaleStart/field-background.png')" }}>
+          {/* 배경 - 책 이미지 */}
+          <img
+            className="w-[1024px] h-[555px] absolute bottom-[18px] left-0"
+            src="/Collection/modal-open-book.png"
+          />
+          {/* 음향 - 데이터 받아오면 바꾸기*/}
+          <div className="text-right pr-20 mt-2">
+            <AudioPlayer audioSrc="/Collection/test-audio.wav" />
+          </div>
+
+          {/* 참여인원 섹션 */}
+          <div className="absolute top-4 left-[84px]">
+            <ParticipationStatus ParticipationList={participants} />
+          </div>
+
+          {/* 메인 콘텐츠 영역 */}
+          {/* 이미지와 스크립트는 absolute */}
+          {/* 이미지 데이터 받아오면 바꾸기 */}
+          <img
+            className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+            src="/TaleStart/test-story-start.jpg"
+          />
+          <img
+            src="/TaleStart/test-story-start.jpg"
+            alt="동화 만든 이미지"
+            className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+          />
+
+          <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex justify-center items-center">
+            <p className="text-text-first story-basic2">
+              <span></span>
+              옛날 옛적에 아기돼지 삼형제가 살고 있었습니다.
+              <br />
+              이들은 각자 자신만의 집을 짓기로 결정했어요.
+              <br />
+              늑대는 첫째 돼지의 집에 와서 말했어요.
+              <br />
+              "문을 열어라!"
+            </p>
+          </div>
+
+          {/* 다음 화살표 */}
+          <Link
+            to={'/tale/taleKeyword'}
+            className="absolute bottom-3 right-3">
+            <img
+              src="/Common/arrow-left.png"
+              alt="다음 화살표"
+              className="w-[50px] h-[50px] -scale-x-100"
+            />
+          </Link>
+        </div>
+      )}
+    </>
+
     // 전체 컨테이너 (1024x668)
-    <div
-      className="relative w-[1024px] h-[668px]"
-      style={{ backgroundImage: "url('/TaleStart/field-background.png')" }}>
-      {/* 배경 - 책 이미지 */}
-      <img
-        className="w-[1024px] h-[555px] absolute bottom-[18px] left-0"
-        src="/Collection/modal-open-book.png"
-      />
-      {/* 음향 - 데이터 받아오면 바꾸기*/}
-      <div className="text-right pr-20 mt-2">
-        <AudioPlayer audioSrc="/Collection/test-audio.wav" />
-      </div>
-
-      {/* 참여인원 섹션 */}
-      <div className="absolute top-4 left-[84px]">
-        <ParticipationStatus ParticipationList={ParticipationList} />
-      </div>
-
-      {/* 메인 콘텐츠 영역 */}
-      {/* 이미지와 스크립트는 absolute */}
-      {/* 이미지 데이터 받아오면 바꾸기 */}
-      <img
-        className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
-        src="/TaleStart/test-story-start.jpg"
-      />
-      <img
-        src="/TaleStart/test-story-start.jpg"
-        alt="동화 만든 이미지"
-        className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
-      />
-
-      <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex justify-center items-center">
-        <p className="text-text-first story-basic2">
-          <>{}</>
-          옛날 옛적에 아기돼지 삼형제가 살고 있었습니다.
-          <br />
-          이들은 각자 자신만의 집을 짓기로 결정했어요.
-          <br />
-          늑대는 첫째 돼지의 집에 와서 말했어요.
-          <br />
-          "문을 열어라!"
-        </p>
-      </div>
-
-      {/* 다음 화살표 */}
-      <Link
-        to={'/tale/taleKeyword'}
-        className="absolute bottom-3 right-3">
-        <img
-          src="/Common/arrow-left.png"
-          alt="다음 화살표"
-          className="w-[50px] h-[50px] -scale-x-100"
-        />
-      </Link>
-    </div>
   );
 };
 
