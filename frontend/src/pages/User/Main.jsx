@@ -204,7 +204,7 @@ export default function Main() {
           만들어진 동화방
         </div>
         <div className="h-[300px] flex items-center text-center">
-          {taleData.length != 0 ? (
+          {taleData ? (
             <Swiper
               slidesPerView={3}
               spaceBetween={-10}
