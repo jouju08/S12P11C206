@@ -72,7 +72,7 @@ public class MemberController {
     }
 
     // 프로필 사진 변경
-    @PostMapping("/profile-image")
+    @PatchMapping("/profile-image")
     public ApiResponse<Void> updateProfileImage(
             @RequestHeader("Authorization") String token, MultipartFile profileImage) {
 
