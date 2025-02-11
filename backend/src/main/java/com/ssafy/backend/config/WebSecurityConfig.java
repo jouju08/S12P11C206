@@ -40,7 +40,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://i12c206.p.ssafy.io:3000", "http://localhost:3000", "https://i12c206.p.ssafy.io", "http://192.168.100.136:3000", "http://172.30.1.84:3000")); // 허용할 Origin 설정
+        config.setAllowedOrigins(List.of("https://i12c206.p.ssafy.io:3000", "http://localhost:3000", "https://i12c206.p.ssafy.io", "http://192.168.100.136:3000", "http://172.30.1.84:3000", "https://i12c206.p.ssafy.io:8000")); // 허용할 Origin 설정
         config.setAllowedMethods(List.of("GET", "POST","PATCH", "PUT", "DELETE", "OPTIONS", "MESSAGE")); // 허용할 HTTP 메서드 설정
         config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용
         config.setAllowCredentials(true); // 인증 정보 허용
@@ -66,10 +66,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/logout", "/api/auth/kakao/callback").permitAll()
                         .requestMatchers("/api/auth/duplicate/**", "/api/auth/email/**").permitAll()
                         .requestMatchers("/ws/**").permitAll() // 임시로 다 열기
-                        .requestMatchers(request -> {
-                            String host = request.getHeader("Host");
-                            return host != null && (host.equals("tinker-backend") || host.startsWith("tinker-backend:"));
-                        }).permitAll()
+                        .requestMatchers("/api/tale/submit/ai-picture", "/api/admin/tale/submit/**")
                         .anyRequest().authenticated())
 //                .oauth2Login(oauth -> oauth
 //                        .defaultSuccessUrl("/api/auth/kakao/callback")
