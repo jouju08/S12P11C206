@@ -78,7 +78,7 @@ export default function Sightseeing() {
             {/* 2등 이미지 */}
             <Link to={`/gallery/${popList[1].galleryId}`}>
               <img
-                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[267px] left-[253px] ]"
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[267px] left-[253px] bg-white]"
                 src={popList[1]?.img || '/Sightseeing/test1.png'}
               />
             </Link>{' '}
@@ -101,7 +101,7 @@ export default function Sightseeing() {
             {/* 1등 이미지 */}
             <Link to={`/gallery/${popList[0].galleryId}`}>
               <img
-                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[206px] left-[414px]"
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[206px] left-[414px] bg-white"
                 src={popList[0]?.img || '/Sightseeing/test1.png'}
               />
             </Link>
@@ -124,7 +124,7 @@ export default function Sightseeing() {
             {/* 3등 이미지 */}
             <Link to={`/gallery/${popList[2].galleryId}`}>
               <img
-                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[292px] left-[581px] ]"
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[292px] left-[581px] bg-white"
                 src={popList[2]?.img || '/Sightseeing/test1.png'}
               />
             </Link>

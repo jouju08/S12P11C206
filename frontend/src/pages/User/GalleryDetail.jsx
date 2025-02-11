@@ -73,7 +73,7 @@ export default function GalleryDetail() {
           <img
             src={isOrigin ? galleryPage['originImg'] : galleryPage['img']}
             alt="그림"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-center bg-white"
           />
         </div>
 
