@@ -18,5 +18,5 @@ public class PictureDetailResponseDTO {
 
     private String title;
 
-    private String script;
+    private String imgScript;
 }
