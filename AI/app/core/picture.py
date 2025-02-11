@@ -180,15 +180,19 @@ def return_novita_image(web_hook_request, post_url):
     """
     novita에서 받은 이미지를 spring으로 전송하는 함수
     """
-    image_url = []
-    for image in web_hook_request["payload"]["images"]:
-        image_url.append(image["image_url"])
-    field = {
+    image_url = [image["image_url"]
+                 for image in web_hook_request["payload"]["images"]]
+    payload = {
         'images': image_url
     }
-    print(f"gen image_url {image_url}")
+    headers = {
+        "Content-Type": "application/json",
+    }
     try:
-        requests.post(post_url, data=field)
+        response = requests.post(post_url, headers=headers, json=payload)
+        print("response from spring")
+        print(response.status_code)
+        print(response.text)
     except Exception as e:
         print("return_novita_image error")
         print(e)

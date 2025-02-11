@@ -59,15 +59,17 @@ public class WebSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Bean 참조
                 // 인증 실패 시 대응 핸들러 (401 응답 등)
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
-                // 세션 정책: JWT를 사용한다면 항상 STATELESS
+                // 세션 정책: JWT를 사용한다면 항상 STATELESS1
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
                         .requestMatchers("/api/auth/logout", "/api/auth/kakao/callback").permitAll()
+                        .requestMatchers("/api/auth/duplicate/**", "/api/auth/email/**").permitAll()
                         .requestMatchers("/ws/**").permitAll() // 임시로 다 열기
                         .anyRequest().authenticated())
-                .oauth2Login(oauth -> oauth
-                        .defaultSuccessUrl("/api/auth/kakao/callback")) // 인증 성공 후 처리 경로
+//                .oauth2Login(oauth -> oauth
+//                        .defaultSuccessUrl("/api/auth/kakao/callback")
+//                ) // 인증 성공 후 처리 경로
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);        // JWT 필터 추가
         return http.build();
     }

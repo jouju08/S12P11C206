@@ -10,6 +10,7 @@ import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
 import com.ssafy.backend.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -85,8 +86,9 @@ public class MemberController {
     }
 
     @GetMapping("/all")
-    public ApiResponse<List<MemberDto>> getMembers() {
-        List<MemberDto> allMembers=memberService.getAllMembers();
+    public ApiResponse<List<MemberDto>> getMembers(Authentication auth) {
+        String loginId = auth.getName();
+        List<MemberDto> allMembers=memberService.getAllMembers(loginId);
         return ApiResponse.<List<MemberDto>>builder().data(allMembers).build();
     }
 

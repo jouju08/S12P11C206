@@ -74,7 +74,7 @@ public class JwtUtil implements InitializingBean {
     /**
      * 토큰에서 사용자 정보 추출
      */
-    public String extractUsername(String token) {
+    public String  extractUsername(String token) {
         // JJWT 0.11.x 이하에서는 parseClaimsJws, 0.12 이상에서는 parserBuilder() + parseClaimsJws로 사용 가능
         Jws<Claims> claimsJws = Jwts.parser()
                 .setSigningKey(secretKey)

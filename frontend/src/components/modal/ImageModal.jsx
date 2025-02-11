@@ -1,11 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useMyPictures } from '@/store/galleryStore';
 
 const ImageModal = ({ isOpen, onClose, detail }) => {
   if (!isOpen) return null;
 
-  // createdAt이 "2025-02-07 22:03:54"와 같이 들어온다고 가정하고,
-  // 공백을 기준으로 첫 부분(년-월-일)만 추출합니다.
-  const formattedDate = detail?.createdAt ? detail.createdAt.split(" ")[0] : "2025-01-13";
+  const [isOriginal, setIsOriginal] = useState(true);
+
+  const formattedDate = detail?.createdAt ? detail.createdAt.split("T")[0] : "";
+
+  const { uploadGallery } = useMyPictures();
+
+  const handleShowOff = async () => {
+    if (detail && detail.id) {
+      const payload = {
+        taleMemberId: detail.id,
+        hasOrigin: isOriginal,
+      };
+      uploadGallery(payload);
+    }
+  };
 
   return (
     <>
@@ -31,12 +45,12 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
             {/* 왼쪽 이미지 영역 */}
             <div className="w-[400px] h-[400px] relative overflow-hidden mr-4">
               <img
-                src={detail?.orginImg || "/TaleStart/test-story-start.jpg"}
-                alt={detail?.title || "아기 돼지 삼형제"}
+                src={isOriginal ? detail?.orginImg : detail?.img}
+                alt={detail?.title}
                 className="w-full h-full object-cover"
               />
               <span className="service-bold3 absolute top-2 left-2 inline-block bg-white/80 text-black px-2 py-1 rounded text-base">
-                {detail?.title || "아기 돼지 삼형제"}
+                {detail?.title}
               </span>
               <span className="service-regular3 absolute bottom-2 right-2 inline-block bg-white/70 text-black px-2 py-1 rounded text-sm">
                 {formattedDate}
@@ -45,8 +59,10 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
 
             {/* 오른쪽 영역 */}
             <div className="flex-1 flex flex-col justify-between items-center">
-              {/* 첫 번째 말풍선 (왼쪽의 노란 말풍선) - 정적 텍스트 유지 */}
-              <div className="flex items-start">
+              <div
+                onClick={() => setIsOriginal(!isOriginal)}
+                className="flex items-start"
+              >
                 <div
                   className="
                     relative
@@ -90,7 +106,6 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
                 />
               </div>
 
-              {/* 두 번째 말풍선 - script 값으로 변경 (fallback은 기존 텍스트) */}
               <div className="flex flex-col items-center my-4">
                 <img src="/image/vintage.png" alt="vintage" />
                 <p
@@ -105,7 +120,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
                     px-2
                   "
                 >
-                  {detail?.script || "첫째 돼지는 구름으로 집을 지었어요"}
+                  {detail?.script}
                 </p>
                 <img
                   src="/image/vintage.png"
@@ -115,6 +130,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
               </div>
 
               <button
+                onClick={handleShowOff}
                 className="w-[195px] h-[56px] bg-[#FFC300]
                            rounded-[50px] border border-[#9F9F9F]
                            flex items-center justify-center 
