@@ -63,7 +63,7 @@ export default function Sightseeing() {
           </Link>
         </div>
 
-        {popList.length > 2 && (
+        {popList.length > 1 && (
           <>
             {/* 2등 이름 */}
             <div className="w-[145px] h-[89px] absolute bottom-1 left-[248px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
@@ -75,15 +75,18 @@ export default function Sightseeing() {
                 {popList[1]?.authorNickname}
               </div>
             </div>
-
             {/* 2등 이미지 */}
             <Link to={`/gallery/${popList[1].galleryId}`}>
               <img
                 className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[267px] left-[253px] ]"
                 src={popList[1]?.img || '/Sightseeing/test1.png'}
               />
-            </Link>
+            </Link>{' '}
+          </>
+        )}
 
+        {popList.length > 0 && (
+          <>
             {/* 1등 이름 */}
             <div className="w-[145px] h-[89px] absolute bottom-[14px] left-[411px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
               <img
@@ -102,7 +105,11 @@ export default function Sightseeing() {
                 src={popList[0]?.img || '/Sightseeing/test1.png'}
               />
             </Link>
+          </>
+        )}
 
+        {popList.length > 2 && (
+          <>
             {/* 3등 이름 */}
             <div className="w-[145px] h-[89px] absolute bottom-1 right-[253px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
               <img
