@@ -71,7 +71,7 @@ export default function Sightseeing() {
                 className="w-[58px] h-[58px] relative rounded-[100px]"
                 src="/Main/profile-img.png"
               />
-              <div className="text-center text-white service-bold3">
+              <div className="text-center text-white service-bold3 w-full whitespace-nowrap overflow-hidden text-ellipsis">
                 {popList[1]?.authorNickname}
               </div>
             </div>
@@ -88,12 +88,12 @@ export default function Sightseeing() {
         {popList.length > 0 && (
           <>
             {/* 1등 이름 */}
-            <div className="w-[145px] h-[89px] absolute bottom-[14px] left-[411px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
+            <div className="w-[145px] h-[89px] absolute bottom-[15px] left-[410px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
               <img
                 className="w-[58px] h-[58px] relative rounded-[100px]"
                 src="/Main/profile-img.png"
               />
-              <div className="text-center text-white service-bold3">
+              <div className="text-center text-white service-bold3 w-full whitespace-nowrap overflow-hidden text-ellipsis">
                 {popList[0]?.authorNickname}
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function Sightseeing() {
                 className="w-[58px] h-[58px] relative rounded-[100px]"
                 src="/Main/profile-img.png"
               />
-              <div className="text-center text-white service-bold3">
+              <div className="text-center text-white service-bold3 w-full whitespace-nowrap overflow-hidden text-ellipsis">
                 {popList[2]?.authorNickname}
               </div>
             </div>
