@@ -120,7 +120,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
                     px-2
                   "
                 >
-                  {detail?.script}
+                  {detail?.imgScript}
                 </p>
                 <img
                   src="/image/vintage.png"
