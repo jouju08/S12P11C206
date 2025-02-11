@@ -20,16 +20,17 @@ public class Member extends Common{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "login_id", length = 40, nullable = false)
+
+    @Column(name = "login_id", length = 40, nullable = false, unique = true)
     private String loginId;  // 멤버 아이디
 
     @Column(length = 60)
     private String password;  // 비밀번호(단방향암호화)
 
-    @Column(length = 100)
+    @Column(length = 100,unique = true)
     private String email;     // 이메일
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20, nullable = false,unique = true)
     private String nickname;  // 닉네임
 
     @Column(nullable = false, columnDefinition = "CHAR(1) DEFAULT 'E'")
