@@ -1,5 +1,6 @@
 import { useProfile } from "@/store/parentStore";
 import React, { useEffect, useRef, useState } from "react";
+import Swal from 'sweetalert2';
 
 export default function ProfileEdit() {
     const { profileImg, loginId, email, nickname, birth, updateProfile, isNicknameAvailable, updateProfileImage } = useProfile();
@@ -129,10 +130,71 @@ function InputNickNameItem({ nickname, setNickname, isNicknameAvailable }) {
 async function confirmDuplicate(isNicknameAvailable, nickname) {
     try {
         const available = await isNicknameAvailable(nickname);
-        alert(available ? "사용 가능한 닉네임입니다." : "이미 사용 중인 닉네임입니다.");
+        if(available){
+            Swal.fire({
+                    title: `<div class="flex justify-center items-center"><div class="w-[84px] h-[84px] bg-[url('/Login/success.png')] bg-cover"></div></div>`,
+                    html: `
+                      <div class="text-center text-text-first auth-bold2 mb-[20px]">
+                        사용 가능한 닉네임이에요.
+                      </div>
+                    `,
+                    width: 430, // 모달의 너비
+                    heightAuto: false, // 높이 자동 조정 비활성화
+                    padding: '20px', // 내부 여백
+                    background: '#fff', // 배경색
+                    showConfirmButton: true,
+                    confirmButtonText: '확인',
+                    customClass: {
+                      popup: 'rounded-lg shadow-lg',
+                      confirmButton: 'w-[120px] h-[50px] bg-gray-700 text-white auth-regular1 px-6 py-2 rounded-md hover:bg-gray-800',
+                      closeButton: 'text-gray-400 hover:text-gray-600'
+                    },
+                    buttonsStyling: false // 기본 버튼 스타일 제거
+                  });
+        } else {
+            Swal.fire({
+                    title: `<div class="flex justify-center items-center"><div class="w-[84px] h-[84px] bg-[url('/Login/exclamation-circle-solid.png')] bg-cover"></div></div>`,
+                    html: `
+                      <div class="text-center text-text-first auth-bold2 mb-[20px]">
+                        사용할 수 없는 닉네임이에요.
+                      </div>
+                    `,
+                    width: 430, // 모달의 너비
+                    heightAuto: false, // 높이 자동 조정 비활성화
+                    padding: '20px', // 내부 여백
+                    background: '#fff', // 배경색
+                    showConfirmButton: true,
+                    confirmButtonText: '확인',
+                    customClass: {
+                      popup: 'rounded-lg shadow-lg',
+                      confirmButton: 'w-[120px] h-[50px] bg-gray-700 text-white auth-regular1 px-6 py-2 rounded-md hover:bg-gray-800',
+                      closeButton: 'text-gray-400 hover:text-gray-600'
+                    },
+                    buttonsStyling: false // 기본 버튼 스타일 제거
+                  });
+        }
     } catch (error) {
         console.error("닉네임 중복 확인 중 오류:", error);
-        alert("닉네임 확인 중 오류가 발생했습니다.");
+        Swal.fire({
+            title: `<div class="flex justify-center items-center"><div class="w-[84px] h-[84px] bg-[url('/Login/exclamation-circle-solid.png')] bg-cover"></div></div>`,
+            html: `
+              <div class="text-center text-text-first auth-bold2 mb-[20px]">
+                서버연결에 실패했습니다.
+              </div>
+            `,
+            width: 430, // 모달의 너비
+            heightAuto: false, // 높이 자동 조정 비활성화
+            padding: '20px', // 내부 여백
+            background: '#fff', // 배경색
+            showConfirmButton: true,
+            confirmButtonText: '확인',
+            customClass: {
+              popup: 'rounded-lg shadow-lg',
+              confirmButton: 'w-[120px] h-[50px] bg-gray-700 text-white auth-regular1 px-6 py-2 rounded-md hover:bg-gray-800',
+              closeButton: 'text-gray-400 hover:text-gray-600'
+            },
+            buttonsStyling: false // 기본 버튼 스타일 제거
+          });
     }
 }
 
