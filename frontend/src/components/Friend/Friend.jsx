@@ -69,7 +69,7 @@ const Friends = ({ friends }) => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="w-[514px] h-fit relative bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] p-6">
+    <div className="w-[514px] h-fit relative bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] p-6 border border-gray-100">
       <div className="flex justify-around items-center pb-2 mb-4">
         <button
           onClick={() => setActiveTab('friends')}
