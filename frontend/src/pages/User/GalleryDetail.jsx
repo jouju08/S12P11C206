@@ -26,14 +26,24 @@ export default function GalleryDetail() {
   const [isOrigin, setIsOrigin] = useState(false);
   const { galleryPage, setGalleryPage, toggleHasLiked } = useGalleryDetail();
 
-  useEffect(() => {
-    const fetchGalleryPage = async () => {
-      await setGalleryPage(galleryId);
-      setIsOrigin(galleryPage['hasOrigin']);
-    };
+  // useEffect(() => {
+  //   const fetchGalleryPage = async () => {
+  //     await setGalleryPage(galleryId);
+  //     setIsOrigin(galleryPage['hasOrigin']);
+  //   };
 
-    fetchGalleryPage();
+  //   fetchGalleryPage();
+  // }, [galleryId]);
+
+  useEffect(() => {
+    setGalleryPage(galleryId);
   }, [galleryId]);
+
+  useEffect(() => {
+    if (galleryPage) {
+      setIsOrigin(galleryPage['hasOrigin']);
+    }
+  }, [galleryPage]);
 
   const handleHeart = () => {
     dummyGalleryPage['hasLiked'] = !dummyGalleryPage['hasLiked'];
