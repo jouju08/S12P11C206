@@ -86,8 +86,8 @@ public class AuthController {
         return ApiResponse.<Map<String, String>>builder().data(authService.refreshAccessToken(refreshToken)).build();
     }
 
-    @GetMapping("/check-id/{loginId}")
-    public ApiResponse<Object> isDuplicatedId(@PathVariable String loginId) {
+    @GetMapping("/duplicate/check-id/{loginId}")
+    public ApiResponse isDuplicatedId(@PathVariable String loginId) {
         Optional<Member> member = authService.findByLoginId(loginId);
         if (member.isPresent()) {
             return ApiResponse.builder()
@@ -97,13 +97,13 @@ public class AuthController {
                     .build();
         }
         else {
-            return ApiResponse.builder().data("사용 가능").build();
+            return ApiResponse.builder().data("사용 가능").status(ResponseCode.SUCCESS).status(ResponseMessage.SUCCESS).build();
         }
     }
 
 
-    @GetMapping("/check-email/{email}")
-    public ApiResponse<Object> isDuplicatedEmail(@PathVariable String email){
+    @GetMapping("/duplicate/check-email/{email}")
+    public ApiResponse isDuplicatedEmail(@PathVariable String email){
         Optional<Member> member = authService.findByEmail(email);
         if(member.isPresent()){
             return ApiResponse.builder()
@@ -113,12 +113,12 @@ public class AuthController {
                     .build();
         }
         else{
-            return ApiResponse.builder().data("사용 가능한 email").build();
+            return ApiResponse.builder().data("사용 가능한 email").status(ResponseCode.SUCCESS).status(ResponseMessage.SUCCESS).build();
         }
     }
 
-    @GetMapping("/check-nickname/{nickname}")
-    public ApiResponse<Object> isDuplicatedNickname(@PathVariable String nickname){
+    @GetMapping("/duplicate/check-nickname/{nickname}")
+    public ApiResponse isDuplicatedNickname(@PathVariable String nickname){
         System.out.println("닉네임"+nickname);
         Optional<Member> member = authService.findByNickname(nickname);
 
@@ -130,7 +130,7 @@ public class AuthController {
                     .build();
         }
         else{
-            return ApiResponse.builder().data("사용 가능한 nickname").build();
+            return ApiResponse.builder().data("사용 가능한 nickname").status(ResponseCode.SUCCESS).status(ResponseMessage.SUCCESS).build();
         }
     }
 

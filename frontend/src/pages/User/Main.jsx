@@ -7,6 +7,8 @@ import NavMenu from '@/components/Main/NavMenu';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 import GalleryItem from '@/components/Common/GalleyItem';
 
+import '@/styles/main.css';
+
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
@@ -105,7 +107,7 @@ export default function Main() {
     async function fetchData() {
       try {
         const response = await api.get('/gallery', {
-          params: { order: 'POP' },
+          params: { order: 'POP', page: 1 },
         });
         console.log('📌 인기있는 그림 데이터:', response.data); // 콘솔 출력
         setdrawingData(response.data.data); // 상태에 저장
@@ -136,7 +138,7 @@ export default function Main() {
     </SwiperSlide>
   ));
 
-  const listFamousDrawing = dummyDrawingList.map((item, idx) => (
+  const listFamousDrawing = drawingData.map((item, idx) => (
     <SwiperSlide key={idx}>
       <GalleryItem item={item} />
     </SwiperSlide>
@@ -160,7 +162,7 @@ export default function Main() {
             src="/Main/profile-img.png"
           />
           <img
-            className="w-[140px] h-[140px] left-[9px] top-0 absolute"
+            className="shaking-image w-[140px] h-[140px] left-[9px] top-0 absolute"
             src="/Main/main-fairy.png"
           />
           <div className="w-[271px] h-[180px] left-[10px] top-[123px] absolute">

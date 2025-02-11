@@ -50,6 +50,10 @@ services:
       - /home/ubuntu/tinker/frontend/dist:/app/dist
     networks:
       - app-network
+    environment:
+      - VITE_KAKAO_CLIENT_ID=${VITE_KAKAO_CLIENT_ID}
+      - VITE_REDIRECT_URI=${VITE_REDIRECT_URI}
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL}
     command: npm run build
 
   # redis

@@ -38,7 +38,6 @@ public class TaleController {
     private final WebSocketNotiService webSocketNotiService;
     private final MemberRepository memberRepository;
 
-    //todo
     // order -> 최신순, 과거순
     // 동화책 id 필터링
     @GetMapping("/my-tale")
@@ -57,6 +56,23 @@ public class TaleController {
         List<TaleResponseDto> taleList = taleService.getByUserId(userId, order, page, baseTaleId);
         return ApiResponse.<List<TaleResponseDto>>builder().data(taleList).build();
     }
+
+    //test mytale
+//    @GetMapping("/my-tale-test")
+//    public ApiResponse<List<TaleResponseDto>> getMyTaleTest(
+//            @RequestParam String loginId,
+//            @RequestParam(required = false, defaultValue = "LATEST", value="order") String order,
+//            @RequestParam(required = false, value="baseTaleId") Long baseTaleId,
+//            @RequestParam(defaultValue="0", value= "page") int page) {
+//
+//        order = order.toUpperCase();
+//        if(!(order.equals("LATEST") || order.equals("PAST") || order.isEmpty()))
+//            throw new IllegalArgumentException("order 값이 잘못되었습니다.");
+//
+//        Long userId = memberRepository.findByLoginId(loginId).get().getId();
+//        List<TaleResponseDto> taleList = taleService.getByUserId(userId, order, page, baseTaleId);
+//        return ApiResponse.<List<TaleResponseDto>>builder().data(taleList).build();
+//    }
     
     //제작한 동화 디테일
     @GetMapping("/{taleId}")
@@ -116,29 +132,16 @@ public class TaleController {
     public ApiResponse<String> submitHandPicture(@ModelAttribute SubmitFileRequestDto submitFileRequestDto){
         if(taleService.saveHandPicture(submitFileRequestDto) >= 4){
             long roomId = submitFileRequestDto.getRoomId();
-            // 4명이 모두 그림을 제출했을 때,
-            //  1. tale_member들을 mysql에 저장
-            taleService.saveTaleFromRedis(roomId);
 
-            //  2. 동화 완성을 websocket으로 알림
-            webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
-            //  3. ai 쪽으로 그림 생성 요청
-
+            //  ai 쪽으로 그림 생성 요청
             if(aiServerRequestService.isAIPictureServerAlive().getData()){ // 그림생성 AI 서버가 켜져있을 경우
                 aiServerRequestService.requestAIPicture(roomId); // ai 쪽으로 그림 생성 요청
-            }else{// 그림생성 AI 서버가 꺼져있을 경우
-                taleService.deleteTaleFromRedis(roomId); // redis에서 동화 정보 삭제
             }
+            // redis에서 그림이 완성됐는지 확인 + 완성됐으면 다음 단계로 넘어가기
+            taleService.verifyTaleMaking(roomId);
         }
         
         return ApiResponse.<String>builder().build();
-    }
-
-    // 햇동화 요청
-    // redis에서 동화 정보를 가져와서 반환
-    @GetMapping("/temp/{roomId}/{page}")
-    public ApiResponse<TalePageResponseDto> getTempTale(@PathVariable long roomId, @PathVariable int page){
-        return ApiResponse.<TalePageResponseDto>builder().data(taleService.getTempTalePage(roomId, page)).build();
     }
 
     // 동화 요청
@@ -161,14 +164,6 @@ public class TaleController {
     public ApiResponse<String> submitAIPicture(@ModelAttribute SubmitFileRequestDto submitFileRequestDto){
         System.out.println("submitFileRequestDto = " + submitFileRequestDto);
         taleService.saveAIPicture(submitFileRequestDto);
-        if(taleService.getCompletedAIPictureCnt(submitFileRequestDto.getRoomId()) >= 4){
-            // 4명이 모두 그림을 제출했을 때,
-            // 1. tale_member들을 mysql에 저장
-            taleService.saveTaleFromRedis(submitFileRequestDto.getRoomId());
-
-            // 2. redis에서 동화 정보 삭제
-            taleService.deleteTaleFromRedis(submitFileRequestDto.getRoomId());
-        }
 
         return ApiResponse.<String>builder().build();
     }
