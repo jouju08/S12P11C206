@@ -67,7 +67,7 @@ export default function Collection() {
   }, []);
 
   return (
-    <div className="w-[1024px] h-fit px-[25px]">
+    <div className="w-[1024px] max-h-screen px-[25px] relative">
       <h1 className="text-center text-text-first service-accent1 mx-auto mb-3">
         내 동화 책장
       </h1>
@@ -114,7 +114,7 @@ export default function Collection() {
 
       {/* 동화 모달 */}
       {showModal && (
-        <div className="absolute top-0 left-0 z-50 w-full h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
+        <div className="absolute top-[-50px] left-0 z-50 w-full h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
           <Modal
             handleExit={handleExit}
             showModal={showModal}
