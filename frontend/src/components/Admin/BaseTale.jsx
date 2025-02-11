@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '@/store/userStore';
+import { adminStore } from "./ImageCreationClient";
+
 
 const BaseTale = () => {
   const initialFormData = {
@@ -22,8 +24,18 @@ const BaseTale = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [selectedId, setSelectedId] = useState(null);
 
+  // 도입부 이미지 옵션 (웹소켓을 통해 전달받은 4개의 이미지 URL)
+  const [introImageOptions, setIntroImageOptions] = useState([]);
+
+  const { connect } = adminStore();
+
+  // 타이틀틀 이미지 옵션 (웹소켓을 통해 전달받은 4개의 이미지 URL)
+  // const [titleImageOptions, setTitleImageOptions] = useState([]);
+
   useEffect(() => {
     fetchBaseTales();
+     // 웹소켓 구독 (실제 사용하는 웹소켓 client에 맞게 수정)
+    connect()
   }, []);
 
   // BaseTale 목록 조회 함수
@@ -111,6 +123,26 @@ const BaseTale = () => {
       console.error('도입부 음성 URL 생성 실패:', error);
     }
   };
+
+  // 도입부 이미지 생성하기 버튼 핸들러
+  const handleGenerateIntroImage = async () => {
+    if (!formData.title || !formData.startScript) {
+      alert('제목과 도입부 스크립트를 모두 입력해주세요.');
+      return;
+    }
+    try {
+      // 요청 본문은 { title, intro }로 구성 (intro는 도입부 스크립트)
+      await api.post('/admin/tale/gen-intro-image', {
+        title: formData.title,
+        intro: formData.startScript
+      });
+      // 응답은 중요하지 않음. 웹소켓을 통해 이미지 옵션이 전달됨.
+      setIntroImageOptions([]); // 기존 옵션 초기화 (옵션이 갱신되면 웹소켓으로 업데이트 됨)
+    } catch (error) {
+      console.error('도입부 이미지 생성 요청 실패:', error);
+    }
+  };
+
 
   // 목록에서 동화 선택 시 상세정보 조회 후 form에 채우기
   const handleSelectTale = async (id) => {
@@ -227,15 +259,43 @@ const BaseTale = () => {
                 도입부 음성 생성하기
               </button>
             </div>
+            {/* 도입부 이미지 URL 및 생성 버튼 */}
             <div style={{ marginBottom: '10px' }}>
-              <label style={{ width: '150px', display: 'inline-block' }}>도입부 이미지 URL:</label>
+              <label style={{ width: '150px', display: 'inline-block' }}>
+                도입부 이미지 URL:
+              </label>
               <input
                 type="text"
                 name="startImg"
                 value={formData.startImg ?? ''}
                 onChange={handleInputChange}
               />
+              <button
+                type="button"
+                onClick={handleGenerateIntroImage}
+                style={{ marginLeft: '10px' }}
+              >
+                도입부 이미지 생성하기
+              </button>
             </div>
+
+            {/* 도입부 이미지 옵션 표시 (웹소켓으로 전달받은 4개의 이미지 URL) */}
+            {introImageOptions.length > 0 && (
+              <div style={{ marginBottom: '10px' }}>
+                <p>아래 이미지 중 원하는 이미지를 선택해주세요:</p>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {introImageOptions.map((url, index) => (
+                    <div
+                      key={index}
+                      style={{ cursor: 'pointer', border: '1px solid #ccc', padding: '5px' }}
+                      onClick={() => handleSelectIntroImage(url)}
+                    >
+                      <img src={url} alt={`Option ${index + 1}`} style={{ width: '100px', height: 'auto' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div style={{ marginBottom: '10px' }}>
               <label style={{ width: '150px', display: 'inline-block' }}>도입부 스크립트:</label>
               <textarea
