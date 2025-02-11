@@ -241,7 +241,6 @@ const BaseTale = () => {
         }));
         setSelectedIntroImage(response.data.data.text);
       }
-      handleNewTale();
     } catch (error) {
       console.error('도입부 이미지 선택 실패:', error);
     }
