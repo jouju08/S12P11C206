@@ -1,6 +1,7 @@
 package com.ssafy.backend.member.controller;
 
 import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.dto.MemberDto;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
@@ -12,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
+import java.util.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/member")
@@ -33,15 +34,15 @@ public class MemberController {
 
     // 회원 정보 수정
     @PatchMapping("/mypage")
-    public ApiResponse<Void> updateMember(
+    public ApiResponse<GetMemberResponseDTO> updateMember(
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody UpdateMemberRequestDTO updateMemberRequestDTO) {
 
         String loginId = extractLoginId(token);
-        memberService.updateMember(loginId, updateMemberRequestDTO);
+        GetMemberResponseDTO memberResponse = memberService.updateMember(loginId, updateMemberRequestDTO);
 
-        return ApiResponse.<Void>builder()
-                .data(null)
+        return ApiResponse.<GetMemberResponseDTO>builder()
+                .data(memberResponse)
                 .build();
     }
 
@@ -71,10 +72,9 @@ public class MemberController {
     }
 
     // 프로필 사진 변경
-    @PatchMapping("/profile-image")
+    @PostMapping("/profile-image")
     public ApiResponse<Void> updateProfileImage(
-            @RequestHeader("Authorization") String token,
-            @RequestParam("profileImage") MultipartFile profileImage) {
+            @RequestHeader("Authorization") String token, MultipartFile profileImage) {
 
         String loginId = extractLoginId(token);
         memberService.updateProfileImage(loginId, profileImage);
@@ -83,6 +83,13 @@ public class MemberController {
                 .data(null)
                 .build();
     }
+
+    @GetMapping("/all")
+    public ApiResponse<List<MemberDto>> getMembers() {
+        List<MemberDto> allMembers=memberService.getAllMembers();
+        return ApiResponse.<List<MemberDto>>builder().data(allMembers).build();
+    }
+
 
     private String extractLoginId(String token) {
         if (token == null || !token.startsWith("Bearer ")) {

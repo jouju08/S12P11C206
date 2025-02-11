@@ -1,8 +1,10 @@
+@import url('https://fastly.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.1/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 국민연금체체 */
+/* 국민연금체 */
 @font-face {
   font-family: 'NPSfont';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2310@1.0/NPSfontExtraBold.woff2')
@@ -24,7 +26,7 @@
   font-weight: 500;
 }
 
-/* 귀염발랄체체 */
+/* 귀염발랄체 */
 @font-face {
   font-family: 'CuteFont';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_11-01@1.0/insungitCutelivelyjisu.woff2')
@@ -92,9 +94,34 @@
     font-family: CuteFont;
     font-size: 20px;
   }
+
   .story-basic4 {
     font-family: CuteFont;
     font-size: 16px;
+  }
+
+  .auth-bold1 {
+    font-family: 'Wanted Sans Variable', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  .auth-bold2 {
+    font-family: 'Wanted Sans Variable', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  .auth-regular1 {
+    font-family: 'Wanted Sans Variable', sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  .auth-regular2 {
+    font-family: 'Wanted Sans Variable', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
   }
 }
 
@@ -123,9 +150,13 @@ select {
 
 /* Canvas용 마우스 커서*/
 .eraser-cursor {
-  cursor: url('/public/circle-outline.svg') 8 8, auto;
+  cursor:
+    url('/public/circle-outline.svg') 8 8,
+    auto;
 }
 
 .pencil-cursor {
-  cursor: url('/public/circle-outline.svg') 12 12, auto;
+  cursor:
+    url('/public/circle-outline.svg') 12 12,
+    auto;
 }

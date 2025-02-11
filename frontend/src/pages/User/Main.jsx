@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { userStore } from '@/store/userStore';
+import { api, userStore } from '@/store/userStore';
 
 import NavMenu from '@/components/Main/NavMenu';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
@@ -12,6 +12,49 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
 import { Link } from 'react-router-dom';
+
+const dummyDrawingList = [
+  {
+    galleryId: 4,
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+    authorId: 5,
+    authorNickname: '테스터',
+    authorProfileImg: null,
+    hasLiked: false,
+    likeCnt: 0,
+    createdAt: '2025-02-07T11:04:57.572662600',
+  },
+  {
+    galleryId: 3,
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+    authorId: 5,
+    authorNickname: '테스터',
+    authorProfileImg: null,
+    hasLiked: true,
+    likeCnt: 10,
+    createdAt: '2025-02-07T11:02:57.843395',
+  },
+  {
+    galleryId: 2,
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+    authorId: 5,
+    authorNickname: '테스터',
+    authorProfileImg: null,
+    hasLiked: false,
+    likeCnt: 0,
+    createdAt: '2025-02-06T15:23:24.819179600',
+  },
+  {
+    galleryId: 1,
+    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
+    authorId: 5,
+    authorNickname: '테스터',
+    authorProfileImg: null,
+    hasLiked: false,
+    likeCnt: 1,
+    createdAt: '2025-02-06T15:20:39.791333600',
+  },
+];
 
 export default function Main() {
   // 로그인 되어있는 유저 닉네임 가져오기
@@ -38,26 +81,43 @@ export default function Main() {
     </>,
   ];
 
-  // 백엔드에서 만들어져 있는 동화방 데이터 불러오기
+  // 만들어져 있는 동화방, 인기 그림 데이터 불러오기
   const [taleData, setTaleData] = useState([]);
+  const [drawingData, setdrawingData] = useState([]);
 
   useEffect(() => {
     // 백엔드 API 호출 함수
     async function fetchData() {
       try {
-        const response = await axios.get('/api/tale/rooms');
-        console.log('📌 가져온 데이터:', response.data); // 콘솔 출력
+        const response = await api.get('/tale/rooms');
+        console.log('📌 만들어진 동화방 가져온 데이터:', response.data);
         setTaleData(response.data.data); // 상태에 저장
         // console.log(taleData);
       } catch (error) {
-        console.error('데이터 가져오기 실패:', error);
+        console.error('만들어진 동화방 실패:', error);
       }
     }
 
     fetchData(); // 함수 실행
   }, []); // 빈 배열을 넣으면 컴포넌트가 처음 렌더링될 때만 실행됨
 
-  const linkArray = ['/room', '/collection', '/gallery', '/'];
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await api.get('/gallery', {
+          params: { order: 'POP' },
+        });
+        console.log('📌 인기있는 그림 데이터:', response.data); // 콘솔 출력
+        setdrawingData(response.data.data); // 상태에 저장
+      } catch (error) {
+        console.error('인기있는 그림 실패:', error);
+      }
+    }
+
+    fetchData(); // 함수 실행
+  }, []);
+
+  const linkArray = ['/room', '/collection', '/gallery', '/sightseeing'];
   const listNavMenu = imgArray.map((image, idx) => (
     <SwiperSlide
       key={idx}
@@ -76,9 +136,9 @@ export default function Main() {
     </SwiperSlide>
   ));
 
-  const listFamousDrawing = new Array(5).fill(null).map((_, idx) => (
+  const listFamousDrawing = dummyDrawingList.map((item, idx) => (
     <SwiperSlide key={idx}>
-      <GalleryItem />
+      <GalleryItem item={item} />
     </SwiperSlide>
   ));
 
@@ -141,7 +201,7 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
-        <div className="h-[270px] text-center">
+        <div className="h-[300px] flex items-center text-center">
           {taleData ? (
             <Swiper
               slidesPerView={3}
@@ -163,13 +223,20 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           지금 인기있는 그림
         </div>
-        <Swiper
-          slidesPerView={4}
-          spaceBetween={30}
-          grabCursor={true}
-          className="mySwiper w-[904px] h-[300px] overflow-hidden px-4">
-          {listFamousDrawing}
-        </Swiper>
+        {drawingData ? (
+          <Swiper
+            slidesPerView={4}
+            spaceBetween={30}
+            grabCursor={true}
+            className="mySwiper w-[904px] h-[300px] overflow-hidden px-4">
+            {listFamousDrawing}
+          </Swiper>
+        ) : (
+          // 데이터 없을 때 어떻게 나올지 수정 필요
+          <p className="text-text-first leading-[270px] service-accent2">
+            아직 올라온 그림이 없어요!
+          </p>
+        )}
       </div>
     </div>
   );

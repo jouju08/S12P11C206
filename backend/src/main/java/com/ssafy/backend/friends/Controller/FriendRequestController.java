@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("/api/friend")
@@ -28,14 +29,23 @@ public class FriendRequestController {
         this.memberRepository = memberRepository;
     }
 
+    //받은 친구요청 목록 받아오기
     @GetMapping("/request")
     public ApiResponse<List<MemberDto>> getFriendRequest(@AuthenticationPrincipal User user) {
         String loginId=user.getUsername();
         List<MemberDto> requestMemberInfo=friendRequestService.getFriendRequestService(loginId);
-        if(requestMemberInfo.isEmpty()){
-            throw new BadRequestException("Member not found");
-        }
-        else return ApiResponse.<List<MemberDto>>builder()
+        return ApiResponse.<List<MemberDto>>builder()
+                .data(requestMemberInfo)
+                .message("User Friend Request Info")
+                .build();
+    }
+
+    //보낸 친구요청 목록 받아오기
+    @GetMapping("/request/send")
+    public ApiResponse<List<MemberDto>> getSendFriendRequest(@AuthenticationPrincipal User user) {
+        String loginId=user.getUsername();
+        List<MemberDto> requestMemberInfo=friendRequestService.getSendFriendRequestService(loginId);
+      return ApiResponse.<List<MemberDto>>builder()
                 .data(requestMemberInfo)
                 .message("User Friend Request Info")
                 .build();
@@ -44,9 +54,11 @@ public class FriendRequestController {
     //친구 요청 보내기
     //요청 받아서 이미 친구 신청 중이거나 이미 친구 신청 수락 상태(둘은 이미 친구)라면 예외처리 해놨음
     @PostMapping("/request")
-    public ApiResponse<Object> addFriendRequest(@RequestBody FriendDto friendDto) {
+    public ApiResponse<Object> addFriendRequest(@AuthenticationPrincipal User user,
+            @RequestBody FriendDto friendDto) {
+        String loginId=user.getUsername();
         //들어오는 값은 두 사람의 회원 관리 번호(ID 값)
-        boolean isRequestSent = friendRequestService.sendFriendRequest(friendDto);
+        boolean isRequestSent = friendRequestService.sendFriendRequest(friendDto, loginId);
         if(isRequestSent) {
             return ApiResponse.builder().data("성공").build();
         }else {
@@ -55,8 +67,8 @@ public class FriendRequestController {
     }
 
     //친구 요청 거절 및 수락
-    @GetMapping("/{answer}/{fromLoginId}")
-    public ApiResponse<Object> getFriendRequests(Authentication auth, @PathVariable String fromLoginId, @PathVariable String answer) {
+    @GetMapping("/request/{answer}/{fromLoginId}")
+    public ApiResponse<Object> answerFriendRequests(Authentication auth, @PathVariable String fromLoginId, @PathVariable String answer) {
         User user = (User) auth.getPrincipal();
         String result="";
         if(answer.equals("reject")) {
@@ -74,6 +86,21 @@ public class FriendRequestController {
             else throw new BadRequestException("친구 요청 수락 실패");
 
         }
+
+        return ApiResponse.builder().data(result).build();
+    }
+
+
+    //내가 보낸 친구 요청 취소
+    @GetMapping("/request/cancel/{ToLoginId}")
+    public ApiResponse<Object> cancelFriendRequests(Authentication auth, @PathVariable String ToLoginId) {
+        User user = (User) auth.getPrincipal();
+        String result="";
+        boolean Result= friendRequestService.rejectFriendRequest(ToLoginId,user.getUsername());
+        if(Result) {
+            result = "User Canceled Friend Request";
+        }
+        else throw new BadRequestException("친구 요청 취소 실패");
 
         return ApiResponse.builder().data(result).build();
     }

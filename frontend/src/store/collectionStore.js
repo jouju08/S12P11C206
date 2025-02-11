@@ -98,9 +98,10 @@ const collectionActions = (set, get) => ({
   },
 
   setTaleDetail: async (pageNum) => {
-    const response = await api.get(`/tale/${get().seeTaleId}/${pageNum - 1}`);
+    //  0번째 페이지 -> basetale start 불러옴
+    const response = await api.get(`/tale/${get().seeTaleId}/${pageNum}`);
     console.log(
-      `${get().seeTaleId}번째 동화 ${get().taleStart['title']}의 ${pageNum - 1} idx 페이지 불러오기: `,
+      `${get().seeTaleId}번째 동화 ${get().taleStart['title']}의 ${pageNum} idx 페이지 불러오기: `,
       response
     );
 

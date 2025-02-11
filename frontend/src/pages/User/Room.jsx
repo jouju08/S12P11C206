@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useState, useEffect } from 'react';
 import ChooseTale from '@/components/Room/ChooseTale';
 import NumSearch from '@/components/Room/NumSearch';
 import RoomBtn from '@/components/Room/RoomBtn';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
+import { Loading } from '@/common/Loading';
 import axios from 'axios';
 import { api } from '@/store/userStore';
 
@@ -16,31 +17,28 @@ import 'swiper/css/navigation';
 import { Navigation } from 'swiper/modules';
 
 import '@/styles/roomPage.css';
+import taleAPI from '@/apis/tale/taleAxios';
+import { useTaleRoom } from '@/store/roomStore';
 
 /*
 >> 방 번호 입력시 그 번호에 해당되는 부분 아직 안 됨<<
 */
 
-// 확인용 더미데이터
-const taleArray = [
-  '아기 돼지 삼형제',
-  '백설공주',
-  '신데렐라',
-  '피리부는 사나이',
-  '흥부놀부',
-  '피노키오',
-];
-
 export default function Room() {
   const [swiper, setSwiper] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [data, setData] = useState([]); // 백엔드에서 가져올 데이터
-  const [taleList, setTaleList] = useState([]); // 백엔드에서 가져올 데이터
+  const [existTaleRoom, setExistTaleRoom] = useState([]); // 생성되있는 방들
+  const [taleList, setTaleList] = useState([]); // BaseTale List
   const [loading, setLoading] = useState(false); // 로딩 상태
+
+  const isMounted = useRef(true);
+
+  const { setBaseTaleId } = useTaleRoom();
 
   // 클릭된 동화 업데이트
   const handleClick = (index) => {
+    setBaseTaleId(taleList[index].id);
     setSelectedIndex((prevIndex) => (prevIndex === index ? null : index));
     // 세터함수로 selectedIndex
   };
@@ -55,11 +53,8 @@ export default function Room() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      try {
-        // 아래 api 주소는 동화 상세 정보 조회, 다른 것 필요
-        // const response = await axios.get(`/api/tale/${selectedIndex}`);
-        // console.log('➡️ 가져온 데이터 : ', response.data);
 
+      try {
         // 테스트용 dummy data
         const dummy = {
           hostMemberId: 0,
@@ -70,8 +65,18 @@ export default function Room() {
           roomId: 222,
           taleTitle: taleList[selectedIndex].title,
         };
-        setData(
-          new Array(Number(selectedIndex)).fill(dummy).map((item, idx) => (
+
+        const roomList = await taleAPI.getAllTaleRooms();
+
+        //선택한 baseTaleId에 맞게 필터
+        const existTales = roomList.data['data'];
+
+        const filterTales = existTales.filter(
+          (item) => item?.['baseTaleId'] == taleList[selectedIndex].id
+        );
+
+        setExistTaleRoom(
+          filterTales.map((item, idx) => (
             <FairyTaleRoom
               key={idx}
               item={item}
@@ -87,7 +92,11 @@ export default function Room() {
       }
     };
 
-    fetchData();
+    if (isMounted.current) {
+      isMounted.current = false;
+    } else {
+      fetchData();
+    }
   }, [selectedIndex]); // selectedIndex 변경 시마다 실행
 
   // 동화책 목록 불러오기
@@ -174,7 +183,7 @@ export default function Room() {
           <>
             <div className="w-full h-[100px] leading-[100px] text-center service-accent1 text-text-second">
               <span className="text-main-choose">
-                {taleArray[selectedIndex]}
+                {taleList[selectedIndex].title}
               </span>{' '}
               을(를) 골랐어요!
             </div>
@@ -190,17 +199,19 @@ export default function Room() {
                 내가 방 만들기
               </RoomBtn>
             </div>
+
             {/* 데이터 표시 구간 */}
             <section className="w-full px-9 py-10">
               {loading ? (
-                <p>로딩 중...</p>
-              ) : data ? (
+                // <p>로딩 중...</p>
+                <Loading />
+              ) : existTaleRoom ? (
                 <div>
                   <h2 className="text-xl font-bold">
                     데이터 ID: {selectedIndex}
                   </h2>
                   <div className="grid grid-flow-row grid-cols-3 gap-4">
-                    {...data}
+                    {...existTaleRoom}
                   </div>
                 </div>
               ) : (

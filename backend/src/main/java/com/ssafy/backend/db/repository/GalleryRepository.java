@@ -1,7 +1,6 @@
 package com.ssafy.backend.db.repository;
 
 import com.ssafy.backend.db.entity.Gallery;
-import com.ssafy.backend.gallery.dto.GalleryListResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +17,13 @@ public interface GalleryRepository extends JpaRepository<Gallery, Long> {
     Optional<Gallery> findById(Integer id);
 
     @Query("SELECT g FROM Gallery g WHERE g.hasDeleted = false ORDER BY g.createdAt desc")
-    List<Gallery> findAllPictures();
+    List<Gallery> findAllPictures_();
+
+    @Query(value = "SELECT g FROM Gallery g WHERE g.hasDeleted = false " +
+            "ORDER BY " +
+            "CASE WHEN :order = 'LATEST' THEN g.createdAt END DESC, " +
+            "CASE WHEN :order = 'POP' THEN g.likeCnt END DESC",
+            countQuery = "SELECT COUNT(g) FROM Gallery g WHERE g.hasDeleted = false")
+    Page<Gallery> findAllPictures(@Param("order") String order, Pageable pageable);
 
 }

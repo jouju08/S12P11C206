@@ -4,6 +4,7 @@ import com.ssafy.backend.common.S3Service;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
+import com.ssafy.backend.dto.MemberDto;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
 import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
@@ -12,6 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +52,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateMember(String LoginId, UpdateMemberRequestDTO updateMemberRequestDTO) {
+    public GetMemberResponseDTO updateMember(String LoginId, UpdateMemberRequestDTO updateMemberRequestDTO) {
         Member member = memberRepository.getMemberByLoginIdEquals(LoginId)
                 .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + LoginId));
 
@@ -55,13 +60,19 @@ public class MemberService {
             member.setNickname(updateMemberRequestDTO.getNickname());
         }
 
-        if (updateMemberRequestDTO.getEmail() != null) {
-            member.setEmail(updateMemberRequestDTO.getEmail());
-        }
-
         if (updateMemberRequestDTO.getBirth() != null) {
             member.setBirth(updateMemberRequestDTO.getBirth());
         }
+
+        return GetMemberResponseDTO.builder()
+                .id(member.getId())
+                .loginId(member.getLoginId())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .loginType(member.getLoginType())
+                .birth(member.getBirth())
+                .profileImg(member.getProfileImg())
+                .build();
     }
 
     @Transactional
@@ -77,7 +88,8 @@ public class MemberService {
                     memberRepository.save(member);
                 }
             } else {
-                s3Service.updateFile(member.getProfileImg() ,profileImage);
+                String s3Path = s3Service.updateFile(member.getProfileImg() ,profileImage);
+                member.setProfileImg(s3Path);
             }
 
         } catch (Exception e) {
@@ -98,5 +110,12 @@ public class MemberService {
         member.setPassword(passwordEncoder.encode(changePasswordRequestDTO.getNewPassword()));
         memberRepository.save(member);
 
+    }
+    public List<MemberDto> getAllMembers(){
+        List<MemberDto> members = memberRepository.findAll()
+                .stream()
+                .map(member -> new MemberDto(member.getLoginId(), member.getNickname(), member.getProfileImg()))
+                .collect(Collectors.toList());
+        return members;
     }
 }

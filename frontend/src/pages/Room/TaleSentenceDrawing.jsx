@@ -10,6 +10,10 @@ import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
 import { Loading } from '@/common/Loading';
 import DrawingBoard from '@/components/Common/DrawingBoard';
+import { useViduHook } from '@/store/tale/viduStore';
+import OpenviduCanvas from '@/components/TaleRoom/OpenviduCanvas';
+import { LocalVideoTrack, RoomEvent, Track } from 'livekit-client';
+import { useLocalParticipant } from '@livekit/components-react';
 
 // 백에서 문장 4개가 어떻게 넘어오는지 모르겠음
 // 그냥 받았다고 치자
@@ -24,6 +28,7 @@ const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
   const excalidrawAPIRef = useRef(null);
   const canvasRef = useRef(null);
+  const localCanvasTrackRef = useRef(null);
   const navigate = useNavigate();
 
   const {
@@ -33,6 +38,9 @@ const TaleSentenceDrawing = () => {
     submitPictureSingle,
     addPage,
   } = useTalePlay();
+
+  const { viduRoom, localTrack, remoteTracks, getTokenByAxios, joinViduRoom } =
+    useViduHook();
 
   //AI에서 받은 문장들
   const sortedSentences = useMemo(() => {
@@ -51,7 +59,77 @@ const TaleSentenceDrawing = () => {
   const [previousDrawings, setPreviousDrawings] = useState([]);
 
   //메시지 수신 loading
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  //livekit
+  useEffect(() => {
+    const handleVidu = async () => {
+      await joinViduRoom();
+    };
+
+    handleVidu();
+  }, []);
+
+  useEffect(() => {
+    if (!viduRoom) return;
+
+    const publishCanvasTrack = () => {
+      if (!canvasRef.current) {
+        console.log('canvasRef.current가 아직 준비되지 않음');
+        return;
+      }
+      const canvasElement = canvasRef.current.getCanvas();
+      if (!canvasElement) {
+        console.log('캔버스 엘리먼트를 찾을 수 없음');
+        return;
+      }
+
+      //heartbeat
+      canvasRef.current.clearCanvas();
+
+      try {
+        const stream = canvasElement.captureStream(30); // 30 FPS
+        const mediaStreamTrack = stream.getVideoTracks()[0];
+
+        if (!mediaStreamTrack) {
+          console.error('captureStream에서 videoTrack 생성 실패');
+          return;
+        }
+        console.log('생성된 videoTrack:', mediaStreamTrack);
+
+        const localVideoTrack = new LocalVideoTrack(mediaStreamTrack);
+
+        viduRoom.localParticipant
+          .publishTrack(localVideoTrack, {
+            name: 'video_from_canvas',
+            source: Track.Source.Camera,
+          })
+          .then(() => {
+            console.log('Canvas track published successfully!');
+          })
+          .catch((error) => {
+            console.error('Error publishing canvas track:', error);
+          });
+      } catch (error) {
+        console.error('captureStream 호출 중 에러 발생:', error);
+      }
+    };
+
+    // 이미 연결되어 있으면 바로 퍼블리시
+    if (viduRoom.connectionState === 'connected') {
+      publishCanvasTrack();
+    } else {
+      // 연결 이벤트가 발생하면 퍼블리시
+      viduRoom.on(RoomEvent.Connected, publishCanvasTrack);
+    }
+
+    return () => {
+      // 이벤트 리스너 정리
+      if (viduRoom) {
+        viduRoom.off(RoomEvent.Connected, publishCanvasTrack);
+      }
+    };
+  }, [viduRoom]);
 
   // 컴포넌트 마운트 시 타이머 시작
   useEffect(() => {
@@ -88,13 +166,10 @@ const TaleSentenceDrawing = () => {
 
     if (isSingle) {
       await submitPictureSingle(tmpFile);
+      addPage();
     } else if (!isSingle) {
       await submitPicture(tmpFile);
     }
-
-    // const response = isSingle
-    //   ? await submitPictureSingle(tmpFile)
-    //   : await submitPicture(tmpFile);
 
     // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
     setPreviousDrawings([
@@ -243,21 +318,8 @@ const TaleSentenceDrawing = () => {
                 width={590}
                 height={420}
                 usePalette={true}
+                useHeartBeat={true}
               />
-              {/* <Excalidraw
-                excalidrawAPI={(api) => {
-                  excalidrawAPIRef.current = api;
-                }}
-                initialData={{
-                  elements: [],
-                  appState: {
-                    viewBackgroundColor: null,
-                    scrollX: 0,
-                    scrollY: 0,
-                  },
-                  scrollToContent: false,
-                }}
-              /> */}
             </div>
             <button
               onClick={
@@ -290,7 +352,7 @@ const TaleSentenceDrawing = () => {
             {/* 그림 보여지는 곳(싱글은 내가 그린거, 멀티는 다른 사람 실시간) */}
             <div className="mt-5">
               {/* 싱글 모드일 때 */}
-              {isSingle == true && (
+              {isSingle ? (
                 <div className="flex flex-col items-center gap-4">
                   {previousDrawings.map((drawing, index) => (
                     <div
@@ -316,6 +378,17 @@ const TaleSentenceDrawing = () => {
                         </div>
                       ))}
                 </div>
+              ) : (
+                <>
+                  {remoteTracks.length > 0 &&
+                    remoteTracks.map((remoteTrack) => (
+                      <OpenviduCanvas
+                        key={remoteTrack.trackPublication.trackSid}
+                        track={remoteTrack.trackPublication.track}
+                        participantIdentity={remoteTrack.participantIdentity}
+                      />
+                    ))}
+                </>
               )}
             </div>
           </section>

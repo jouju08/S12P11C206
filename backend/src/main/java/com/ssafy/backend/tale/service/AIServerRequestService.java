@@ -12,6 +12,7 @@ import com.ssafy.backend.tale.dto.response.GenerateTaleResponseDto;
 import com.ssafy.backend.tale.dto.common.PageInfo;
 import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 
+import com.ssafy.backend.tale.dto.response.TaleSentencesResponseDto;
 import com.ssafy.backend.tale.dto.response.TextResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -215,16 +216,58 @@ public class AIServerRequestService {
 
 
     private void requestVoiceScript(long roomId, int order, PageInfo pages) {
-        VoiceScriptRequestDto voiceScriptRequestDto = new VoiceScriptRequestDto(pages.getFullText());
+        TextRequestDto textRequestDto = new TextRequestDto(pages.getFullText());
 
         webClient.post()
                 .uri("/gen/script-read")
                 .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .bodyValue(voiceScriptRequestDto)
+                .bodyValue(textRequestDto)
                 .retrieve()
                 .bodyToMono(DataBuffer.class)  // 바이너리 데이터로 받기
                 .flatMap(dataBuffer -> convertToMultipartFile(dataBuffer, "voice_" + roomId + "_" + order + ".wav","audio/wav"))  // MultipartFile로 변환
                 .subscribe(file -> taleService.saveTaleVoice(roomId, order, file)); // 저장된 파일 전달
+    }
+
+    public String requestVoiceScript(String script){
+        TextRequestDto textRequestDto = new TextRequestDto(script);
+
+        MultipartFile scriptReadFile = webClient.post()
+                .uri("/gen/script-read")
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
+                .bodyValue(textRequestDto)
+                .retrieve()
+                .bodyToMono(DataBuffer.class)  // 바이너리 데이터로 받기
+                .flatMap(dataBuffer -> convertToMultipartFile(dataBuffer, "voice.wav","audio/wav"))  // MultipartFile로 변환
+                .block(); // 저장된 파일 전달
+
+        return s3Service.uploadFile(scriptReadFile);
+    }
+
+    public ApiResponse<TaleSentencesResponseDto> requestTaleSentences(String title){
+        return webClient.post()
+                .uri("/gen/tale-sentences")
+                .bodyValue(new TextRequestDto(title))
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<TaleSentencesResponseDto>>(){})
+                .block();
+    }
+
+    public void requestTaleImage(TextRequestDto textRequestDto){
+        webClient.post()
+                .uri("/gen/tale-image")
+                .bodyValue(textRequestDto)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<String>>(){})
+                .block();
+    }
+
+    public void requestTaleIntroImage(TaleIntroImageRequestDto taleIntroImageRequestDto){
+        webClient.post()
+                .uri("/gen/tale-intro-image")
+                .bodyValue(taleIntroImageRequestDto)
+                .retrieve()
+                .bodyToMono(void.class)
+                .block();
     }
 
     private Mono<MultipartFile> convertToMultipartFile(DataBuffer dataBuffer, String fileName, String contentType) {

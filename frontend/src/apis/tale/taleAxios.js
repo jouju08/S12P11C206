@@ -8,6 +8,10 @@
 import { api } from '@/store/userStore';
 
 const taleAPI = {
+  //방목록조회
+  getAllTaleRooms: () => api.get('tale/rooms'),
+
+  //동화 시작 요청 후 기본동화 정보들 받아옴
   startTale: (roomId) => api.get(`/tale/start/${roomId}`),
 
   //키워드 확인 API
