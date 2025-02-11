@@ -46,7 +46,7 @@ export default function GalleryDetail() {
   }, [galleryPage]);
 
   const handleHeart = () => {
-    dummyGalleryPage['hasLiked'] = !dummyGalleryPage['hasLiked'];
+    // galleryPage['hasLiked'] = !galleryPage['hasLiked'];
     toggleHasLiked();
   };
 
