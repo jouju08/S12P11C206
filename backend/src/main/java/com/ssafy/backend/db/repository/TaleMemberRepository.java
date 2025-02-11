@@ -18,7 +18,10 @@ public interface TaleMemberRepository extends JpaRepository<TaleMember, Long> {
     TaleMember findByTaleIdAndOrderNum(Long taleId, int order);
     List<TaleMember> findByTaleId(Long taleId);
 
-    List<TaleMember> findByMemberId(Long memberId);
+    Page<TaleMember> findByMemberId(Long memberId, Pageable pageable);
+
+    @Query("SELECT tm FROM TaleMember tm WHERE tm.member.id = :memberId AND tm.tale.baseTale.id = :baseTaleId")
+    Page<TaleMember> findByMemberIdAndBaseTaleId(Long memberId, Long baseTaleId, Pageable pageable);
 
     @Query(value = "SELECT new com.ssafy.backend.taleMember.dto.PictureResponseDTO(" +
             "tm.id, tm.orginImg, tm.createdAt) " +
