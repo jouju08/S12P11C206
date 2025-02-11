@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Footer from '../Footer';
 import AuthHeader from '../Header/AuthHeader';
@@ -10,12 +10,26 @@ export default function MainLayout() {
   const { isAuthenticated } = useUser();
   const location = useLocation();
   const [showFriend, setShowFriend] = useState(false);
+  const friendsRef = useRef(null);
 
   const isCollectionPage = location.pathname === '/collection';
 
+  // useEffect(() => {
+  //   function handleClickOutside(event) {
+  //     if (friendsRef.current && !friendsRef.current.contains(event.target)) {
+  //       setShowFriend(false);
+  //     }
+  //   }
+
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleClickOutside);
+  //   };
+  // }, [friendsRef]);
+
   return (
     <div
-      className={`relative ${isCollectionPage ? 'bg-main-beige' : 'bg-main-background'}`}>
+      className={`relative min-h-screen ${isCollectionPage ? 'bg-main-beige' : 'bg-main-background'}`}>
       {isAuthenticated ? (
         <AuthHeader
           showFriend={showFriend}
@@ -30,20 +44,21 @@ export default function MainLayout() {
         <img
           src="/Collection/field-background.png"
           alt="collection 배경"
-          className="absolute top-[100px] left-0 w-full h-[682px]"
+          className="absolute bottom-0 left-0 w-full h-[682px] object-cover"
         />
       ) : null}
 
-      {/* 최소 높이 주는 css 삭제 */}
-      <div className="relative flex w-3/4 justify-center items-center mx-auto border-solid border-2 border-indigo-600">
+      {/* 최소 높이 주는 w-3/4 css 삭제 */}
+      <div className="relative flex justify-center items-center mx-auto">
         <Outlet />
       </div>
       {showFriend && (
-        <div className="absolute top-[110px] right-1/4 z-50">
+        <div
+          ref={friendsRef}
+          className="absolute top-[110px] right-1/4 z-50">
           <Friends />
         </div>
       )}
-      <Footer />
     </div>
   );
 }
