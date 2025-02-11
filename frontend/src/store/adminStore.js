@@ -19,7 +19,7 @@ const adminActions = (set, get) => ({
   //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS(import.meta.env.VITE_WS_URL);
+      const socket = new SockJS('/ws');
 
       console.log(socket);
       const stompClient = new Client({
@@ -50,9 +50,9 @@ const adminActions = (set, get) => ({
       return;
     }
 
-    stompClient.subscribe(`/admin/title-image`, (message) => {
+    stompClient.subscribe(`/topic/admin/title-image`, (message) => {
       const newImages = JSON.parse(message.body);
-      get().setTitleImages(newImages);
+      get().setTitleImages(newImages.images);
       console.log(newImages);
     });
   },
@@ -63,9 +63,9 @@ const adminActions = (set, get) => ({
       return;
     }
 
-    stompClient.subscribe(`/admin/intro-image`, (message) => {
+    stompClient.subscribe(`/topic/admin/intro-image`, (message) => {
       const newImages = JSON.parse(message.body);
-      get().setIntroImages(newImages);
+      get().setIntroImages(newImages.images);
       console.log(newImages);
     });
   },
@@ -100,15 +100,24 @@ export const adminStore = () => {
   const connect = useAdminStore((state) => state.connect);
   const titleImages = useAdminStore((state) => state.titleImages);
   const selectedTitleImage = useAdminStore((state) => state.selectedTitleImage);
+  const setTitleImages = useAdminStore((state) => state.setTitleImages);
+  const setSelectedTitleImage = useAdminStore((state) => state.setSelectedTitleImage);
+
   const introImages = useAdminStore((state) => state.introImages);
   const selectedIntroImage = useAdminStore((state) => state.selectedIntroImage);
-  
+  const setIntroImages = useAdminStore((state) => state.setIntroImages);
+  const setSelectedIntroImage = useAdminStore((state) => state.setSelectedIntroImage);
+
   return {
     connect,
     titleImages,
     selectedTitleImage,
+    setTitleImages,
+    setSelectedTitleImage,
+
     introImages,
     selectedIntroImage,
+    setIntroImages,
+    setSelectedIntroImage,
   };
 };
-
