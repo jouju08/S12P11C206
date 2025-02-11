@@ -58,7 +58,6 @@ const initialState = {
   isAuthenticated: false,
 };
 
-
 const userActions = (set, get) => ({
   login: async (credentials) => {
     let response;
@@ -160,7 +159,6 @@ const userActions = (set, get) => ({
       const { data } = response.data;
 
       if (data !== null) {
-        set({ accessToken: data.accessToken });
         isRefreshing = false;
         onRefreshed(data.accessToken);
 
@@ -218,43 +216,43 @@ const userActions = (set, get) => ({
   },
 
   //중복확인
-  duplicate : async(type, value) => {
+  duplicate: async (type, value) => {
     try {
-        const response = await authAPI.checkDuplicate(type, value);
-        return response.data;
-      } catch (error) {
-        console.error(`${type} 중복확인 오류`, error);
-        if (error.response) {
-          console.error("응답 오류:", error.response.data);
-          console.error("응답 상태 코드:", error.response.status);
-        } else if (error.request) {
-          console.error("응답 없음:", error.request);
-        } else {
-          console.error("요청 설정 오류:", error.message);
-        }
-        throw error;
+      const response = await authAPI.checkDuplicate(type, value);
+      return response.data;
+    } catch (error) {
+      console.error(`${type} 중복확인 오류`, error);
+      if (error.response) {
+        console.error('응답 오류:', error.response.data);
+        console.error('응답 상태 코드:', error.response.status);
+      } else if (error.request) {
+        console.error('응답 없음:', error.request);
+      } else {
+        console.error('요청 설정 오류:', error.message);
+      }
+      throw error;
     }
   },
 
   //인증번호 전송송
-  sendEmail: async(email)=>{
+  sendEmail: async (email) => {
     console.log(email);
-    try{
-      const response=await authAPI.sendEmailAuthenticate(email);
+    try {
+      const response = await authAPI.sendEmailAuthenticate(email);
       return response.data;
-    }catch (error) {
-      console.error("이메일 전송 오류", error);
-    throw error;
+    } catch (error) {
+      console.error('이메일 전송 오류', error);
+      throw error;
     }
   },
 
   //이메일 인증
-  emailAuthenticate: async(email, authNum)=>{
-    try{
-      const response=await authAPI.postEmailAuthenticate(email, authNum);
+  emailAuthenticate: async (email, authNum) => {
+    try {
+      const response = await authAPI.postEmailAuthenticate(email, authNum);
       return response.data;
-    }catch (error){
-      console.error("이메일 인증 오류", error);
+    } catch (error) {
+      console.error('이메일 인증 오류', error);
       throw error;
     }
   },
@@ -268,9 +266,7 @@ const userActions = (set, get) => ({
       return error.response || response;
     }
   },
-    
 });
-
 
 const userStore = create(
   devtools(
@@ -301,10 +297,11 @@ export const useUser = () => {
   const logout = userStore((state) => state.logout);
   const refreshAccessToken = userStore((state) => state.refreshAccessToken);
   const fetchUser = userStore((state) => state.fetchUser);
-  const duplicate=userStore((state)=>state.duplicate);
-  const sendEmail=userStore((state)=>state.sendEmail);
-  const emailAuthenticate=userStore((state)=>state.emailAuthenticate);
-  const register=userStore((state)=>state.register);
+
+  const duplicate = userStore((state) => state.duplicate);
+  const sendEmail = userStore((state) => state.sendEmail);
+  const emailAuthenticate = userStore((state) => state.emailAuthenticate);
+  const register = userStore((state) => state.register);
 
   return {
     loginId,
@@ -333,8 +330,8 @@ api.interceptors.request.use(
   (request) => {
     const accessToken = userStore.getState().accessToken;
 
-    if (isTokenExpired(accessToken)) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    if (!isTokenExpired(accessToken) && accessToken) {
+      request.headers['Authorization'] = `Bearer ${accessToken}`;
       return request;
     } else {
       return request;
