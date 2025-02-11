@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,6 +16,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByLoginId(String loginId);
     boolean existsByLoginId(String loginId);
     Optional<Member> findByEmail(String email);
+
+    @Query("select m from Member m where m.loginId!=:loginId And m.isDeleted=false")
+    List<Member> findAllExceptMe(String loginId);
 
     @Query("SELECT m FROM Member m WHERE m.loginId = :loginId AND m.isDeleted=false ")
     Optional<Member> getMemberByLoginIdEquals(String loginId);
