@@ -29,7 +29,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         // 데이터베이스에서 사용자 조회
         Member member = memberRepository.findByLoginId(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
-
+        if(member.getPassword() == null || member.getPassword().equals("")){
+            member.setPassword("");
+        }
         // UserDetails 객체 반환
         return org.springframework.security.core.userdetails.User.builder()
                 .username(member.getLoginId())
