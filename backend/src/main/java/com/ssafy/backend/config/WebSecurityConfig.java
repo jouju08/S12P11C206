@@ -66,6 +66,10 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/logout", "/api/auth/kakao/callback").permitAll()
                         .requestMatchers("/api/auth/duplicate/**", "/api/auth/email/**").permitAll()
                         .requestMatchers("/ws/**").permitAll() // 임시로 다 열기
+                        .requestMatchers(request -> {
+                            String host = request.getHeader("Host");
+                            return host != null && (host.equals("tinker-backend") || host.startsWith("tinker-backend:"));
+                        }).permitAll()
                         .anyRequest().authenticated())
 //                .oauth2Login(oauth -> oauth
 //                        .defaultSuccessUrl("/api/auth/kakao/callback")
