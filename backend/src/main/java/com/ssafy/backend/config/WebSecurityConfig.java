@@ -66,7 +66,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/logout", "/api/auth/kakao/callback").permitAll()
                         .requestMatchers("/api/auth/duplicate/**", "/api/auth/email/**").permitAll()
                         .requestMatchers("/ws/**").permitAll() // 임시로 다 열기
-                        .requestMatchers("/api/tale/submit/ai-picture", "/api/admin/tale/submit/**")
+                        .requestMatchers("/api/tale/submit/ai-picture", "/api/admin/tale/submit/**").permitAll()
                         .anyRequest().authenticated())
 //                .oauth2Login(oauth -> oauth
 //                        .defaultSuccessUrl("/api/auth/kakao/callback")
