@@ -41,7 +41,7 @@ public interface TaleMemberRepository extends JpaRepository<TaleMember, Long> {
             Pageable pageable);
 
     @Query("SELECT new com.ssafy.backend.taleMember.dto.PictureDetailResponseDTO(" +
-            "tm.id, tm.orginImg, tm.createdAt, bt.title, tm.script) " +
+            "tm.id, tm.orginImg, tm.img, tm.createdAt, bt.title, tm.script) " +
             "FROM TaleMember tm " +
             "JOIN tm.tale t " +
             "JOIN t.baseTale bt " +

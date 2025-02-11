@@ -8,6 +8,7 @@ const galleryAPI = {
   fetchPictureDetail: (payload) => api.get('/talemember/view/picture-detail', { params: payload }),
   fetchPictureTitles: () =>
     api.get('/talemember/view/picture-titles'),
+  uploadGallery: (payload) => api.post('/gallery', payload )
 };
 
 export default galleryAPI;

@@ -12,6 +12,8 @@ public class PictureDetailResponseDTO {
 
     private String orginImg;
 
+    private String img;
+
     private String createdAt;
 
     private String title;
