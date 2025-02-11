@@ -4,57 +4,23 @@ import { Link } from 'react-router-dom';
 import GalleryItem from '@/components/Common/GalleyItem';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 
-// const dummyDrawingList = [
-//   {
-//     galleryId: 4,
-//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-//     authorId: 5,
-//     authorNickname: '테스터',
-//     authorProfileImg: null,
-//     hasLiked: false,
-//     likeCnt: 0,
-//     createdAt: '2025-02-07T11:04:57.572662600',
-//   },
-//   {
-//     galleryId: 3,
-//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-//     authorId: 5,
-//     authorNickname: '테스터',
-//     authorProfileImg: null,
-//     hasLiked: true,
-//     likeCnt: 10,
-//     createdAt: '2025-02-07T11:02:57.843395',
-//   },
-//   {
-//     galleryId: 2,
-//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-//     authorId: 5,
-//     authorNickname: '테스터',
-//     authorProfileImg: null,
-//     hasLiked: false,
-//     likeCnt: 0,
-//     createdAt: '2025-02-06T15:23:24.819179600',
-//   },
-//   {
-//     galleryId: 1,
-//     img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-//     authorId: 5,
-//     authorNickname: '테스터',
-//     authorProfileImg: null,
-//     hasLiked: false,
-//     likeCnt: 1,
-//     createdAt: '2025-02-06T15:20:39.791333600',
-//   },
-// ];
-
 export default function Sightseeing() {
   // const [sortBy, setSortBy] = useState('최신순');
-  const { drawingList, setDrawingList, sortBy, setSortBy, loadMoreDrawings } =
-    useSightseeing();
+  const {
+    drawingList,
+    setDrawingList,
+    popList,
+    setPopList,
+    sortBy,
+    setSortBy,
+    loadMoreDrawings,
+  } = useSightseeing();
+
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setDrawingList();
+    setPopList();
   }, []);
 
   const handleSortChange = (e) => {
@@ -97,56 +63,66 @@ export default function Sightseeing() {
           </Link>
         </div>
 
-        {/* 3등 이름 */}
-        <div className="w-[145px] h-[89px] absolute bottom-1 left-[248px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
-          <img
-            className="w-[58px] h-[58px] relative rounded-[100px]"
-            src="/Main/profile-img.png"
-          />
-          <div className="text-center text-white service-bold3">닉네임213</div>
-        </div>
+        {popList.length > 2 && (
+          <>
+            {/* 2등 이름 */}
+            <div className="w-[145px] h-[89px] absolute bottom-1 left-[248px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
+              <img
+                className="w-[58px] h-[58px] relative rounded-[100px]"
+                src="/Main/profile-img.png"
+              />
+              <div className="text-center text-white service-bold3">
+                {popList[1]?.authorNickname}
+              </div>
+            </div>
 
-        {/* 3등 이미지 */}
-        <Link to={'/'}>
-          <img
-            className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[267px] left-[253px] ]"
-            src="/Sightseeing/test1.png"
-          />
-        </Link>
+            {/* 2등 이미지 */}
+            <Link to={`/gallery/${popList[1].galleryId}`}>
+              <img
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[267px] left-[253px] ]"
+                src={popList[1]?.img || '/Sightseeing/test1.png'}
+              />
+            </Link>
 
-        {/* 1등 이름 */}
-        <div className="w-[145px] h-[89px] absolute bottom-[14px] left-[411px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
-          <img
-            className="w-[58px] h-[58px] relative rounded-[100px]"
-            src="/Main/profile-img.png"
-          />
-          <div className="text-center text-white service-bold3">닉네임213</div>
-        </div>
+            {/* 1등 이름 */}
+            <div className="w-[145px] h-[89px] absolute bottom-[14px] left-[411px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
+              <img
+                className="w-[58px] h-[58px] relative rounded-[100px]"
+                src="/Main/profile-img.png"
+              />
+              <div className="text-center text-white service-bold3">
+                {popList[0]?.authorNickname}
+              </div>
+            </div>
 
-        {/* 1등 이미지 */}
-        <Link>
-          <img
-            className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[206px] left-[414px] ]"
-            src="/Sightseeing/test2.png"
-          />
-        </Link>
+            {/* 1등 이미지 */}
+            <Link to={`/gallery/${popList[0].galleryId}`}>
+              <img
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[206px] left-[414px]"
+                src={popList[0]?.img || '/Sightseeing/test1.png'}
+              />
+            </Link>
 
-        {/* 2등 이름 */}
-        <div className="w-[145px] h-[89px] absolute bottom-1 right-[253px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
-          <img
-            className="w-[58px] h-[58px] relative rounded-[100px]"
-            src="/Main/profile-img.png"
-          />
-          <div className="text-center text-white service-bold3">닉네임213</div>
-        </div>
+            {/* 3등 이름 */}
+            <div className="w-[145px] h-[89px] absolute bottom-1 right-[253px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
+              <img
+                className="w-[58px] h-[58px] relative rounded-[100px]"
+                src="/Main/profile-img.png"
+              />
+              <div className="text-center text-white service-bold3">
+                {popList[2]?.authorNickname}
+              </div>
+            </div>
 
-        {/* 2등 이미지 */}
-        <Link>
-          <img
-            className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[292px] right-[248px] ]"
-            src="/Sightseeing/test3.png"
-          />
-        </Link>
+            {/* 3등 이미지 */}
+            <Link to={`/gallery/${popList[2].galleryId}`}>
+              <img
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[292px] left-[581px] ]"
+                src={popList[2]?.img || '/Sightseeing/test1.png'}
+              />
+            </Link>
+          </>
+        )}
       </div>
 
       {/* 작품 갤러리 */}

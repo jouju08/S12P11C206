@@ -6,6 +6,7 @@ import { immer } from 'zustand/middleware/immer';
 
 const initialState = {
   drawingList: [],
+  popList: [],
   memberId: userStore.getState().memberId,
   sortBy: 'LATEST', // 초기값: 최신순("date")
   currentPage: 1,
@@ -74,6 +75,30 @@ const sightseeingActions = (set, get) => ({
     // sortBy가 바뀌면 바로 새 데이터를 불러오도록 실행
     get().setDrawingList();
   },
+
+  setPopList: async () => {
+    try {
+      const response = await api.get('/gallery', {
+        params: { order: 'POP', page: 1 },
+      });
+
+      if (response.data && response.data.status === 'SU') {
+        // console.log('😊 갤러리 인기 목록 성공', response);
+
+        set((state) => {
+          state.popList = response.data.data.slice(0, 3);
+          // console.log(state.popList);
+        });
+      } else {
+        throw new Error('API 응답 오류');
+      }
+    } catch (error) {
+      console.error('❌ popList 불러오기 실패:', error);
+      set((state) => {
+        state.popList = [];
+      });
+    }
+  },
 });
 
 const useSightseeingStore = create(
@@ -92,6 +117,7 @@ export const useSightseeing = () => {
     (state) => state.drawingList,
     shallow
   );
+  const popList = useSightseeingStore((state) => state.popList, shallow);
   const sortBy = useSightseeingStore((state) => state.sortBy);
   const currentPage = useSightseeingStore((state) => state.currentPage);
 
@@ -99,15 +125,18 @@ export const useSightseeing = () => {
     (state) => state.loadMoreDrawings
   );
   const setDrawingList = useSightseeingStore((state) => state.setDrawingList);
+  const setPopList = useSightseeingStore((state) => state.setPopList);
   const setSortBy = useSightseeingStore((state) => state.setSortBy);
 
   return {
     memberId,
     drawingList,
+    popList,
     sortBy,
     currentPage,
 
     setDrawingList,
+    setPopList,
     setSortBy,
     loadMoreDrawings,
   };
