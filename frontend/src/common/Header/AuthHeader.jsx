@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 export default function DefaultHeader({ showFriend, setShowFriend }) {
   const { logout } = useUser();
   return (
-    <header className="shadow-md">
+    <header>
+      {/* <header className="shadow-md"> */}
       <div className="w-[1024px] h-[100px] relative m-auto">
         {/* logo */}
         <Link
