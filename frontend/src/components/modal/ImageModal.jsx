@@ -7,7 +7,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
 
   const [isOriginal, setIsOriginal] = useState(true);
 
-  const formattedDate = detail?.createdAt ? detail.createdAt.split(" ")[0] : "";
+  const formattedDate = detail?.createdAt ? detail.createdAt.split("T")[0] : "";
 
   const { uploadGallery } = useMyPictures();
 
