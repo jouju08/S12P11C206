@@ -14,7 +14,7 @@ const myPictureActions = (set, get) => ({
   fetchMyPictures: async (page = 0, size = 12, sort = "전체보기", filter = "전체보기") => {
     try {
       const response = await galleryAPI.fetchMyPictures(page, size, sort, filter);
-      const pageData = response.data.data; // Page 객체: content, last 등 포함
+      const pageData = response.data.data; 
       set((state) => {
         if (page === 0) {
           state.myPictures = pageData.content;
@@ -46,7 +46,15 @@ const myPictureActions = (set, get) => ({
         state.pictureTitles = titles;
       });
     } catch (err) {
-      console.log('Picture titles fetch failed', err);
+      console.log('제목 불러오기 실패', err);
+    }
+  },
+  uploadGallery: async (payload) => {
+    try {
+      const response = await galleryAPI.uploadGallery(payload);
+      console.log(response);
+    } catch (err) {
+      console.log('자랑하기 실패', err);
     }
   },
 });
@@ -69,6 +77,7 @@ export const useMyPictures = () => {
   const fetchMyPictures = myPictureStore((state) => state.fetchMyPictures);
   const fetchPictureDetail = myPictureStore((state) => state.fetchPictureDetail);
   const fetchPictureTitles = myPictureStore((state) => state.fetchPictureTitles);
+  const uploadGallery = myPictureStore((state) => state.uploadGallery);
   return {
     myPictures,
     pictureDetail,
@@ -77,5 +86,6 @@ export const useMyPictures = () => {
     fetchMyPictures,
     fetchPictureDetail,
     fetchPictureTitles,
+    uploadGallery
   };
 };

@@ -14,23 +14,20 @@ export default function Gallery() {
   } = useMyPictures();
 
   const [page, setPage] = useState(0);
-  const [sortBy, setSortBy] = useState('전체보기'); // "전체보기", "최신순", "과거순"
+  const [sortBy, setSortBy] = useState('전체보기'); 
   const [filterBy, setFilterBy] = useState('전체보기');
   const [showModal, setShowModal] = useState(false);
   const scrollRef = useRef(null);
 
-  // 초기 로드: 페이지 0, 12개, 현재 sortBy, filterBy 기준
   useEffect(() => {
     setPage(0);
     fetchMyPictures(0, 12, sortBy, filterBy);
   }, [sortBy, filterBy, fetchMyPictures]);
 
-  // 필터(dropdown)에 포커스하면 동화 제목 목록 API 호출
   const handleFilterFocus = () => {
     fetchPictureTitles();
   };
 
-  // 무한 스크롤: 스크롤 끝에 도달 시 다음 페이지 데이터 요청
   const handleScroll = () => {
     if (!scrollRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
@@ -48,7 +45,6 @@ export default function Gallery() {
     return () => el.removeEventListener('scroll', handleScroll);
   }, [page, hasMore, sortBy, filterBy]);
 
-  // placeholder: 한 행 4개를 채우기 위한 빈 아이템 추가
   const realCount = myPictures.length;
   const remainder = realCount % 4;
   const placeholdersNeeded = remainder === 0 ? 0 : 4 - remainder;
@@ -61,7 +57,6 @@ export default function Gallery() {
     displayedList.push(...placeholders);
   }
 
-  // 이미지 클릭 시 상세 정보 요청 (taleMemberId만 전달; memberId는 Security에서 처리)
   const handleOpen = (item) => {
     const requestPayload = {
       taleMemberId: item.id,
@@ -79,7 +74,6 @@ export default function Gallery() {
       </h1>
 
       <div className="my-[30px] text-right">
-        {/* 정렬 dropdown: 선택 시 현재 filter 값과 함께 API 요청 */}
         <select
           value={sortBy}
           onChange={(e) => {
@@ -94,7 +88,6 @@ export default function Gallery() {
           <option value="과거순">과거순</option>
         </select>
 
-        {/* 필터 dropdown: 선택 시 현재 sort 값과 함께 API 요청; onFocus로 제목 목록 호출 */}
         <select
           value={filterBy}
           onChange={(e) => {
@@ -129,7 +122,7 @@ export default function Gallery() {
                 {isLineNeeded && (
                   <div className="w-full mb-2 relative h-[40px]">
                     <img
-                      src="/public/gallery/picture-display.png"
+                      src="/gallery/picture-display.png"
                       alt="빨래집게 라인"
                       className="absolute top-0 left-0 w-full h-auto z-10"
                     />
@@ -148,7 +141,7 @@ export default function Gallery() {
                   ) : (
                     <div className="w-[195px] h-[195px] bg-gray-300 flex flex-col items-center justify-center">
                       <img
-                        src="/public/gallery/camera.png"
+                        src="/gallery/camera.png"
                         alt="카메라"
                         className="w-[80px] h-[80px]"
                       />
