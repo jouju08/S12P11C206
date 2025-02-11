@@ -118,7 +118,7 @@ public class AIServerRequestService {
             parts.add("negativePrompt", promptSet.getNegativePrompt());
 
             webClient.post()
-                    .uri("/gen/picture")
+                    .uri("/gen/upgrade-handpicture")
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .body(BodyInserters.fromMultipartData(parts))
                     .retrieve()
