@@ -136,7 +136,7 @@ export default function Main() {
     </SwiperSlide>
   ));
 
-  const listFamousDrawing = dummyDrawingList.map((item, idx) => (
+  const listFamousDrawing = drawingData.map((item, idx) => (
     <SwiperSlide key={idx}>
       <GalleryItem item={item} />
     </SwiperSlide>
