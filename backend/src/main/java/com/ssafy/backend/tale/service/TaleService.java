@@ -1,6 +1,7 @@
 package com.ssafy.backend.tale.service;
 
 import com.ssafy.backend.common.S3Service;
+import com.ssafy.backend.common.WebSocketNotiService;
 import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.entity.Tale;
@@ -41,6 +42,7 @@ import java.util.*;
  *      2. redis에 tale_member 저장, 불러오기 메소드 추가 (2025.02.02)
  *      3. save~ 메소드 추가 (2025.02.02)
  *      4. save TaleMemberDto to mysql / getTaleMemberDtoFromRedis 메소드 추가 (2025.02.02)
+ *      5. 동화 저장시점 확인 메소드 추가 (2025.02.11)
  * */
 
 @Service
@@ -53,6 +55,7 @@ public class TaleService {
     private final MemberRepository memberRepository;
     private final TaleMemberRepository taleMemberRepository;
     private final S3Service s3Service;
+    private final WebSocketNotiService webSocketNotiService;
 
     private final int PAGE_SIZE = 10;
 
@@ -310,19 +313,6 @@ public class TaleService {
         return generateTaleRequestDto;
     }
 
-    // 레디스에서 tale_page를 불러옵니다.
-    public TalePageResponseDto getTempTalePage(long roomId, int order){
-        TalePageResponseDto talePageResponseDto = null;
-        if(order-- == 0){ //order가 0인경우 -> baseTale에서 불러와야함.
-            BaseTale baseTale = getBaseTaleByRoomId(roomId);
-            talePageResponseDto = parseTalePage(baseTale);
-        }else { // 그 외에 경우 원래 order대로 받아오면됨
-            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(roomId, order);
-            talePageResponseDto = parseTalePage(taleMemberDto);
-        }
-        return talePageResponseDto;
-    }
-
     // mySQL에서 tale_page를 불러옵니다.
     public TalePageResponseDto getTalePage(long roomId, int order){
         TalePageResponseDto talePageResponseDto = null;
@@ -335,13 +325,13 @@ public class TaleService {
             if(taleMember == null)
                 throw new RuntimeException("유효하지 않은 동화페이지입니다.");
 
-            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
-            talePageResponseDto = parseTalePage(taleMemberDto);
+            talePageResponseDto = parseTalePage(taleMember);
         }
 
         return talePageResponseDto;
     }
 
+    // baseTale을 tale_page로 변환합니다.
     private TalePageResponseDto parseTalePage(BaseTale baseTale){
         TalePageResponseDto talePageResponseDto = new TalePageResponseDto();
         talePageResponseDto.setOrderNum(0); // baseTale이 0번째 페이지이므로 0을 설정합니다.
@@ -355,23 +345,21 @@ public class TaleService {
     }
 
     // tale_memberDto를 tale_page로 변환합니다.
-    private TalePageResponseDto parseTalePage(TaleMemberDto taleMemberDto){
+    private TalePageResponseDto parseTalePage(TaleMember taleMember){
         TalePageResponseDto talePageResponseDto = new TalePageResponseDto();
-        talePageResponseDto.setOrderNum(taleMemberDto.getOrderNum()+1); // baseTale이 0번째 페이지이므로 +1을 해줍니다.
-        talePageResponseDto.setMemberId(taleMemberDto.getMemberId());
-        talePageResponseDto.setTaleId(taleMemberDto.getTaleId());
-        talePageResponseDto.setOriginImg(taleMemberDto.getOrginImg());
-        talePageResponseDto.setImg(taleMemberDto.getImg());
-        talePageResponseDto.setVoice(taleMemberDto.getVoice());
-        talePageResponseDto.setScript(taleMemberDto.getScript());
+        talePageResponseDto.setOrderNum(taleMember.getOrderNum()+1); // baseTale이 0번째 페이지이므로 +1을 해줍니다.
+        talePageResponseDto.setMemberId(taleMember.getMember().getId());
+        talePageResponseDto.setTaleId(taleMember.getTale().getId());
+        talePageResponseDto.setOriginImg(taleMember.getOrginImg());
+        talePageResponseDto.setImg(taleMember.getImg());
+        talePageResponseDto.setVoice(taleMember.getVoice());
+        talePageResponseDto.setScript(taleMember.getScript());
         return talePageResponseDto;
     }
 
     private BaseTale getBaseTaleByRoomId(long roomId){
-        Room room = new Room();
-        room.setRoomId(roomId);
-        room = roomService.getRoom(room);
-        return baseTaleService.getById(room.getBaseTaleId());
+        Tale tale = taleRepository.getReferenceById(roomId);
+        return tale.getBaseTale();
     }
 
     // 전체 동화 내용을 저장하고, 각 참가자별 그림 그릴 문장을 반환합니다.
@@ -413,6 +401,8 @@ public class TaleService {
 
             // taleMember를 redis에 업데이트합니다.
             setTaleMemberDtoToRedis(taleMemberDto);
+
+            verifyTaleMaking(roomId);
     }
 
     // 동화 삽화 수정용 프롬프트를 저장합니다.
@@ -458,6 +448,7 @@ public class TaleService {
             TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
             redisTemplate.delete("tale_member-"+taleMemberDto.getId());
         }
+        roomService.deleteRoom(roomId);
         redisTemplate.delete("tale-"+roomId);
     }
 
@@ -480,21 +471,26 @@ public class TaleService {
     }
 
     // 동화 AI 그림을 저장합니다.
+    //(수정) mysql에 저장돼있으므로 redis에서 불러오지 않습니다.
     public void saveAIPicture(SubmitFileRequestDto submitFileRequestDto){
         long roomId = submitFileRequestDto.getRoomId();
         int order = submitFileRequestDto.getOrder();
         MultipartFile imageFile = submitFileRequestDto.getFile();
 
-        // 레디스에서 tale_member를 불러옵니다.
+        // mysql에서 tale_member를 불러옵니다.
         TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
-        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
+        // 레디스에서 tale_member를 불러옵니다.
+//        TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
 
         // AI그림을 s3에 업로드하고, url을 저장합니다.
         String imgUrl = s3Service.uploadFile(imageFile);
-        taleMemberDto.setImg(imgUrl);
+        taleMember.setImg(imgUrl);
 
         // taleMember를 redis에 업데이트합니다.
-        setTaleMemberDtoToRedis(taleMemberDto);
+//        setTaleMemberDtoToRedis(taleMemberDto);
+
+        // mysql에 저장합니다.
+        taleMemberRepository.save(taleMember);
     }
 
     // AI 그림이 완성된 페이지의 수를 반환합니다.
@@ -502,12 +498,40 @@ public class TaleService {
         List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
         int cnt = 0;
         for (int i = 0; i < 4; i++) {
-            TaleMemberDto participant = getTaleMemberDtoFromRedis(taleMembers.get(i));
+            TaleMember participant = taleMembers.get(i);
             if(participant.getImg() != null)
                 cnt++;
         }
 
         return cnt;
+    }
+
+    public void verifyTaleMaking(long roomId){
+        List<TaleMember> taleMembers = taleMemberRepository.findByTaleId(roomId);
+        int voiceCnt = 0;
+        int originImgCnt = 0;
+        int promptCnt = 0;
+
+        for (int i = 0; i < 4; i++) {
+            TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMembers.get(i));
+            if(taleMemberDto.getVoice() != null)
+                voiceCnt++;
+            if(taleMemberDto.getOrginImg() != null)
+                originImgCnt++;
+            if(taleMemberDto.getPromptSet() != null)
+                promptCnt++;
+        }
+        System.out.println(roomId + "room이 완성 됐나 확인해보자~~~~~~~~~~~~~~~~~~" );
+        System.out.println("promptCnt = " + promptCnt);
+        System.out.println("originImgCnt = " + originImgCnt);
+        System.out.println("voiceCnt = " + voiceCnt);
+        if(voiceCnt == 4 && originImgCnt == 4 && promptCnt == 4){
+            // mysql에 저장합니다.
+            System.out.println(roomId+"room이 완성! mysql에 저장합니다.");
+            saveTaleFromRedis(roomId);
+            deleteTaleFromRedis(roomId);
+            webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
+        }
     }
 
     // 레디스에서 방 정보를 불러옵니다.
@@ -560,6 +584,7 @@ public class TaleService {
         taleMember.setOrderNum(taleMemberDto.getOrderNum());
         taleMember.setOrginImg(taleMemberDto.getOrginImg());
         taleMember.setImg(taleMemberDto.getImg());
+        taleMember.setImgScript(taleMemberDto.getImgScript());
         taleMember.setVoice(taleMemberDto.getVoice());
         taleMember.setScript(taleMemberDto.getScript());
         taleMember.setPrompt(taleMemberDto.getPromptSet().getPrompt());
