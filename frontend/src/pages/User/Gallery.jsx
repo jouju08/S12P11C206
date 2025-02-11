@@ -122,7 +122,7 @@ export default function Gallery() {
                 {isLineNeeded && (
                   <div className="w-full mb-2 relative h-[40px]">
                     <img
-                      src="/public/gallery/picture-display.png"
+                      src="/gallery/picture-display.png"
                       alt="빨래집게 라인"
                       className="absolute top-0 left-0 w-full h-auto z-10"
                     />
@@ -141,7 +141,7 @@ export default function Gallery() {
                   ) : (
                     <div className="w-[195px] h-[195px] bg-gray-300 flex flex-col items-center justify-center">
                       <img
-                        src="/public/gallery/camera.png"
+                        src="/gallery/camera.png"
                         alt="카메라"
                         className="w-[80px] h-[80px]"
                       />
