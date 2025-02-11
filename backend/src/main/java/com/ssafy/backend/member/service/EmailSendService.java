@@ -92,12 +92,21 @@ public class EmailSendService {
         makeRandomNum();
         String customerMail = email;
         String title = "My Fairy 회원가입을 환영합니다";
-        String content =
-                "이메일을 인증하기 위한 절차입니다." +
-                        "<br><br>" +
-                        "인증 번호는 " + authNumber + "입니다." +
-                        "<br>" +
-                        "해당 번호를 회원가입 페이지에 입력해주세요.";
+        String content = "<html>"
+                + "<body style='font-family: Arial, sans-serif; background-color: #f4f7f6; color: #333; padding: 20px;'>"
+                + "<div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);'>"
+                + "<h2 style='color: #5e5e5e; text-align: center;'>My Fairy 회원가입을 환영합니다!</h2>"
+                + "<p style='font-size: 16px; line-height: 1.5;'>이메일을 인증하기 위한 절차입니다.</p>"
+                + "<p style='font-size: 16px; line-height: 1.5;'>인증 번호는 <strong style='color: #ff7f50;'>" + authNumber + "</strong>입니다.</p>"
+                + "<p style='font-size: 16px; line-height: 1.5;'>해당 번호를 회원가입 페이지에 입력해주세요.</p>"
+                + "<br>"
+                + "<p style='text-align: center;'>감사합니다!</p>"
+                + "<div style='text-align: center; margin-top: 30px;'>"
+                + "<button style='background-color: #ff7f50; color: #fff; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px;'>회원가입 페이지로 가기</button>"
+                + "</div>"
+                + "</div>"
+                + "</body>"
+                + "</html>";
         mailVerifySend(serviceName, customerMail, title, content);
         return Integer.toString(authNumber);
     }
