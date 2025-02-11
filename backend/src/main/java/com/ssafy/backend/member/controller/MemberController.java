@@ -72,10 +72,9 @@ public class MemberController {
     }
 
     // 프로필 사진 변경
-    @PatchMapping("/profile-image")
+    @PostMapping("/profile-image")
     public ApiResponse<Void> updateProfileImage(
-            @RequestHeader("Authorization") String token,
-            @RequestParam("profileImage") MultipartFile profileImage) {
+            @RequestHeader("Authorization") String token, MultipartFile profileImage) {
 
         String loginId = extractLoginId(token);
         memberService.updateProfileImage(loginId, profileImage);

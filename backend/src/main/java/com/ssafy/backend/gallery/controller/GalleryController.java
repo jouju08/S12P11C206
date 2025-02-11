@@ -46,18 +46,15 @@ public class GalleryController {
         return ApiResponse.builder().build();
     }
 
-    @GetMapping("/gallery")//모든 게시판 정보 불러오기
-    public ApiResponse<List<GalleryListResponseDto>> getPictures(Authentication auth) {
-        try {
-            List<GalleryListResponseDto> allPictures = galleryService.findAllPictures(auth);
-            return ApiResponse.<List<GalleryListResponseDto>>builder()
-                    .data(allPictures)
-                    .build();
-        } catch (ResourceNotFoundException e) {
-            return ApiResponse.<List<GalleryListResponseDto>>builder().message(ResponseMessage.NOT_FOUND).status(ResponseCode.NOT_FOUND).build();
-        } catch (Exception e) {
-            throw new BadRequestException(e.getMessage());
-        }
+    @GetMapping("/gallery")
+    public ApiResponse<List<GalleryListResponseDto>> getPictures(
+            Authentication auth,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "LATEST") String order)  {
+        List<GalleryListResponseDto> allPictures = galleryService.findAllPictures(auth, --page, order);
+        return ApiResponse.<List<GalleryListResponseDto>>builder()
+                .data(allPictures)
+                .build();
 
     }
 

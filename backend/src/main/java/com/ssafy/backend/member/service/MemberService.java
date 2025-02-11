@@ -88,7 +88,8 @@ public class MemberService {
                     memberRepository.save(member);
                 }
             } else {
-                s3Service.updateFile(member.getProfileImg() ,profileImage);
+                String s3Path = s3Service.updateFile(member.getProfileImg() ,profileImage);
+                member.setProfileImg(s3Path);
             }
 
         } catch (Exception e) {

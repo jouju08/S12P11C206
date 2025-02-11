@@ -21,6 +21,7 @@ public interface ResponseCode {
     String NOT_EXISTED_BOARD = "NB";
     String BAD_REQUEST = "BD";
     String NOT_FOUND = "NF";
+    String NOT_FOUND_PAGE = "NP";
 
     // HTTP Status 401
     String SIGN_IN_FAIL = "SF";
