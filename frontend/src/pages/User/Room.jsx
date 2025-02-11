@@ -4,6 +4,7 @@ import ChooseTale from '@/components/Room/ChooseTale';
 import NumSearch from '@/components/Room/NumSearch';
 import RoomBtn from '@/components/Room/RoomBtn';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
+import { Loading } from '@/common/Loading';
 import axios from 'axios';
 import { api } from '@/store/userStore';
 
@@ -202,7 +203,8 @@ export default function Room() {
             {/* 데이터 표시 구간 */}
             <section className="w-full px-9 py-10">
               {loading ? (
-                <p>로딩 중...</p>
+                // <p>로딩 중...</p>
+                <Loading />
               ) : existTaleRoom ? (
                 <div>
                   <h2 className="text-xl font-bold">

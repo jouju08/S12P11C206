@@ -61,10 +61,10 @@ const initialProfile = {
       try {
         const response = await api.get(`/auth/check-nickname/${encodeURIComponent(nickname)}`);
         
-        if (response == false){
-          return false;
-        } else {
+        if (response.data.status == 'SU'){
           return true;
+        } else if(response.data.status == 'DN'){
+          return false;
         }
       } catch (error) {
         console.log('닉네임 중복 체크 실패', error);

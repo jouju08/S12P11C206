@@ -9,7 +9,9 @@ import com.ssafy.backend.tale.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -25,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoomController {
     private final RoomService roomService;
+    private final SimpMessagingTemplate messagingTemplate;
 
 
     @MessageMapping("/room/create")
@@ -59,7 +62,10 @@ public class RoomController {
 
     @MessageMapping("/room/start/{roomId}")
     @SendTo("/topic/room/start/{roomId}")
-    public String start(Room room) {
-        return "start";
+    public String start(@PathVariable String roomId, Room room) {
+        String destination = "/topic/room/start/" + roomId;
+        String message = "start";
+        messagingTemplate.convertAndSend(destination, message);
+        return message;
     }
 }

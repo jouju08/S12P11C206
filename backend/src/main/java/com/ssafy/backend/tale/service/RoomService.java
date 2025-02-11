@@ -207,4 +207,15 @@ public class RoomService {
         return room;
     }
 
+    public void deleteRoom(Long roomId) {
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
+        for (RoomInfo roomInfo : roomList) {
+            if (roomInfo.getRoomId().equals(roomId)) {
+                if (roomList.remove(roomInfo)) ops.set("tale-roomList", roomList);
+                else throw new RuntimeException("방 리스트 삭제 실패");
+                break;
+            }
+        }
+    }
 }
