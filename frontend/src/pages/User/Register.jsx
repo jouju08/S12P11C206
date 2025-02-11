@@ -72,7 +72,7 @@ export default function Register() {
   const checkDuplicate = async (type, value) => {
     const idRegex = /^[A-Za-z0-9]{4,12}$/; // 아이디: 영문자와 숫자, 길이 4~12
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // 이메일: 기본 이메일 형식
-    const nicknameRegex = /^[A-Za-z0-9가-힣]{4,12}$/; // 닉네임: 영문자, 숫자, 한글, 길이 4~12
+    const nicknameRegex = /^[A-Za-z0-9가-힣]{2,12}$/; // 닉네임: 영문자, 숫자, 한글, 길이 2~12
     
     try {
       if (type === "id" && !idRegex.test(value)) {
@@ -84,7 +84,7 @@ export default function Register() {
         return;
       }
       if (type === "nickname" && !nicknameRegex.test(value)) {
-        Swal.fire("경고", "닉네임은 4~12자, 영문자, 숫자, 한글만 포함할 수 있습니다.", "error");
+        Swal.fire("경고", "닉네임은 2~12자, 영문자, 숫자, 한글만 포함할 수 있습니다.", "error");
         return;
       }
       
@@ -201,7 +201,10 @@ export default function Register() {
       if (response.status === "SU") {
         setIsEmailVerified(true);
         setModalOpen(false);
+        setTimer(180);
+        setTimerActive(false);
         clearInterval(timerRef.current);
+        
         Swal.fire("인증 완료", "이메일 인증이 완료되었습니다.", "success");
       } else {
         Swal.fire("인증 실패", "잘못된 인증번호입니다.", "error");
@@ -263,9 +266,7 @@ export default function Register() {
               {field.checkType === "email" && isEmailVerified && emailCheck && "인증 완료"}
               {field.checkType === "nickname" && nicknameCheck && "사용 가능"}
               {field.value===password && field.label === "비밀번호" && !passwordValid && password && (//비밀번호 확인인
-              <p className="text-main-choose text-sm">비밀번호 형식이 올바르지 않습니다. 
-              <br/>
-              비밀번호는 8~12자의 영문, 숫자, 특수기호 </p>
+              <p className="text-main-choose text-sm">비밀번호 형식이 올바르지 않습니다.</p>
             )}
             {field.value===password && field.label === "비밀번호" && passwordValid && password && (
               <p className="text-green-600 text-sm">사용 가능 </p>
