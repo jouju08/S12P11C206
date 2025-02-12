@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { useRoomStore } from '@/store/roomStore';
+import { useRoomStore, useTaleRoom } from '@/store/roomStore';
 import { api } from '@/store/userStore';
+import { useViduHook } from '@/store/tale/viduStore';
+import { useTalePlay } from '@/store/tale/playStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function TaleRoomHeader({ onClose }) {
   const [taleTitle, setTaleTitle] = useState(null);
-  const { baseTaleId } = useRoomStore();
+  const { baseTaleId, leaveRoom } = useTaleRoom();
+  const { leaveViduRoom } = useViduHook();
+  const { resetState } = useTalePlay();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTaleTitle = async () => {
       const response = await api.get(`/base-tale/${baseTaleId}`);
-      // console.log('basetale', response);
-      setTaleTitle(response.data.data.title);
+
+      if (response.data.status == 'SER') {
+        leaveRoom();
+        leaveViduRoom();
+        resetState();
+
+        navigate('/room');
+      } else if (response.data.status == 'SU') {
+        setTaleTitle(response.data.data.title);
+      }
     };
     fetchTaleTitle();
   }, []);

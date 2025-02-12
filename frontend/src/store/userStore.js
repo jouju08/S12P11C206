@@ -12,8 +12,8 @@ import axios from 'axios';
 import authAPI from '@/apis/auth/userAxios';
 import { immer } from 'zustand/middleware/immer';
 import { use } from 'react';
-import authAxiosInstance from '@/apis/auth/testInstance';
-import { profile } from '@/apis/auth/testAPI';
+
+
 
 const api = axios.create({
   baseURL: '/api',
