@@ -14,8 +14,6 @@ import {
 } from 'react-router-dom';
 
 import KakaoCallback from '@/components/kakao/KakaoCallback';
-import DrawingBoard from '@/components/Common/DrawingBoard';
-import CanvasTest from '@/pages/CanvasTest';
 import Friends from '@/components/Friend/Friend';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
