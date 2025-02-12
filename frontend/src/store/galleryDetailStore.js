@@ -54,7 +54,7 @@ const galleryPageActions = (set, get) => ({
     try {
       const response = await api.post('/gallery/like', {
         id: galleryId,
-        hasLiked: !hasLiked,
+        hasLiked: hasLiked,
       });
       console.log('좋아요 토글에 따른 응답 ', hasLiked);
       console.log('좋아요 토글에 따른 응답 ', response);
