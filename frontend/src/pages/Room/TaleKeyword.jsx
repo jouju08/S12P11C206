@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
 import FairyChatBubble from '@/components/Common/FairyChatBubble';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
-import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
 import DrawingBoard from '@/components/Common/DrawingBoard';
+import { useUser } from '@/store/userStore';
 
 // 확인용 더미데이터
 const ParticipationList = [
@@ -50,6 +50,8 @@ const TaleKeyword = () => {
     addPage,
   } = useTalePlay(); // 동화 API
 
+  const { memberId } = useUser();
+
   useEffect(() => {
     const handleUnMount = async () => {
       if (currentStep >= 4) {
@@ -61,8 +63,22 @@ const TaleKeyword = () => {
     handleUnMount();
   }, [currentStep]); // 페이지 넘어가는 side effect
 
-  const sentences = tale?.['sentenceOwnerPairs']?.filter(
-    (item) => item.sentence
+  const sortedSentences = useMemo(() => {
+    return [...(tale?.sentenceOwnerPairs || [])].sort(
+      (a, b) => a.order - b.order
+    );
+  }, [tale]);
+
+  //싱글모드 문장들
+  const singleModeSentences = useMemo(
+    () => sortedSentences?.filter((item) => item.sentence) || [],
+    [sortedSentences]
+  );
+
+  //멀티모드 개인문장
+  const multiModeSentences = useMemo(
+    () => sortedSentences?.find((item) => item.owner === memberId) || null,
+    [sortedSentences, memberId]
   );
 
   const handleConfirm = async () => {
@@ -155,7 +171,8 @@ const TaleKeyword = () => {
       await handleSubmitSingle();
       setCurrentStep((prev) => prev + 1);
     } else if (!isSingle) {
-      handleSubmit();
+      await handleSubmit();
+      setCurrentStep((prev) => prev + 5);
     }
   };
 
@@ -208,13 +225,29 @@ const TaleKeyword = () => {
       {/* 문장 */}
       <div className="absolute top-[150px] left-0 w-full text-center">
         <div className="h-[75px] px-[41px] py-4 bg-white rounded-[10px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] border border-[#787878] justify-start items-center gap-5 inline-flex overflow-hidden">
-          <div className="text-center text-text-first story-basic3">
-            첫째 아기 돼지는
-          </div>
-          <div className="w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400" />
-          <div className="text-center text-text-first story-basic3">
-            (으)로 집을 지었습니다.
-          </div>
+          {isSingle && (
+            <>
+              <div className="text-center text-text-first story-basic3">
+                {singleModeSentences[currentStep]?.['sentence'].split('xx')[0]}
+              </div>
+              <div className="w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400" />
+              <div className="text-center text-text-first story-basic3">
+                {singleModeSentences[currentStep]?.['sentence'].split('xx')[1]}
+              </div>
+            </>
+          )}
+
+          {!isSingle && (
+            <>
+              <div className="text-center text-text-first story-basic3">
+                {multiModeSentences?.['sentence'].split('xx')[0]}
+              </div>
+              <div className="w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400" />
+              <div className="text-center text-text-first story-basic3">
+                {multiModeSentences?.['sentence'].split('xx')[1]}
+              </div>
+            </>
+          )}
         </div>
       </div>
 

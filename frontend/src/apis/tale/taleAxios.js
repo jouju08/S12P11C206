@@ -38,10 +38,7 @@ const taleAPI = {
         'Content-Type': 'multipart/form-data',
       },
     }), //그린 동화 제출
-  
-  //todo
-  // 동화 완성 대기
-  // "/topic/tale/" + roomId, "finish tale making"
+
   taleHot: (roomId, page) => api.get(`/tale/${roomId}/${page}`),
 };
 

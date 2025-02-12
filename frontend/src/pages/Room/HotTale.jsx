@@ -24,19 +24,19 @@ const HotTale = () => {
   const [pageNum, setPageNum] = useState(0);
 
   //메시지 수신 loading
-  const [loading, setLoading] = useState(false);
-
-  //Loading 처리
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (pageNum !== 5) {
       const handleHotTale = async () => {
         try {
           await setHotTale(pageNum);
+          setLoading(false);
         } catch (error) {
           console.error('Hot Tale Error 발생:', error);
         }
       };
+
       handleHotTale();
     }
   }, [pageNum]);
@@ -52,7 +52,7 @@ const HotTale = () => {
         </>
       );
     } else {
-      return <span>{hotTale['script']}</span>;
+      return <span>{hotTale?.['script']}</span>;
     }
   };
 

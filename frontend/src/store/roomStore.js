@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { shallow } from 'zustand/shallow';
-import { devtools } from 'zustand/middleware';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import taleAPI from '@/apis/tale/taleAxios';
 import { userStore } from './userStore';
 import { immer } from 'zustand/middleware/immer';
@@ -12,6 +12,8 @@ const initialState = {
   stompClient: null,
   participants: [],
   baseTaleId: '',
+
+  rawTale: null,
   isSingle: false,
   isStart: null,
 };
@@ -22,7 +24,7 @@ const roomActions = (set, get) => ({
   //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL);
 
       console.log(socket);
       const stompClient = new Client({
@@ -110,11 +112,15 @@ const roomActions = (set, get) => ({
         get().addParticipant(participants);
       });
 
-      //출발시작 받기위한 flag 구독
-      stompClient.subscribe(`topic/room/start/${roomId}`, (message) => {
+      //동화 시작
+      stompClient.subscribe(`/topic/room/start/${roomId}`, (message) => {
         console.log(message.body);
-        const startFlag = JSON.parse(message.body);
-        set({ isStart: startFlag });
+        const parsedData = JSON.parse(message.body);
+
+        // Deep copy
+        const newData = JSON.parse(JSON.stringify(parsedData));
+
+        set({ rawTale: newData });
       });
 
       stompClient.subscribe(`/topic/room/leave/${roomId}`, (message) => {
@@ -155,9 +161,18 @@ const roomActions = (set, get) => ({
         body: JSON.stringify(room),
       });
 
+      stompClient.unsubscribe(`/topic/rooms`);
       stompClient.unsubscribe(`/topic/room/${currentRoom.roomId}`);
       stompClient.unsubscribe(`/topic/room/leave/${currentRoom.roomId}`);
       stompClient.unsubscribe(`/topci/room/start/${currentRoom.roomId}`);
+
+      // 연결 해제
+      if (stompClient !== null) {
+        stompClient.deactivate();
+        if (stompClient.webSocket !== null) {
+          stompClient.webSocket.close();
+        }
+      }
 
       set({
         currentRoom: null,
@@ -165,6 +180,7 @@ const roomActions = (set, get) => ({
         baseTaleId: '',
         isSingle: false,
         isStart: null,
+        rawTale: null,
       });
     }
   },
@@ -196,12 +212,14 @@ const roomActions = (set, get) => ({
 
 const useRoomStore = create(
   devtools(
-    immer((set, get) => ({
-      ...initialState,
-      ...roomActions(set, get),
-      resetState: () => set(() => ({ ...initialState })),
-    })),
-    { name: `room-${tabId}` }
+    subscribeWithSelector(
+      immer((set, get) => ({
+        ...initialState,
+        ...roomActions(set, get),
+        resetState: () => set(() => ({ ...initialState })),
+      }))
+    ),
+    { name: `room-${userStore.getState().memberId}` }
   )
 );
 
@@ -209,6 +227,7 @@ export const useTaleRoom = () => {
   const currentRoom = useRoomStore((state) => state.currentRoom);
   const participants = useRoomStore((state) => state.participants);
   const baseTaleId = useRoomStore((state) => state.baseTaleId);
+  const rawTale = useRoomStore((state) => state.rawTale, shallow);
   const isSingle = useRoomStore((state) => state.isSingle);
   const isStart = useRoomStore((state) => state.isStart);
 
@@ -235,6 +254,7 @@ export const useTaleRoom = () => {
     participants,
     baseTaleId,
     isSingle,
+    rawTale,
     isStart,
 
     setCurrentRoom,
