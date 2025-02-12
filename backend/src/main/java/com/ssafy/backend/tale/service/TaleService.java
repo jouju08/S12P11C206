@@ -530,7 +530,7 @@ public class TaleService {
             System.out.println(roomId+"room이 완성! mysql에 저장합니다.");
             saveTaleFromRedis(roomId);
             deleteTaleFromRedis(roomId);
-            webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
+            webSocketNotiService.sendNotification("/topic/tale/" + roomId + "/finish", "finish tale making");
         }
     }
 
