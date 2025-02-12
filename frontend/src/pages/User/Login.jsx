@@ -25,12 +25,9 @@ export default function Login() {
     e.preventDefault();
 
     const response = await login({ loginId, password });
-    console.log(response);
 
-    //response 가져다 쓰면됨
-    
     const status = response.data.status;
-    if(status === 'NF'){
+    if (status === 'NF') {
       // console.log('사용자 정보 틀림')
       Swal.fire({
         title: `<div class="flex justify-center items-center"><div class="w-[84px] h-[84px] bg-[url('/Login/exclamation-circle-solid.png')] bg-cover"></div></div>`,
@@ -47,10 +44,11 @@ export default function Login() {
         confirmButtonText: '확인',
         customClass: {
           popup: 'rounded-lg shadow-lg',
-          confirmButton: 'w-[120px] h-[50px] bg-gray-700 text-white auth-regular1 px-6 py-2 rounded-md hover:bg-gray-800',
-          closeButton: 'text-gray-400 hover:text-gray-600'
+          confirmButton:
+            'w-[120px] h-[50px] bg-gray-700 text-white auth-regular1 px-6 py-2 rounded-md hover:bg-gray-800',
+          closeButton: 'text-gray-400 hover:text-gray-600',
         },
-        buttonsStyling: false // 기본 버튼 스타일 제거
+        buttonsStyling: false, // 기본 버튼 스타일 제거
       });
     }
   };
@@ -65,11 +63,7 @@ export default function Login() {
       className="w-[1024px] h-[605px] mt-[30px] flex bg-[url('/Login/login-background.png')] bg-cover bg-bottom bg-no-repeat"
       style={{ backgroundSize: '100%' }}>
       {/* 왼쪽쪽 */}
-      <div className="w-[18.75%]">
-        <div
-          className="ml-[80px] w-[20px] h-[20px] bg-[url('/Login/back-button.png')] bg-cover bg-left bg-right-[30px] bg-no-repeat hover:cursor-pointer"
-          style={{ backgroundSize: '20px' }}></div>
-      </div>
+      <div className="w-[18.75%]" />
       {/* 센터터 */}
       <div className="w-[62.5%]">
         <div className="flex flex-col items-center w-[540] h-[538px] bg-white rounded-[40px]">
@@ -106,7 +100,7 @@ export default function Login() {
             <p className="inline-block">|</p>
             <a href="">비밀번호 찾기</a>
             <p className="inline-block">|</p>
-            <Link to='/register'>회원가입</Link>
+            <Link to="/register">회원가입</Link>
           </div>
           {/* 카카오 로그인 버튼 */}
           <div className="mt-[20px]">

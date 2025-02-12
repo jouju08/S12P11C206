@@ -4,7 +4,7 @@ import { Client } from '@stomp/stompjs';
 import { shallow } from 'zustand/shallow';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import taleAPI from '@/apis/tale/taleAxios';
-import { userStore } from './userStore';
+import { api, userStore } from './userStore';
 import { immer } from 'zustand/middleware/immer';
 
 const initialState = {
@@ -12,6 +12,7 @@ const initialState = {
   stompClient: null,
   participants: [],
   baseTaleId: '',
+  taleTitle: '',
 
   rawTale: null,
   isSingle: false,
@@ -74,6 +75,10 @@ const roomActions = (set, get) => ({
         destination: '/app/room/create',
         body: JSON.stringify(data),
       });
+
+      const res = await taleAPI.getTaleTitle(get().baseTaleId);
+
+      set({ taleTitle: res.data.data.title || '' });
 
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -177,10 +182,13 @@ const roomActions = (set, get) => ({
       set({
         currentRoom: null,
         participants: [],
+
         baseTaleId: '',
+        taleTitle: '',
+
+        rawTale: null,
         isSingle: false,
         isStart: null,
-        rawTale: null,
       });
     }
   },
@@ -227,6 +235,7 @@ export const useTaleRoom = () => {
   const currentRoom = useRoomStore((state) => state.currentRoom);
   const participants = useRoomStore((state) => state.participants);
   const baseTaleId = useRoomStore((state) => state.baseTaleId);
+  const taleTitle = useRoomStore((state) => state.taleTitle);
   const rawTale = useRoomStore((state) => state.rawTale, shallow);
   const isSingle = useRoomStore((state) => state.isSingle);
   const isStart = useRoomStore((state) => state.isStart);
@@ -254,6 +263,7 @@ export const useTaleRoom = () => {
     participants,
     baseTaleId,
     isSingle,
+    taleTitle,
     rawTale,
     isStart,
 

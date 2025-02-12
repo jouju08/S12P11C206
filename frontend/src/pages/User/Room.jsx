@@ -55,23 +55,12 @@ export default function Room() {
       setLoading(true);
 
       try {
-        // 테스트용 dummy data
-        const dummy = {
-          hostMemberId: 0,
-          hostNickname: '방장이겠지',
-          hostProfileImg: null,
-          maxParticipantsCnt: 4,
-          participantsCnt: 1,
-          roomId: 222,
-          taleTitle: taleList[selectedIndex].title,
-        };
-
         const roomList = await taleAPI.getAllTaleRooms();
 
         //선택한 baseTaleId에 맞게 필터
         const existTales = roomList.data['data'];
 
-        const filterTales = existTales.filter(
+        const filterTales = existTales?.filter(
           (item) => item?.['baseTaleId'] == taleList[selectedIndex].id
         );
 
@@ -83,10 +72,8 @@ export default function Room() {
             />
           ))
         );
-
-        console.log(`${taleList[selectedIndex].title} 변경!`);
       } catch (error) {
-        console.error('➡️ 데이터 가져오기 실패:', error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -104,11 +91,9 @@ export default function Room() {
     const fetchData = async () => {
       try {
         const response = await api.get('/base-tale/list');
-        console.log('✅ 가져온 데이터', response.data);
-        // 응답 데이터 구조 확인 후 배열 접근
         setTaleList(response.data.data || []);
       } catch (err) {
-        console.error('✅ 데이터 가져오기 실패:', err);
+        console.error(err);
         setTaleList([]); // 에러 발생 시 빈 배열 설정
       } finally {
         setLoading(false);
@@ -116,7 +101,7 @@ export default function Room() {
     };
 
     fetchData();
-  }, []); // 빈 배열: 컴포넌트 마운트 시 1회만 실행
+  }, []);
 
   return (
     <div className="w-[1024px] px-[25px]">
@@ -212,15 +197,12 @@ export default function Room() {
                 <Loading />
               ) : existTaleRoom ? (
                 <div>
-                  <h2 className="text-xl font-bold">
-                    데이터 ID: {selectedIndex}
-                  </h2>
                   <div className="grid grid-flow-row grid-cols-3 gap-4">
                     {...existTaleRoom}
                   </div>
                 </div>
               ) : (
-                <p>데이터 없음</p>
+                <p>방이 없음</p>
               )}
             </section>
           </>

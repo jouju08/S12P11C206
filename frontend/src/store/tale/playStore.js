@@ -206,8 +206,8 @@ const playActions = (set, get) => ({
 
     const response = await taleAPI.taleKeyWordTyping(data);
 
-    if (response.data.data) {
-      return response.data.data;
+    if (response.data) {
+      return response.data;
     } else {
       return false;
     }
@@ -223,15 +223,18 @@ const playActions = (set, get) => ({
 
     const formData = new FormData();
 
+    const fileName = 'recorded-audio.wav';
+    const audioFile = new File([voice], fileName, { type: 'audio/wav' });
+
     formData.append('order', String(order));
     formData.append('roomId', String(get().roomId));
     formData.append('memberId', String(userStore.getState().memberId));
-    formData.append('keyword', voice);
+    formData.append('keyword', audioFile);
 
     const response = await taleAPI.taleKeyWordVoice(formData);
 
     if (response) {
-      return response.data.data;
+      return response.data;
     } else {
       return false;
     }
@@ -347,8 +350,6 @@ const playActions = (set, get) => ({
     formData.append('memberId', String(userStore.getState().memberId));
     formData.append('file', picture);
 
-    console.log(picture);
-
     const response = await taleAPI.taleSubmitPicture(formData);
 
     return response;
@@ -359,7 +360,6 @@ const playActions = (set, get) => ({
   setHotTale: async (pageNum) => {
     const response = await taleAPI.taleHot(get().roomId, pageNum);
     const hotPage = response.data['data'];
-    console.log(response);
 
     set((state) => {
       state.hotTale = hotPage;

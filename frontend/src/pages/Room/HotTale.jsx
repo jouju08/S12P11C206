@@ -9,14 +9,6 @@ import TaleNavigation from '@/components/Common/TaleNavigation';
 import { Loading } from '@/common/Loading';
 import AudioPlayer from '@/components/Common/AudioPlayer';
 
-// 확인용 더미데이터
-const ParticipationList = [
-  {
-    id: 1,
-    nickname: '더미데이터',
-  },
-];
-
 const HotTale = () => {
   const { roomId } = useTalePlay();
   const { hotTale, setHotTale } = useTalePlay();
@@ -64,7 +56,7 @@ const HotTale = () => {
       ) : (
         <div
           className="relative w-[1024px] h-[668px]"
-          style={{ backgroundImage: "url('/TaleStart/field-background.png')" }}>
+          style={{ backgroundImage: `url('/TaleStart/field-background.png')` }}>
           {/* 배경 - 책 이미지 */}
           <img
             className="w-[1024px] h-[555px] absolute bottom-[18px] left-0"
@@ -75,25 +67,17 @@ const HotTale = () => {
             {pageNum === 5 ? null : (
               <AudioPlayer
                 pageNum={pageNum}
-                audioSrc="/Collection/test-audio.wav"
+                audioSrc={hotTale?.['voice']}
               />
             )}
           </div>
 
-          {/* 참여인원 섹션 */}
-          <div className="absolute top-4 left-[84px]">
-            <ParticipationStatus ParticipationList={ParticipationList} />
-          </div>
-
-          {/* 메인 콘텐츠 영역 */}
-          {/* 이미지와 스크립트는 absolute */}
-          {/* 이미지 데이터 받아오면 바꾸기 */}
           <img
             className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
-            src="/TaleStart/test-story-start.jpg"
+            src={hotTale?.['originImg']}
           />
           <img
-            src="/TaleStart/test-story-start.jpg"
+            src={hotTale?.['originImg']}
             alt="동화 만든 이미지"
             className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
           />
@@ -116,45 +100,3 @@ const HotTale = () => {
 };
 
 export default HotTale;
-
-// 컴포넌트로 빼기
-// const AudioPlayer = ({ audioSrc, pageNum }) => {
-//   const [isMuted, setIsMuted] = useState(false);
-//   const audioRef = useRef(null);
-
-//   // 페이지가 바뀔 때마다
-//   useEffect(() => {
-//     audioRef.current.currentTime = 0; // 처음으로 되감기
-//     audioRef.current.play(); // 자동재생
-//     setIsMuted(false);
-//   }, [pageNum]);
-
-//   const handleToggleAudio = () => {
-//     if (isMuted) {
-//       audioRef.current.currentTime = 0; // 처음으로 되감기
-//       audioRef.current.play();
-//     } else {
-//       audioRef.current.pause();
-//     }
-//     setIsMuted(!isMuted);
-//   };
-
-//   return (
-//     <div className="relative">
-//       <audio
-//         ref={audioRef}
-//         src={audioSrc}
-//         autoPlay
-//       />
-//       <button
-//         onClick={handleToggleAudio}
-//         className="w-20 h-20 focus:outline-none transition-transform duration-200 hover:scale-105">
-//         <img
-//           src={isMuted ? '/Collection/mute.png' : '/Collection/speaker.png'}
-//           alt={isMuted ? '음소거' : '재생'}
-//           className="w-full h-full object-contain"
-//         />
-//       </button>
-//     </div>
-//   );
-// };
