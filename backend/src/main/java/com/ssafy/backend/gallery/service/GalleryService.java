@@ -56,8 +56,15 @@ public class GalleryService {
 
         try {
             Page<Gallery> galleryPage = galleryRepository.findAllPictures(order.toUpperCase(), pageable);
+            boolean hasLiked = true;
 
             for (Gallery gallery : galleryPage) {
+                Optional<GalleryLike> galleryLike = galleryLikeRepository.findByGalleryIdAndMemberId(gallery.getId(), userId);
+                if(galleryLike.isPresent()) {
+                    hasLiked = true;
+                } else {
+                    hasLiked = false;
+                }
                 GalleryListResponseDto dto = new GalleryListResponseDto();
                 dto.setGalleryId(gallery.getId());
                 dto.setImg(gallery.getImgPath());
@@ -66,6 +73,7 @@ public class GalleryService {
                 dto.setAuthorProfileImg(gallery.getMember().getProfileImg());
                 dto.setLikeCnt(gallery.getLikeCnt());
                 dto.setCreatedAt(gallery.getCreatedAt());
+                dto.setHasLiked(hasLiked);
                 result.add(dto);
             }
 
@@ -164,26 +172,25 @@ public class GalleryService {
         Long memberId = member.getId();
 
         if (!galleryDto.getHasLiked()) {
+            System.out.println("좋아요 처리");
             // 좋아요 처리
             galleryLikeRepository.save(GalleryLike.builder()
                     .memberId(memberId)
                     .galleryId(galleryDto.getId())
                     .build());
             Optional<Gallery> gallery = galleryRepository.findById(galleryDto.getId());
-            int likeCount = gallery.get().getGalleryLikes().size();
-            gallery.get().setLikeCnt(likeCount + 1);
+            List<GalleryLike> galleryLike = galleryLikeRepository.findByGalleryId((gallery.get().getId()));
+            int likeCount = galleryLike.size();
+            gallery.get().setLikeCnt(likeCount);
             return true;
         } else {
             // 좋아요 취소 처리
-            System.out.println("memberId = " + memberId);
-            System.out.println("galleryDto.getId() = " + galleryDto.getId());
-            GalleryLike galleryLike = galleryLikeRepository.findByGalleryIdAndMemberId(galleryDto.getId(), memberId)
-                    .orElseThrow(() -> new EntityNotFoundException("좋아요 정보를 찾을 수 없습니다."));
-            galleryLikeRepository.delete(galleryLike);
+            galleryLikeRepository.deleteByGalleryIdAndMemberId(galleryDto.getId(), memberId);
 
             Optional<Gallery> gallery = galleryRepository.findById(galleryDto.getId());
-            int likeCount = gallery.get().getGalleryLikes().size();
-            gallery.get().setLikeCnt(likeCount - 1);
+            List<GalleryLike> galleryLike = galleryLikeRepository.findByGalleryId((gallery.get().getId()));
+            int likeCount = galleryLike.size();
+            gallery.get().setLikeCnt(likeCount);
             return false;
         }
     }
