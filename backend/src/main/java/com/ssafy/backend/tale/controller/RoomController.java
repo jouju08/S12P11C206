@@ -66,6 +66,9 @@ public class RoomController {
         String destination = "/topic/room/start/" + roomId;
         String message = "start";
         messagingTemplate.convertAndSend(destination, message);
+        // 시작하는 신호
+        // 방 정리
+        roomService.deleteRoom(Long.parseLong(roomId));
         return message;
     }
 }
