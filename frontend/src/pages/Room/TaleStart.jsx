@@ -41,14 +41,14 @@ const TaleStart = () => {
           await setClient();
 
           await setSubscribeTale(playRoom.roomId);
-          await getTokenByAxios(playRoom.roomId);
+          // await getTokenByAxios(playRoom.roomId);
         } else if (!isSingle) {
           setRoomId(currentRoom.roomId);
 
           await setClient();
 
           await setSubscribeTale(currentRoom.roomId);
-          await getTokenByAxios(currentRoom.roomId);
+          // await getTokenByAxios(currentRoom.roomId);
         }
       } catch (error) {
         console.log(error);
