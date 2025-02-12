@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import useFriendStore from '@/store/friendStore';
+import { useFriend } from '@/store/friendStore';
+import { userStore } from '@/store/userStore';
 import { Loading } from '@/common/Loading';
 
-const Friends = ({ friends }) => {
+const Friends = ({ friends, setShowFriend, showFriend }) => {
   const [activeTab, setActiveTab] = useState('friends'); // 기본값: 친구 요청
   const {
     friendRequests,
@@ -20,7 +21,10 @@ const Friends = ({ friends }) => {
     fetchFindMembers,
     searchMembers,
     makeFriend,
-  } = useFriendStore();
+    connect,
+    subscribeMain,
+  } = useFriend();
+  const { memberId } = userStore();
 
   const [searchTerm, setSearchTerm] = useState(''); //검색어
   const [filteredMembers, setFilteredMembers] = useState(searchMembers);
@@ -54,6 +58,12 @@ const Friends = ({ friends }) => {
     }
   }, [activeTab]);
 
+  // 소캣확인
+  useEffect(() => {
+    connect();
+    subscribeMain();
+  }, []);
+
   const handleRespondToRequest = async (loginId, answer) => {
     await respondToRequest(loginId, answer);
     // 상태 업데이트를 위해 friendRequests를 다시 가져옵니다
@@ -69,7 +79,16 @@ const Friends = ({ friends }) => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="w-[514px] h-fit relative bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] p-6 border border-gray-100">
+    <div className="w-[514px] h-dvh relative bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] flex flex-col justify-between p-6 border border-gray-100">
+      <button
+        className="h-[50px] w-[50px]"
+        onClick={() => setShowFriend(!showFriend)}>
+        <img
+          src="/Common/black-close.png"
+          alt="닫기 버튼"
+          className="h-[50px] w-[50px]"
+        />
+      </button>
       <div className="flex justify-around items-center pb-2 mb-4">
         <button
           onClick={() => setActiveTab('friends')}
@@ -105,7 +124,7 @@ const Friends = ({ friends }) => {
 
       {/* 받은 친구 요청*/}
       {activeTab === 'get_requests' && (
-        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {friendRequests.length === 0 ? (
             <div className="relative w-full h-full">
               <p className="text-center text-lg text-text-first font-NPSfont absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -155,7 +174,7 @@ const Friends = ({ friends }) => {
 
       {/*내가 보낸 친구 신청*/}
       {activeTab === 'send_requests' && (
-        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {sendFriendRequests.length === 0 ? (
             <div className="relative w-full h-full">
               <p className="text-center text-lg text-text-first font-NPSfont absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -194,7 +213,7 @@ const Friends = ({ friends }) => {
 
       {/* 친구 목록 */}
       {activeTab === 'friends' && (
-        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {friendList.length === 0 ? (
             <div className="relative w-full h-full flex flex-col justify-center items-center">
               <img
@@ -238,13 +257,13 @@ const Friends = ({ friends }) => {
 
       {/*멤버 검색*/}
       {activeTab === 'find_friends' && (
-        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           <input
             type="text"
             placeholder="닉네임을 입력해주세요"
             value={searchTerm}
             onChange={handleSearch}
-            className="w-full px-3 py-2 border rounded-md 
+            className="w-full px-3 py-2 border rounded-md mb-3
     focus:outline-none focus:ring-2 focus:ring-blue-500 service-regular3"
           />
           {showDropdown && (
