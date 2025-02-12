@@ -41,14 +41,14 @@ def script_read(textRequestDto: request_dto.TextRequestDto):
 
 @router.post("/diffusion-prompts", description="이미지 프롬프트 생성", response_model=response_dto.ApiResponse[response_dto.GenerateDiffusionPromptsResponseDto])
 @util.logger
-def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.GenerateDiffusionPromptsRequestDto):
+async def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.GenerateDiffusionPromptsRequestDto):
     """
     이미지 프롬프트 생성
     """
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
-        data=llm_service.generate_diffusion_prompts(
+        data=await llm_service.generate_diffusion_prompts(
             generateDiffusionPromptsRequestDto)
     )
 

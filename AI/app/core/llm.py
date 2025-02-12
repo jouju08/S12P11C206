@@ -111,29 +111,25 @@ def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
     return response_dto.GenerateTaleResponseDto(pages=pages)
 
 
-def generate_diffusion_prompts(generate_diffusion_prompts_request: request_dto.GenerateDiffusionPromptsRequestDto):
+async def generate_diffusion_prompts(generate_diffusion_prompts_request: request_dto.GenerateDiffusionPromptsRequestDto):
     """
     제목과 각 페이지별 내용을 입력받아 diffusion모델에 들어갈 프롬프트를 생성하는 함수
     """
 
     # 체인 생성성
-    chain = chains.generate_image_prompt | ChatOpenAI(
-        temperature=0.1, model="gpt-3.5-turbo") | chains.GenerateImageOutputParser()
     scenes = []
     for page in generate_diffusion_prompts_request.pages:
         scenes.append(page.fullText)
 
     # 체인 실행
-    response = chain.invoke({
-        "title": generate_diffusion_prompts_request.title,
-        "scenes": scenes
-    })
+    response = await chains.generate_image_prompt.abatch([{"title": generate_diffusion_prompts_request.title, "scene": scene} for scene in scenes])
 
     # response를 DTO로 변환
     prompts = []
+    positive_prompt_prefix = "Generate a whimsical children's storybook illustration."
     for item in response:
         prompt = PromptSet(
-            prompt=item["Prompt"], negativePrompt=item["Negative Prompt"])
+            prompt=positive_prompt_prefix + item, negativePrompt="Signature, longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality")
         prompts.append(prompt)
 
     return response_dto.GenerateDiffusionPromptsResponseDto(prompts=prompts)
