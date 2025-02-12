@@ -5,8 +5,11 @@ import com.ssafy.backend.tale.dto.request.JoinRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.LeaveRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.MakeRoomRequestDto;
 import com.ssafy.backend.tale.dto.common.RoomInfo;
+import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
 import com.ssafy.backend.tale.service.RoomService;
+import com.ssafy.backend.tale.service.TaleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -27,7 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoomController {
     private final RoomService roomService;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final TaleService taleService;
 
 
     @MessageMapping("/room/create")
@@ -62,13 +65,7 @@ public class RoomController {
 
     @MessageMapping("/room/start/{roomId}")
     @SendTo("/topic/room/start/{roomId}")
-    public String start(@PathVariable String roomId, Room room) {
-        String destination = "/topic/room/start/" + roomId;
-        String message = "start";
-        messagingTemplate.convertAndSend(destination, message);
-        // 시작하는 신호
-        // 방 정리
-        roomService.deleteRoom(Long.parseLong(roomId));
-        return message;
+    public StartTaleMakingResponseDto start(@DestinationVariable String roomId) {
+        return taleService.startMakingTale(Long.parseLong(roomId));
     }
 }

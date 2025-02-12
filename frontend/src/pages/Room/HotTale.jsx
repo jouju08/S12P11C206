@@ -26,8 +26,6 @@ const HotTale = () => {
   //메시지 수신 loading
   const [loading, setLoading] = useState(false);
 
-  //Loading 처리
-
   useEffect(() => {
     if (pageNum !== 5) {
       const handleHotTale = async () => {
@@ -37,6 +35,7 @@ const HotTale = () => {
           console.error('Hot Tale Error 발생:', error);
         }
       };
+
       handleHotTale();
     }
   }, [pageNum]);
