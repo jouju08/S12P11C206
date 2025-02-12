@@ -61,7 +61,7 @@ def script_read(textRequestDto: request_dto.TextRequestDto):
                 "role": "user",
                 "content": [
                     {
-                        "text": textRequestDto.text,
+                        "text": textRequestDto.text + "\n위 스크립트를 그대로 읽어줘.",
                         "type": "text"
                     },
                 ],
