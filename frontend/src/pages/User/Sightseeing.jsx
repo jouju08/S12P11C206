@@ -133,7 +133,7 @@ export default function Sightseeing() {
       </div>
 
       {/* 작품 갤러리 */}
-      <div className="w-[974px] h-fit px-[22px] mb-[30px]">
+      <div className="w-[974px] h-fit px-[22px] mb-[30px] mt-[70px]">
         <h1 className="service-accent2 mt-[10px] ">작품 갤러리</h1>
         {/* 정렬 선택 */}
         <div className="text-right">
@@ -147,7 +147,7 @@ export default function Sightseeing() {
         </div>
 
         {/* 그림 목록 */}
-        <div className="grid grid-flow-row grid-cols-4 gap-4 mt-[30px]">
+        <div>
           {drawingList.length === 0 ? (
             <div className="w-full h-[300px] service-accent1 text-text-first text-center leading-[300px]">
               아직 게시글이 없어요!
@@ -159,12 +159,14 @@ export default function Sightseeing() {
             //     key={idx}
             //   />
             // ))
-            drawingList.map((item, idx) => (
-              <GalleryItem
-                item={item}
-                key={idx}
-              />
-            ))
+            <div className="grid grid-flow-row grid-cols-4 gap-4 mt-[30px]">
+              {drawingList.map((item, idx) => (
+                <GalleryItem
+                  item={item}
+                  key={idx}
+                />
+              ))}
+            </div>
           )}
         </div>
 
@@ -173,7 +175,7 @@ export default function Sightseeing() {
           ref={infiniteScrollRef}
           style={{ height: '20px' }}></div>
 
-        {isLoading && <div>Loading more...</div>}
+        {/* {isLoading && <div>Loading more...</div>} */}
       </div>
     </div>
   );
