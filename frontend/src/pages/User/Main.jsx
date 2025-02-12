@@ -7,6 +7,8 @@ import NavMenu from '@/components/Main/NavMenu';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 import GalleryItem from '@/components/Common/GalleyItem';
 
+import '@/styles/main.css';
+
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
@@ -105,7 +107,7 @@ export default function Main() {
     async function fetchData() {
       try {
         const response = await api.get('/gallery', {
-          params: { order: 'POP' },
+          params: { order: 'POP', page: 1 },
         });
         console.log('📌 인기있는 그림 데이터:', response.data); // 콘솔 출력
         setdrawingData(response.data.data); // 상태에 저장
@@ -136,7 +138,7 @@ export default function Main() {
     </SwiperSlide>
   ));
 
-  const listFamousDrawing = dummyDrawingList.map((item, idx) => (
+  const listFamousDrawing = drawingData.map((item, idx) => (
     <SwiperSlide key={idx}>
       <GalleryItem item={item} />
     </SwiperSlide>
@@ -160,7 +162,7 @@ export default function Main() {
             src="/Main/profile-img.png"
           />
           <img
-            className="w-[140px] h-[140px] left-[9px] top-0 absolute"
+            className="shaking-image w-[140px] h-[140px] left-[9px] top-0 absolute"
             src="/Main/main-fairy.png"
           />
           <div className="w-[271px] h-[180px] left-[10px] top-[123px] absolute">
@@ -211,9 +213,16 @@ export default function Main() {
             </Swiper>
           ) : (
             // 데이터 없을 때 어떻게 나올지 수정 필요
-            <p className="text-text-first leading-[270px] service-accent2">
-              아직 만들어진 방이 없어요!
-            </p>
+            <div className="flex flex-col justify-center items-center mx-auto">
+              <p className="text-text-second text-center service-accent3 mb-10">
+                아직 만들어진 방이 없어요! 직접 시작하러 가볼까요?
+              </p>
+              <Link
+                to={'/room'}
+                className="px-3.5 py-2 bg-main-point2 rounded-[30px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.1)] justify-center items-center gap-2.5 text-white service-bold3 inline-flex overflow-hidden">
+                동화 만들러 가기
+              </Link>
+            </div>
           )}
         </div>
       </div>
@@ -223,7 +232,7 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           지금 인기있는 그림
         </div>
-        {drawingData ? (
+        {drawingData.length != 0 ? (
           <Swiper
             slidesPerView={4}
             spaceBetween={30}
@@ -233,9 +242,16 @@ export default function Main() {
           </Swiper>
         ) : (
           // 데이터 없을 때 어떻게 나올지 수정 필요
-          <p className="text-text-first leading-[270px] service-accent2">
-            아직 올라온 그림이 없어요!
-          </p>
+          <div className="flex flex-col justify-center items-center mx-auto">
+            <p className="text-text-second text-center service-accent3 mb-10">
+              아직 올라온 게시물이 없어요! 직접 올리러 가볼까요?
+            </p>
+            <Link
+              to={'/gallery'}
+              className="px-3.5 py-2 bg-main-point2 rounded-[30px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.1)] justify-center items-center gap-2.5 text-white service-bold3 inline-flex overflow-hidden">
+              올릴 사진 선택하러 가기
+            </Link>
+          </div>
         )}
       </div>
     </div>

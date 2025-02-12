@@ -3,6 +3,7 @@ import MainLayout from '@/common/layout/MainLayout';
 import TaleLayout from '@/common/layout/TaleLayout';
 import { Loading } from '@/common/Loading';
 import { useUser } from '@/store/userStore';
+import Admin from '@/pages/Admin';
 
 import {
   createBrowserRouter,
@@ -68,7 +69,7 @@ const router = createBrowserRouter([
       { path: 'login', element: <Login /> },
       { path: 'register', element: <Register /> },
       { path: 'auth/kakao/callback', element: <KakaoCallback /> },
-      { path: 'friends', element: <Friends /> },
+
       {
         element: <ProtectedLayout />, // 인증된 사용자
         children: [
@@ -81,6 +82,8 @@ const router = createBrowserRouter([
           { path: 'upload', element: <FileTest /> },
           { path: 'canvas', element: <CanvasTest /> },
           { path: 'sightseeing', element: <Sightseeing /> },
+          { path: 'admin', element: <Admin /> },
+          { path: 'friends', element: <Friends /> },
         ],
       },
     ],

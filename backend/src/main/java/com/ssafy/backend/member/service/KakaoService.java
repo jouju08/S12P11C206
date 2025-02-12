@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,29 +50,38 @@ public class KakaoService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String formattedDate = sdf.format(today);
 
-        Member member = memberRepository.findByLoginId(userInfo.getLoginId())
-                .orElseGet(() -> {
-                    Member newMember = Member.builder()
-                            .loginId(userInfo.getLoginId())
-                            .nickname(userInfo.getNickname())
-                            .isDeleted(false)
+        Optional<Member> optionalMember = memberRepository.findByLoginId(userInfo.getLoginId());
+        Member member;
+        if (optionalMember.isPresent()) {
+            member = optionalMember.get();
+        } else {
+            Member newMember = Member.builder()
+                    .loginId(userInfo.getLoginId())
+                    .nickname(userInfo.getNickname())
+                    .isDeleted(false)
 //                            .profileImg()
-                            .loginType('K')
-                            .birth(formattedDate)
-                            .build();
-                    return memberRepository.save(newMember);
-                });
+                    .loginType('K')
+                    .birth(formattedDate)
+                    .build();
+            member = memberRepository.save(newMember);
+        }
 
         // 4. JWT 토큰 생성 및 반환
-        String jwtAccessToken = jwtUtil.generateToken(member.getEmail());
-        String jwtRefreshToken = jwtUtil.generateRefreshToken(member.getEmail());
-        
+        String jwtAccessToken = jwtUtil.generateToken(member.getLoginId());
+        String jwtRefreshToken = jwtUtil.generateRefreshToken(member.getLoginId());
+
         // 레디스에 리프레시 토큰 저장
         refreshTokenService.saveRefreshToken(member.getLoginId(), jwtRefreshToken);
-        
+
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", jwtAccessToken);
         tokens.put("refreshToken", jwtRefreshToken);
+
+
+        System.out.println("jwtRefreshToken = " + jwtRefreshToken);
+        System.out.println("jwtAccessToken = " + jwtAccessToken);
+        System.out.println("member.getLoginId() = " + member.getLoginId());
+
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setTokens(tokens);
         member.setPassword(null);

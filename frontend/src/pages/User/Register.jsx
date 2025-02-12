@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 // import authAPI from '@/apis/auth/userAxios';
 import { useUser } from '@/store/userStore';
@@ -7,263 +7,334 @@ import Swal from 'sweetalert2';
 export default function Register() {
   const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState(true);
-
-  const { login, isAuthenticated, refreshAccessToken } = useUser();
-
+  const [confirmPassword, setConfirmPassword]=useState('');
+  const [passwordMatch, setPasswordMatch]=useState(false);
+  const [passwordValid, setPasswordValid]=useState(false);
+  const [email, setEmail] = useState('');
+  const [birth, setBirth] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [isSignUp, setSignUp] = useState(true);
+  const [idCheck, setIdCheck] = useState(false);
+  const [emailCheck, setEmailCheck] = useState(false);
+  const [authNumber, setAuthNumber] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [nicknameCheck, setNicknameCheck] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [timer, setTimer]=useState(180);
+  const [isTimerActive,setTimerActive]=useState(false);
+  const { duplicate, register, sendEmail, emailAuthenticate } = useUser();
+  const timerRef=useRef(null);
+  const [isEmailSent, setEmailSent]=useState(false);
   const navigate = useNavigate();
+  const birthRegex = /^(19[0-9]{2}|20[0-9]{2})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
 
-  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_KAKAO_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_REDIRECT_URI}&response_type=code`;
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/main');
+  //유효한 비밀번호 타입인지 확인
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
+
+  const handlePasswordChange=(e)=>{
+    const newPassword=e.target.value;
+    setPassword(e.target.value);
+    setPasswordValid(passwordRegex.test(newPassword));
+  }
+
+  //인풋 바뀌면 중복 확인 상태 false로 바꾸기
+  const handleInputChange = (type, value) => {
+    if (type === "id") {
+      setLoginId(value);
+      setIdCheck(false);  
+    } else if (type === "email") {
+      setEmail(value);
+      setEmailCheck(false);
+      setIsEmailVerified(false); 
+    } else if (type === "nickname") {
+      setNickname(value);
+      setNicknameCheck(false);
     }
-  }, [isAuthenticated, navigate]);
+    else{
+      setBirth(value);
+    }
+  };
 
+  //비밀번호 확인인
+  const handleCornfirmPasswordChange=(e)=>{
+    const confirmPwd=e.target.value;
+    setConfirmPassword(confirmPwd);
+    setPasswordMatch(confirmPwd===password);
+  }
+
+  //비밀번호 일치 확인
+  useEffect(() => {
+    setPasswordMatch(confirmPassword === password);
+  }, [password, confirmPassword]); // 
+  
+  //중복 확인인
+  const checkDuplicate = async (type, value) => {
+    const idRegex = /^[A-Za-z0-9]{4,12}$/; // 아이디: 영문자와 숫자, 길이 4~12
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // 이메일: 기본 이메일 형식
+    const nicknameRegex = /^[A-Za-z0-9가-힣]{2,12}$/; // 닉네임: 영문자, 숫자, 한글, 길이 2~12
+    
+    try {
+      if (type === "id" && !idRegex.test(value)) {
+        Swal.fire("경고", "아이디는 4~12자, 영문자와 숫자만 포함할 수 있습니다.", "error");
+        return;
+      }
+      if (type === "email" && !emailRegex.test(value)) {
+        Swal.fire("경고", "이메일 형식이 올바르지 않습니다.", "error");
+        return;
+      }
+      if (type === "nickname" && !nicknameRegex.test(value)) {
+        Swal.fire("경고", "닉네임은 2~12자, 영문자, 숫자, 한글만 포함할 수 있습니다.", "error");
+        return;
+      }
+      
+      const response = await duplicate(type, value);
+      console.log("response", response);
+      if(response.status==="Success."){
+        if (type === "id") {
+          setIdCheck(true);
+        } else if (type === "email") {//이메일 중복 먼저 확인 후 이메일 인증 진행행
+          setEmailSent(false);
+          setEmail(email);
+          setEmailCheck(true);
+          setModalOpen(true);
+          setIsEmailVerified(false);
+          startEmailVerification();
+        } else {
+          setNicknameCheck(true);
+        }
+        Swal.fire("사용 가능", `사용 가능한 ${type}입니다`, "success");
+      }
+      else{
+        Swal.fire("중복", `이미 사용중인 ${type}입니다`, "error");
+      }
+    } catch (error) {
+      console.error(`${type} 중복 확인 오류`, error);
+    }
+  };
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const response = await login({ loginId, password });
-    console.log(response);
-
-    //response 가져다 쓰면됨
-    
-    const status = response.data.status;
-    if(status === 'NF'){
-      // console.log('사용자 정보 틀림')
-      Swal.fire({
-        title: `<div class="flex justify-center items-center"><div class="w-[84px] h-[84px] bg-[url('/Login/exclamation-circle-solid.png')] bg-cover"></div></div>`,
-        html: `
-          <div class="text-center text-text-first auth-bold2 mb-[20px]">
-            아이디 또는 비밀번호를 잘못 입력했습니다. 입력하신 내용을 다시 확인해주세요.
-          </div>
-        `,
-        width: 430, // 모달의 너비
-        heightAuto: false, // 높이 자동 조정 비활성화
-        padding: '20px', // 내부 여백
-        background: '#fff', // 배경색
-        showConfirmButton: true,
-        confirmButtonText: '확인',
-        customClass: {
-          popup: 'rounded-lg shadow-lg',
-          confirmButton: 'w-[120px] h-[50px] bg-gray-700 text-white auth-regular1 px-6 py-2 rounded-md hover:bg-gray-800',
-          closeButton: 'text-gray-400 hover:text-gray-600'
-        },
-        buttonsStyling: false // 기본 버튼 스타일 제거
-      });
+    if (!idCheck) {//제출 전 중복 확인 및 인증 체크
+      Swal.fire("알림", "아이디 중복 확인을 먼저 해주세요!", "warning");
+      return;
+    }
+    if (!emailCheck) {
+      Swal.fire("알림", "이메일 중복 확인을 먼저 해주세요!", "warning");
+      return;
+    }
+    if (!nicknameCheck) {
+      Swal.fire("알림", "닉네임 중복 확인을 먼저 해주세요!", "warning");
+      return;
+    }
+    if (!email || !loginId || !password || !birth || !nickname) {
+      Swal.fire("알림", "모든 정보를 입력해주세요!", "warning");
+      return;
+    }
+    if (!isEmailVerified) {
+      Swal.fire("알림", "이메일 인증을 진행해주세요!", "warning");
+      return;
+    }
+    if(!birthRegex.test(birth)){
+      Swal.fire("경고", "생년월일 입력 형식에 맞춰주세요! 예)2000-08-24", "error");
+      return;
+    }
+    console.log("회원가입 요청:", { loginId, password, email, birth, nickname });
+    const response = await register({ loginId, password, email, birth, nickname });
+    console.log(response.data.status);
+    if (response.data.status==="SU") {
+      Swal.fire("회원가입 성공", "회원가입에 성공했습니다! 로그인 페이지로 이동합니다!", "success");
+      navigate("/login");  // 로그인 페이지로 리디렉션
+    } else {
+      Swal.fire("회원가입 실패", "회원가입에 실패했습니다.", "error");
+    }
+  };
+  
+  const startEmailVerification = async () => {
+    try {
+      // 이메일 인증 코드 발송
+      const response = await sendEmail(email);
+      if (response) {
+        // Swal.fire("인증번호 전송", "이메일로 인증번호가 발송되었습니다.", "success");
+        setEmailSent(true);
+        startTimer();
+      } else {
+        Swal.fire("오류", "인증번호 발송에 실패했습니다.", "error");
+      }
+    } catch (error) {
+      console.error("이메일 인증 오류", error);
+      Swal.fire("오류", "인증번호 발송에 실패했습니다.", "error");
     }
   };
 
-  const handleKakao = (e) => {
-    e.preventDefault();
-    window.location.href = KAKAO_AUTH_URL;
+  //타이머 제어
+  useEffect(() => {
+    if (isTimerActive) {
+      timerRef.current = setInterval(() => {
+        setTimer((prevTime) => {
+          if (prevTime <= 1) {
+            clearInterval(timerRef.current);
+            setTimerActive(false);
+            setModalOpen(false);
+            setEmailSent(false);
+            Swal.fire("시간 초과", "인증 시간이 만료되었습니다.", "error");
+            return 0;
+          }
+          return prevTime - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timerRef.current);
+  }, [isTimerActive, isModalOpen]);
+
+  //이메일 인증번호 유효시간 타이머
+  const startTimer = () => {
+    setTimer(180);
+    setTimerActive(true);
+  };
+  
+  //이메일 인증 코드 확인
+  const handleVerifyAuthCode = async () => {
+    try {
+      const response = await emailAuthenticate(email, authNumber);
+      if (response.status === "SU") {
+        setIsEmailVerified(true);
+        setModalOpen(false);
+        setTimer(180);
+        setTimerActive(false);
+        clearInterval(timerRef.current);
+        
+        Swal.fire("인증 완료", "이메일 인증이 완료되었습니다.", "success");
+      } else {
+        Swal.fire("인증 실패", "잘못된 인증번호입니다.", "error");
+      }
+    } catch (error) {
+      console.error("인증번호 확인 오류", error);
+      Swal.fire("인증 실패", "인증번호 확인에 실패했습니다.", "error");
+    }
   };
 
+  //모달 닫으면 타이머 초기화 및 이메일 재전송 가능하도록록
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setEmailSent(false);
+    setTimer(180);
+    setTimerActive(false);
+    clearInterval(timerRef.current);
+  };
+
+  
+
   return (
-    <div
-      className="w-[1024px] h-[605px] mt-[30px] flex bg-[url('/Login/login-background.png')] bg-cover bg-bottom bg-no-repeat"
-      style={{ backgroundSize: '100%' }}>
-      {/* 왼쪽쪽 */}
-      <div className="w-[18.75%]">
-        <div
-          className="ml-[80px] w-[20px] h-[20px] bg-[url('/Login/back-button.png')] bg-cover bg-left bg-right-[30px] bg-no-repeat hover:cursor-pointer"
-          style={{ backgroundSize: '20px' }}></div>
-      </div>
-      {/* 센터터 */}
-      <div className="w-[62.5%]">
-        <div className="flex flex-col items-center w-[540] h-[538px] bg-white rounded-[40px]">
-          {/* 로그인 텍스트 */}
-          <div className="text-text-first auth-bold1 mt-[48px]">로그인</div>
-          {/* 아이디 비번 입력칸 */}
-          <div className="flex flex-col space-y-[10px] mt-[30px]">
+    <div className="w-[640px] h-auto bg-white rounded-[40px] shadow-lg flex flex-col items-center p-10 space-y-6">
+      {/* 회원가입 타이틀 */}
+      <h2 className="text-4xl font-bold text-text-first">회원가입</h2>
+      {/* 입력 필드 */}
+      <div className="w-full flex flex-col items-center space-y-4 ">
+        {[
+          { label: "아이디", type: "id", placeholder: "아이디", value: loginId, setValue: setLoginId, checkType: "id" },
+          { label: "이메일", type: "email", placeholder: "이메일 입력", value: email, setValue: setEmail, checkType: "email" },
+          { label: "비밀번호", type: "password", placeholder: "8~12자의 영문, 숫자, 특수기호", value:password, setValue:setPassword},
+          { label: "비밀번호 확인", type: "password", placeholder: "비밀번호 한번 더 입력",value: confirmPassword, setValue:setConfirmPassword},
+          { label: "닉네임", type: "text", placeholder: "닉네임", value: nickname, setValue: setNickname, checkType: "nickname" },
+          { label: "생년월일", type: "text", placeholder: "생년월일 8자리 입력 (예: 2025-02-09)", value:birth, setValue:setBirth }
+        ].map((field, index) => (
+          <div key={index} className="flex flex-col w-full max-w-[445px] relative">
+            <label className="text-lg font-medium text-text-first font-['Wanted Sans']">{field.label}</label>
             <input
-              type="email"
-              id="login-email"
-              onChange={(e) => setLoginId(e.target.value)}
-              className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
-              placeholder="아이디"
-            />
-            <input
-              type="password"
-              id="login-password"
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
-              placeholder="비밀번호"
-            />
-          </div>
-          {/* 로그인 버튼 */}
-          <div className="mt-[30px]">
-            <button
-              onClick={handleSubmit}
-              className="w-[445px] h-[65px]  bg-main-btn rounded-[30px] text-text-first auth-regular1">
-              로그인 하기
-            </button>
-          </div>
-          {/* 각종 링크 */}
-          <div className="mt-[20px] space-x-[10px] text-text-second auth-regular2">
-            <a href="">아이디 찾기</a>
-            <p className="inline-block">|</p>
-            <a href="">비밀번호 찾기</a>
-            <p className="inline-block">|</p>
-            <a href="">회원가입</a>
-          </div>
-          {/* 카카오 로그인 버튼 */}
-          <div className="mt-[20px]">
-            <button
-              className="w-[445px] h-[65px] rounded-[30px] text-text-first auth-regular1 bg-main-kakao bg-[url('/Login/kakao-symbol.png')] bg-cover bg-left bg-right-[30px] bg-no-repeat"
-              style={{
-                backgroundSize: '40px',
-                backgroundPosition: '30px center',
+              type={field.type}
+              placeholder={field.placeholder}
+              value={field.value || ""}
+              onChange={(e) => {
+                if (field.label === "비밀번호") handlePasswordChange(e);
+                else if (field.label === "비밀번호 확인") handleCornfirmPasswordChange(e);
+                else handleInputChange(field.checkType, e.target.value);//인풋 바뀌면 확인 취소
               }}
-              onClick={handleKakao}>
-              카카오로 로그인 하기
+              className="rounded-[30px] px-4 pr-20 w-[445px] h-[65px] text-text-first bg-main-authInput focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-xl placeholder font-['Wanted Sans'] placeholder:text-[#b1b1b1] placeholder:font-medium"
+            />
+            {field.checkType && (//중복확인
+            <button
+              onClick={() => checkDuplicate(field.checkType, field.value)}
+              className="absolute right-2 bottom-2.5 px-3 py-1 w-[100px] h-[45px] bg-[#9f9f9f] text-text-white rounded-[30px] hover:bg-gray-400 transition-colors duration-200"
+            >
+            중복확인
             </button>
+              )}
+              <div className="absolute right-2 bottom-[-20px] text-sm text-green-600 min-w-[100px] text-center">
+              {field.checkType === "id" && idCheck && "사용 가능"}
+              {field.checkType === "email" && isEmailVerified && emailCheck && "인증 완료"}
+              {field.checkType === "nickname" && nicknameCheck && "사용 가능"}
+              {field.value===password && field.label === "비밀번호" && !passwordValid && password && (//비밀번호 확인인
+              <p className="text-main-choose text-sm">비밀번호 형식이 올바르지 않습니다.</p>
+            )}
+            {field.value===password && field.label === "비밀번호" && passwordValid && password && (
+              <p className="text-green-600 text-sm">사용 가능 </p>
+            )}
+          
+         
+            {field.value === confirmPassword && field.label === "비밀번호 확인" && !passwordMatch && confirmPassword && (
+              <p className="text-main-choose text-sm">비밀번호가 일치하지 않습니다.</p>
+            )}
+
+            {field.value === confirmPassword && field.label === "비밀번호 확인" && passwordMatch && confirmPassword && (
+              <p className="text-green-600 text-sm">비밀번호 일치</p>
+            )}
+            </div>
+
+            {isModalOpen && !isEmailVerified && (//이메일 인증
+            <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 z-50">
+            <div className="relative bg-white p-8 rounded-2xl shadow-2xl w-[380px] flex flex-col items-center">
+              <button
+              onClick={handleCloseModal}
+              className="absolute top-3 right-2 text-gray-500 hover:text-gray-700 transition duration-200 text-2xl"
+              >
+              ❌
+              </button>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">📩 이메일 인증</h3>
+              {isEmailSent&&(
+                <div>
+                <p className="text-gray-600 text-center text-sm mb-4">
+                이메일로 인증번호를 보냈어요! <br /> 입력 후 인증 확인을 눌러주세요.
+                </p>
+                </div>
+              )}
+
+            {/* 인증번호 입력 필드 */}
+            <input
+              type="text"
+              value={authNumber}
+              onChange={(e) => setAuthNumber(e.target.value)}
+              placeholder="인증번호 입력"
+              className="w-full p-3 text-center rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg mb-3"
+            />
+
+          {/* 남은 시간 */}
+          <div className="bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+          ⏳ 남은 시간: {Math.floor(timer / 60)}:{timer % 60 < 10 ? `0${timer % 60}` : timer % 60}
+          </div>
+
+          {/* 인증 확인 버튼 */}
+          <button
+            onClick={handleVerifyAuthCode}
+            className="w-full bg-main-btn text-text-first rounded-full py-3 text-lg font-semibold shadow-md hover:bg-main-carrot transition duration-200"
+          >
+          인증 확인
+          </button>
           </div>
         </div>
+        )}
+
+        </div>
+        ))}
       </div>
-      {/* 오른쪽 공란 */}
-      <div className="w-[18.75%]"></div>
+      {/* 회원가입 버튼 */}
+      <button
+        onClick={handleSubmit}
+        className="w-[445px] h-[65px] bg-main-btn rounded-[30px] text-2xl font-medium text-text-first hover:bg-main-carrot transition-colors duration-200"
+      >
+        회원가입 하기
+      </button>
     </div>
   );
-  // return (
-  //   <div className="flex h-screen w-full gap-3 bg-gray-500/65">
-  //     <div className="flex-1 flex items-center justify-center bg-transparent">
-  //       <div className="bg-white shadow-2xl p-8 w-96 max-w-[100%] rounded-xl">
-  //         <h2 className="text-2xl font-bold mb-6 w-full h-full text-gray-800 text-center">
-  //           <div className="flex justify-between">
-  //             <button
-  //               className={`w-1/2 py-2 text-center font-medium ${
-  //                 isLogin
-  //                   ? 'text-blue-500 border-b-2 border-blue-500'
-  //                   : 'text-gray-600'
-  //               } focus:outline-none`}
-  //               onClick={() => setIsLogin(true)}>
-  //               Login
-  //             </button>
-  //             <button
-  //               className={`w-1/2 py-2 text-center font-medium ${
-  //                 !isLogin
-  //                   ? 'text-green-500 border-b-2 border-green-500'
-  //                   : 'text-gray-600'
-  //               }  focus:outline-none`}
-  //               onClick={() => setIsLogin(false)}>
-  //               Sign Up
-  //             </button>
-  //           </div>
-  //         </h2>
-
-  //         {/* Sliding Forms Container */}
-  //         <div className="relative w-full h-96 overflow-hidden">
-  //           <div
-  //             className={`absolute flex transition-transform duration-500 w-[200%] ${
-  //               isLogin
-  //                 ? 'transform translate-x-0'
-  //                 : 'transform -translate-x-1/2'
-  //             }`}>
-  //             {/* Login Form */}
-  //             <div className="w-1/2 px-8 py-8 bg-white">
-  //               <h2 className="text-xl font-bold mb-4">Login</h2>
-  //               <form>
-  //                 <div className="mb-4">
-  //                   <label
-  //                     htmlFor="login-email"
-  //                     className="block text-sm font-medium text-gray-600">
-  //                     ID
-  //                   </label>
-  //                   <input
-  //                     type="email"
-  //                     id="login-email"
-  //                     onChange={(e) => setLoginId(e.target.value)}
-  //                     className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-  //                   />
-  //                 </div>
-  //                 <div className="mb-4">
-  //                   <label
-  //                     htmlFor="login-password"
-  //                     className="block text-sm font-medium text-gray-600">
-  //                     Password
-  //                   </label>
-  //                   <input
-  //                     type="password"
-  //                     id="login-password"
-  //                     onChange={(e) => setPassword(e.target.value)}
-  //                     className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
-  //                   />
-  //                 </div>
-  //                 <button
-  //                   onClick={handleSubmit}
-  //                   type="submit"
-  //                   className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
-  //                   Login
-  //                 </button>
-
-  //                 <button
-  //                   onClick={handleKakao}
-  //                   className="w-full bg-yellow-300 text-white py-2 rounded-lg hover:bg-yellow-600">
-  //                   카카오 로그인
-  //                 </button>
-  //               </form>
-  //             </div>
-
-  //             {/* Sign-Up Form */}
-  //             <div className="w-1/2 px-8 py-8 bg-white">
-  //               <h2 className="text-xl font-bold mb-4">Sign Up</h2>
-  //               <form>
-  //                 <div className="mb-4">
-  //                   <label
-  //                     htmlFor="signup-name"
-  //                     className="block text-sm font-medium text-gray-600">
-  //                     Name
-  //                   </label>
-  //                   <input
-  //                     type="text"
-  //                     id="signup-name"
-  //                     className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
-  //                   />
-  //                 </div>
-  //                 <div className="mb-4">
-  //                   <label
-  //                     htmlFor="signup-email"
-  //                     className="block text-sm font-medium text-gray-600">
-  //                     Email
-  //                   </label>
-  //                   <input
-  //                     type="email"
-  //                     id="signup-email"
-  //                     className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
-  //                   />
-  //                 </div>
-  //                 <div className="mb-4">
-  //                   <label
-  //                     htmlFor="signup-password"
-  //                     className="block text-sm font-medium text-gray-600">
-  //                     Password
-  //                   </label>
-  //                   <input
-  //                     type="password"
-  //                     id="signup-password"
-  //                     className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-400 focus:outline-none"
-  //                   />
-  //                 </div>
-  //               </form>
-  //               <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
-  //                 Sign Up
-  //               </button>
-  //             </div>
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-
-  //     <div className="flex-1 min-h-screen flex items-center justify-center bg-yellow-200">
-  //       <div className="bg-transparent p-2 w-full h-full max-w-[100%]">
-  //         {isAuthenticated.toString()}
-  //         <div>
-  //           <button onClick={refreshAccessToken}>refresh</button>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
 }

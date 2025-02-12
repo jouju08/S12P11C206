@@ -11,6 +11,8 @@ import { devtools, persist, createJSONStorage } from 'zustand/middleware';
 import axios from 'axios';
 import authAPI from '@/apis/auth/userAxios';
 import { immer } from 'zustand/middleware/immer';
+import { use } from 'react';
+import authAxiosInstance from '@/apis/auth/testInstance';
 
 const api = axios.create({
   baseURL: '/api',
@@ -123,7 +125,7 @@ const userActions = (set, get) => ({
       nickname: '',
       memberId: '',
       accessToken: '',
-      refreshToken: '',
+      refresgetStatehToken: '',
       isAuthenticated: false,
     });
 
@@ -157,15 +159,12 @@ const userActions = (set, get) => ({
       const { data } = response.data;
 
       if (data !== null) {
-        set({ accessToken: data.accessToken });
-
         isRefreshing = false;
         onRefreshed(data.accessToken);
 
-        console.log(
-          '[refreshAccessToken] 새 accessToken 설정 완료:',
-          data.accessToken
-        );
+        console.log('[refreshAccessToken] 새 accessToken 설정 완료:');
+
+        set({ accessToken: data.accessToken });
 
         return data.accessToken;
       } else {
@@ -215,6 +214,58 @@ const userActions = (set, get) => ({
       }
     }
   },
+
+  //중복확인
+  duplicate: async (type, value) => {
+    try {
+      const response = await authAPI.checkDuplicate(type, value);
+      return response.data;
+    } catch (error) {
+      console.error(`${type} 중복확인 오류`, error);
+      if (error.response) {
+        console.error('응답 오류:', error.response.data);
+        console.error('응답 상태 코드:', error.response.status);
+      } else if (error.request) {
+        console.error('응답 없음:', error.request);
+      } else {
+        console.error('요청 설정 오류:', error.message);
+      }
+      throw error;
+    }
+  },
+
+  //인증번호 전송송
+  sendEmail: async (email) => {
+    console.log(email);
+    try {
+      const response = await authAPI.sendEmailAuthenticate(email);
+      return response.data;
+    } catch (error) {
+      console.error('이메일 전송 오류', error);
+      throw error;
+    }
+  },
+
+  //이메일 인증
+  emailAuthenticate: async (email, authNum) => {
+    try {
+      const response = await authAPI.postEmailAuthenticate(email, authNum);
+      return response.data;
+    } catch (error) {
+      console.error('이메일 인증 오류', error);
+      throw error;
+    }
+  },
+
+  register: async (credentials) => {
+    let response;
+    try {
+      response = await authAPI.register(credentials);
+      return response;
+    } catch (error) {
+      return error.response || response;
+    }
+  },
 });
 
 const userStore = create(
@@ -247,6 +298,11 @@ export const useUser = () => {
   const refreshAccessToken = userStore((state) => state.refreshAccessToken);
   const fetchUser = userStore((state) => state.fetchUser);
 
+  const duplicate = userStore((state) => state.duplicate);
+  const sendEmail = userStore((state) => state.sendEmail);
+  const emailAuthenticate = userStore((state) => state.emailAuthenticate);
+  const register = userStore((state) => state.register);
+
   return {
     loginId,
     nickname,
@@ -260,6 +316,10 @@ export const useUser = () => {
     logout,
     refreshAccessToken,
     fetchUser,
+    duplicate,
+    sendEmail,
+    emailAuthenticate,
+    register,
   };
 };
 
@@ -268,16 +328,15 @@ export { userStore };
 
 api.interceptors.request.use(
   (request) => {
-    const { accessToken } = userStore.getState();
+    const accessToken = userStore.getState().accessToken;
 
     if (!isTokenExpired(accessToken) && accessToken) {
       request.headers['Authorization'] = `Bearer ${accessToken}`;
-      console.log(request);
+      return request;
+    } else {
       return request;
     }
-    return request;
   },
-
   (error) => {
     console.log(error);
     return error;
@@ -309,8 +368,6 @@ api.interceptors.response.use(
         delete api.defaults.headers.common['Authorization'];
 
         await refreshAccessToken(); //재발급
-
-        console.log(userStore.getState().accessToken);
 
         originalRequest.headers['Authorization'] =
           `Bearer ${userStore.getState().accessToken}`;

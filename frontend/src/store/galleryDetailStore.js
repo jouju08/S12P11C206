@@ -56,6 +56,7 @@ const galleryPageActions = (set, get) => ({
         id: galleryId,
         hasLiked: hasLiked,
       });
+      console.log('좋아요 토글에 따른 응답 ', hasLiked);
       console.log('좋아요 토글에 따른 응답 ', response);
 
       if (response.data && response.data.status === 'SU') {

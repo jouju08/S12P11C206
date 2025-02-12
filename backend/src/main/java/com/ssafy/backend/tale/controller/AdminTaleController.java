@@ -63,9 +63,10 @@ public class AdminTaleController {
     // 타이틀 이미지 생성 완료 후 AI 이미지 webhook 요청
     @PostMapping("/submit/ai-picture")
     public void submitAiPicture(@RequestBody ImageUrlListResponseDto imageUrlListResponseDto) {
+        System.out.println("imageUrlListResponseDto = " + imageUrlListResponseDto);
         //websocket으로 알림
         System.out.println("imageUrlListResponseDto = " + imageUrlListResponseDto);
-        webSocketNotiService.sendNotification("/admin/title-image", imageUrlListResponseDto);
+        webSocketNotiService.sendNotification("/topic/admin/title-image", imageUrlListResponseDto);
     }
 
     // 선택한 이미지 저장
@@ -86,8 +87,9 @@ public class AdminTaleController {
     // 도입부 이미지 생성 완료 후 AI 이미지 webhook 요청
     @PostMapping("/submit/ai-intro-picture")
     public void submitAiIntroPicture(@RequestBody ImageUrlListResponseDto imageUrlListResponseDto) {
+        System.out.println("imageUrlListResponseDto = " + imageUrlListResponseDto);
         //websocket으로 알림
-        webSocketNotiService.sendNotification("/admin/intro-image", imageUrlListResponseDto);
+        webSocketNotiService.sendNotification("/topic/admin/intro-image", imageUrlListResponseDto);
     }
 
     // 생성된 BaseTale 정보 저장

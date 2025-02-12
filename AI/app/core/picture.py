@@ -121,7 +121,6 @@ def upgrade_handpicture_submit(roomId: int, order: int, image: UploadFile):
     requests.post(SPRING_UPGRADE_PICTURE_WEBHOOK, data=fields, files=file)
 
 
-@util.logger
 def post_novita_api(prompts: common.PromptSet, webhook_url):
     """
     novita API에 이미지 생성 요청을 보내는 함수
@@ -177,20 +176,23 @@ def post_novita_api(prompts: common.PromptSet, webhook_url):
 #         print("Received Non-JSON Body:", pretty_json)  # JSON이 아니면 그냥 출력
 #     return
 
-@util.logger
 def return_novita_image(web_hook_request, post_url):
     """
     novita에서 받은 이미지를 spring으로 전송하는 함수
     """
-    image_url = []
-    for image in web_hook_request["payload"]["images"]:
-        image_url.append(image["image_url"])
-    field = {
+    image_url = [image["image_url"]
+                 for image in web_hook_request["payload"]["images"]]
+    payload = {
         'images': image_url
     }
-    print(f"gen image_url {image_url}")
+    headers = {
+        "Content-Type": "application/json",
+    }
     try:
-        requests.post(post_url, data=field)
+        response = requests.post(post_url, headers=headers, json=payload)
+        print("response from spring")
+        print(response.status_code)
+        print(response.text)
     except Exception as e:
         print("return_novita_image error")
         print(e)

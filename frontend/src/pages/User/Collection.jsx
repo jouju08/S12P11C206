@@ -67,7 +67,7 @@ export default function Collection() {
   }, []);
 
   return (
-    <div className="w-[1024px] h-fit px-[25px]">
+    <div className="w-[1024px] max-h-screen px-[25px]">
       <h1 className="text-center text-text-first service-accent1 mx-auto mb-3">
         내 동화 책장
       </h1>
@@ -114,7 +114,7 @@ export default function Collection() {
 
       {/* 동화 모달 */}
       {showModal && (
-        <div className="absolute top-0 left-0 z-50 w-full h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
+        <div className="absolute top-[-100px] left-0 z-50 w-full h-dvh bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
           <Modal
             handleExit={handleExit}
             showModal={showModal}
@@ -157,49 +157,47 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
 
   return (
     <div className="container mx-auto">
-      {chunk(filteredTaleList, 5).map((row, rowIndex) => (
-        // row
-        <div
-          key={rowIndex}
-          className="relative mb-8">
-          <div className="grid grid-cols-5 gap-4">
-            {row.map((item, index) => (
-              // row에 item 하나
-              <div
-                key={index}
-                className="group relative bg-local bg-no-repeat bg-right-top cursor-pointer"
-                style={{
-                  backgroundImage: "url('/Collection/book-cover.png')",
-                }}>
-                {/* 여기에 item의 내용을 렌더링 */}
-                <div className="absolute z-10 pt-[90%] text-center inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
-                  {/* 보러가기 버튼 누르면 동화책 모달 띄울까? */}
-                  <button
-                    onClick={() => handleClick(item.baseTaleId, item.taleId)}
-                    className="bg-main-btn w-[85px] h-[24px] text-center service-regular3 px-3 rounded-xl">
-                    보러가기
-                  </button>
-
-                  {/* 확인용 - 나중에 지우기!!!*/}
-                  <p className="text-white">{item.createdAt.slice(0, 10)}</p>
+      {filteredTaleList.length !== 0 ? (
+        chunk(filteredTaleList, 5).map((row, rowIndex) => (
+          <div
+            key={rowIndex}
+            className="relative mb-8">
+            <div className="grid grid-cols-5 gap-4">
+              {row.map((item, index) => (
+                <div
+                  key={index}
+                  className="group relative bg-local bg-no-repeat bg-right-top cursor-pointer"
+                  style={{
+                    backgroundImage: "url('/Collection/book-cover.png')",
+                  }}>
+                  <div className="absolute z-10 pt-[90%] text-center inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
+                    <button
+                      onClick={() => handleClick(item.baseTaleId, item.taleId)}
+                      className="bg-main-btn w-[85px] h-[24px] text-center service-regular3 px-3 rounded-xl">
+                      보러가기
+                    </button>
+                    <p className="text-white">{item.createdAt.slice(0, 10)}</p>
+                  </div>
+                  <img
+                    className="w-[149px] h-[195px] mx-auto my-4 rounded opacity-90 relative"
+                    src={item.img}
+                    alt="동화 표지"
+                  />
                 </div>
-                <img
-                  className="w-[149px] h-[195px] mx-auto my-4 rounded opacity-90 relative"
-                  src={item.img}
-                  alt="동화 표지"
-                />
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="absolute bottom-1 left-0">
+              <img
+                src="/Collection/bookshelf.png"
+                alt="Bar"
+                className="w-[977px] h-[10px]"
+              />
+            </div>
           </div>
-          <div className="absolute bottom-1 left-0">
-            <img
-              src="/Collection/bookshelf.png"
-              alt="Bar"
-              className="w-[977px] h-[10px]"
-            />
-          </div>
-        </div>
-      ))}
+        ))
+      ) : (
+        <div>데이터가 없어요</div>
+      )}
     </div>
   );
 };
@@ -271,14 +269,14 @@ const Modal = ({ handleExit, showModal }) => {
         {pageNum === 4 ? null : (
           // base-tale 시작 음향
           <div className="text-right pr-20 mt-2">
-            {/* <AudioPlayer
-              pageNum={pageNum}
-              audioSrc={taleDetail['voice']}
-            /> */}
             <AudioPlayer
               pageNum={pageNum}
-              audioSrc="/Collection/test-audio.wav"
+              audioSrc={taleDetail['voice']}
             />
+            {/* <AudioPlayer
+              pageNum={pageNum}
+              audioSrc="/Collection/test-audio.wav"
+            /> */}
           </div>
         )}
 

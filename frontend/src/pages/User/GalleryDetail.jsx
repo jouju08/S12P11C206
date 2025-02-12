@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useGalleryDetail } from '@/store/galleryDetailStore';
 
 // 더미 데이터 - 내가 그린 문장이 뭔지도 들어와야 함
@@ -20,17 +20,33 @@ const dummyGalleryPage = {
 };
 
 export default function GalleryDetail() {
-  const [isOrigin, setIsOrigin] = useState(false);
   const { galleryId } = useParams(); // URL에서 galleryId 추출
+  const navigate = useNavigate();
+
+  const [isOrigin, setIsOrigin] = useState(false);
   const { galleryPage, setGalleryPage, toggleHasLiked } = useGalleryDetail();
+
+  // useEffect(() => {
+  //   const fetchGalleryPage = async () => {
+  //     await setGalleryPage(galleryId);
+  //     setIsOrigin(galleryPage['hasOrigin']);
+  //   };
+
+  //   fetchGalleryPage();
+  // }, [galleryId]);
 
   useEffect(() => {
     setGalleryPage(galleryId);
-    setIsOrigin(galleryPage['hasOrigin']);
-  }, []);
+  }, [galleryId]);
+
+  useEffect(() => {
+    if (galleryPage) {
+      setIsOrigin(galleryPage['hasOrigin']);
+    }
+  }, [galleryPage]);
 
   const handleHeart = () => {
-    dummyGalleryPage['hasLiked'] = !dummyGalleryPage['hasLiked'];
+    // galleryPage['hasLiked'] = !galleryPage['hasLiked'];
     toggleHasLiked();
   };
 
@@ -38,8 +54,8 @@ export default function GalleryDetail() {
     <div className="w-[1024px] h-fit px-[25px]">
       {/* 뒤로 돌아가기 */}
       <div className="w-[974px] h-[50px]">
-        <Link
-          to={'/sightseeing'}
+        <button
+          onClick={() => navigate(-1)}
           className="ml-[20px] justify-center items-center inline-flex overflow-hidden">
           <img
             src="/Sightseeing/left.png"
@@ -47,7 +63,7 @@ export default function GalleryDetail() {
             className="w-[50px] h-[50px] relative overflow-hidden"
           />
           <div className="text-text-second service-bold2">돌아가기</div>
-        </Link>
+        </button>
       </div>
 
       {/* 본문 */}
@@ -57,14 +73,16 @@ export default function GalleryDetail() {
           <img
             src={isOrigin ? galleryPage['originImg'] : galleryPage['img']}
             alt="그림"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-center bg-white"
           />
         </div>
 
         {/* 그림 상세내용 */}
         <div className="w-[400px] h-[540px] p-4 relative bg-white overflow-hidden">
           <p className="text-text-second service-regular3">
-            {galleryPage['createdAt'].slice(0, 10)}
+            {galleryPage['createdAt']
+              ? galleryPage['createdAt'].slice(0, 10)
+              : 'createdAt이 안 들어가 잇서여'}
           </p>
           <p className="text-text-first service-bold2 mt-[10px]">
             {galleryPage['taleTitle']}

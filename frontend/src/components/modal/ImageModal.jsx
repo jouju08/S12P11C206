@@ -1,11 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useMyPictures } from '@/store/galleryStore';
 
-const ImageModal = ({ isOpen, onClose }) => {
+const ImageModal = ({ isOpen, onClose, detail }) => {
   if (!isOpen) return null;
+
+  const [isOriginal, setIsOriginal] = useState(true);
+
+  const formattedDate = detail?.createdAt ? detail.createdAt.split("T")[0] : "";
+
+  const { uploadGallery } = useMyPictures();
+
+  const handleShowOff = async () => {
+    if (detail && detail.id) {
+      const payload = {
+        taleMemberId: detail.id,
+        hasOrigin: isOriginal,
+      };
+      uploadGallery(payload);
+    }
+  };
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={onClose}></div>
+      <div
+        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+        onClick={onClose}
+      ></div>
       <div className="fixed inset-0 flex items-center justify-center z-50">
         <div className="relative w-[650px] h-[500px] bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="h-[65px] bg-[#FDF8DC] flex items-center justify-center relative">
@@ -21,22 +42,27 @@ const ImageModal = ({ isOpen, onClose }) => {
           </div>
 
           <div className="h-[435px] p-4 flex">
+            {/* 왼쪽 이미지 영역 */}
             <div className="w-[400px] h-[400px] relative overflow-hidden mr-4">
               <img
-                src="/TaleStart/test-story-start.jpg"
-                alt="아기 돼지 삼형제"
+                src={isOriginal ? detail?.orginImg : detail?.img}
+                alt={detail?.title}
                 className="w-full h-full object-cover"
               />
               <span className="service-bold3 absolute top-2 left-2 inline-block bg-white/80 text-black px-2 py-1 rounded text-base">
-                아기 돼지 삼형제
+                {detail?.title}
               </span>
               <span className="service-regular3 absolute bottom-2 right-2 inline-block bg-white/70 text-black px-2 py-1 rounded text-sm">
-                2025. 01. 13
+                {formattedDate}
               </span>
             </div>
 
+            {/* 오른쪽 영역 */}
             <div className="flex-1 flex flex-col justify-between items-center">
-              <div className="flex items-start">
+              <div
+                onClick={() => setIsOriginal(!isOriginal)}
+                className="flex items-start"
+              >
                 <div
                   className="
                     relative
@@ -81,25 +107,20 @@ const ImageModal = ({ isOpen, onClose }) => {
               </div>
 
               <div className="flex flex-col items-center my-4">
-                <img
-                  src="/image/vintage.png"
-                  alt="vintage"
-                />
-                {/*
-                  길이가 달라져도 자동 줄바꿈 되도록
-                  whitespace-normal, break-words 등 사용
-                */}
-                <p className="
-                  service-regular3 
-                  text-[16px] 
-                  text-black 
-                  text-center 
-                  my-2 
-                  whitespace-normal 
-                  break-words 
-                  px-2
-                ">
-                  첫째 돼지는 구름으로 구름으로 구름으로 구름으로 구름으로 구름으로 집을 지었어요
+                <img src="/image/vintage.png" alt="vintage" />
+                <p
+                  className="
+                    service-regular3 
+                    text-[16px] 
+                    text-black 
+                    text-center 
+                    my-2 
+                    whitespace-normal 
+                    break-words 
+                    px-2
+                  "
+                >
+                  {detail?.imgScript}
                 </p>
                 <img
                   src="/image/vintage.png"
@@ -109,6 +130,7 @@ const ImageModal = ({ isOpen, onClose }) => {
               </div>
 
               <button
+                onClick={handleShowOff}
                 className="w-[195px] h-[56px] bg-[#FFC300]
                            rounded-[50px] border border-[#9F9F9F]
                            flex items-center justify-center 

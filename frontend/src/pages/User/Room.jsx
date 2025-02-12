@@ -133,27 +133,32 @@ export default function Room() {
         <button
           onClick={() => swiper.slidePrev()}
           className="block w-[50px] h-[50px] bg-gray-50 rounded-full after:content-[url(/Room/room-navigater.png)]"></button>
-        <Swiper
-          slidesPerView={3}
-          spaceBetween={-80}
-          grabCursor={true}
-          navigation={true}
-          modules={[Navigation]}
-          onBeforeInit={(swipper) => setSwiper(swipper)}
-          className="mySwiper w-[808px] h-[270px] overflow-hidden">
-          {taleList.map((item, index) => (
-            <SwiperSlide
-              key={index}
-              onClick={() => {
-                handleClick(index);
-              }}>
-              <ChooseTale
-                item={item}
-                isActive={selectedIndex === index}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        <div className="flex justify-center">
+          <Swiper
+            slidesPerView={3}
+            spaceBetween={-80}
+            slidesOffsetAfter={-110}
+            grabCursor={true}
+            navigation={true}
+            modules={[Navigation]}
+            onBeforeInit={(swipper) => setSwiper(swipper)}
+            centerInsufficientSlides={true}
+            className="mySwiper w-[808px] h-[270px] overflow-hidden">
+            {taleList.map((item, index) => (
+              <SwiperSlide
+                key={index}
+                className="cursor-pointer"
+                onClick={() => {
+                  handleClick(index);
+                }}>
+                <ChooseTale
+                  item={item}
+                  isActive={selectedIndex === index}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
         <button
           onClick={() => swiper.slideNext()}
           className="w-[50px] h-[50px] bg-gray-50 rounded-full -scale-x-100 after:content-[url(/Room/room-navigater.png)]"></button>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import useFriendStore from '@/store/friendStore';
+import { Loading } from '@/common/Loading';
 
 const Friends = ({ friends }) => {
   const [activeTab, setActiveTab] = useState('friends'); // 기본값: 친구 요청
@@ -20,6 +21,7 @@ const Friends = ({ friends }) => {
     searchMembers,
     makeFriend,
   } = useFriendStore();
+
   const [searchTerm, setSearchTerm] = useState(''); //검색어
   const [filteredMembers, setFilteredMembers] = useState(searchMembers);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -52,12 +54,23 @@ const Friends = ({ friends }) => {
     }
   }, [activeTab]);
 
-  if (loading) return <p>Loading...</p>;
+  const handleRespondToRequest = async (loginId, answer) => {
+    await respondToRequest(loginId, answer);
+    // 상태 업데이트를 위해 friendRequests를 다시 가져옵니다
+    fetchFriendRequests();
+  };
+
+  // if (loading)
+  //   return (
+  //     <p>
+  //       <Loading />
+  //     </p>
+  //   );
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="w-[496px] h-[497px] relative bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] p-6">
-      <div className="flex justify-around pb-2 mb-4">
+    <div className="w-[514px] h-fit relative bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] p-6 border border-gray-100">
+      <div className="flex justify-around items-center pb-2 mb-4">
         <button
           onClick={() => setActiveTab('friends')}
           className={`px-3 py-2 cursor-pointer text-text-first text-lg font-NPSfont rounded-full  shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] hover:bg-main-point2 transition-colors duration-200
@@ -75,7 +88,7 @@ const Friends = ({ friends }) => {
         <button
           onClick={() => setActiveTab('send_requests')}
           className={`px-3 py-2 cursor-pointer text-text-first text-lg font-NPSfont rounded-full  shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] hover:bg-main-point2 transition-colors duration-200
-            ${activeTab === 'requests' ? 'bg-main-point2' : 'bg-white'}`}>
+            ${activeTab === 'send_requests' ? 'bg-main-point2' : 'bg-white'}`}>
           보낸 친구 신청
         </button>
 
@@ -92,13 +105,13 @@ const Friends = ({ friends }) => {
 
       {/* 받은 친구 요청*/}
       {activeTab === 'get_requests' && (
-        <div className="w-[464px] h-[406px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {friendRequests.length === 0 ? (
-            <>
-              <p className="text-center text-lg text-text-first font-NPSfont">
+            <div className="relative w-full h-full">
+              <p className="text-center text-lg text-text-first font-NPSfont absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 받은 친구 요청이 없어요
               </p>
-            </>
+            </div>
           ) : (
             <ul className="w-full">
               {friendRequests.map((friend) => (
@@ -117,13 +130,19 @@ const Friends = ({ friends }) => {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => respondToRequest(friend.loginId, 'accept')}
+                      // onClick={() => respondToRequest(friend.loginId, 'accept')}
+                      onClick={() =>
+                        handleRespondToRequest(friend.loginId, 'accept')
+                      }
                       className="px-4 py-2 bg-main-success text-text-white rounded-lg hover:bg-green-600 transition-colors duration-200 font-NPSfont ">
                       수락
                     </button>
                     <button
-                      onClick={() => respondToRequest(friend.loginId, 'reject')}
-                      className="px-4 py-2 bg-main-choose text-text-white rounded-lg hover:bg-rose-500 transition-colors duration-200 font-NPSfont ">
+                      // onClick={() => respondToRequest(friend.loginId, 'reject')}
+                      onClick={() =>
+                        handleRespondToRequest(friend.loginId, 'reject')
+                      }
+                      className="px-4 py-2 bg-main-choose text-text-white rounded-lg hover:bg-rose-700 transition-colors duration-200 font-NPSfont ">
                       거절
                     </button>
                   </div>
@@ -136,11 +155,13 @@ const Friends = ({ friends }) => {
 
       {/*내가 보낸 친구 신청*/}
       {activeTab === 'send_requests' && (
-        <div className="w-[464px] h-[406px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {sendFriendRequests.length === 0 ? (
-            <p className="text-center text-lg text-text-first font-NPSfont">
-              보낸 친구 요청이 없어요
-            </p>
+            <div className="relative w-full h-full">
+              <p className="text-center text-lg text-text-first font-NPSfont absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                보낸 친구 요청이 없어요
+              </p>
+            </div>
           ) : (
             <ul className="w-full">
               {sendFriendRequests.map((friend) => (
@@ -161,7 +182,7 @@ const Friends = ({ friends }) => {
                     <button
                       onClick={() => deleteRequest(friend.loginId)}
                       className="px-4 py-2 bg-main-choose text-text-white rounded-lg hover:bg-rose-500 transition-colors duration-200 font-NPSfont ">
-                      -신청 취소
+                      신청 취소
                     </button>
                   </div>
                 </li>
@@ -173,9 +194,9 @@ const Friends = ({ friends }) => {
 
       {/* 친구 목록 */}
       {activeTab === 'friends' && (
-        <div className="w-[464px] h-[406px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {friendList.length === 0 ? (
-            <>
+            <div className="relative w-full h-full flex flex-col justify-center items-center">
               <img
                 className="w-50 h-50"
                 src="/Main/main-fairy.png"
@@ -183,7 +204,7 @@ const Friends = ({ friends }) => {
               <p className="text-center text-lg text-text-first font-NPSfont">
                 친구를 찾아볼까요?
               </p>
-            </>
+            </div>
           ) : (
             <ul className="w-full">
               {friendList.map((friend) => (
@@ -205,7 +226,7 @@ const Friends = ({ friends }) => {
                     <button
                       onClick={() => deleteFriend(friend.loginId)}
                       className="px-4 py-2 bg-main-choose text-text-white rounded-lg hover:bg-rose-500 transition-colors duration-200 font-NPSfont ">
-                      -친구 끊기
+                      친구 끊기
                     </button>
                   </div>
                 </li>
@@ -217,14 +238,14 @@ const Friends = ({ friends }) => {
 
       {/*멤버 검색*/}
       {activeTab === 'find_friends' && (
-        <div className="w-[464px] h-[406px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           <input
             type="text"
             placeholder="닉네임을 입력해주세요"
             value={searchTerm}
             onChange={handleSearch}
             className="w-full px-3 py-2 border rounded-md 
-    focus:outline-none focus:ring-2 focus:ring-blue-500"
+    focus:outline-none focus:ring-2 focus:ring-blue-500 service-regular3"
           />
           {showDropdown && (
             <ul className="w-full">
@@ -235,7 +256,7 @@ const Friends = ({ friends }) => {
                   );
                   const isRequested = sendFriendRequests.some(
                     (friend) => friend.loginId === member.loginId
-                  ); //이미 친구 신청중인 사람은 친구 신청 버튼 비활성화화
+                  ); //이미 친구 신청중인 사람은 친구 신청 버튼 비활성화
                   return (
                     <li
                       key={member.loginId}
@@ -254,8 +275,22 @@ const Friends = ({ friends }) => {
                         {!isRequested && !isFriend && (
                           <button
                             onClick={() => makeFriend(member.loginId)}
-                            className="px-4 py-2 bg-main-btn text-text-first rounded-lg hover:bg-main-carrot transition-colors duration-200 font-NPSfont ">
+                            className="w-[104px] px-4 py-2 bg-main-btn text-text-first rounded-lg service-bold3 hover:bg-main-carrot transition-colors duration-200">
                             친구 신청
+                          </button>
+                        )}
+                        {isRequested && !isFriend && (
+                          <button
+                            disabled
+                            className="w-[104px] px-4 py-2 bg-gray-300 text-white rounded-lg service-bold3">
+                            신청중
+                          </button>
+                        )}
+                        {!isRequested && isFriend && (
+                          <button
+                            disabled
+                            className="w-[104px] px-4 py-2 bg-main-strawberry text-white rounded-lg service-bold3">
+                            이미 친구
                           </button>
                         )}
                       </div>
@@ -263,7 +298,7 @@ const Friends = ({ friends }) => {
                   );
                 })
               ) : (
-                <li className="px-4 py-4 text-text-first">
+                <li className="px-4 py-4 text-text-second service-regular3 text-center pt-10">
                   닉네임을 다시 확인해주세요!
                 </li>
               )}

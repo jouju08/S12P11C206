@@ -45,7 +45,7 @@ const initialProfile = {
       try{
         console.log('프로필 정보', updateData);
         api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
-        const response = await api.post('/member/mypage',updateData);
+        const response = await api.patch('/member/mypage',updateData);
         console.log('프로필 수정 성공', response.data);
         set((state) => {
           state.nickname = response.data.data.nickname;
@@ -59,12 +59,12 @@ const initialProfile = {
   
     isNicknameAvailable: async(nickname) => {
       try {
-        const response = await api.get(`/auth/check-nickname/${encodeURIComponent(nickname)}`);
+        const response = await api.get(`/auth/duplicate/check-nickname/${encodeURIComponent(nickname)}`);
         
-        if (response == false){
-          return false;
-        } else {
+        if (response.data.status == 'Success.'){
           return true;
+        } else if(response.data.status == 'DN'){
+          return false;
         }
       } catch (error) {
         console.log('닉네임 중복 체크 실패', error);
@@ -76,6 +76,9 @@ const initialProfile = {
       try {
         api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
         const response = await api.patch('/member/profile-image',profileImage);
+        set((state) => {
+          state.profileImg = response.data.data;
+        });
         console.log(response);
       } catch (error) {
         console.log('프로필 이미지 업데이트 에러',error);

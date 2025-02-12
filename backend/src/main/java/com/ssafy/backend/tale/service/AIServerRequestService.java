@@ -118,7 +118,7 @@ public class AIServerRequestService {
             parts.add("negativePrompt", promptSet.getNegativePrompt());
 
             webClient.post()
-                    .uri("/gen/picture")
+                    .uri("/gen/upgrade-handpicture")
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .body(BodyInserters.fromMultipartData(parts))
                     .retrieve()
@@ -244,8 +244,9 @@ public class AIServerRequestService {
     }
 
     public ApiResponse<TaleSentencesResponseDto> requestTaleSentences(String title){
-        return webClient.get()
-                .uri("/gen/tale-sentences/" + title)
+        return webClient.post()
+                .uri("/gen/tale-sentences")
+                .bodyValue(new TextRequestDto(title))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<TaleSentencesResponseDto>>(){})
                 .block();

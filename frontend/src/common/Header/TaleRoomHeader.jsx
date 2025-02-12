@@ -1,6 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRoomStore } from '@/store/roomStore';
+import { api } from '@/store/userStore';
 
 export default function TaleRoomHeader({ onClose }) {
+  const [taleTitle, setTaleTitle] = useState(null);
+  const { baseTaleId } = useRoomStore();
+
+  useEffect(() => {
+    const fetchTaleTitle = async () => {
+      const response = await api.get(`/base-tale/${baseTaleId}`);
+      // console.log('basetale', response);
+      setTaleTitle(response.data.data.title);
+    };
+    fetchTaleTitle();
+  }, []);
+
   return (
     <header className="bg-main-background shadow-md sticky top-0 z-50">
       <nav className="w-[1024px] h-[100px] px-[20px] flex flex-row justify-between mx-auto items-center">
@@ -12,7 +26,7 @@ export default function TaleRoomHeader({ onClose }) {
           />
         </div>
         {/* 책 이름 가져오기 */}
-        <div className="text-text-first service-accent1">책 제목</div>
+        <div className="text-text-first service-accent1">{taleTitle}</div>
         {/* <div
           onClick={onClose}
           className="bg-red-400 w-[160px] h-[70px]">
