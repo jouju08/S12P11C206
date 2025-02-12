@@ -1,3 +1,7 @@
+"""
+제목과 문장을 입력받아, 문장을 제외한 동화의 도입부를 생성하는 체인입니다.
+"""
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 

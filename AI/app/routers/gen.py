@@ -11,7 +11,6 @@ import app.models.request as request_dto
 import app.models.response as response_dto
 import app.models.response.Status as Status
 
-from app.models.common import PromptSet
 
 router = APIRouter(prefix=f"{config.API_BASE_URL}/gen", tags=["gen"])
 
@@ -75,15 +74,6 @@ async def upgrade_handpicture(roomId: int = Form(...),
             negativePrompt=negativePrompt,
             image=image)
     )
-
-
-# @router.post("/text-to-image")
-# def text_to_image(prompt: request_dto.TextRequestDto):
-#     """
-#     텍스트를 이미지로 변환하는 API
-#     """
-#     print(prompt)
-#     return picture_service.post_novita_api(PromptSet(prompt=prompt.text, negativePrompt=""))
 
 
 @router.post("/tale-sentences", description="키워드 문장 생성", response_model=response_dto.ApiResponse[response_dto.GenerateSentencesResponseDto])

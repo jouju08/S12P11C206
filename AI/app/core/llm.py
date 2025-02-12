@@ -1,16 +1,12 @@
 """
 LLM Service
 """
-from langchain_openai import ChatOpenAI
-from langchain_core.output_parsers import StrOutputParser
-
+import config
 import app.core.chains as chains
-import app.core.util as util
-
+import app.core.picture as picture_service
 import app.models.request as request_dto
 import app.models.response as response_dto
 from app.models.common import PromptSet, PageInfo
-import app.core.picture as picture_service
 
 
 def generate_sentences(title: str):
@@ -131,7 +127,7 @@ def generate_tale_image(title: str):
                            negativePrompt=negative_prompt)
     print("prompt_set: ", prompt_set)
     picture_service.post_novita_api(
-        prompt_set, picture_service.GEN_TALE_IMG_WEBHOOK)
+        prompt_set, config.GEN_TALE_IMG_WEBHOOK)
 
 
 def generate_tale_intro_image(generate_intro_image_request: request_dto.GenerateIntroImageRequestDto):
@@ -148,4 +144,4 @@ def generate_tale_intro_image(generate_intro_image_request: request_dto.Generate
                            negativePrompt=negative_prompt)
 
     picture_service.post_novita_api(
-        prompt_set, picture_service.GEN_TALE_INTRO_IMG_WEBHOOK)
+        prompt_set, config.GEN_TALE_INTRO_IMG_WEBHOOK)

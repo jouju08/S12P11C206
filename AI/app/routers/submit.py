@@ -1,14 +1,12 @@
-from fastapi import APIRouter, UploadFile, Form, File, Request, BackgroundTasks
+"""
+Submit Controller
+"""
+from fastapi import APIRouter, UploadFile, Form, File, Request
 import config
-import app.core.util as util
-import app.core.audio as audio_service
 import app.core.picture as picture_service
-import app.models.request as request_dto
+import app.core.util as util
 import app.models.response as response_dto
 import app.models.response.Status as Status
-import app.core.util as util
-
-import app.models.common as common
 
 router = APIRouter(prefix=f"{config.API_BASE_URL}/submit", tags=["submit"])
 
@@ -38,7 +36,7 @@ async def gen_tale_image_submit(request: Request):
     request = await request.body()
     request = util.parse_request(request)
     picture_service.return_novita_image(
-        request, picture_service.SPRING_GEN_TALE_IMG_WEBHOOK)
+        request, config.SPRING_GEN_TALE_IMG_WEBHOOK)
 
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
@@ -56,7 +54,7 @@ async def gen_tale_intro_image_submit(request: Request):
     request = await request.body()
     request = util.parse_request(request)
     picture_service.return_novita_image(
-        request, picture_service.SPRING_GEN_TALE_INTRO_IMG_WEBHOOK)
+        request, config.SPRING_GEN_TALE_INTRO_IMG_WEBHOOK)
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",

@@ -1,3 +1,7 @@
+"""
+동화 제목, 필수문장, 도입문을 기반으로 동화 이야기를 작성하는 체인입니다.
+"""
+
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.chains.NumberdListParser import Parser as NumberdListParser
 from langchain_openai import ChatOpenAI

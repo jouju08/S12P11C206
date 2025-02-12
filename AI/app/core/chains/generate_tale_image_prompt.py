@@ -1,3 +1,7 @@
+"""
+제목을 입력으로받아 이미지로 만들어야 하는 프롬프트를 생성하는 체인입니다.
+"""
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 

@@ -1,15 +1,5 @@
 """
-기존에 동화에서 주요 문장에서 4개의 단어를 추출
-
-# Example
---- 
-## Input 
-신데렐라
-## Output
-1. 신데렐라는 XX을 입고 왕궁에 갔습니다.
-2. 신데렐라는 XX를 타고 왕궁에 갔습니다.
-3. 신데렐라는 XX을 신고 춤을 추었습니다.
-4. 왕자는 신데렐라의 XX을 찾아 돌아다녔습니다.
+기존에 동화에서 주요 문장에서 4개의 단어를 추출하는 체인
 """
 
 from langchain_core.prompts import ChatPromptTemplate

@@ -1,3 +1,7 @@
+"""
+동화의 내용을 입력받아 한 문장으로 요약하는 체인입니다.
+"""
+
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
