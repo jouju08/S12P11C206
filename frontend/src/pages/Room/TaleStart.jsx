@@ -41,14 +41,14 @@ const TaleStart = () => {
           await setClient();
 
           await setSubscribeTale(playRoom.roomId);
-          await getTokenByAxios(playRoom.roomId);
+          // await getTokenByAxios(playRoom.roomId);
         } else if (!isSingle) {
           setRoomId(currentRoom.roomId);
 
           await setClient();
 
           await setSubscribeTale(currentRoom.roomId);
-          await getTokenByAxios(currentRoom.roomId);
+          // await getTokenByAxios(currentRoom.roomId);
         }
       } catch (error) {
         console.log(error);
@@ -88,10 +88,10 @@ const TaleStart = () => {
           {/* 이미지 데이터 받아오면 바꾸기 */}
           <img
             className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
-            src="/TaleStart/test-story-start.jpg"
+            src={tale?.taleStartImage}
           />
           <img
-            src="/TaleStart/test-story-start.jpg"
+            src={tale?.taleStartImage}
             alt="동화 만든 이미지"
             className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
           />
@@ -115,8 +115,6 @@ const TaleStart = () => {
         </div>
       )}
     </>
-
-    // 전체 컨테이너 (1024x668)
   );
 };
 

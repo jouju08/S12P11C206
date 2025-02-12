@@ -12,7 +12,8 @@ import axios from 'axios';
 import authAPI from '@/apis/auth/userAxios';
 import { immer } from 'zustand/middleware/immer';
 import { use } from 'react';
-import authAxiosInstance from '@/apis/auth/testInstance';
+
+
 
 const api = axios.create({
   baseURL: '/api',
@@ -51,12 +52,14 @@ const initialState = {
   loginId: '',
   nickname: '',
   memberId: '',
+  profileImg:'',
 
   accessToken: null,
   refreshToken: null,
 
   isAuthenticated: false,
 };
+const memberInfo=[];
 
 const userActions = (set, get) => ({
   login: async (credentials) => {
@@ -64,11 +67,12 @@ const userActions = (set, get) => ({
     try {
       response = await authAPI.login(credentials);
       const { member, tokens } = response.data['data'];
-
+      console.log("멤버 정보: ",member);
       set({
         loginId: member.loginId,
         nickname: member.nickname,
         memberId: member.id,
+        profileImg:member.profileImg,
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAuthenticated: true,
@@ -93,6 +97,7 @@ const userActions = (set, get) => ({
         loginId: member.loginId,
         nickname: member.nickname,
         memberId: member.id,
+        profileImg:member.profileImg,
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAuthenticated: true,
@@ -266,6 +271,20 @@ const userActions = (set, get) => ({
       return error.response || response;
     }
   },
+
+
+  myPage:async()=>{
+    try{
+      const response=await authAPI.getMemberInfo();
+      set({memberInfo:response.data.data});
+      return response.data;
+    }
+    catch(error) {
+      console.error('멤버 정보 가져오기 에러', error);
+      throw error;
+    }
+  },
+  
 });
 
 const userStore = create(
@@ -288,6 +307,7 @@ export const useUser = () => {
   const loginId = userStore((state) => state.loginId);
   const nickname = userStore((state) => state.nickname);
   const memberId = userStore((state) => state.memberId);
+  const profileImg=userStore((state)=> state.profileImg);
   const accessToken = userStore((state) => state.accessToken);
   const refreshToken = userStore((state) => state.refreshToken);
   const isAuthenticated = userStore((state) => state.isAuthenticated);
@@ -302,11 +322,14 @@ export const useUser = () => {
   const sendEmail = userStore((state) => state.sendEmail);
   const emailAuthenticate = userStore((state) => state.emailAuthenticate);
   const register = userStore((state) => state.register);
+  const myPage=userStore((state)=>state.myPage);
+  const memberInfo=userStore((state)=>state.memberInfo);
 
   return {
     loginId,
     nickname,
     memberId,
+    profileImg,
     accessToken,
     refreshToken,
     isAuthenticated,
@@ -320,6 +343,8 @@ export const useUser = () => {
     sendEmail,
     emailAuthenticate,
     register,
+    myPage,
+    memberInfo,
   };
 };
 
