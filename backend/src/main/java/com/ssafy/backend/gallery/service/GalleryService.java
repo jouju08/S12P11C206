@@ -56,8 +56,15 @@ public class GalleryService {
 
         try {
             Page<Gallery> galleryPage = galleryRepository.findAllPictures(order.toUpperCase(), pageable);
+            boolean hasLiked = true;
 
             for (Gallery gallery : galleryPage) {
+                Optional<GalleryLike> galleryLike = galleryLikeRepository.findByGalleryIdAndMemberId(gallery.getId(), userId);
+                if(galleryLike.isPresent()) {
+                    hasLiked = true;
+                } else {
+                    hasLiked = false;
+                }
                 GalleryListResponseDto dto = new GalleryListResponseDto();
                 dto.setGalleryId(gallery.getId());
                 dto.setImg(gallery.getImgPath());
@@ -66,6 +73,7 @@ public class GalleryService {
                 dto.setAuthorProfileImg(gallery.getMember().getProfileImg());
                 dto.setLikeCnt(gallery.getLikeCnt());
                 dto.setCreatedAt(gallery.getCreatedAt());
+                dto.setHasLiked(hasLiked);
                 result.add(dto);
             }
 
@@ -171,7 +179,8 @@ public class GalleryService {
                     .galleryId(galleryDto.getId())
                     .build());
             Optional<Gallery> gallery = galleryRepository.findById(galleryDto.getId());
-            int likeCount = gallery.get().getGalleryLikes().size();
+            List<GalleryLike> galleryLike = galleryLikeRepository.findByGalleryId((gallery.get().getId()));
+            int likeCount = galleryLike.size();
             gallery.get().setLikeCnt(likeCount);
             return true;
         } else {
@@ -179,7 +188,8 @@ public class GalleryService {
             galleryLikeRepository.deleteByGalleryIdAndMemberId(galleryDto.getId(), memberId);
 
             Optional<Gallery> gallery = galleryRepository.findById(galleryDto.getId());
-            int likeCount = gallery.get().getGalleryLikes().size();
+            List<GalleryLike> galleryLike = galleryLikeRepository.findByGalleryId((gallery.get().getId()));
+            int likeCount = galleryLike.size();
             gallery.get().setLikeCnt(likeCount);
             return false;
         }
