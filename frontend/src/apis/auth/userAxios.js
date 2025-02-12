@@ -18,6 +18,7 @@ const authAPI = {
       }
   ),
   register:(credentials)=>api.post(`/auth/register`, credentials),
+  getMemberInfo:()=>api.get("/member/mypage"),
 };
 
 export default authAPI;

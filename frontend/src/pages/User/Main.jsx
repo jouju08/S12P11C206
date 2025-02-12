@@ -60,8 +60,18 @@ const dummyDrawingList = [
 
 export default function Main() {
   // 로그인 되어있는 유저 닉네임 가져오기
-  const { nickname , profileImg} = userStore((state) => state);
-  console.log(profileImg);
+  const { nickname , profileImg, memberInfo, myPage} = userStore((state) => state);
+  const [member, setMember]=useState(memberInfo||{});
+
+  //페이지 랜더링 될때마다 유저 정보 불러오기
+  useEffect(()=>{
+    myPage();
+  },[]);
+  useEffect(()=>{
+    if(memberInfo){
+      setMember(memberInfo);
+    }
+  },[memberInfo]);
 
   const imgArray = [
     'nav-colored-pencils.png',
@@ -160,7 +170,7 @@ export default function Main() {
           {/* 로그인 정보 store에서 가져오기기 */}
           <img
             className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px]"
-            src={profileImg||'/Common/blank_profile.jpg'}
+            src={member.profileImg||'/Common/blank_profile.jpg'}
             alt="profileImg"
             />
       
@@ -177,7 +187,7 @@ export default function Main() {
               <div className="justify-start items-center gap-2 inline-flex overflow-hidden">
                 {/* 로그인 정보 store에서 가져오기기 */}
                 <div className="text-main-point service-accent3">
-                  {nickname}
+                  {member.nickname}
                 </div>
                 <div className="text-text-first service-accent3">어서 와!</div>
               </div>

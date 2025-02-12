@@ -59,6 +59,7 @@ const initialState = {
 
   isAuthenticated: false,
 };
+const memberInfo=[];
 
 const userActions = (set, get) => ({
   login: async (credentials) => {
@@ -270,6 +271,20 @@ const userActions = (set, get) => ({
       return error.response || response;
     }
   },
+
+
+  myPage:async()=>{
+    try{
+      const response=await authAPI.getMemberInfo();
+      set({memberInfo:response.data.data});
+      return response.data;
+    }
+    catch(error) {
+      console.error('멤버 정보 가져오기 에러', error);
+      throw error;
+    }
+  },
+  
 });
 
 const userStore = create(
@@ -307,6 +322,8 @@ export const useUser = () => {
   const sendEmail = userStore((state) => state.sendEmail);
   const emailAuthenticate = userStore((state) => state.emailAuthenticate);
   const register = userStore((state) => state.register);
+  const myPage=userStore((state)=>state.myPage);
+  const memberInfo=userStore((state)=>state.memberInfo);
 
   return {
     loginId,
@@ -326,6 +343,8 @@ export const useUser = () => {
     sendEmail,
     emailAuthenticate,
     register,
+    myPage,
+    memberInfo,
   };
 };
 
