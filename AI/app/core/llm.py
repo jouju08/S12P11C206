@@ -30,9 +30,7 @@ def generate_introduction(title: str, first_sentence: str):
     제목과 첫 문장을 입력받아 도입부를 생성하는 함수
     """
 
-    llm = ChatOpenAI(temperature=0.1, model_name="gpt-4o-mini")
-    chain = chains.generate_introduce_prompt | llm | StrOutputParser()
-    response = chain.invoke(
+    response = chains.generate_introduce.invoke(
         {"title": title, "sentence": first_sentence})
     return response
 
@@ -41,15 +39,9 @@ def extract_keyword_sentences(title: str):
     """
     제목을 입력받아 해당 동화의 주요 키워드를 담은 문장을 추출하는 함수
     """
-
-    # 체인 생성
-    chain = chains.extract_sentence_from_title_prompt | ChatOpenAI(
-        temperature=0.7, model="gpt-3.5-turbo") | chains.NumberdListParser()
     # 체인 실행
-    response = chain.invoke({"question": title})
-    sentences = []
-    for sentence in response:
-        sentences.append(sentence.replace("XX", "xx"))
+    response = chains.extract_sentence_from_title.invoke({"question": title})
+    sentences = [sentence.replace("XX", "xx") for sentence in response]
     return sentences
 
 
@@ -57,12 +49,9 @@ def write_tale(title, introduction, sentences):
     """
     제목, 소개, 문장들을 입력받아 동화를 생성하는 함수
     """
-    # 체인 생성
-    chain = chains.write_tale_prompt | ChatOpenAI(
-        temperature=0.7, model="gpt-4o") | chains.NumberdListParser()
 
     # 체인 실행
-    response = chain.invoke({
+    response = chains.write_tale.invoke({
         "title": title,
         "introduction": introduction,
         "sentences": sentences
@@ -71,25 +60,18 @@ def write_tale(title, introduction, sentences):
     return response
 
 
-def extract_sentence_from_tale(contents: list[str]):
+async def extract_sentence_from_tale(contents: list[str]):
     """
     동화의 각 페이지별 상세 내용을 입력받아 한 문장으로 요약하는 함수
     """
-
-    # 체인 생성
-    chain = chains.extract_sentence_from_tale_prompt | ChatOpenAI(
-        temperature=0.1) | StrOutputParser()
-
     # 체인 실행
     # 병렬로 각 페이지별로 요약문장을 추출
-    response = []
-    for content in contents:
-        response.append(chain.invoke({"contents": content}))
+    response = await chains.extract_sentence_from_tale.abatch(contents)
 
     return response
 
 
-def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
+async def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
     """
     제목, 소개, 문장들을 입력받아
     페이지별 내용과 요약문장을 출력하는 함수
@@ -100,7 +82,7 @@ def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
                           generate_tale_request.sentences)
     print("contents: ", contents)
 
-    sentences = extract_sentence_from_tale(contents)
+    sentences = await extract_sentence_from_tale(contents)
     print("sentences:", sentences)
 
     pages = []
@@ -109,6 +91,9 @@ def generate_tale(generate_tale_request: request_dto.GenerateTaleRequestDto):
             extractedSentence=sentence, fullText=contents[i])
         pages.append(page)
     return response_dto.GenerateTaleResponseDto(pages=pages)
+
+positive_prompt_prefix = "Generate a whimsical children's storybook illustration. "
+negative_prompt = "Signature, longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality"
 
 
 async def generate_diffusion_prompts(generate_diffusion_prompts_request: request_dto.GenerateDiffusionPromptsRequestDto):
@@ -126,10 +111,10 @@ async def generate_diffusion_prompts(generate_diffusion_prompts_request: request
 
     # response를 DTO로 변환
     prompts = []
-    positive_prompt_prefix = "Generate a whimsical children's storybook illustration."
+
     for item in response:
         prompt = PromptSet(
-            prompt=positive_prompt_prefix + item, negativePrompt="Signature, longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality")
+            prompt=positive_prompt_prefix + item, negativePrompt=negative_prompt)
         prompts.append(prompt)
 
     return response_dto.GenerateDiffusionPromptsResponseDto(prompts=prompts)
@@ -140,11 +125,10 @@ def generate_tale_image(title: str):
     제목을 입력받아 이미지 프롬프트를 생성하는 함수
     """
 
-    chain = chains.generate_tale_image_prompt | ChatOpenAI(
-        temperature=0.1, model="gpt-3.5-turbo") | chains.GenerateTaleImageOutputParser()
-    response = chain.invoke({"title": title})
-    prompt_set = PromptSet(prompt=response["Prompt"],
-                           negativePrompt=response["Negative Prompt"])
+    response = chains.generate_tale_image_prompt.invoke({"title": title})
+
+    prompt_set = PromptSet(prompt=positive_prompt_prefix + response,
+                           negativePrompt=negative_prompt)
     print("prompt_set: ", prompt_set)
     picture_service.post_novita_api(
         prompt_set, picture_service.GEN_TALE_IMG_WEBHOOK)
@@ -155,16 +139,13 @@ def generate_tale_intro_image(generate_intro_image_request: request_dto.Generate
     제목과 도입부를 입력받아 이미지 프롬프트를 생성하는 함수
     """
 
-    chain = chains.generate_tale_intro_image_prompt | ChatOpenAI(
-        temperature=0.1, model="gpt-4o-mini") | chains.GenerateTaleImageOutputParser()
-
-    response = chain.invoke({
+    response = chains.generate_image_prompt.invoke({
         "title": generate_intro_image_request.title,
         "intro": generate_intro_image_request.intro
     })
 
-    prompt_set = PromptSet(prompt=response["Prompt"],
-                           negativePrompt=response["Negative Prompt"])
+    prompt_set = PromptSet(prompt=positive_prompt_prefix + response,
+                           negativePrompt=negative_prompt)
 
     picture_service.post_novita_api(
         prompt_set, picture_service.GEN_TALE_INTRO_IMG_WEBHOOK)

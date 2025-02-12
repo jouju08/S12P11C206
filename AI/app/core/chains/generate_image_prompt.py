@@ -1,11 +1,9 @@
-from langchain_core.runnables import RunnablePassthrough
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from app.models.common import PromptSet
 
 from langchain_openai import ChatOpenAI
 
-llm = ChatOpenAI(temperature=0.1)
+llm = ChatOpenAI(temperature=0.4, model="gpt-4o-mini")
 
 parser = StrOutputParser()
 
@@ -46,7 +44,4 @@ Scene
 """),
 ])
 
-chain = {
-    "title": RunnablePassthrough(),
-    "scene": RunnablePassthrough(),
-} | prompt | llm | parser
+chain = prompt | llm | parser

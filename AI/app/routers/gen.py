@@ -18,14 +18,14 @@ router = APIRouter(prefix=f"{config.API_BASE_URL}/gen", tags=["gen"])
 
 @router.post("/tale", description="동화를 생성하는 API", response_model=response_dto.ApiResponse[response_dto.GenerateTaleResponseDto])
 @util.logger
-def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto):
+async def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto):
     """
     동화를 생성하는 API
     """
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
-        data=llm_service.generate_tale(taleRequestDto)
+        data=await llm_service.generate_tale(taleRequestDto)
     )
 
 
@@ -131,6 +131,7 @@ def generate_tale_intro_image(generateIntroImageRequestDto: request_dto.Generate
     """
     backgroundTask.add_task(
         llm_service.generate_tale_intro_image, generateIntroImageRequestDto)
+
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
