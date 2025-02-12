@@ -74,14 +74,14 @@ public class MemberController {
 
     // 프로필 사진 변경
     @PatchMapping("/profile-image")
-    public ApiResponse<Void> updateProfileImage(
+    public ApiResponse<String> updateProfileImage(
             @RequestHeader("Authorization") String token, MultipartFile profileImage) {
 
         String loginId = extractLoginId(token);
-        memberService.updateProfileImage(loginId, profileImage);
+        String imgPath = memberService.updateProfileImage(loginId, profileImage);
 
-        return ApiResponse.<Void>builder()
-                .data(null)
+        return ApiResponse.<String>builder()
+                .data(imgPath)
                 .build();
     }
 

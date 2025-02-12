@@ -59,9 +59,9 @@ const initialProfile = {
   
     isNicknameAvailable: async(nickname) => {
       try {
-        const response = await api.get(`/auth/check-nickname/${encodeURIComponent(nickname)}`);
+        const response = await api.get(`/auth/duplicate/check-nickname/${encodeURIComponent(nickname)}`);
         
-        if (response.data.status == 'SU'){
+        if (response.data.status == 'Success.'){
           return true;
         } else if(response.data.status == 'DN'){
           return false;
@@ -76,6 +76,9 @@ const initialProfile = {
       try {
         api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
         const response = await api.patch('/member/profile-image',profileImage);
+        set((state) => {
+          state.profileImg = response.data.data;
+        });
         console.log(response);
       } catch (error) {
         console.log('프로필 이미지 업데이트 에러',error);
