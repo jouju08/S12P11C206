@@ -76,6 +76,7 @@ export default function Login() {
           {/* 로그인 텍스트 */}
           <div className="text-text-first auth-bold1 mt-[48px]">로그인</div>
           {/* 아이디 비번 입력칸 */}
+          <form onSubmit={handleSubmit}>
           <div className="flex flex-col space-y-[10px] mt-[30px]">
             <input
               type="email"
@@ -100,6 +101,7 @@ export default function Login() {
               로그인 하기
             </button>
           </div>
+          </form>
           {/* 각종 링크 */}
           <div className="mt-[20px] space-x-[10px] text-text-second auth-regular2">
             <a href="">아이디 찾기</a>
