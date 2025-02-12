@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useCollection } from '@/store/collectionStore';
-import TaleNavigation from '@/components/Common/TaleNavigation';
-import AudioPlayer from '@/components/Common/AudioPlayer';
 import CollectionModal from '@/components/modal/CollectionModal';
 
 const chunk = (arr, size) =>
@@ -59,15 +57,13 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
                   </button>
                   <p className="text-white">{item.createdAt.slice(0, 10)}</p>
                 </div>
-              ))}
-            </div>
-            <div className="absolute bottom-1 left-0">
-              <img
-                src="/Collection/bookshelf.png"
-                alt="Bar"
-                className="w-[977px] h-[10px]"
-              />
-            </div>
+                <img
+                  className="w-[149px] h-[195px] mx-auto my-4 rounded opacity-90 relative"
+                  src={item.img}
+                  alt="동화 표지"
+                />
+              </div>
+            ))}
           </div>
           <div className="absolute bottom-1 left-0">
             <img src="/Collection/bookshelf.png" alt="Bar" className="w-[977px] h-[10px]" />
