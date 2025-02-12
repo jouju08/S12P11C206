@@ -20,6 +20,8 @@ const tale = {
   taleStartImage: 'url',
 };
 
+const isFinish = false;
+
 const currentClient = null;
 
 const drawDirection = [];
@@ -57,10 +59,6 @@ const playActions = (set, get) => ({
       baseTale?.sentenceOwnerPairs.sort((a, b) => a.order - b.order);
 
       set((state) => {
-        state.currentClient = useRoomStore.getState().stompClient;
-      });
-
-      set((state) => {
         state.tale = baseTale;
       });
 
@@ -70,18 +68,26 @@ const playActions = (set, get) => ({
     }
   },
 
+  setClient: async () => {
+    console.log(useRoomStore.getState().stompClient);
+    set({
+      currentClient: useRoomStore.getState().stompClient,
+    });
+  },
+
   setSubscribeTale: async (roomId) => {
     const client = get().currentClient;
 
     //그림 문장 채널 구독
     if (client && client.connected) {
       client.subscribe(`/topic/tale/${roomId}`, (message) => {
-        console.log(message.body);
         get().setDrawDirection(JSON.parse(message.body));
       });
 
       client.subscribe(`/topic/tale/${roomId}/finish`, (message) => {
-        console.log(message.body);
+        if (message.body == 'finish tale making') {
+          set({ isFinish: true });
+        }
       });
     }
 
@@ -353,6 +359,7 @@ const playActions = (set, get) => ({
   setHotTale: async (pageNum) => {
     const response = await taleAPI.taleHot(get().roomId, pageNum);
     const hotPage = response.data['data'];
+    console.log(response);
 
     set((state) => {
       state.hotTale = hotPage;
@@ -361,8 +368,8 @@ const playActions = (set, get) => ({
 });
 
 const initialState = {
-  tale: { ...tale },
-  hotTale: { ...hotTale },
+  tale: null,
+  hotTale: null,
   roomId: 1,
   currentKeyword: '',
   inputType: '',
@@ -371,6 +378,7 @@ const initialState = {
   keywords: [],
   currentClient,
   drawDirection,
+  isFinish,
 };
 
 const usePlayStore = create(
@@ -385,7 +393,7 @@ const usePlayStore = create(
   )
 );
 
-//동화시작시 받아온 rawTale Mapping
+// 동화시작시 받아온 rawTale Mapping
 useRoomStore.subscribe(
   (state) => state.rawTale,
   (rawTale) => {
@@ -402,6 +410,7 @@ export const useTalePlay = () => {
   const page = usePlayStore((state) => state.page);
   const keywords = usePlayStore((state) => state.keywords);
   const drawDirection = usePlayStore((state) => state.drawDirection);
+  const isFinish = usePlayStore((state) => state.isFinish);
 
   const setRoomId = usePlayStore((state) => state.setRoomId);
   const setBaseTale = usePlayStore((state) => state.setBaseTale, shallow);
@@ -430,6 +439,7 @@ export const useTalePlay = () => {
   );
 
   const currentClient = usePlayStore((state) => state.currentClient);
+  const setClient = usePlayStore((state) => state.setClient);
   const setSubscribeTale = usePlayStore((state) => state.setSubscribeTale);
   const setDrawDirection = usePlayStore((state) => state.setDrawDirection);
   const setHotTale = usePlayStore((state) => state.setHotTale);
@@ -455,6 +465,7 @@ export const useTalePlay = () => {
     setPage,
 
     addKeyword,
+    setClient,
     currentClient,
 
     submitTyping,
@@ -473,6 +484,7 @@ export const useTalePlay = () => {
     setSubscribeTale,
     setDrawDirection,
 
+    isFinish,
     setHotTale,
     resetState,
   };

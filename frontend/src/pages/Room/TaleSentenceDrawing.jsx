@@ -8,6 +8,7 @@ import DrawingBoard from '@/components/Common/DrawingBoard';
 import { useViduHook } from '@/store/tale/viduStore';
 import OpenviduCanvas from '@/components/TaleRoom/OpenviduCanvas';
 import { LocalVideoTrack, RoomEvent, Track } from 'livekit-client';
+import { useUser } from '@/store/userStore';
 
 // 백에서 문장 4개가 어떻게 넘어오는지 모르겠음
 // 그냥 받았다고 치자
@@ -20,6 +21,7 @@ const sentences = [
 
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
+  const [canRead, setCanRead] = useState(false);
   const canvasRef = useRef(null);
   const localCanvasTrackRef = useRef(null);
   const navigate = useNavigate();
@@ -30,7 +32,10 @@ const TaleSentenceDrawing = () => {
     submitPicture,
     submitPictureSingle,
     addPage,
+    isFinish,
   } = useTalePlay();
+
+  const { memberId } = useUser();
 
   const { viduRoom, localTrack, remoteTracks, getTokenByAxios, joinViduRoom } =
     useViduHook();
@@ -42,6 +47,18 @@ const TaleSentenceDrawing = () => {
       : [];
   }, [drawDirection]);
 
+  //싱글모드 문장들
+  const singleModeSentences = useMemo(
+    () => sortedSentences?.filter((item) => item.sentence) || [],
+    [sortedSentences]
+  );
+
+  //멀티모드 개인문장
+  const multiModeSentences = useMemo(
+    () => sortedSentences?.find((item) => item.owner === memberId) || null,
+    [sortedSentences, memberId]
+  );
+
   // 싱글모드인가 아닌가
   const { isSingle } = useTaleRoom();
 
@@ -52,7 +69,7 @@ const TaleSentenceDrawing = () => {
   const [previousDrawings, setPreviousDrawings] = useState([]);
 
   //메시지 수신 loading
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   //livekit
   useEffect(() => {
@@ -145,7 +162,7 @@ const TaleSentenceDrawing = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentStep, handleConfirm]);
+  }, [currentStep]);
 
   //Loading 처리
   useEffect(() => {
@@ -153,6 +170,13 @@ const TaleSentenceDrawing = () => {
       setLoading(false);
     }
   }, [drawDirection]);
+
+  useEffect(() => {
+    console.log(isFinish);
+    if (isFinish) {
+      setCanRead(true);
+    }
+  }, [isFinish]);
 
   const handleConfirm = async () => {
     if (!canvasRef.current) return false;
@@ -162,19 +186,22 @@ const TaleSentenceDrawing = () => {
     if (isSingle) {
       await submitPictureSingle(tmpFile);
 
-      // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
-      setPreviousDrawings([
-        ...previousDrawings,
-        canvasRef.current.canvas.toDataURL(),
-      ]);
-
       // 싱글모드 - 몇번째 그림 그리고 있는가
-      if (currentStep < 3) {
+      if (currentStep <= 3) {
         setCurrentStep((prev) => prev + 1);
-        // setTimeLeft(300);
+        setTimeLeft(300);
 
-        // 그려진 그림 초기화
-        canvasRef.current.clearCanvas();
+        // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
+
+        if (previousDrawings.length < 3) {
+          setPreviousDrawings([
+            ...previousDrawings,
+            canvasRef.current.canvas.toDataURL(),
+          ]);
+
+          // 그려진 그림 초기화
+          canvasRef.current.clearCanvas();
+        }
       }
 
       addPage();
@@ -186,7 +213,6 @@ const TaleSentenceDrawing = () => {
   };
 
   const moveToReadTale = async () => {
-    await handleConfirm();
     navigate('/tale/hotTale');
   };
 
@@ -240,9 +266,8 @@ const TaleSentenceDrawing = () => {
               className="w-[550px] h-[100px] mx-auto rounded-[10px] border border-gray-200 text-center py-2 bg-white story-basic2 text-text-first
             overflow-y-scroll">
               {/* currentStep은 1부터 시작하므로 인덱스로 사용할 때는 -1 */}
-              {/* {sortedSentences[currentStep]?.sentence} */}
-              나는 싸피가좋아요 너무좋아요 싸피사랑해 미Chill정도록 사랑해요
-              글자수는 어떻게 될까요 크기가 고정되면 어떻게 될지 너무 궁금해요
+              <>{isSingle && singleModeSentences[currentStep]?.sentence}</>
+              <>{!isSingle && multiModeSentences?.['sentence']}</>
             </div>
 
             <div className="w-[590px] h-[420px] ml-[55px]">
@@ -254,15 +279,25 @@ const TaleSentenceDrawing = () => {
                 useHeartBeat={true}
               />
             </div>
-            <button
-              onClick={
-                currentStep >= 3
-                  ? () => moveToReadTale()
-                  : () => handleConfirm()
-              }
-              className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
-              {currentStep >= 3 ? '동화보러가기' : '확인'}
-            </button>
+            {currentStep <= 3 ? (
+              <>
+                <button
+                  onClick={() => handleConfirm()}
+                  className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
+                  확인
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => moveToReadTale()}
+                  disabled={!canRead}
+                  className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center
+                  disabled:bg-slate-400">
+                  동화보러가기
+                </button>
+              </>
+            )}
           </section>
 
           <section className="w-[30%] px-[25px] pt-3">

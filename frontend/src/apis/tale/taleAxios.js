@@ -39,7 +39,7 @@ const taleAPI = {
       },
     }), //그린 동화 제출
 
-  taleHot: (roomId, page) => api.get(`/tale/temp/${roomId}/${page}`),
+  taleHot: (roomId, page) => api.get(`/tale/${roomId}/${page}`),
 };
 
 export default taleAPI;

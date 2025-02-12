@@ -24,7 +24,7 @@ const roomActions = (set, get) => ({
   //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL);
 
       console.log(socket);
       const stompClient = new Client({
@@ -115,9 +115,12 @@ const roomActions = (set, get) => ({
       //동화 시작
       stompClient.subscribe(`/topic/room/start/${roomId}`, (message) => {
         console.log(message.body);
-        if (JSON.parse(message.body)) {
-          set({ rawTale: JSON.parse(message.body) });
-        }
+        const parsedData = JSON.parse(message.body);
+
+        // Deep copy
+        const newData = JSON.parse(JSON.stringify(parsedData));
+
+        set({ rawTale: newData });
       });
 
       stompClient.subscribe(`/topic/room/leave/${roomId}`, (message) => {

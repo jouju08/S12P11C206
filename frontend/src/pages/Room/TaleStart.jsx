@@ -2,13 +2,13 @@ import { Link } from 'react-router-dom';
 import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useEffect, useState, useRef } from 'react';
-import { useTaleRoom } from '@/store/roomStore';
+import { useRoomStore, useTaleRoom } from '@/store/roomStore';
 import { useViduHook } from '@/store/tale/viduStore';
 import { useUser } from '@/store/userStore';
 import { Loading } from '@/common/Loading';
 
 const TaleStart = () => {
-  const { setBaseTale, setRoomId, setSubscribeTale, roomId, tale } =
+  const { setBaseTale, setRoomId, setSubscribeTale, roomId, tale, setClient } =
     useTalePlay();
 
   const {
@@ -28,44 +28,36 @@ const TaleStart = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (tale !== null) {
-      setLoading(false);
-    }
-  }, [tale]);
-
-  useEffect(() => {
-    const handleTaleSingle = async () => {
+    const fetchTale = async () => {
       try {
-        await connect();
-        const playRoom = await createRoom();
+        if (isSingle) {
+          await connect();
+          const playRoom = await createRoom();
 
-        setRoomId(playRoom.roomId);
+          setRoomId(playRoom.roomId);
 
-        await startRoom();
+          await startRoom();
 
-        await setSubscribeTale(playRoom.roomId);
-        await getTokenByAxios(playRoom.roomId);
+          await setClient();
 
-        console.log('single');
+          await setSubscribeTale(playRoom.roomId);
+          await getTokenByAxios(playRoom.roomId);
+        } else if (!isSingle) {
+          setRoomId(currentRoom.roomId);
+
+          await setClient();
+
+          await setSubscribeTale(currentRoom.roomId);
+          await getTokenByAxios(currentRoom.roomId);
+        }
       } catch (error) {
-        console.error('Tale Start Error 발생:', error);
+        console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const handleTale = async () => {
-      try {
-        setRoomId(currentRoom.roomId);
-
-        await setSubscribeTale(currentRoom.roomId);
-        await getTokenByAxios(currentRoom.roomId);
-
-        console.log('multi');
-      } catch (error) {
-        console.error('Tale Start Error 발생:', error);
-      }
-    };
-
-    isSingle ? handleTaleSingle() : handleTale();
+    fetchTale();
   }, []);
 
   return (
@@ -83,7 +75,7 @@ const TaleStart = () => {
           />
           {/* 음향 - 데이터 받아오면 바꾸기*/}
           <div className="text-right pr-20 mt-2">
-            <AudioPlayer audioSrc="/Collection/test-audio.wav" />
+            <AudioPlayer audioSrc={tale?.taleStartScriptVoice} />
           </div>
 
           {/* 참여인원 섹션 */}
@@ -106,14 +98,7 @@ const TaleStart = () => {
 
           <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex justify-center items-center">
             <p className="text-text-first story-basic2">
-              <span></span>
-              옛날 옛적에 아기돼지 삼형제가 살고 있었습니다.
-              <br />
-              이들은 각자 자신만의 집을 짓기로 결정했어요.
-              <br />
-              늑대는 첫째 돼지의 집에 와서 말했어요.
-              <br />
-              "문을 열어라!"
+              <span>{tale?.taleStartScript}</span>
             </p>
           </div>
 
@@ -144,8 +129,13 @@ const AudioPlayer = ({ audioSrc }) => {
 
   useEffect(() => {
     // 컴포넌트 마운트 시 자동 재생
-    audioRef.current.play();
-  }, []);
+    if (audioSrc !== null && audioSrc !== undefined && audioRef.current) {
+      setIsMuted(true);
+      audioRef.current.play();
+    } else {
+      setIsMuted(true);
+    }
+  }, [audioSrc]);
 
   const handleToggleAudio = () => {
     if (isMuted) {

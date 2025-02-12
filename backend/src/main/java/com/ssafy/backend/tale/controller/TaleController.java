@@ -121,7 +121,7 @@ public class TaleController {
             taleService.saveTaleFromRedis(roomId);
 
             //  2. 동화 완성을 websocket으로 알림
-            webSocketNotiService.sendNotification("/topic/tale/" + roomId, "finish tale making");
+            webSocketNotiService.sendNotification("/topic/tale/" + roomId + "/finish", "finish tale making");
             //  3. ai 쪽으로 그림 생성 요청
 
             if(aiServerRequestService.isAIPictureServerAlive().getData()){ // 그림생성 AI 서버가 켜져있을 경우
