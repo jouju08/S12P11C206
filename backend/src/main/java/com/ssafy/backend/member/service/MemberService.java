@@ -76,7 +76,7 @@ public class MemberService {
     }
 
     @Transactional
-    public void updateProfileImage(String loginId, MultipartFile profileImage) {
+    public String updateProfileImage(String loginId, MultipartFile profileImage) {
         try {
             Member member = memberRepository.getMemberByLoginIdEquals(loginId)
                     .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + loginId));
@@ -91,6 +91,8 @@ public class MemberService {
                 String s3Path = s3Service.updateFile(member.getProfileImg() ,profileImage);
                 member.setProfileImg(s3Path);
             }
+
+            return member.getProfileImg();
 
         } catch (Exception e) {
             throw new BadRequestException(e.getMessage());

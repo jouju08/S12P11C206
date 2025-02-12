@@ -19,14 +19,15 @@ const ParticipationStatus = ({ ParticipationList }) => {
         <div className="text-center text-text-first service-regular2">
           친구들
         </div>
-        {/* 참여자 목록에 따라 이미지 여러개 렌더링 필요 */}
-        <div>
-          <img
-            src="/Main/profile-img.png"
-            alt="profile"
-            className="w-[45px] h-[45px] relative rounded-[100px] object-cover"
-          />
-        </div>
+        {ParticipationList.map((participants, index) => {
+          <div key={participants.id}>
+            <img
+              src="/Main/profile-img.png"
+              alt="profile"
+              className="w-[45px] h-[45px] relative rounded-[100px] object-cover"
+            />
+          </div>;
+        })}
       </div>
     );
   }

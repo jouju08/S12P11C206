@@ -26,13 +26,27 @@ export default function GalleryDetail() {
   const [isOrigin, setIsOrigin] = useState(false);
   const { galleryPage, setGalleryPage, toggleHasLiked } = useGalleryDetail();
 
+  // useEffect(() => {
+  //   const fetchGalleryPage = async () => {
+  //     await setGalleryPage(galleryId);
+  //     setIsOrigin(galleryPage['hasOrigin']);
+  //   };
+
+  //   fetchGalleryPage();
+  // }, [galleryId]);
+
   useEffect(() => {
     setGalleryPage(galleryId);
-    setIsOrigin(galleryPage['hasOrigin']);
-  }, []);
+  }, [galleryId]);
+
+  useEffect(() => {
+    if (galleryPage) {
+      setIsOrigin(galleryPage['hasOrigin']);
+    }
+  }, [galleryPage]);
 
   const handleHeart = () => {
-    dummyGalleryPage['hasLiked'] = !dummyGalleryPage['hasLiked'];
+    // galleryPage['hasLiked'] = !galleryPage['hasLiked'];
     toggleHasLiked();
   };
 
@@ -59,7 +73,7 @@ export default function GalleryDetail() {
           <img
             src={isOrigin ? galleryPage['originImg'] : galleryPage['img']}
             alt="그림"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-center bg-white"
           />
         </div>
 

@@ -5,8 +5,14 @@ import { userStore, useUser } from '@/store/userStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function Waiting() {
-  const { participants, currentRoom, startRoom, isStart, setIsStart } =
-    useTaleRoom();
+  const {
+    participants,
+    currentRoom,
+    startRoom,
+    taleTitle,
+    rawTale,
+    setIsStart,
+  } = useTaleRoom();
   const { memberId } = useUser();
 
   const [isHost, setIsHost] = useState(false);
@@ -33,6 +39,8 @@ export default function Waiting() {
       setIsDisabled(true);
     }
 
+    //기본 동화 정보
+
     return () => {
       setIsHost(false);
       setIsDisabled(false);
@@ -40,14 +48,12 @@ export default function Waiting() {
   }, [currentRoom]);
 
   useEffect(() => {
-    if (isStart == 'start') {
+    if (rawTale !== null) {
       navigate('/tale/taleStart');
     }
 
-    return () => {
-      setIsStart(null);
-    };
-  }, [isStart]);
+    return () => {};
+  }, [rawTale]);
 
   return (
     <div className="w-[1021px] h-[668px] relative">
@@ -142,7 +148,7 @@ export default function Waiting() {
           />
           <div>
             <h1 className="service-accent2 text-text-first mb-7">
-              아기 돼지 삼형제
+              {taleTitle}
             </h1>
             <p className="story-basic2 text-text-second">
               무슨 내용을 바꿔볼까요?

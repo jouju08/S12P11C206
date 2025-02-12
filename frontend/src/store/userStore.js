@@ -12,7 +12,8 @@ import axios from 'axios';
 import authAPI from '@/apis/auth/userAxios';
 import { immer } from 'zustand/middleware/immer';
 import { use } from 'react';
-import authAxiosInstance from '@/apis/auth/testInstance';
+
+
 
 const api = axios.create({
   baseURL: '/api',
@@ -51,13 +52,14 @@ const initialState = {
   loginId: '',
   nickname: '',
   memberId: '',
+  profileImg:'',
 
   accessToken: null,
   refreshToken: null,
 
   isAuthenticated: false,
 };
-
+const memberInfo=[];
 
 const userActions = (set, get) => ({
   login: async (credentials) => {
@@ -65,11 +67,12 @@ const userActions = (set, get) => ({
     try {
       response = await authAPI.login(credentials);
       const { member, tokens } = response.data['data'];
-
+      console.log("멤버 정보: ",member);
       set({
         loginId: member.loginId,
         nickname: member.nickname,
         memberId: member.id,
+        profileImg:member.profileImg,
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAuthenticated: true,
@@ -94,6 +97,7 @@ const userActions = (set, get) => ({
         loginId: member.loginId,
         nickname: member.nickname,
         memberId: member.id,
+        profileImg:member.profileImg,
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAuthenticated: true,
@@ -160,7 +164,6 @@ const userActions = (set, get) => ({
       const { data } = response.data;
 
       if (data !== null) {
-        set({ accessToken: data.accessToken });
         isRefreshing = false;
         onRefreshed(data.accessToken);
 
@@ -218,43 +221,43 @@ const userActions = (set, get) => ({
   },
 
   //중복확인
-  duplicate : async(type, value) => {
+  duplicate: async (type, value) => {
     try {
-        const response = await authAPI.checkDuplicate(type, value);
-        return response.data;
-      } catch (error) {
-        console.error(`${type} 중복확인 오류`, error);
-        if (error.response) {
-          console.error("응답 오류:", error.response.data);
-          console.error("응답 상태 코드:", error.response.status);
-        } else if (error.request) {
-          console.error("응답 없음:", error.request);
-        } else {
-          console.error("요청 설정 오류:", error.message);
-        }
-        throw error;
+      const response = await authAPI.checkDuplicate(type, value);
+      return response.data;
+    } catch (error) {
+      console.error(`${type} 중복확인 오류`, error);
+      if (error.response) {
+        console.error('응답 오류:', error.response.data);
+        console.error('응답 상태 코드:', error.response.status);
+      } else if (error.request) {
+        console.error('응답 없음:', error.request);
+      } else {
+        console.error('요청 설정 오류:', error.message);
+      }
+      throw error;
     }
   },
 
   //인증번호 전송송
-  sendEmail: async(email)=>{
+  sendEmail: async (email) => {
     console.log(email);
-    try{
-      const response=await authAPI.sendEmailAuthenticate(email);
+    try {
+      const response = await authAPI.sendEmailAuthenticate(email);
       return response.data;
-    }catch (error) {
-      console.error("이메일 전송 오류", error);
-    throw error;
+    } catch (error) {
+      console.error('이메일 전송 오류', error);
+      throw error;
     }
   },
 
   //이메일 인증
-  emailAuthenticate: async(email, authNum)=>{
-    try{
-      const response=await authAPI.postEmailAuthenticate(email, authNum);
+  emailAuthenticate: async (email, authNum) => {
+    try {
+      const response = await authAPI.postEmailAuthenticate(email, authNum);
       return response.data;
-    }catch (error){
-      console.error("이메일 인증 오류", error);
+    } catch (error) {
+      console.error('이메일 인증 오류', error);
       throw error;
     }
   },
@@ -268,9 +271,21 @@ const userActions = (set, get) => ({
       return error.response || response;
     }
   },
-    
-});
 
+
+  myPage:async()=>{
+    try{
+      const response=await authAPI.getMemberInfo();
+      set({memberInfo:response.data.data});
+      return response.data;
+    }
+    catch(error) {
+      console.error('멤버 정보 가져오기 에러', error);
+      throw error;
+    }
+  },
+  
+});
 
 const userStore = create(
   devtools(
@@ -292,6 +307,7 @@ export const useUser = () => {
   const loginId = userStore((state) => state.loginId);
   const nickname = userStore((state) => state.nickname);
   const memberId = userStore((state) => state.memberId);
+  const profileImg=userStore((state)=> state.profileImg);
   const accessToken = userStore((state) => state.accessToken);
   const refreshToken = userStore((state) => state.refreshToken);
   const isAuthenticated = userStore((state) => state.isAuthenticated);
@@ -301,15 +317,19 @@ export const useUser = () => {
   const logout = userStore((state) => state.logout);
   const refreshAccessToken = userStore((state) => state.refreshAccessToken);
   const fetchUser = userStore((state) => state.fetchUser);
-  const duplicate=userStore((state)=>state.duplicate);
-  const sendEmail=userStore((state)=>state.sendEmail);
-  const emailAuthenticate=userStore((state)=>state.emailAuthenticate);
-  const register=userStore((state)=>state.register);
+
+  const duplicate = userStore((state) => state.duplicate);
+  const sendEmail = userStore((state) => state.sendEmail);
+  const emailAuthenticate = userStore((state) => state.emailAuthenticate);
+  const register = userStore((state) => state.register);
+  const myPage=userStore((state)=>state.myPage);
+  const memberInfo=userStore((state)=>state.memberInfo);
 
   return {
     loginId,
     nickname,
     memberId,
+    profileImg,
     accessToken,
     refreshToken,
     isAuthenticated,
@@ -323,6 +343,8 @@ export const useUser = () => {
     sendEmail,
     emailAuthenticate,
     register,
+    myPage,
+    memberInfo,
   };
 };
 
@@ -333,8 +355,8 @@ api.interceptors.request.use(
   (request) => {
     const accessToken = userStore.getState().accessToken;
 
-    if (isTokenExpired(accessToken)) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    if (!isTokenExpired(accessToken) && accessToken) {
+      request.headers['Authorization'] = `Bearer ${accessToken}`;
       return request;
     } else {
       return request;

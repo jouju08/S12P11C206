@@ -1,6 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRoomStore, useTaleRoom } from '@/store/roomStore';
+import { api } from '@/store/userStore';
+import { useViduHook } from '@/store/tale/viduStore';
+import { useTalePlay } from '@/store/tale/playStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function TaleRoomHeader({ onClose }) {
+  const [taleTitle, setTaleTitle] = useState(null);
+  const { baseTaleId, leaveRoom } = useTaleRoom();
+  const { leaveViduRoom } = useViduHook();
+  const { resetState } = useTalePlay();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTaleTitle = async () => {
+      const response = await api.get(`/base-tale/${baseTaleId}`);
+
+      if (response.data.status == 'SER') {
+        leaveRoom();
+        leaveViduRoom();
+        resetState();
+
+        navigate('/room');
+      } else if (response.data.status == 'SU') {
+        setTaleTitle(response.data.data.title);
+      }
+    };
+    fetchTaleTitle();
+  }, []);
+
   return (
     <header className="bg-main-background shadow-md sticky top-0 z-50">
       <nav className="w-[1024px] h-[100px] px-[20px] flex flex-row justify-between mx-auto items-center">
@@ -12,7 +41,7 @@ export default function TaleRoomHeader({ onClose }) {
           />
         </div>
         {/* 책 이름 가져오기 */}
-        <div className="text-text-first service-accent1">책 제목</div>
+        <div className="text-text-first service-accent1">{taleTitle}</div>
         {/* <div
           onClick={onClose}
           className="bg-red-400 w-[160px] h-[70px]">

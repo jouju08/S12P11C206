@@ -35,10 +35,14 @@ const DrawingBoard = forwardRef(
       canvas.height = height;
       const ctx = canvas.getContext('2d');
 
-      if (!usePalette) {
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // if (!usePalette) {
+      //   ctx.fillStyle = 'white';
+      //   ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // }
 
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
