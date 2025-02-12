@@ -1,9 +1,4 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import {
-  Excalidraw,
-  exportToBlob,
-  exportToCanvas,
-} from '@excalidraw/excalidraw';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useTaleRoom } from '@/store/roomStore';
@@ -13,7 +8,7 @@ import DrawingBoard from '@/components/Common/DrawingBoard';
 import { useViduHook } from '@/store/tale/viduStore';
 import OpenviduCanvas from '@/components/TaleRoom/OpenviduCanvas';
 import { LocalVideoTrack, RoomEvent, Track } from 'livekit-client';
-import { useLocalParticipant } from '@livekit/components-react';
+import { useUser } from '@/store/userStore';
 
 // 백에서 문장 4개가 어떻게 넘어오는지 모르겠음
 // 그냥 받았다고 치자
@@ -26,7 +21,7 @@ const sentences = [
 
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
-  const excalidrawAPIRef = useRef(null);
+  const [canRead, setCanRead] = useState(false);
   const canvasRef = useRef(null);
   const localCanvasTrackRef = useRef(null);
   const navigate = useNavigate();
@@ -37,7 +32,10 @@ const TaleSentenceDrawing = () => {
     submitPicture,
     submitPictureSingle,
     addPage,
+    isFinish,
   } = useTalePlay();
+
+  const { memberId } = useUser();
 
   const { viduRoom, localTrack, remoteTracks, getTokenByAxios, joinViduRoom } =
     useViduHook();
@@ -48,6 +46,18 @@ const TaleSentenceDrawing = () => {
       ? [...drawDirection].sort((a, b) => a.order - b.order)
       : [];
   }, [drawDirection]);
+
+  //싱글모드 문장들
+  const singleModeSentences = useMemo(
+    () => sortedSentences?.filter((item) => item.sentence) || [],
+    [sortedSentences]
+  );
+
+  //멀티모드 개인문장
+  const multiModeSentences = useMemo(
+    () => sortedSentences?.find((item) => item.owner === memberId) || null,
+    [sortedSentences, memberId]
+  );
 
   // 싱글모드인가 아닌가
   const { isSingle } = useTaleRoom();
@@ -132,21 +142,23 @@ const TaleSentenceDrawing = () => {
   }, [viduRoom]);
 
   // 컴포넌트 마운트 시 타이머 시작
+
   useEffect(() => {
+    if (currentStep >= 4) {
+      setTimeLeft(0);
+      return;
+    }
+
+    // 1초마다 타이머 갱신
     const timer = setInterval(() => {
-      if (isSingle && currentStep === 4) {
-        return setTimeLeft(0);
-      } else {
-        // 1초마다 타이머 갱신
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            // 시간이 다 되면 자동으로 확인 버튼 클릭
-            handleConfirm();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          handleConfirm(); // 시간이 다 되면 자동으로 확인 버튼 클릭
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
@@ -159,6 +171,13 @@ const TaleSentenceDrawing = () => {
     }
   }, [drawDirection]);
 
+  useEffect(() => {
+    console.log(isFinish);
+    if (isFinish) {
+      setCanRead(true);
+    }
+  }, [isFinish]);
+
   const handleConfirm = async () => {
     if (!canvasRef.current) return false;
 
@@ -166,94 +185,34 @@ const TaleSentenceDrawing = () => {
 
     if (isSingle) {
       await submitPictureSingle(tmpFile);
+
+      // 싱글모드 - 몇번째 그림 그리고 있는가
+      if (currentStep <= 3) {
+        setCurrentStep((prev) => prev + 1);
+        setTimeLeft(300);
+
+        // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
+
+        if (previousDrawings.length < 3) {
+          setPreviousDrawings([
+            ...previousDrawings,
+            canvasRef.current.canvas.toDataURL(),
+          ]);
+
+          // 그려진 그림 초기화
+          canvasRef.current.clearCanvas();
+        }
+      }
+
       addPage();
     } else if (!isSingle) {
       await submitPicture(tmpFile);
-    }
 
-    // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
-    setPreviousDrawings([
-      ...previousDrawings,
-      canvasRef.current.canvas.toDataURL(),
-    ]);
-
-    // 싱글모드 - 몇번째 그림 그리고 있는가
-    if (currentStep < 3) {
-      setCurrentStep((prev) => prev + 1);
-      setTimeLeft(300);
-      // 그려진 그림 초기화
-      canvasRef.current.clearCanvas();
+      // setCurrentStep((prev) => prev + 100);
     }
   };
 
-  // 확인 버튼 누름 or 5분 지남
-  // const handleConfirm = async () => {
-  //   if (!excalidrawAPIRef.current) return false;
-
-  //   const elements = excalidrawAPIRef.current.getSceneElements();
-  //   const appState = excalidrawAPIRef.current.getAppState();
-  //   const files = excalidrawAPIRef.current.getFiles();
-
-  //   try {
-  //     // 백엔드로 그린 그림 제출
-  //     // 현재 그린 그림을 PNG 형식으로 변환
-  //     const exportedImage = await exportToBlob({
-  //       elements,
-  //       appState,
-  //       files,
-  //       mimeType: 'image/png',
-  //     });
-
-  //     //파일이름용
-  //     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  //     const fileName = `canvas-${timestamp}.png`;
-
-  //     const file = new File([exportedImage], fileName, { type: 'image/png' });
-
-  //     if (!file) {
-  //       console.log('Fail File');
-  //       return;
-  //     }
-
-  //     //싱글모드 판단
-  //     if (isSingle) {
-  //       const response = await submitPictureSingle(file);
-  //       addPage();
-  //     } else if (!isSingle) {
-  //       const response = await submitPicture(file);
-  //     }
-
-  //     // 싱글모드 canvas
-  //     const drawing = await exportToCanvas({
-  //       elements,
-  //       appState,
-  //       file,
-  //       getDimensions: () => {
-  //         return { width: 500, height: 500 };
-  //       },
-  //     });
-
-  //     // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
-  //     setPreviousDrawings([...previousDrawings, drawing.toDataURL()]);
-
-  //     // 싱글모드 - 몇번째 그림 그리고 있는가
-  //     if (currentStep < 3) {
-  //       setCurrentStep((prev) => prev + 1);
-  //       setTimeLeft(300);
-  //       // 그려진 그림 초기화
-  //       excalidrawAPIRef.current.resetScene();
-  //     }
-
-  //     return true;
-  //   } catch (error) {
-  //     console.error('Error uploading drawing:', error);
-  //   }
-
-  //   return false;
-  // };
-
   const moveToReadTale = async () => {
-    await handleConfirm();
     navigate('/tale/hotTale');
   };
 
@@ -307,9 +266,8 @@ const TaleSentenceDrawing = () => {
               className="w-[550px] h-[100px] mx-auto rounded-[10px] border border-gray-200 text-center py-2 bg-white story-basic2 text-text-first
             overflow-y-scroll">
               {/* currentStep은 1부터 시작하므로 인덱스로 사용할 때는 -1 */}
-              {/* {sortedSentences[currentStep]?.sentence} */}
-              나는 싸피가좋아요 너무좋아요 싸피사랑해 미Chill정도록 사랑해요
-              글자수는 어떻게 될까요 크기가 고정되면 어떻게 될지 너무 궁금해요
+              <>{isSingle && singleModeSentences[currentStep]?.sentence}</>
+              <>{!isSingle && multiModeSentences?.['sentence']}</>
             </div>
 
             <div className="w-[590px] h-[420px] ml-[55px]">
@@ -321,15 +279,25 @@ const TaleSentenceDrawing = () => {
                 useHeartBeat={true}
               />
             </div>
-            <button
-              onClick={
-                currentStep === 3
-                  ? () => moveToReadTale()
-                  : () => handleConfirm()
-              }
-              className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
-              {currentStep === 3 ? '동화보러가기' : '확인'}
-            </button>
+            {currentStep <= 3 ? (
+              <>
+                <button
+                  onClick={() => handleConfirm()}
+                  className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
+                  확인
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => moveToReadTale()}
+                  disabled={!canRead}
+                  className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center
+                  disabled:bg-slate-400">
+                  동화보러가기
+                </button>
+              </>
+            )}
           </section>
 
           <section className="w-[30%] px-[25px] pt-3">

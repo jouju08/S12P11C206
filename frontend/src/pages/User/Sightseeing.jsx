@@ -69,7 +69,11 @@ export default function Sightseeing() {
             <div className="w-[145px] h-[89px] absolute bottom-1 left-[248px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
               <img
                 className="w-[58px] h-[58px] relative rounded-[100px]"
-                src="/Main/profile-img.png"
+                src={
+                  popList[1]?.authorProfileImg
+                    ? popList[1].authorProfileImg
+                    : '/Main/profile-img.png'
+                }
               />
               <div className="text-center text-white service-bold3 w-full whitespace-nowrap overflow-hidden text-ellipsis">
                 {popList[1]?.authorNickname}
@@ -78,7 +82,7 @@ export default function Sightseeing() {
             {/* 2등 이미지 */}
             <Link to={`/gallery/${popList[1].galleryId}`}>
               <img
-                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[267px] left-[253px] bg-white]"
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[267px] left-[253px] bg-white] object-cover object-center"
                 src={popList[1]?.img || '/Sightseeing/test1.png'}
               />
             </Link>{' '}
@@ -91,7 +95,11 @@ export default function Sightseeing() {
             <div className="w-[145px] h-[89px] absolute bottom-[15px] left-[410px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
               <img
                 className="w-[58px] h-[58px] relative rounded-[100px]"
-                src="/Main/profile-img.png"
+                src={
+                  popList[0]?.authorProfileImg
+                    ? popList[0].authorProfileImg
+                    : '/Main/profile-img.png'
+                }
               />
               <div className="text-center text-white service-bold3 w-full whitespace-nowrap overflow-hidden text-ellipsis">
                 {popList[0]?.authorNickname}
@@ -101,7 +109,7 @@ export default function Sightseeing() {
             {/* 1등 이미지 */}
             <Link to={`/gallery/${popList[0].galleryId}`}>
               <img
-                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[206px] left-[414px] bg-white"
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[206px] left-[414px] bg-white object-cover object-center"
                 src={popList[0]?.img || '/Sightseeing/test1.png'}
               />
             </Link>
@@ -114,7 +122,11 @@ export default function Sightseeing() {
             <div className="w-[145px] h-[89px] absolute bottom-1 right-[253px] px-3 flex-col justify-center items-center gap-px inline-flex overflow-hidden">
               <img
                 className="w-[58px] h-[58px] relative rounded-[100px]"
-                src="/Main/profile-img.png"
+                src={
+                  popList[2]?.authorProfileImg
+                    ? popList[2].authorProfileImg
+                    : '/Main/profile-img.png'
+                }
               />
               <div className="text-center text-white service-bold3 w-full whitespace-nowrap overflow-hidden text-ellipsis">
                 {popList[2]?.authorNickname}
@@ -124,7 +136,7 @@ export default function Sightseeing() {
             {/* 3등 이미지 */}
             <Link to={`/gallery/${popList[2].galleryId}`}>
               <img
-                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[292px] left-[581px] bg-white"
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[292px] left-[581px] bg-white object-cover object-center"
                 src={popList[2]?.img || '/Sightseeing/test1.png'}
               />
             </Link>
@@ -133,7 +145,7 @@ export default function Sightseeing() {
       </div>
 
       {/* 작품 갤러리 */}
-      <div className="w-[974px] h-fit px-[22px] mb-[30px]">
+      <div className="w-[974px] h-fit px-[22px] mb-[30px] mt-[70px]">
         <h1 className="service-accent2 mt-[10px] ">작품 갤러리</h1>
         {/* 정렬 선택 */}
         <div className="text-right">
@@ -147,7 +159,7 @@ export default function Sightseeing() {
         </div>
 
         {/* 그림 목록 */}
-        <div className="grid grid-flow-row grid-cols-4 gap-4 mt-[30px]">
+        <div>
           {drawingList.length === 0 ? (
             <div className="w-full h-[300px] service-accent1 text-text-first text-center leading-[300px]">
               아직 게시글이 없어요!
@@ -159,12 +171,14 @@ export default function Sightseeing() {
             //     key={idx}
             //   />
             // ))
-            drawingList.map((item, idx) => (
-              <GalleryItem
-                item={item}
-                key={idx}
-              />
-            ))
+            <div className="grid grid-flow-row grid-cols-4 gap-4 mt-[30px]">
+              {drawingList.map((item, idx) => (
+                <GalleryItem
+                  item={item}
+                  key={idx}
+                />
+              ))}
+            </div>
           )}
         </div>
 
@@ -173,7 +187,7 @@ export default function Sightseeing() {
           ref={infiniteScrollRef}
           style={{ height: '20px' }}></div>
 
-        {isLoading && <div>Loading more...</div>}
+        {/* {isLoading && <div>Loading more...</div>} */}
       </div>
     </div>
   );

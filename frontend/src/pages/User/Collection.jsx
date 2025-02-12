@@ -59,13 +59,15 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
                   </button>
                   <p className="text-white">{item.createdAt.slice(0, 10)}</p>
                 </div>
-                <img
-                  className="w-[149px] h-[195px] mx-auto my-4 rounded opacity-90 relative"
-                  src={item.img}
-                  alt="동화 표지"
-                />
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="absolute bottom-1 left-0">
+              <img
+                src="/Collection/bookshelf.png"
+                alt="Bar"
+                className="w-[977px] h-[10px]"
+              />
+            </div>
           </div>
           <div className="absolute bottom-1 left-0">
             <img src="/Collection/bookshelf.png" alt="Bar" className="w-[977px] h-[10px]" />
