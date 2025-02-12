@@ -13,6 +13,7 @@ import authAPI from '@/apis/auth/userAxios';
 import { immer } from 'zustand/middleware/immer';
 import { use } from 'react';
 import authAxiosInstance from '@/apis/auth/testInstance';
+import { profile } from '@/apis/auth/testAPI';
 
 const api = axios.create({
   baseURL: '/api',
@@ -51,6 +52,7 @@ const initialState = {
   loginId: '',
   nickname: '',
   memberId: '',
+  profileImg:'',
 
   accessToken: null,
   refreshToken: null,
@@ -64,11 +66,12 @@ const userActions = (set, get) => ({
     try {
       response = await authAPI.login(credentials);
       const { member, tokens } = response.data['data'];
-
+      console.log("멤버 정보: ",member);
       set({
         loginId: member.loginId,
         nickname: member.nickname,
         memberId: member.id,
+        profileImg:member.profileImg,
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAuthenticated: true,
@@ -93,6 +96,7 @@ const userActions = (set, get) => ({
         loginId: member.loginId,
         nickname: member.nickname,
         memberId: member.id,
+        profileImg:member.profileImg,
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAuthenticated: true,
@@ -288,6 +292,7 @@ export const useUser = () => {
   const loginId = userStore((state) => state.loginId);
   const nickname = userStore((state) => state.nickname);
   const memberId = userStore((state) => state.memberId);
+  const profileImg=userStore((state)=> state.profileImg);
   const accessToken = userStore((state) => state.accessToken);
   const refreshToken = userStore((state) => state.refreshToken);
   const isAuthenticated = userStore((state) => state.isAuthenticated);
@@ -307,6 +312,7 @@ export const useUser = () => {
     loginId,
     nickname,
     memberId,
+    profileImg,
     accessToken,
     refreshToken,
     isAuthenticated,

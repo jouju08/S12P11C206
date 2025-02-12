@@ -60,7 +60,8 @@ const dummyDrawingList = [
 
 export default function Main() {
   // 로그인 되어있는 유저 닉네임 가져오기
-  const { nickname } = userStore((state) => state);
+  const { nickname , profileImg} = userStore((state) => state);
+  console.log(profileImg);
 
   const imgArray = [
     'nav-colored-pencils.png',
@@ -159,8 +160,10 @@ export default function Main() {
           {/* 로그인 정보 store에서 가져오기기 */}
           <img
             className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px]"
-            src="/Main/profile-img.png"
-          />
+            src={profileImg||'/Common/blank_profile.jpg'}
+            alt="profileImg"
+            />
+      
           <img
             className="shaking-image w-[140px] h-[140px] left-[9px] top-0 absolute"
             src="/Main/main-fairy.png"
