@@ -3,6 +3,9 @@ import { useFriend } from '@/store/friendStore';
 import { userStore } from '@/store/userStore';
 import { Loading } from '@/common/Loading';
 
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
 const Friends = ({ friends, setShowFriend, showFriend }) => {
   const [activeTab, setActiveTab] = useState('friends'); // 기본값: 친구 요청
   const {
@@ -68,6 +71,51 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
   //       <Loading />
   //     </p>
   //   );
+
+  const showDeleteSwal = (friendId) => {
+    withReactContent(Swal)
+      .fire({
+        title: (
+          <p className="text-text-first service-accent1 mb-7">
+            정말 친구를 그만둘까요?
+          </p>
+        ),
+        html: (
+          <p className="text-text-second service-regular1 mb-5">
+            물론 다시 친구 신청할 수 있어요!
+          </p>
+        ),
+        // icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: (
+          <p className="text-white service-regular3">네, 끊을게요!</p>
+        ),
+        cancelButtonText: (
+          <p className="text-white service-regular3">아니에요!</p>
+        ),
+        width: 500,
+        padding: '50px 50px',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: (
+              <p className="text-text-first service-accent1 mb-7">
+                친구 삭제 완료
+              </p>
+            ),
+
+            // icon: "success"
+            width: 500,
+            padding: '50px 50px',
+            cancelButtonText: '닫기',
+          });
+          deleteFriend(friendId);
+        }
+      });
+  };
   if (error) return <p>Error: {error}</p>;
 
   return (
@@ -247,7 +295,7 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => deleteFriend(friend.loginId)}
+                      onClick={() => showDeleteSwal(friend.loginId)}
                       className="px-4 py-2 bg-main-choose text-text-white rounded-lg hover:bg-rose-500 transition-colors duration-200 font-NPSfont ">
                       친구 끊기
                     </button>
