@@ -1,10 +1,10 @@
 FROM python:3.11-slim as builder
 WORKDIR /AI/
-# 시스템 패키지 설치 (필요한 경우)
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+# # 시스템 패키지 설치 (필요한 경우)
+# RUN apt-get update && apt-get install -y \
+#     build-essential \
+#     ffmpeg \
+#     && rm -rf /var/lib/apt/lists/*
 # requirements.txt만 먼저 복사하여 의존성 설치 캐시 활용
 COPY requirements.txt .
 # Ubuntu 계열에서 발생할 수 있는 pywin 관련 문제 제거
