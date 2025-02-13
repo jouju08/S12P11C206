@@ -5,10 +5,6 @@ import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { api } from "./userStore";
 
-// const api = axios.create({
-//     baseURL: '/api',
-// });
-
 const initialProfile = {
     memberId: null,
     loginId: null,                      
@@ -101,6 +97,20 @@ const initialProfile = {
           return false;
         }
     },
+
+    changePassword: async (oldPassword, newPassword) => {
+      try {
+        const response = await api.patch("/member/change-password", {
+          oldPassword,
+          newPassword,
+        });
+        console.log("비밀번호 변경 요청 성공", response.data.status);
+        return response.data;
+      } catch (error) {
+        console.log("비밀번호 변경 실패", error);
+        throw error;
+      }
+    },
   
   });
   
@@ -130,7 +140,8 @@ const initialProfile = {
     const isNicknameAvailable = profileStore((state) => state.isNicknameAvailable);
     const updateProfileImage = profileStore((state) => state.updateProfileImage);
     const deleteUser=profileStore((state)=>state.deleteUser);
-  
+    const changePassword = profileStore((state) => state.changePassword);
+
     return {
       memberId,
       loginId,
@@ -145,6 +156,7 @@ const initialProfile = {
       isNicknameAvailable,
       updateProfileImage,
       deleteUser,
+      changePassword,
     };
   };
 

@@ -1,6 +1,7 @@
 package com.ssafy.backend.db.repository;
 
 import com.ssafy.backend.db.entity.Gallery;
+import com.ssafy.backend.db.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +27,5 @@ public interface GalleryRepository extends JpaRepository<Gallery, Long> {
             countQuery = "SELECT COUNT(g) FROM Gallery g WHERE g.hasDeleted = false")
     Page<Gallery> findAllPictures(@Param("order") String order, Pageable pageable);
 
+    List<Gallery> findByMemberAndImgPathAndCreatedAtStartingWith(Member member, String imgPath, String createdAtPrefix);
 }
