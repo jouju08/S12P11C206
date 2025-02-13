@@ -25,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -145,7 +146,14 @@ public class GalleryService {
             throw new AuthorizationDeniedException("잘못된 회원 접근입니다.");
         }
 
+        String today = LocalDate.now().toString();
+
         String imgPath = hasOrigin ? taleMember.getOrginImg() : taleMember.getImg();
+
+        List<Gallery> existGalleries = galleryRepository.findByMemberAndImgPathAndCreatedAtStartingWith(member, imgPath, today);
+        if (!existGalleries.isEmpty()) {
+            throw new RuntimeException("이미 이 이미지로 오늘 게시글을 올렸습니다.");
+        }
 
         try {
             galleryRepository.save(Gallery.builder()
