@@ -217,7 +217,7 @@ export default function Main() {
           만들어진 동화방
         </div>
         <div className="h-[300px] flex items-center text-center">
-          {taleData.length != 0 ? (
+          {taleData && taleData.length != 0 ? (
             <Swiper
               slidesPerView={3}
               spaceBetween={-10}
@@ -245,7 +245,7 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           지금 인기있는 그림
         </div>
-        {drawingData.length != 0 ? (
+        {drawingData && drawingData.length != 0 ? (
           <Swiper
             slidesPerView={4}
             spaceBetween={30}
