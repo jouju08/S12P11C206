@@ -18,12 +18,22 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
         hasOrigin: isOriginal,
       };
       try {
-        await uploadGallery(payload);
-        Swal.fire({
-          icon: 'success',
-          title: '성공',
-          text: '그림 자랑하기에 성공했습니다.'
-        });
+        const status = await uploadGallery(payload);
+        
+        if (status == 'SU') {
+          Swal.fire({
+            icon: 'success',
+            title: '성공',
+            text: '그림 자랑하기에 성공했습니다.'
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: '실패',
+            text: '내일 자랑해주세요.'
+          });
+        }
+
       } catch (error) {
         console.error('그림 자랑하기 실패:', error);
         Swal.fire({

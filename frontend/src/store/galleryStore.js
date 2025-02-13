@@ -52,7 +52,8 @@ const myPictureActions = (set, get) => ({
   uploadGallery: async (payload) => {
     try {
       const response = await galleryAPI.uploadGallery(payload);
-      console.log(response);
+      console.log(response.data.status);
+      return response.data.status;
     } catch (err) {
       console.log('자랑하기 실패', err);
     }
