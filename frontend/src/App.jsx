@@ -5,8 +5,11 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { useUser } from './store/userStore';
 import { useNavigate } from 'react-router-dom';
+import { useFriendSocket } from './hooks/useFriendSocket';
 
 export default function App() {
+  useFriendSocket();
+
   return (
     <div className="App">
       <AppRouter />

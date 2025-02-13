@@ -4,6 +4,7 @@ import com.ssafy.backend.member.service.ActiveUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -22,8 +23,8 @@ public class ActiveUserController {
     private final ActiveUserService activeUserService;
 
     @GetMapping("/active")
-    public void manageActiveUser(Long memeberId){
-        activeUserService.addActiveUser(memeberId);
+    public void manageActiveUser(@RequestParam("memberId") String memeberId){
+        activeUserService.addActiveUser(Long.parseLong(memeberId));
     }
 
 }

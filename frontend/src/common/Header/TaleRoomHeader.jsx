@@ -22,7 +22,7 @@ export default function TaleRoomHeader({ onClose }) {
         leaveViduRoom();
         resetState();
 
-        navigate('/room');
+        // navigate('/room');
       } else if (response.data.status == 'SU') {
         setTaleTitle(response.data.data.title);
       }
