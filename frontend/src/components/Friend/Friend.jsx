@@ -21,8 +21,6 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
     fetchFindMembers,
     searchMembers,
     makeFriend,
-    connect,
-    subscribeMain,
   } = useFriend();
   const { memberId } = userStore();
 
@@ -57,12 +55,6 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
       console.log(searchMembers);
     }
   }, [activeTab]);
-
-  // 소캣확인
-  useEffect(() => {
-    connect();
-    subscribeMain();
-  }, []);
 
   const handleRespondToRequest = async (loginId, answer) => {
     await respondToRequest(loginId, answer);
@@ -240,6 +232,18 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
                     <span className="text-text-first text-lg font-NPSfont">
                       {friend.nickname}
                     </span>
+                  </div>
+                  {/* 접속중 상태 */}
+                  <div>
+                    {friend.connecting ? (
+                      <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-success">
+                        들어와 있어 !
+                      </span>
+                    ) : (
+                      <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-choose">
+                        다음에 놀자~
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <button

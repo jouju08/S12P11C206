@@ -14,6 +14,7 @@ import {
   postMakeFriend,
 } from '@/apis/friend/friendAxios';
 import { use } from 'react';
+import { activeUserStore } from './activeStore';
 
 const initialState = {
   friendRequests: [],
@@ -150,10 +151,12 @@ const friendActions = (set, get) => ({
 
     try {
       const data = await getFriendList();
+      activeUserStore.getState().setMyFriend(data.data);
 
       set((state) => {
-        console.log(Array.isArray(data.data));
+        // console.log(Array.isArray(data.data));
         state.friendList = Array.isArray(data.data) ? data.data : [];
+        // console.log('friendList에 담기는 친구 상세: ', state.friendId);
         state.loading = false;
       });
     } catch (error) {
