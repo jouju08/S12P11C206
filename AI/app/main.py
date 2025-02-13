@@ -1,8 +1,7 @@
 """
 main application
 """
-from fastapi import FastAPI, APIRouter, Response, Request
-from starlette.background import BackgroundTask
+from fastapi import FastAPI
 import uvicorn
 import config
 import app.routers as routers
