@@ -53,9 +53,11 @@ public class KakaoService {
             member = optionalMember.get();
         } else {
             String tempNickname = userInfo.getNickname();
-            if(memberRepository.findByNickname(tempNickname).isPresent()){
-                tempNickname = "임시"+ UUID.randomUUID().toString().replace("-","").substring(0,5);
-            }
+
+            do {
+                tempNickname = userInfo.getNickname() + UUID.randomUUID().toString().replace("-", "").substring(0, 5);
+            } while (memberRepository.findByNickname(tempNickname).isPresent());
+
             Member newMember = Member.builder()
                     .loginId(userInfo.getLoginId())
                     .nickname(tempNickname)
