@@ -1,9 +1,8 @@
 from .NumberdListParser import Parser as NumberdListParser
-from .write_tale import prompt as write_tale_prompt
-from .extract_sentence_from_tale import prompt as extract_sentence_from_tale_prompt
-from .extract_sentence_from_title import prompt as extract_sentence_from_title_prompt
-from .generate_image_prompt import prompt as generate_image_prompt, Parser as GenerateImageOutputParser
+from .write_tale import chain as write_tale
+from .extract_sentence_from_tale import chain as extract_sentence_from_tale
+from .extract_sentence_from_title import chain as extract_sentence_from_title
+from .generate_image_prompt import chain as generate_image_prompt
 from .read_tale import prompt as read_tale_prompt
-from .generate_introduce import prompt as generate_introduce_prompt
-from .generate_tale_image_prompt import prompt as generate_tale_image_prompt, Parser as GenerateTaleImageOutputParser
-from .generate_tale_intro_image_prompt import prompt as generate_tale_intro_image_prompt
+from .generate_introduce import chain as generate_introduce
+from .generate_tale_image_prompt import chain as generate_tale_image_prompt

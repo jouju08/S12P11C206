@@ -1,3 +1,7 @@
+"""
+1. 2. 3. 과 같은 번호가 붙은 리스트를 파싱하는 파서입니다.
+"""
+
 from langchain_core.output_parsers import BaseOutputParser
 
 
