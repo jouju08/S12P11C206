@@ -90,7 +90,6 @@ export default function ProfileEdit() {
 
   return (
     <div className="min-h-screen p-4">
-      {/* 흰배경 */}
       <div className="space-x-[50px] bg-white w-[635px] h-[568px] shadow-md ">
         <div className="flex flex-col items-center">
           <div className="mt-[25px] ml-[28px] space-y-[16px] space-x-[28px] flex items-center">
@@ -208,7 +207,6 @@ function InputNickNameItem({ nickname, onNicknameChange, isNicknameAvailable, se
 }
 
 async function confirmDuplicate(isNicknameAvailable, nickname, setIsNicknameValidated) {
-  // 닉네임 조건: 2~12자, 영문자, 숫자, 한글만 허용
   const nicknameRegex = /^[A-Za-z0-9가-힣]{2,12}$/;
   if (!nicknameRegex.test(nickname)) {
     Swal.fire("경고", "닉네임은 2~12자, 영문자, 숫자, 한글만 포함할 수 있습니다.", "error");

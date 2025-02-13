@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import { useMyPictures } from '@/store/galleryStore';
 
 const ImageModal = ({ isOpen, onClose, detail }) => {
   if (!isOpen) return null;
 
   const [isOriginal, setIsOriginal] = useState(true);
-
   const formattedDate = detail?.createdAt ? detail.createdAt.split("T")[0] : "";
 
   const { uploadGallery } = useMyPictures();
@@ -17,7 +17,21 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
         taleMemberId: detail.id,
         hasOrigin: isOriginal,
       };
-      uploadGallery(payload);
+      try {
+        await uploadGallery(payload);
+        Swal.fire({
+          icon: 'success',
+          title: '성공',
+          text: '그림 자랑하기에 성공했습니다.'
+        });
+      } catch (error) {
+        console.error('그림 자랑하기 실패:', error);
+        Swal.fire({
+          icon: 'error',
+          title: '실패',
+          text: '그림 자랑하기에 실패했습니다.'
+        });
+      }
     }
   };
 
@@ -131,10 +145,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
 
               <button
                 onClick={handleShowOff}
-                className="w-[195px] h-[56px] bg-[#FFC300]
-                           rounded-[50px] border border-[#9F9F9F]
-                           flex items-center justify-center 
-                           text-[20px] text-[#515151] font-bold mb-2"
+                className="w-[195px] h-[56px] bg-[#FFC300] rounded-[50px] border border-[#9F9F9F] flex items-center justify-center text-[20px] text-[#515151] font-bold mb-2"
               >
                 <img
                   src="/image/painter.png"
