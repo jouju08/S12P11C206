@@ -448,7 +448,7 @@ public class TaleService {
             TaleMemberDto taleMemberDto = getTaleMemberDtoFromRedis(taleMember);
             redisTemplate.delete("tale_member-"+taleMemberDto.getId());
         }
-        roomService.deleteRoom(roomId);
+
         redisTemplate.delete("tale-"+roomId);
     }
 

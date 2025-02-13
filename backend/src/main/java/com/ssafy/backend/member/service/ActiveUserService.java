@@ -25,14 +25,14 @@ public class ActiveUserService {
     private final SimpMessagingTemplate messagingTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    @Scheduled(fixedRate = 30000) // 3초 마다
+    @Scheduled(fixedRate = 10000) // 5초 마다
     public void sendActiveData() {
 
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         Set<Long> activeUsers = new HashSet<>(); // 접속자 초기화
         ops.set("activeUsers", activeUsers);
-
-        messagingTemplate.convertAndSend("/active", "hey!");
+        System.out.println(".");
+        messagingTemplate.convertAndSend("/active", "ping");
     }
 
     public void addActiveUser(Long memeberId) {
