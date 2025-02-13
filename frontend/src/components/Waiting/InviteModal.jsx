@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useFriend } from '@/store/friendStore';
 
-// ********** waiting에 추가 ***********
-// const [ShowModal, setShowModal] = false
+const InviteModal = ({ handleExit }) => {
+  const { friendList, fetchFriendList } = useFriend();
 
-// const handleExit = () => {
-//     setShowModal(false);
-//   };
-
-// const InviteModal = ({ handleExit }) => {
-const InviteModal = () => {
-  const { friendList } = useFriend();
+  useEffect(() => {
+    fetchFriendList();
+  }, [friendList]);
 
   return (
     <div className="w-[40%] h-[80%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center">
-      <div className="w-full h-[100px] px-4 relative overflow-hidden bg-main-background flex justify-between items-center shadow-lg z-10">
+      <div className="w-full h-[15%] px-4 relative overflow-hidden bg-main-background flex justify-between items-center shadow-lg z-10">
         <div className="text-text-first service-accent2">친구 초대</div>
-        <button className="w-16 h-16 relativ flex justify-center items-center">
+        <button
+          onClick={handleExit}
+          className="w-16 h-16 relativ flex justify-center items-center">
           <img
             src="/Common/black-close.png"
             alt="닫기"
@@ -52,7 +50,7 @@ const InviteModal = () => {
               </div>
               {/* 접속중 상태 */}
               <div>
-                {friend.connecting ? (
+                {friend.connected ? (
                   <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-success">
                     들어와 있어 !
                   </span>

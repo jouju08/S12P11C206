@@ -4,6 +4,7 @@ import { useTaleRoom } from '@/store/roomStore';
 import { userStore, useUser } from '@/store/userStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 import taleAPI from '@/apis/tale/taleAxios';
+import InviteModal from '@/components/Waiting/InviteModal';
 
 export default function Waiting() {
   const {
@@ -20,6 +21,12 @@ export default function Waiting() {
   const [tale, setTale] = useState({});
   const [isHost, setIsHost] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
+  const [ShowModal, setShowModal] = useState(false);
+
+  const handleExit = () => {
+    setShowModal(false);
+  };
+
   const navigate = useNavigate();
 
   const handleStart = async () => {
@@ -88,7 +95,9 @@ export default function Waiting() {
                 명이 오면 시작할 수 있어 <br /> 조금만 더 기다려보자~
               </div>
               <div className="relative group">
-                <button className="service-bold3 w-fit h-fit px-5 py-2 bg-[#ffc300] rounded-[50px] hover:bg-main-carrot transition-all ease-linear">
+                <button
+                  onClick={() => setShowModal((prev) => !prev)}
+                  className="service-bold3 w-fit h-fit px-5 py-2 bg-[#ffc300] rounded-[50px] hover:bg-main-carrot transition-all ease-linear">
                   내 친구 초대하기
                 </button>
                 <div className="absolute top-0 -right-6 -scale-x-100 opacity-0 -translate-x-2 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-active:opacity-100 group-active:translate-x-0">
@@ -197,6 +206,7 @@ export default function Waiting() {
           </button>
         </div>
       </div>
+      {ShowModal && <InviteModal handleExit={() => handleExit()} />}
     </div>
   );
 }
