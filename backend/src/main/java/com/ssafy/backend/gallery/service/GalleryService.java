@@ -94,21 +94,21 @@ public class GalleryService {
             int orderNum = gallery.get().getTaleMember().getOrderNum();
             String keyword = "";
             String sentence = "";
-            if(orderNum == 1){
+            if(orderNum == 0){
                 keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword1();
                 sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence1();
-            } else if(orderNum == 2){
+            } else if(orderNum == 1){
                 keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword2();
                 sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence2();
-            } else if(orderNum == 3){
+            } else if(orderNum == 2){
                 keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword3();
                 sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence3();
-            } else if(orderNum == 4){
+            } else if(orderNum == 3){
                 keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword4();
                 sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence4();
             }
 
-            String replaceSentence = sentence.replace("xx", keyword);
+//            String replaceSentence = sentence.replace("xx", keyword);
 
             boolean hasLiked = !galleryLikeRepository.findByGalleryIdAndMemberId(gallery.get().getId(), memberRepository.findByLoginId(auth.getName()).get().getId()).isEmpty();
             return GalleryResponseDto.builder()
@@ -124,7 +124,7 @@ public class GalleryService {
                     .authorProfileImg(gallery.get().getMember().getProfileImg())
                     .taleId(gallery.get().getTaleMember().getTale().getId())
                     .baseTaleId(gallery.get().getTaleMember().getTale().getBaseTale().getId())
-                    .sentence(replaceSentence)
+                    .sentence(gallery.get().getTaleMember().getImgScript())
                     .createdAt(gallery.get().getTaleMember().getCreatedAt())
                     .build();
         } catch (Exception e) {
