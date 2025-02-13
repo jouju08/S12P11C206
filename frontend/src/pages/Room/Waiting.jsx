@@ -3,18 +3,21 @@ import Participant from '@/components/Waiting/Participant';
 import { useTaleRoom } from '@/store/roomStore';
 import { userStore, useUser } from '@/store/userStore';
 import { useLocation, useNavigate } from 'react-router-dom';
+import taleAPI from '@/apis/tale/taleAxios';
 
 export default function Waiting() {
   const {
     participants,
     currentRoom,
     startRoom,
+    baseTaleId,
     taleTitle,
     rawTale,
     setIsStart,
   } = useTaleRoom();
   const { memberId } = useUser();
 
+  const [tale, setTale] = useState({});
   const [isHost, setIsHost] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
   const navigate = useNavigate();
@@ -40,10 +43,18 @@ export default function Waiting() {
     }
 
     //기본 동화 정보
+    const response = taleAPI.getTaleInfo(baseTaleId);
+
+    response.then((resolve, reject) => {
+      if (resolve.data?.status == 'SU') {
+        setTale({ ...resolve.data.data });
+      }
+    });
 
     return () => {
       setIsHost(false);
       setIsDisabled(false);
+      setTale(null);
     };
   }, [currentRoom]);
 
@@ -68,23 +79,32 @@ export default function Waiting() {
         style={{ backgroundImage: "url('/Waiting/waiting-chat-bubble.png')" }}
         className="w-[530px] h-[232px] pl-[30px] absolute top-10 right-16 flex flex-col justify-center items-center">
         <div className="h-fit flex-col justify-center items-center gap-[20px] flex overflow-hidden">
-          <div className="text-text-first font-CuteFont text-[25px] text-center">
-            <span className="text-main-carrot">{4 - participants.length}</span>
-            명이 오면 시작할 수 있어 <br /> 조금만 더 기다려보자~
-          </div>
-          {/* 내가 방장이라면 */}
-          <div className="relative group">
-            <button className="service-bold3 w-fit h-fit px-5 py-2 bg-[#ffc300] rounded-[50px] hover:bg-main-carrot transition-all ease-linear">
-              내 친구 초대하기
-            </button>
-            <div className="absolute top-0 -right-6 -scale-x-100 opacity-0 -translate-x-2 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-active:opacity-100 group-active:translate-x-0">
-              <img
-                src="/Waiting/children-btn.png"
-                alt="토끼 이미지"
-                className="h-[42px] object-cover"
-              />
+          {participants && 4 - participants.length > 0 ? (
+            <>
+              <div className="text-text-first font-CuteFont text-[25px] text-center">
+                <span className="text-main-carrot">
+                  {4 - participants.length}
+                </span>
+                명이 오면 시작할 수 있어 <br /> 조금만 더 기다려보자~
+              </div>
+              <div className="relative group">
+                <button className="service-bold3 w-fit h-fit px-5 py-2 bg-[#ffc300] rounded-[50px] hover:bg-main-carrot transition-all ease-linear">
+                  내 친구 초대하기
+                </button>
+                <div className="absolute top-0 -right-6 -scale-x-100 opacity-0 -translate-x-2 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:translate-x-0 group-active:opacity-100 group-active:translate-x-0">
+                  <img
+                    src="/Waiting/children-btn.png"
+                    alt="토끼 이미지"
+                    className="h-[42px] object-cover"
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-text-first font-CuteFont text-[25px] text-center">
+              <span className="text-main-carrot">이제 출발 해볼까?</span>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -146,11 +166,12 @@ export default function Waiting() {
         <div className="w-fit h-[270px] flex gap-10 items-center overflow-hidden pr-10">
           <img
             className="w-40 h-[220px] inline-block"
-            src="/Main/tale-cover-test.png"
+            src={tale?.startImg}
+            alt="이미지 없음"
           />
-          <div>
-            <h1 className="service-accent2 text-text-first mb-7">
-              {taleTitle}
+          <div className="pb-16">
+            <h1 className="service-accent2 text-text-first mb-4">
+              {tale?.title}
             </h1>
             <p className="story-basic2 text-text-second">
               무슨 내용을 바꿔볼까요?
@@ -161,9 +182,7 @@ export default function Waiting() {
             </p>
           </div>
 
-          {/* 4명 다 모이면 출발 버튼 */}
-          {/* 로그인 되어있는 내가 방장이라면 */}
-
+          {/* 4명 다 모이면 출발 버튼 활성화 */}
           <button
             onClick={handleStart}
             disabled={isDisabled}
