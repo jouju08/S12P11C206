@@ -15,7 +15,6 @@ import {
 
 import KakaoCallback from '@/components/kakao/KakaoCallback';
 import DrawingBoard from '@/components/Common/DrawingBoard';
-import CanvasTest from '@/pages/CanvasTest';
 import Friends from '@/components/Friend/Friend';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
@@ -28,9 +27,6 @@ const Gallery = lazy(() => import('@/pages/User/Gallery'));
 const GalleryDetail = lazy(() => import('@/pages/User/GalleryDetail'));
 const Profile = lazy(() => import('@/pages/User/Profile'));
 const Sightseeing = lazy(() => import('@/pages/User/Sightseeing'));
-const FileTest = lazy(() => import('@/pages/FileTest'));
-const Lobby = lazy(() => import('@/pages/Room/Lobby'));
-const Share = lazy(() => import('@/pages/Room/Share'));
 const TaleStart = lazy(() => import('@/pages/Room/TaleStart'));
 const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));
 const TaleSentenceDrawing = lazy(
@@ -79,8 +75,6 @@ const router = createBrowserRouter([
           { path: 'gallery', element: <Gallery /> },
           { path: 'gallery/:galleryId', element: <GalleryDetail /> },
           { path: 'profile', element: <Profile /> },
-          { path: 'upload', element: <FileTest /> },
-          { path: 'canvas', element: <CanvasTest /> },
           { path: 'sightseeing', element: <Sightseeing /> },
           { path: 'admin', element: <Admin /> },
           { path: 'friends', element: <Friends /> },
@@ -95,8 +89,6 @@ const router = createBrowserRouter([
       {
         element: <ProtectedLayout />, // 인증된 사용자
         children: [
-          { path: 'lobby', element: <Lobby /> },
-          { path: 'share', element: <Share /> },
           { path: 'waiting', element: <Waiting /> },
           { path: 'taleStart', element: <TaleStart /> },
           { path: 'taleKeyword', element: <TaleKeyword /> },

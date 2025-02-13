@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useState,
-  useRef,
-  useMemo,
-  useCallback,
-  useLayoutEffect,
-} from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useTaleRoom } from '@/store/roomStore';
@@ -20,6 +13,14 @@ import { useUser } from '@/store/userStore';
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
   const [canRead, setCanRead] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0); // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
+
+  const [previousDrawings, setPreviousDrawings] = useState([]); // 싱글모드일때 사용, 이전에 그린 그림들 저장
+
+  const [loading, setLoading] = useState(false); //메시지 수신 loading
+  const [canvasReady, setCanvasReady] = useState(false); // DrawingBoard 렌더링
+  const [hasPublished, setHasPublished] = useState(false);
+
   const canvasRef = useRef(null);
   const localCanvasTrackRef = useRef(null);
   const navigate = useNavigate();
@@ -59,14 +60,6 @@ const TaleSentenceDrawing = () => {
   );
 
   const { isSingle } = useTaleRoom(); // 싱글모드 판단
-
-  const [currentStep, setCurrentStep] = useState(0); // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
-
-  const [previousDrawings, setPreviousDrawings] = useState([]); // 싱글모드일때 사용, 이전에 그린 그림들 저장
-
-  const [loading, setLoading] = useState(true); //메시지 수신 loading
-  const [canvasReady, setCanvasReady] = useState(false); // DrawingBoard 렌더링
-  const [hasPublished, setHasPublished] = useState(false);
 
   //livekit
   const joinVidu = async () => {
