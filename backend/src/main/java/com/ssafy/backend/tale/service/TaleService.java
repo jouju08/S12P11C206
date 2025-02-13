@@ -218,6 +218,9 @@ public class TaleService {
             //System.out.println("taleMemberDtos.get(i) = " + taleMemberDtos.get(i));
             setTaleMemberDtoToRedis(taleMemberDtos.get(i));
         }
+
+        // 4. 레디스에 대기 방 삭제.
+        roomService.deleteRoom(roomId);
         return startTaleMakingResponseDto;
     }
 
