@@ -137,7 +137,7 @@ def generate_tale_intro_image(generate_intro_image_request: request_dto.Generate
 
     response = chains.generate_image_prompt.invoke({
         "title": generate_intro_image_request.title,
-        "intro": generate_intro_image_request.intro
+        "scene": generate_intro_image_request.intro
     })
 
     prompt_set = PromptSet(prompt=positive_prompt_prefix + response,
