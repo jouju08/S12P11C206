@@ -102,7 +102,7 @@ public class FriendRequestService {
                 .map(request -> {
                     Member geter = memberRepository.findById(request.getRecipientId())
                             .orElseThrow(() -> new IllegalArgumentException("Invalid proposer ID"));
-                    return new MemberDto(geter.getLoginId(), geter.getNickname(), geter.getProfileImg());
+                    return new MemberDto(geter.getLoginId(), geter.getNickname(), geter.getProfileImg(), false);
                 })
                 .collect(Collectors.toList());
     }
@@ -135,7 +135,7 @@ public class FriendRequestService {
                 .map(request -> {
                     Member proposer = memberRepository.findById(request.getProposerId())
                             .orElseThrow(() -> new IllegalArgumentException("Invalid proposer ID"));
-                    return new MemberDto(proposer.getLoginId(), proposer.getNickname(), proposer.getProfileImg());
+                    return new MemberDto(proposer.getLoginId(), proposer.getNickname(), proposer.getProfileImg(), false);
                 })
                 .collect(Collectors.toList());
     }

@@ -57,7 +57,7 @@ const CollectionModal = ({ handleExit }) => {
         
         {pageNum === 4 ? null : (
           <div className="text-right pr-20 mt-2">
-            <AudioPlayer pageNum={pageNum} audioSrc={taleDetail['voice']} />
+            <AudioPlayer pageNum={pageNum} audioSrc="/Collection/test-audio.wav" />
           </div>
         )}
         
@@ -100,7 +100,7 @@ const CollectionModal = ({ handleExit }) => {
               alt="블러 처리 이미지"
             />
             <img
-              src={taleStart['startImg']}
+              src="/TaleStart/test-story-start.jpg"
               alt="동화 만든 이미지"
               className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
             />
