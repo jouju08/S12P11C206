@@ -1,9 +1,7 @@
 package com.ssafy.backend.tale.service;
 
-import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.common.CustomMultipartFile;
-import com.ssafy.backend.common.S3Service;
-import com.ssafy.backend.common.WebSocketNotiService;
+import com.ssafy.backend.common.*;
+import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.tale.dto.common.PromptSet;
 import com.ssafy.backend.tale.dto.common.TaleMemberDto;
 import com.ssafy.backend.tale.dto.request.*;
@@ -31,7 +29,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.netty.http.client.HttpClient;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -154,21 +158,51 @@ public class AIServerRequestService {
 //
 //    }
 
-    public ApiResponse<TextResponseDto> requestVoiceKeyword(KeywordFileRequestDto keywordFileRequestDto) {
-        // ByteArrayResource 생성
-        ByteArrayResource fileResource = getByteArrayResource(keywordFileRequestDto.getKeyword());
+    private int getAudioDurationSecond(AudioFileFormat audioFileFormat) {
+        AudioFormat format = audioFileFormat.getFormat();
+        long frameLength = audioFileFormat.getFrameLength();
+        float frameRate = format.getFrameRate();
 
-        // MultiValueMap 생성
-        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-        parts.add("file", fileResource);
+        // frameRate가 0일 경우 0분을 반환하도록 처리
+        if (frameRate <= 0) {
+            return 0;
+        }
 
-        return webClient.post()
-                .uri("/ask/voice-to-word")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(BodyInserters.fromMultipartData(parts))
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<ApiResponse<TextResponseDto>>(){})
-                .block();
+        // 재생 시간을 초 단위로 계산한 후 int로 캐스팅 (소수점은 버림)
+        return (int)(frameLength / frameRate);
+    }
+
+    public ApiResponse<TextResponseDto> requestVoiceKeyword(KeywordFileRequestDto keywordFileRequestDto){
+        MultipartFile multipartFile = keywordFileRequestDto.getKeyword();
+        try {
+            InputStream originalStream = multipartFile.getInputStream();
+            BufferedInputStream bufferedStream = new BufferedInputStream(originalStream);
+            AudioFileFormat format = AudioSystem.getAudioFileFormat(bufferedStream);
+            if(getAudioDurationSecond(format) >= 10*60)
+                throw new BadRequestException("10분 이상의 파일은 지원하지 않습니다.");
+            else if(format.getByteLength() >= 26214400)
+                throw new BadRequestException("25MB 이상의 파일은 지원하지 않습니다.");
+
+            // ByteArrayResource 생성
+            ByteArrayResource fileResource = getByteArrayResource(keywordFileRequestDto.getKeyword());
+
+            // MultiValueMap 생성
+            MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+            parts.add("file", fileResource);
+
+            ApiResponse<TextResponseDto> response =  webClient.post()
+                    .uri("/ask/voice-to-word")
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(BodyInserters.fromMultipartData(parts))
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<ApiResponse<TextResponseDto>>(){})
+                    .block();
+            if(!response.getStatus().equals(ResponseCode.SUCCESS))
+                throw new RuntimeException("AI 서버 요청 실패");
+            return response;
+        }catch(IOException | UnsupportedAudioFileException e){
+            throw new BadRequestException("지원하는 형식(.wav)가 아니거나, 잘못된 파일입니다.");
+        }
     }
 
     public ApiResponse<TextResponseDto> requestHandWriteKeyword(KeywordFileRequestDto keywordFileRequestDto) {
