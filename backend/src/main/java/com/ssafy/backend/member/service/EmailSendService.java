@@ -100,7 +100,6 @@ public class EmailSendService {
                 + "<p style='font-size: 16px; line-height: 1.5;'>인증 번호는 <strong style='color: #ff7f50;'>" + authNumber + "</strong>입니다.</p>"
                 + "<p style='font-size: 16px; line-height: 1.5;'>해당 번호를 회원가입 페이지에 입력해주세요.</p>"
                 + "<br>"
-                + "<p style='text-align: center;'>감사합니다!</p>"
                 + "<div style='text-align: center; margin-top: 30px;'>"
                 + "<button style='background-color: #ff7f50; color: #fff; border: none; padding: 10px 20px; font-size: 16px; border-radius: 5px;'>회원가입 페이지로 가기</button>"
                 + "</div>"

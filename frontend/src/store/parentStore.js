@@ -1,12 +1,13 @@
 import axios from "axios";
-import { userStore } from "./userStore";
+import { userStore, useUser } from "./userStore";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { api } from "./userStore";
 
-const api = axios.create({
-    baseURL: '/api',
-});
+// const api = axios.create({
+//     baseURL: '/api',
+// });
 
 const initialProfile = {
     memberId: null,
@@ -85,6 +86,21 @@ const initialProfile = {
         throw error;
       }
     },
+
+    deleteUser:async()=>{
+      try{
+        const response=await api.delete("/member/delete");
+        console.log(response.data.status);
+        console.log(response.data);
+        if(response.data.status==="SU"){
+          console.log("delete user success");
+          return true;
+        }
+      }catch(error){
+          console.log("user delete error", error);
+          return false;
+        }
+    },
   
   });
   
@@ -113,6 +129,7 @@ const initialProfile = {
     const updateProfile = profileStore((state) => state.updateProfile);
     const isNicknameAvailable = profileStore((state) => state.isNicknameAvailable);
     const updateProfileImage = profileStore((state) => state.updateProfileImage);
+    const deleteUser=profileStore((state)=>state.deleteUser);
   
     return {
       memberId,
@@ -126,7 +143,8 @@ const initialProfile = {
       fetchProfile,
       updateProfile,
       isNicknameAvailable,
-      updateProfileImage
+      updateProfileImage,
+      deleteUser,
     };
   };
 
