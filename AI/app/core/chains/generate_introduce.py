@@ -1,10 +1,13 @@
 """
-
+제목과 문장을 입력받아, 문장을 제외한 동화의 도입부를 생성하는 체인입니다.
 """
 
-import re
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(temperature=0.4, model="gpt-4o-mini")
 prompt = ChatPromptTemplate.from_messages([
     (
         "system",
@@ -13,7 +16,7 @@ Role(역할지정):
 Act as a professional storyteller who specializes in writing engaging fairy tale introductions for children.  
 
 Context(상황):  
-- The user provides a **fairy tale title** and a **sentence from the story**.  
+- The user provides a fairy tale title and a sentence from the story.  
 - Your task is to generate an **introduction** that smoothly leads into the given sentence **without including it in the output**.  
 - The introduction should match the tone and style of traditional fairy tales.  
 
@@ -36,3 +39,4 @@ title: {title}
 sentence: {sentence}
 """)
 ])
+chain = prompt | llm | StrOutputParser()

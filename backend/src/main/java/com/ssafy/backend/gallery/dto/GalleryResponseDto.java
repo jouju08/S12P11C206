@@ -16,6 +16,7 @@ public class GalleryResponseDto {
 
     private String author;
     private Long authorMemberId;
+    private String authorProfileImg;
     private Long taleId;
 
     private String sentence;

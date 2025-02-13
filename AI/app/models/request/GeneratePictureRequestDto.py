@@ -1,7 +1,5 @@
-
 from pydantic import BaseModel, Field
 from app.models.common.PromptSet import PromptSet
-from fastapi import File
 
 
 class GeneratePictureRequestDto(BaseModel):

@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
-import useFriendStore from '@/store/friendStore';
+import { useFriend } from '@/store/friendStore';
+import { userStore } from '@/store/userStore';
 import { Loading } from '@/common/Loading';
 
-const Friends = ({ friends }) => {
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const Friends = ({ friends, setShowFriend, showFriend }) => {
   const [activeTab, setActiveTab] = useState('friends'); // 기본값: 친구 요청
   const {
     friendRequests,
@@ -20,7 +24,8 @@ const Friends = ({ friends }) => {
     fetchFindMembers,
     searchMembers,
     makeFriend,
-  } = useFriendStore();
+  } = useFriend();
+  const { memberId } = userStore();
 
   const [searchTerm, setSearchTerm] = useState(''); //검색어
   const [filteredMembers, setFilteredMembers] = useState(searchMembers);
@@ -66,10 +71,64 @@ const Friends = ({ friends }) => {
   //       <Loading />
   //     </p>
   //   );
+
+  const showDeleteSwal = (friendId) => {
+    withReactContent(Swal)
+      .fire({
+        title: (
+          <p className="text-text-first service-accent1 mb-7">
+            정말 친구를 그만둘까요?
+          </p>
+        ),
+        html: (
+          <p className="text-text-second service-regular1 mb-5">
+            물론 다시 친구 신청할 수 있어요!
+          </p>
+        ),
+        // icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: (
+          <p className="text-white service-regular3">네, 끊을게요!</p>
+        ),
+        cancelButtonText: (
+          <p className="text-white service-regular3">아니에요!</p>
+        ),
+        width: 500,
+        padding: '50px 50px',
+      })
+      .then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: (
+              <p className="text-text-first service-accent1 mb-7">
+                친구 삭제 완료
+              </p>
+            ),
+
+            // icon: "success"
+            width: 500,
+            padding: '50px 50px',
+            cancelButtonText: '닫기',
+          });
+          deleteFriend(friendId);
+        }
+      });
+  };
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="w-[514px] h-fit relative bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] p-6 border border-gray-100">
+    <div className="w-[514px] h-dvh relative bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] flex flex-col justify-between p-6 border border-gray-100">
+      <button
+        className="h-[50px] w-[50px]"
+        onClick={() => setShowFriend(!showFriend)}>
+        <img
+          src="/Common/black-close.png"
+          alt="닫기 버튼"
+          className="h-[50px] w-[50px]"
+        />
+      </button>
       <div className="flex justify-around items-center pb-2 mb-4">
         <button
           onClick={() => setActiveTab('friends')}
@@ -105,7 +164,7 @@ const Friends = ({ friends }) => {
 
       {/* 받은 친구 요청*/}
       {activeTab === 'get_requests' && (
-        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {friendRequests.length === 0 ? (
             <div className="relative w-full h-full">
               <p className="text-center text-lg text-text-first font-NPSfont absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -155,7 +214,7 @@ const Friends = ({ friends }) => {
 
       {/*내가 보낸 친구 신청*/}
       {activeTab === 'send_requests' && (
-        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {sendFriendRequests.length === 0 ? (
             <div className="relative w-full h-full">
               <p className="text-center text-lg text-text-first font-NPSfont absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -194,7 +253,7 @@ const Friends = ({ friends }) => {
 
       {/* 친구 목록 */}
       {activeTab === 'friends' && (
-        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {friendList.length === 0 ? (
             <div className="relative w-full h-full flex flex-col justify-center items-center">
               <img
@@ -222,9 +281,21 @@ const Friends = ({ friends }) => {
                       {friend.nickname}
                     </span>
                   </div>
+                  {/* 접속중 상태 */}
+                  <div>
+                    {friend.connecting ? (
+                      <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-success">
+                        들어와 있어 !
+                      </span>
+                    ) : (
+                      <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-choose">
+                        다음에 놀자~
+                      </span>
+                    )}
+                  </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => deleteFriend(friend.loginId)}
+                      onClick={() => showDeleteSwal(friend.loginId)}
                       className="px-4 py-2 bg-main-choose text-text-white rounded-lg hover:bg-rose-500 transition-colors duration-200 font-NPSfont ">
                       친구 끊기
                     </button>
@@ -238,13 +309,13 @@ const Friends = ({ friends }) => {
 
       {/*멤버 검색*/}
       {activeTab === 'find_friends' && (
-        <div className="w-[464px] h-[400px] overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
+        <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           <input
             type="text"
             placeholder="닉네임을 입력해주세요"
             value={searchTerm}
             onChange={handleSearch}
-            className="w-full px-3 py-2 border rounded-md 
+            className="w-full px-3 py-2 border rounded-md mb-3
     focus:outline-none focus:ring-2 focus:ring-blue-500 service-regular3"
           />
           {showDropdown && (

@@ -121,6 +121,7 @@ public class GalleryService {
                     .hasLiked(hasLiked)
                     .author(gallery.get().getMember().getNickname())
                     .authorMemberId(gallery.get().getMember().getId())
+                    .authorProfileImg(gallery.get().getMember().getProfileImg())
                     .taleId(gallery.get().getTaleMember().getTale().getId())
                     .baseTaleId(gallery.get().getTaleMember().getTale().getBaseTale().getId())
                     .sentence(replaceSentence)

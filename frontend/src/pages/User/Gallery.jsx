@@ -45,17 +45,8 @@ export default function Gallery() {
     return () => el.removeEventListener('scroll', handleScroll);
   }, [page, hasMore, sortBy, filterBy]);
 
-  const realCount = myPictures.length;
-  const remainder = realCount % 4;
-  const placeholdersNeeded = remainder === 0 ? 0 : 4 - remainder;
-  const displayedList = [...myPictures];
-  if (placeholdersNeeded > 0) {
-    const placeholders = Array.from({ length: placeholdersNeeded }, (_, i) => ({
-      id: `placeholder_${i}`,
-      orginImg: '',
-    }));
-    displayedList.push(...placeholders);
-  }
+  // 이미지 값이 존재하는 항목만 필터링합니다.
+  const displayedList = myPictures.filter(item => item.orginImg);
 
   const handleOpen = (item) => {
     const requestPayload = {
@@ -114,49 +105,32 @@ export default function Gallery() {
         ref={scrollRef}
         className="w-[950px] h-[486px] relative overflow-y-auto mt-[30px] pr-4"
       >
-        <div className="flex flex-wrap">
-          {displayedList.map((item, index) => {
-            const isLineNeeded = index % 4 === 0;
-            return (
-              <React.Fragment key={item.id}>
-                {isLineNeeded && (
-                  <div className="w-full mb-2 relative h-[40px]">
-                    <img
-                      src="/Gallery/picture-display.png"
-                      alt="빨래집게 라인"
-                      className="absolute top-0 left-0 w-full h-auto z-10"
-                    />
-                  </div>
-                )}
-                <div
-                  className="relative z-0 w-[215px] h-[215px] bg-white flex items-center justify-center m-2 cursor-pointer mt-5"
-                  onClick={item.orginImg ? () => handleOpen(item) : undefined}
-                >
-                  {item.orginImg ? (
-                    <img
-                      src={item.orginImg}
-                      alt={`Image ${item.id}`}
-                      className="w-[195px] h-[195px] object-cover bg-gray-300"
-                    />
-                  ) : (
-                    <div className="w-[195px] h-[195px] bg-gray-300 flex flex-col items-center justify-center">
-                      <img
-                        src="/Gallery/camera.png"
-                        alt="카메라"
-                        className="w-[80px] h-[80px]"
-                      />
-                      <p className="story-basic2 mt-2 text-center">
-                        다음 사진
-                        <br />
-                        나오는 중...
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </React.Fragment>
-            );
-          })}
-        </div>
+        {displayedList.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <img
+              src="/Common/nodata.png"
+              alt="No Data"
+              className="w-[100px] h-[100px]"
+            />
+            <p className="service-accent2 mt-2">아직 만들어진 그림이 없어요</p>
+          </div>
+        ) : (
+          <div className="flex flex-wrap">
+            {displayedList.map((item) => (
+              <div
+                key={item.id}
+                className="relative z-0 w-[215px] h-[215px] bg-white flex items-center justify-center m-2 cursor-pointer mt-5"
+                onClick={() => handleOpen(item)}
+              >
+                <img
+                  src={item.orginImg}
+                  alt={`Image ${item.id}`}
+                  className="w-[195px] h-[195px] object-cover bg-gray-300"
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {showModal && (

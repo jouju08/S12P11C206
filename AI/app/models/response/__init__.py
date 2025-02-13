@@ -1,6 +1,5 @@
 from .ApiResponse import ApiResponse
 from .TextResponseDto import TextResponseDto
-from .URLResponseDto import URLResponseDto
 from .GenerateTaleResponseDto import GenerateTaleResponseDto
 from .GenerateSentencesResponseDto import GenerateSentencesResponseDto
 from .GenerateDiffusionPromptsResponseDto import GenerateDiffusionPromptsResponseDto
