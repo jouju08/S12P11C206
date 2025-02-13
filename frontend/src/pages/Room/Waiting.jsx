@@ -134,7 +134,9 @@ export default function Waiting() {
 
           {/* 4자리 중 빈 자리 */}
           {Array.from({ length: 4 - participants.length }, (_, idx) => (
-            <div className="w-full h-[60px] leading-[60px] bg-gray-300 rounded-[30px] text-center text-text-white service-regular1">
+            <div
+              key={idx}
+              className="w-full h-[60px] leading-[60px] bg-gray-300 rounded-[30px] text-center text-text-white service-regular1">
               같이 할 친구를 기다려봐요!
             </div>
           ))}
