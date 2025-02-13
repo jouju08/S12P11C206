@@ -13,6 +13,7 @@ import '@/styles/main.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
+
 import { Link } from 'react-router-dom';
 
 const dummyDrawingList = [
@@ -62,6 +63,11 @@ export default function Main() {
   // 로그인 되어있는 유저 닉네임 가져오기
   const { nickname , profileImg, memberInfo, myPage} = userStore((state) => state);
   const [member, setMember]=useState(memberInfo||{});
+  const [timeLeft, setTimeLeft] = useState(40); // 5분
+  const [isWarning, setIsWarning]=useState(false);
+
+  
+
 
   //페이지 랜더링 될때마다 유저 정보 불러오기
   useEffect(()=>{
@@ -217,7 +223,7 @@ export default function Main() {
           만들어진 동화방
         </div>
         <div className="h-[300px] flex items-center text-center">
-          {taleData.length != 0 ? (
+          {taleData && taleData.length != 0 ? (
             <Swiper
               slidesPerView={3}
               spaceBetween={-10}
@@ -245,7 +251,7 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           지금 인기있는 그림
         </div>
-        {drawingData.length != 0 ? (
+        {drawingData && drawingData.length != 0 ? (
           <Swiper
             slidesPerView={4}
             spaceBetween={30}
@@ -267,6 +273,7 @@ export default function Main() {
           </div>
         )}
       </div>
+       
     </div>
   );
 }
