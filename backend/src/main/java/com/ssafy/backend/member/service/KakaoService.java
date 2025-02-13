@@ -14,10 +14,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -55,11 +52,16 @@ public class KakaoService {
         if (optionalMember.isPresent()) {
             member = optionalMember.get();
         } else {
+            String tempNickname = userInfo.getNickname();
+
+            do {
+                tempNickname = userInfo.getNickname() + UUID.randomUUID().toString().replace("-", "").substring(0, 5);
+            } while (memberRepository.findByNickname(tempNickname).isPresent());
+
             Member newMember = Member.builder()
                     .loginId(userInfo.getLoginId())
-                    .nickname(userInfo.getNickname())
+                    .nickname(tempNickname)
                     .isDeleted(false)
-//                            .profileImg()
                     .loginType('K')
                     .birth(formattedDate)
                     .build();

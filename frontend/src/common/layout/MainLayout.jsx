@@ -55,8 +55,13 @@ export default function MainLayout() {
       {showFriend && (
         <div
           ref={friendsRef}
-          className="absolute top-[110px] right-1/4 z-50">
-          <Friends />
+          className={`fixed top-[0px] right-0 z-50 transition-transform duration-300 ease-in-out transform ${
+            showFriend ? 'translate-x-0' : '-translate-x-full'
+          }`}>
+          <Friends
+            showFriend={showFriend}
+            setShowFriend={setShowFriend}
+          />
         </div>
       )}
     </div>
