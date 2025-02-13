@@ -10,7 +10,7 @@ const DrawingBoard = forwardRef(
   ({ width, height, usePalette, useHeartBeat = false }, ref) => {
     const canvasRef = useRef(null);
     const [lineColor, setLineColor] = useState('#000000');
-    const [lineWidth, setLineWidth] = useState(5);
+    const [lineWidth, setLineWidth] = useState(1);
     const [isDrawing, setIsDrawing] = useState(false);
     const [isEraser, setIsEraser] = useState(false);
     const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 });

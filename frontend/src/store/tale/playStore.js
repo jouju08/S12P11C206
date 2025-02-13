@@ -140,8 +140,8 @@ const playActions = (set, get) => ({
 
     const response = await taleAPI.taleKeyWordTyping(data);
 
-    if (response.data.data) {
-      return response.data.data;
+    if (response.data) {
+      return response.data;
     } else {
       return false;
     }
@@ -161,8 +161,8 @@ const playActions = (set, get) => ({
 
     const response = await taleAPI.taleKeyWordVoice(formData);
 
-    if (response.data.data) {
-      return response.data.data;
+    if (response.data) {
+      return response.data;
     } else {
       return false;
     }

@@ -1,4 +1,11 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import {
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+  useLayoutEffect,
+} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useTaleRoom } from '@/store/roomStore';
@@ -7,17 +14,8 @@ import { Loading } from '@/common/Loading';
 import DrawingBoard from '@/components/Common/DrawingBoard';
 import { useViduHook } from '@/store/tale/viduStore';
 import OpenviduCanvas from '@/components/TaleRoom/OpenviduCanvas';
-import { LocalVideoTrack, RoomEvent, Track } from 'livekit-client';
+import { LocalVideoTrack, Room, RoomEvent, Track } from 'livekit-client';
 import { useUser } from '@/store/userStore';
-
-// 백에서 문장 4개가 어떻게 넘어오는지 모르겠음
-// 그냥 받았다고 치자
-const sentences = [
-  '첫째 아기 돼지는 구름으로 집을 지었습니다.',
-  '둘째 아기 돼지는 나무로 집을 지었습니다.',
-  '셋째 아기 돼지는 벽돌로 집을 지었습니다.',
-  '늑대가 후우 불어 집을 무너뜨렸습니다.',
-];
 
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
@@ -26,6 +24,7 @@ const TaleSentenceDrawing = () => {
   const localCanvasTrackRef = useRef(null);
   const navigate = useNavigate();
 
+  const { currentRoom } = useTaleRoom();
   const {
     drawDirection,
     setDrawDirection,
@@ -59,91 +58,111 @@ const TaleSentenceDrawing = () => {
     [sortedSentences, memberId]
   );
 
-  // 싱글모드인가 아닌가
-  const { isSingle } = useTaleRoom();
+  const { isSingle } = useTaleRoom(); // 싱글모드 판단
 
-  // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0); // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
 
-  // 싱글모드일때 사용, 이전에 그린 그림들 저장
-  const [previousDrawings, setPreviousDrawings] = useState([]);
+  const [previousDrawings, setPreviousDrawings] = useState([]); // 싱글모드일때 사용, 이전에 그린 그림들 저장
 
-  //메시지 수신 loading
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); //메시지 수신 loading
+  const [canvasReady, setCanvasReady] = useState(false); // DrawingBoard 렌더링
+  const [hasPublished, setHasPublished] = useState(false);
 
   //livekit
-  useEffect(() => {
-    const handleVidu = async () => {
-      await joinViduRoom();
-    };
+  const joinVidu = async () => {
+    await getTokenByAxios(currentRoom.roomId);
+    await joinViduRoom();
 
-    handleVidu();
+    return;
+  };
+
+  const publishCanvasTrack = async () => {
+    console.log('publishCanvasTrack 호출됨');
+    console.log(viduRoom);
+    console.log(canvasRef.current);
+    if (!viduRoom) return;
+
+    const canvasElement = canvasRef.current.getCanvas();
+    if (!canvasElement) {
+      console.log('캔버스 엘리먼트를 찾을 수 없음');
+      return;
+    }
+
+    //heartbeat
+    canvasRef.current.clearCanvas();
+
+    try {
+      const stream = canvasElement.captureStream(30); // 30 FPS
+      const mediaStreamTrack = stream.getVideoTracks()[0];
+
+      if (!mediaStreamTrack) {
+        console.error('captureStream에서 videoTrack 생성 실패');
+        return;
+      }
+      console.log('생성된 videoTrack:', mediaStreamTrack);
+
+      const localVideoTrack = new LocalVideoTrack(mediaStreamTrack);
+
+      await viduRoom.localParticipant.publishTrack(localVideoTrack, {
+        name: 'video_from_canvas',
+        source: Track.Source.Camera,
+      });
+      console.log('Canvas track published successfully!');
+
+      // .then(() => {
+      //   console.log('Canvas track published successfully!');
+      // })
+      // .catch((error) => {
+      //   console.error('Error publishing canvas track:', error);
+      // });
+    } catch (error) {
+      console.error('captureStream 호출 중 에러 발생:', error);
+    }
+
+    // if (viduRoom.connectionState === 'connected') {
+    //   if (canvasRef.current) {
+    //     publishCanvasTrack(canvasRef.current);
+    //   }
+    // } else {
+    //   viduRoom.on(RoomEvent.Connected, publishCanvasTrack);
+    // }
+  };
+
+  useEffect(() => {
+    joinVidu();
   }, []);
 
   useEffect(() => {
-    if (!viduRoom) return;
-
-    const publishCanvasTrack = () => {
-      if (!canvasRef.current) {
-        console.log('canvasRef.current가 아직 준비되지 않음');
-        return;
-      }
-      const canvasElement = canvasRef.current.getCanvas();
-      if (!canvasElement) {
-        console.log('캔버스 엘리먼트를 찾을 수 없음');
-        return;
-      }
-
-      //heartbeat
-      canvasRef.current.clearCanvas();
-
-      try {
-        const stream = canvasElement.captureStream(30); // 30 FPS
-        const mediaStreamTrack = stream.getVideoTracks()[0];
-
-        if (!mediaStreamTrack) {
-          console.error('captureStream에서 videoTrack 생성 실패');
-          return;
-        }
-        console.log('생성된 videoTrack:', mediaStreamTrack);
-
-        const localVideoTrack = new LocalVideoTrack(mediaStreamTrack);
-
-        viduRoom.localParticipant
-          .publishTrack(localVideoTrack, {
-            name: 'video_from_canvas',
-            source: Track.Source.Camera,
-          })
-          .then(() => {
-            console.log('Canvas track published successfully!');
-          })
-          .catch((error) => {
-            console.error('Error publishing canvas track:', error);
-          });
-      } catch (error) {
-        console.error('captureStream 호출 중 에러 발생:', error);
-      }
+    const handleConnected = () => {
+      publishCanvasTrack();
     };
 
-    // 이미 연결되어 있으면 바로 퍼블리시
-    if (viduRoom.connectionState === 'connected') {
-      publishCanvasTrack();
+    if (!viduRoom) return;
+
+    if (viduRoom.connectionState !== 'connected') {
+      viduRoom.on(RoomEvent.Connected, handleConnected);
     } else {
-      // 연결 이벤트가 발생하면 퍼블리시
-      viduRoom.on(RoomEvent.Connected, publishCanvasTrack);
+      handleConnected();
     }
 
     return () => {
-      // 이벤트 리스너 정리
       if (viduRoom) {
         viduRoom.off(RoomEvent.Connected, publishCanvasTrack);
       }
     };
   }, [viduRoom]);
 
-  // 컴포넌트 마운트 시 타이머 시작
-
+  // viduRoom의 연결 상태를 감지하여 openvidu track 실행
   useEffect(() => {
+    if (drawDirection.length >= 4) {
+      setLoading(false);
+    }
+  }, [drawDirection]);
+
+  //타이머
+  useEffect(() => {
+    if (loading) return;
+
     if (currentStep >= 4) {
       setTimeLeft(0);
       return;
@@ -162,17 +181,10 @@ const TaleSentenceDrawing = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentStep]);
+  }, [currentStep, loading]);
 
-  //Loading 처리
+  //완료처리
   useEffect(() => {
-    if (drawDirection.length > 0) {
-      setLoading(false);
-    }
-  }, [drawDirection]);
-
-  useEffect(() => {
-    console.log(isFinish);
     if (isFinish) {
       setCanRead(true);
     }
@@ -208,7 +220,7 @@ const TaleSentenceDrawing = () => {
     } else if (!isSingle) {
       await submitPicture(tmpFile);
 
-      // setCurrentStep((prev) => prev + 100);
+      setCurrentStep((prev) => prev + 100);
     }
   };
 
@@ -240,9 +252,12 @@ const TaleSentenceDrawing = () => {
 
   return (
     <>
-      {loading ? (
-        <Loading />
-      ) : (
+      <div className="relative">
+        {loading && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-white bg-opacity-100">
+            <Loading />
+          </div>
+        )}
         <div
           className="w-[1024px] h-[668px] bg-cover flex"
           style={{
@@ -361,7 +376,7 @@ const TaleSentenceDrawing = () => {
             </div>
           </section>
         </div>
-      )}
+      </div>
     </>
   );
 };

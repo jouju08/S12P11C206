@@ -65,7 +65,7 @@ export default function Room() {
         );
 
         setExistTaleRoom(
-          filterTales.map((item, idx) => (
+          filterTales?.map((item, idx) => (
             <FairyTaleRoom
               key={idx}
               item={item}

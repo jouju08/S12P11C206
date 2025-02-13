@@ -24,13 +24,13 @@ public class KakaoService {
     private final RefreshTokenService refreshTokenService;
     private final JwtUtil jwtUtil;
 
-    @Value("${oauth_kakao_client_id}")
+    @Value("${OAUTH_KAKAO_CLIENT_ID}")
     private String clientId;
 
-    @Value("${oauth_kakao_redirect_uri}")
+    @Value("${OAUTH_KAKAO_REDIRECT_URI}")
     private String redirectUri;
 
-    @Value("${oauth_kakao_secert}")
+    @Value("${OAUTH_KAKAO_SECRET}")
     private String secret;
 
     public LoginResponseDto kakaoLogin(String code) {

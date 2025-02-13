@@ -13,47 +13,20 @@ services:
       - redis
     networks:
       - app-network
-    environment:
-      - SPRING_DB_URL=${SPRING_DB_URL}
-      - SPRING_DB_USERNAME=${SPRING_DB_USERNAME}
-      - SPRING_DB_PASSWORD=${SPRING_DB_PASSWORD}
-      - REDIS_HOST=${REDIS_HOST}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_EXPIRE_TIME=${REDIS_EXPIRE_TIME}
-      - SPRING_MAIL_HOST=${SPRING_MAIL_HOST}
-      - SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}
-      - SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}
-      - SPRING_MAIL_PORT=${SPRING_MAIL_PORT}
-      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
-      - AWS_S3_ACCESS=${AWS_S3_ACCESS}
-      - AWS_S3_SECRET=${AWS_S3_SECRET}
-      - AWS_S3_REGION=${AWS_S3_REGION}
-      - SPRING_PORT=${SPRING_PORT}
-      - FRONT_PORT=${FRONT_PORT}
-      - MYSQL_PORT=${MYSQL_PORT}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
-      - oauth_kakao_client_id=${oauth_kakao_client_id}
-      - oauth_kakao_secert=${oauth_kakao_secert}
-      - oauth_kakao_redirect_uri=${oauth_kakao_redirect_uri}
-      - OPENVIDU_URL=https://i12c206.p.ssafy.io:8443
-      - OPENVIDU_SECRET=MY_SECRET
-      - AI_SERVER_URL=${AI_SERVER_URL}
-      - LIVEKIT_API_KEY=secret
-      - LIVEKIT_API_SECRET=abababababababababababababababab
+    env_file:
+      - ./config/backend.env
+
   # frontend
   frontend:
     build: ./frontend
     ports:
       - "${FRONT_PORT}:2828"
     volumes:
-      - /home/ubuntu/tinker/frontend/dist:/app/dist
+      - /home/ubuntu/MyFairy/frontend/dist:/app/dist
     networks:
       - app-network
-    environment:
-      - VITE_KAKAO_CLIENT_ID=${VITE_KAKAO_CLIENT_ID}
-      - VITE_REDIRECT_URI=${VITE_REDIRECT_URI}
-      - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+    env_file:
+      - ./config/frontend.env
     command: npm run build
 
   # redis
@@ -64,7 +37,6 @@ services:
     command: redis-server /usr/local/etc/redis/redis.conf
     volumes:
       - ./redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
-      - redis-data:/data
     networks:
       - app-network
 
@@ -73,11 +45,13 @@ services:
     image: mysql:8.0
     ports:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
+    env_file:
+      - ./config/etc.env
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - TZ=Asia/Seoul
     volumes:
       - ./mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./mysql/init:/docker-entrypoint-initdb.d
       - mysql-data:/var/lib/mysql
     networks:
       - app-network
@@ -97,7 +71,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/certbot:/var/www/certbot
-      - /home/ubuntu/tinker/frontend/dist:/usr/share/nginx/html:ro
+      - /home/ubuntu/MyFairy/frontend/dist:/usr/share/nginx/html:ro
     networks:
       - app-network
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
@@ -119,23 +93,8 @@ services:
       - "8000:8000"
     networks:
       - app-network
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - NOVITA_API_KEY=${NOVITA_API_KEY}
-      - NAVER_OCR_SECRET_KEY=${NAVER_OCR_SECRET_KEY}
-      - NAVER_OCR_INVOKE_URL=${NAVER_OCR_INVOKE_URL}
-      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2}
-      - LANGCHAIN_ENDPOINT=${LANGCHAIN_ENDPOINT}
-      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
-      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT}
-      - FAST_API_HOST=${FAST_API_HOST}
-      - FAST_API_PORT=${FAST_API_PORT}
-      - API_BASE_URL=${API_BASE_URL}
-      - MAX_AUDIO_LENGTH=${MAX_AUDIO_LENGTH}
-      - SPRING_SERVER_URL=${SPRING_SERVER_URL}
-      - PUBLIC_HOST_URL=${PUBLIC_HOST_URL}
-      - AI_IMG_2_IMG_SERVER=${AI_IMG_2_IMG_SERVER}
+    env_file:
+      - ./config/AI.env
 
 volumes:
   mysql-data:
-  redis-data:

@@ -11,21 +11,20 @@ import app.models.request as request_dto
 import app.models.response as response_dto
 import app.models.response.Status as Status
 
-from app.models.common import PromptSet
 
 router = APIRouter(prefix=f"{config.API_BASE_URL}/gen", tags=["gen"])
 
 
 @router.post("/tale", description="동화를 생성하는 API", response_model=response_dto.ApiResponse[response_dto.GenerateTaleResponseDto])
 @util.logger
-def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto):
+async def generate_tale(taleRequestDto: request_dto.GenerateTaleRequestDto):
     """
     동화를 생성하는 API
     """
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
-        data=llm_service.generate_tale(taleRequestDto)
+        data=await llm_service.generate_tale(taleRequestDto)
     )
 
 
@@ -41,14 +40,14 @@ def script_read(textRequestDto: request_dto.TextRequestDto):
 
 @router.post("/diffusion-prompts", description="이미지 프롬프트 생성", response_model=response_dto.ApiResponse[response_dto.GenerateDiffusionPromptsResponseDto])
 @util.logger
-def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.GenerateDiffusionPromptsRequestDto):
+async def generate_diffusion_prompts(generateDiffusionPromptsRequestDto: request_dto.GenerateDiffusionPromptsRequestDto):
     """
     이미지 프롬프트 생성
     """
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
-        data=llm_service.generate_diffusion_prompts(
+        data=await llm_service.generate_diffusion_prompts(
             generateDiffusionPromptsRequestDto)
     )
 
@@ -75,15 +74,6 @@ async def upgrade_handpicture(roomId: int = Form(...),
             negativePrompt=negativePrompt,
             image=image)
     )
-
-
-# @router.post("/text-to-image")
-# def text_to_image(prompt: request_dto.TextRequestDto):
-#     """
-#     텍스트를 이미지로 변환하는 API
-#     """
-#     print(prompt)
-#     return picture_service.post_novita_api(PromptSet(prompt=prompt.text, negativePrompt=""))
 
 
 @router.post("/tale-sentences", description="키워드 문장 생성", response_model=response_dto.ApiResponse[response_dto.GenerateSentencesResponseDto])
@@ -131,6 +121,7 @@ def generate_tale_intro_image(generateIntroImageRequestDto: request_dto.Generate
     """
     backgroundTask.add_task(
         llm_service.generate_tale_intro_image, generateIntroImageRequestDto)
+
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
