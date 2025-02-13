@@ -9,9 +9,11 @@ import { useViduHook } from '@/store/tale/viduStore';
 import OpenviduCanvas from '@/components/TaleRoom/OpenviduCanvas';
 import { LocalVideoTrack, Room, RoomEvent, Track } from 'livekit-client';
 import { useUser } from '@/store/userStore';
+import '@/styles/taleRoom.css'
 
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
+  const [isWarning, setIsWarning]=useState(false);
   const [canRead, setCanRead] = useState(false);
   const [currentStep, setCurrentStep] = useState(0); // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
 
@@ -158,15 +160,22 @@ const TaleSentenceDrawing = () => {
 
     if (currentStep >= 4) {
       setTimeLeft(0);
+      setIsWarning(false);
       return;
     }
 
     // 1초마다 타이머 갱신
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
+        if(prev<=30){
+          setIsWarning(true);
+        }else{
+          setIsWarning(false);
+        }
         if (prev <= 1) {
           handleConfirm(); // 시간이 다 되면 자동으로 확인 버튼 클릭
           clearInterval(timer);
+          setIsWarning(false);
           return 0;
         }
         return prev - 1;
@@ -195,6 +204,7 @@ const TaleSentenceDrawing = () => {
       if (currentStep <= 3) {
         setCurrentStep((prev) => prev + 1);
         setTimeLeft(300);
+        setIsWarning(false);
 
         // 싱글모드 - 이전 그림 목록에 새로운 그림 추가
 
@@ -310,7 +320,8 @@ const TaleSentenceDrawing = () => {
 
           <section className="w-[30%] px-[25px] pt-3">
             {/* 타이머 */}
-            <div className="relative ml-7 w-[206px] h-[70px] bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] border border-gray-500">
+            <div 
+            className={`relative ml-7 w-[206px] h-[70px] bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl border-[5px]  border-gray-500  ${isWarning?'time-shake red-blink' :' border-gray-500 '}`}>
               <div className="left-[25px] top-0 absolute text-text-firest text-base font-normal font-NPSfont">
                 남은 시간
               </div>
