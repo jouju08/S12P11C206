@@ -1,6 +1,9 @@
+import authAPI from "@/apis/auth/userAxios";
 import { useProfile } from "@/store/parentStore";
 import React, { useEffect, useRef, useState } from "react";
+import { redirect, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+
 
 export default function ProfileEdit() {
   const {
@@ -14,11 +17,14 @@ export default function ProfileEdit() {
     updateProfileImage,
   } = useProfile();
 
+  
+
+  const navigate = useNavigate();
+
   const [newNickname, setNewNickname] = useState(nickname);
   const [newBirth, setNewBirth] = useState(birth);
   const [newProfileImg, setProfileImg] = useState(profileImg);
   const [isNicknameValidated, setIsNicknameValidated] = useState(true);
-
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -56,6 +62,8 @@ export default function ProfileEdit() {
       Swal.fire("프로필 수정 실패", "프로필 수정에 실패했습니다.", "error");
     }
   };
+
+  
 
   // 파일 선택 후 실행될 핸들러 (프로필 이미지 변경)
   const handleProfileImageChange = async (event) => {
@@ -135,6 +143,9 @@ export default function ProfileEdit() {
               >
                 저장 하기
               </button>
+            </div>
+            <div className="flex justify-end">
+             
             </div>
           </div>
         </div>

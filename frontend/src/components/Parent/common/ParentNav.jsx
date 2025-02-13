@@ -1,9 +1,43 @@
 import { useProfile } from "@/store/parentStore";
 import React from "react";
+import { useUser } from '@/store/userStore';
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 export default function ParentNav({ nickname, loginId, selectedComponent, onTabClick }) {
-  const { loginType } = useProfile();
+  const { loginType,deleteUser } = useProfile();
+  const{
+    logout,
+  }=useUser();
+
+  const handleDeleteUser=async()=>{
+      const response=await Swal.fire({
+        title:"정말 탈퇴하실건가요?",
+        text:"진짜요?",
+        imageUrl: "/Common/sad.png", 
+        imageWidth: 100,  // 이미지 너비
+        imageHeight: 100, // 이미지 높이
+        imageAlt:"탈퇴 이미지",
+        showCancelButton:true,
+        confirmButtonColor:"#d33",
+        cancelButtonText:"네 탈퇴할래요",
+        cancelButtonText:"아니요, 취소할래요",
+      });
+      if(response.isConfirmed){
+        const deleteResponse=await deleteUser();
+        if(!deleteResponse){
+          Swal.fire("경고", "탈퇴에 실패했습니다.","error" );
+        }
+        else{
+          const response=await Swal.fire("탈퇴 성공", "이용해주셔서 감사합니다.", "success")
+          if(response.isConfirmed){
+            await logout();
+            // localStorage.removeItem("token");
+            navigate("/")
+          }
+        }
+      }
+    };
   return (
     <div className="min-h-screen p-4">
       <div className="w-[219px] h-[568px] bg-white shadow-md p-[16px]">
@@ -23,7 +57,7 @@ export default function ParentNav({ nickname, loginId, selectedComponent, onTabC
             )}
           </div>
         </div>
-        <div className="pt-[10px] space-y-[16px]">
+        <div className="pt-[10px] space-y-[16px] flex-grow">
           <MenuItem
             icon="/Parent/profile-edit-icon.png"
             text="회원 정보 수정"
@@ -52,7 +86,23 @@ export default function ParentNav({ nickname, loginId, selectedComponent, onTabC
             selectedComponent={selectedComponent}
             onTabClick={onTabClick}
           />
+         
+
         </div>
+        <div className="mt-[265px] flex justify-center">
+    <button
+      onClick={handleDeleteUser}
+      className="w-[150px] h-[38px] rounded-[30px] bg-main-btn service-regular3 text-text-first border border-[#787878] flex items-center justify-center"
+    >
+      <img
+        src="Common/sadfairy.png"
+        alt="탈퇴 아이콘"
+        width={25}
+        className="mr-2"
+      />
+      탈퇴
+    </button>
+  </div>
       </div>
     </div>
   );

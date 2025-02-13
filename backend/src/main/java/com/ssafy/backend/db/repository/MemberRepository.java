@@ -13,8 +13,14 @@ import java.util.Optional;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findById(Integer Id);
+
+    @Query("select m from Member m where m.loginId=:loginId")
     Optional<Member> findByLoginId(String loginId);
-    boolean existsByLoginId(String loginId);
+
+    @Query("select m.isDeleted from Member m where m.loginId = :loginId")
+    Boolean existsByLoginId(String loginId);
+
+    @Query("select m from Member m where m.email=:email And m.isDeleted=false")
     Optional<Member> findByEmail(String email);
 
     @Query("select m from Member m where m.loginId!=:loginId And m.isDeleted=false")
@@ -23,9 +29,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("SELECT m FROM Member m WHERE m.loginId = :loginId AND m.isDeleted=false ")
     Optional<Member> getMemberByLoginIdEquals(String loginId);
     @Modifying
-    @Transactional
     @Query("UPDATE Member m SET m.isDeleted=true WHERE m.loginId = :loginId AND m.isDeleted=false  ")
     int softDeleteByLoginId(String loginId);
-    Optional<Member> findByNickname(String email);
+
+    @Query("select m from Member m where m.nickname=:nickname And m.isDeleted=false")
+    Optional<Member> findByNickname(String nickname);
     Optional<Member> findByEmailAndBirth(String email, String birth);
 }

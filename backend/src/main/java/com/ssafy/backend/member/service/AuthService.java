@@ -1,6 +1,7 @@
 package com.ssafy.backend.member.service;
 
 import com.ssafy.backend.common.auth.JwtUtil;
+import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.common.exception.NotFoundUserException;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
@@ -41,11 +42,6 @@ public class AuthService {
      * 회원가입
      */
     public void register(RegisterRequest request) {
-        // 중복 체크
-        if (memberRepository.existsByLoginId(request.getLoginId())) {
-            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
-        }
-
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
@@ -71,6 +67,11 @@ public class AuthService {
         // 사용자 조회
         Member member = memberRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new NotFoundUserException("사용자 정보를 다시 확인하세요."));
+
+        if(member.getIsDeleted()){
+            throw new NotFoundUserException("사용자 정보를 다시 확인하세요.");
+        }
+
 
         // 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
