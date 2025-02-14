@@ -89,7 +89,7 @@ export default function GalleryDetail() {
       <div className="w-[974px] h-[540px] mt-[30px] relative flex justify-between items-center">
         {/* 이미지 */}
         <div className="w-[540px] h-[540px] bg-white">
-          {isOrigin?galleryPage['originImg']:galleryPage['img']?(
+          {galleryPage['originImg']===null||galleryPage['img']===null?(
           <img
             src={isOrigin ? galleryPage['originImg'] : galleryPage['img']}
             alt="그림"
