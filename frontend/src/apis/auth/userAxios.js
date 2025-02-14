@@ -9,7 +9,9 @@ const authAPI = {
         code: code,
       },
     }),
+
   logout: () => api.post('/auth/logout'),
+
   refresh: (data) => api.post('/auth/refresh', data),
   checkDuplicate:(type,value)=> api.get(`/auth/duplicate/check-${type}/${value}`),//중복확인
   sendEmailAuthenticate:(email)=>api.post("/auth/email/send",{"email":email}),//이메일 전송
@@ -21,6 +23,7 @@ const authAPI = {
   register:(credentials)=>api.post(`/auth/register`, credentials),
   getMemberInfo:()=>api.get("/member/mypage"),
   findId:(payload)=>axios.post("/api/auth/find-id", payload),
+  findPassword:(payload)=>axios.patch("/api/auth/find-password", payload),
 };
 
 export default authAPI;

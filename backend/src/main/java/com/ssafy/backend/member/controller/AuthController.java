@@ -6,6 +6,7 @@ import com.ssafy.backend.common.ResponseMessage;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.dto.FindIdDto;
+import com.ssafy.backend.member.dto.request.FindPasswordRequestDto;
 import com.ssafy.backend.member.dto.request.LoginRequest;
 import com.ssafy.backend.member.dto.request.RefreshTokenRequestDto;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
@@ -37,6 +38,7 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
     private final AuthService authService;
     private final KakaoService kakaoService;
+    private final MemberService memberService;
 
 
     private final JwtUtil jwtUtil;
@@ -155,6 +157,15 @@ public class AuthController {
                     .build();
 
         }
+    }
+
+    @PatchMapping("/find-password")
+    public ApiResponse findPassword(@Valid @RequestBody
+                                    FindPasswordRequestDto findPasswordRequestDto) {
+        String loginId=findPasswordRequestDto.getLoginId();
+        String email=findPasswordRequestDto.getEmail();
+        memberService.findPasswordService(loginId, email);
+        return ApiResponse.builder().data("비밀번호 전송").build();
     }
 
 

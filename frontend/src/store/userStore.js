@@ -14,7 +14,6 @@ import { immer } from 'zustand/middleware/immer';
 
 const api = axios.create({
   baseURL: '/api',
-  withCredentials: true,
 });
 
 let isRefreshing = false;
@@ -33,7 +32,12 @@ const decodeJWT = (token) => {
   if (!token) return null;
   const base64Url = token.split('.')[1]; // payload
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  return JSON.parse(atob(base64));
+  try {
+    return JSON.parse(atob(base64));
+  } catch (error) {
+    console.error('JWT Decode Error:', error);
+    return false;
+  }
 };
 
 const isTokenExpired = (token) => {
@@ -75,12 +79,8 @@ const userActions = (set, get) => ({
         isAuthenticated: true,
       });
 
-      // axios 기본 헤더에 토큰 추가
-      api.defaults.headers.common['Authorization'] =
-        `Bearer ${get().accessToken}`;
       return response;
     } catch (error) {
-      // console.error('로그인 실패:', error);
       return error.response || response;
     }
   },
@@ -105,20 +105,22 @@ const userActions = (set, get) => ({
       return response;
     } catch (error) {
       console.error('로그인 실패:', error);
-      throw error;
+      return error.response || response;
     }
   },
 
   logout: async () => {
     const { isAuthenticated } = get();
 
+    let response;
     if (!isAuthenticated) {
       console.log('[isAuthenticated] 로그인상태가 아님');
     } else {
       try {
-        await authAPI.logout();
+        response = await authAPI.logout();
       } catch (error) {
         console.error('로그아웃 요청 실패:', error);
+        return error.response || response;
       }
     }
 
@@ -131,7 +133,6 @@ const userActions = (set, get) => ({
       isAuthenticated: false,
     });
 
-    delete api.defaults.headers.common['Authorization'];
     return;
   },
 
@@ -155,21 +156,25 @@ const userActions = (set, get) => ({
 
     try {
       console.log('[refreshAccessToken] Refreshing access token...');
-      delete api.defaults.headers.common['Authorization'];
+      // delete api.defaults.headers.common['Authorization'];
 
       const response = await authAPI.refresh({ refreshToken });
-      const { data } = response.data;
+      const data = response.data;
 
-      if (data !== null) {
+      if (data.status === 'SU') {
         isRefreshing = false;
-        onRefreshed(data.accessToken);
+        const accessToken = data.data.accessToken;
+        onRefreshed(accessToken);
 
-        console.log('[refreshAccessToken] 새 accessToken 설정 완료:');
+        console.log(
+          '[refreshAccessToken] 새 accessToken 설정 완료:',
+          accessToken
+        );
 
-        set({ accessToken: data.accessToken });
+        set({ accessToken: accessToken });
 
-        return data.accessToken;
-      } else {
+        return accessToken;
+      } else if (data.status === 'SER') {
         console.log('[refreshAccessToken] refreshToken 만료됨 → 강제 로그아웃');
 
         set({
@@ -181,13 +186,21 @@ const userActions = (set, get) => ({
           isAuthenticated: false,
         });
 
-        logout();
         return false;
       }
     } catch (error) {
       isRefreshing = false;
       console.error('[refreshAccessToken] refreshToken 만료됨 → 강제 로그아웃');
-      logout();
+
+      set({
+        loginId: '',
+        nickname: '',
+        memberId: '',
+        accessToken: '',
+        refreshToken: '',
+        isAuthenticated: false,
+      });
+
       return Promise.reject(error);
     }
   },
@@ -290,6 +303,17 @@ const userActions = (set, get) => ({
       throw error;
     }
   },
+
+  findPassword: async(payload)=>{
+    try{
+      const response=await authAPI.findPassword(payload);
+      return response.data;
+    }catch(error){
+      console.log("비밀번호 전송 실패", error);
+      throw error;
+    }
+  }
+
 });
 
 const userStore = create(
@@ -301,7 +325,7 @@ const userStore = create(
       }),
       {
         name: `user-store`,
-        storage: createJSONStorage(() => sessionStorage),
+        storage: createJSONStorage(() => localStorage),
       }
     ),
     { name: `Auth Store ${tabId}` }
@@ -330,6 +354,7 @@ export const useUser = () => {
   const myPage = userStore((state) => state.myPage);
   const memberInfo = userStore((state) => state.memberInfo);
   const findId = userStore((state) => state.findId);
+  const findPassword=userStore((state)=>state.findPassword);
 
   return {
     loginId,
@@ -352,6 +377,7 @@ export const useUser = () => {
     myPage,
     memberInfo,
     findId,
+    findPassword,
   };
 };
 
@@ -360,8 +386,12 @@ export { userStore };
 
 api.interceptors.request.use(
   (request) => {
-    const accessToken = userStore.getState().accessToken;
+    //refreshToken 분기
+    if (request.url === '/auth/refresh') {
+      return request;
+    }
 
+    const accessToken = userStore.getState().accessToken;
     if (!isTokenExpired(accessToken) && accessToken) {
       request.headers['Authorization'] = `Bearer ${accessToken}`;
       return request;
