@@ -125,7 +125,8 @@ public class AdminTaleController {
     }
 
     @PostMapping("/auth")
-    public ApiResponse<Boolean> checkAuthKey(@RequestBody String authKey) {
-        return ApiResponse.<Boolean>builder().data(authKey.equals(AUTHKEY)).build();
+    public ApiResponse<Boolean> checkAuthKey(@RequestBody TextRequestDto textRequestDto) {
+        System.out.println("authKey = " + textRequestDto.getText());
+        return ApiResponse.<Boolean>builder().data(textRequestDto.getText().equals(AUTHKEY)).build();
     }
 }

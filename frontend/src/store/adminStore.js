@@ -11,6 +11,7 @@ const initialState = {
   selectedTitleImage: null,
   selectedIntroImage: null,
   stompClient: null,
+  authKey: null,
 };
 
 const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
@@ -50,11 +51,14 @@ const adminActions = (set, get) => ({
       return;
     }
 
-    stompClient.subscribe(`/topic/gen/title-image/${userStore.getState().memberId}`, (message) => {
-      const newImages = JSON.parse(message.body);
-      get().setTitleImages(newImages.images);
-      console.log(newImages);
-    });
+    stompClient.subscribe(
+      `/topic/gen/title-image/${userStore.getState().memberId}`,
+      (message) => {
+        const newImages = JSON.parse(message.body);
+        get().setTitleImages(newImages.images);
+        console.log(newImages);
+      }
+    );
   },
 
   subscribeIntroImage: async () => {
@@ -63,11 +67,14 @@ const adminActions = (set, get) => ({
       return;
     }
 
-    stompClient.subscribe(`/topic/gen/intro-image/${userStore.getState().memberId}`, (message) => {
-      const newImages = JSON.parse(message.body);
-      get().setIntroImages(newImages.images);
-      console.log(newImages);
-    });
+    stompClient.subscribe(
+      `/topic/gen/intro-image/${userStore.getState().memberId}`,
+      (message) => {
+        const newImages = JSON.parse(message.body);
+        get().setIntroImages(newImages.images);
+        console.log(newImages);
+      }
+    );
   },
 
   setTitleImages: (titleImages) => {
@@ -82,6 +89,10 @@ const adminActions = (set, get) => ({
   setSelectedIntroImage: (selectedIntroImage) => {
     set({ selectedIntroImage });
   },
+
+  setAuthKey: (authKey) => {
+    set({ authKey });
+  },
 });
 
 const useAdminStore = create(
@@ -95,18 +106,24 @@ const useAdminStore = create(
   )
 );
 
-
 export const adminStore = () => {
   const connect = useAdminStore((state) => state.connect);
   const titleImages = useAdminStore((state) => state.titleImages);
   const selectedTitleImage = useAdminStore((state) => state.selectedTitleImage);
   const setTitleImages = useAdminStore((state) => state.setTitleImages);
-  const setSelectedTitleImage = useAdminStore((state) => state.setSelectedTitleImage);
+  const setSelectedTitleImage = useAdminStore(
+    (state) => state.setSelectedTitleImage
+  );
 
   const introImages = useAdminStore((state) => state.introImages);
   const selectedIntroImage = useAdminStore((state) => state.selectedIntroImage);
   const setIntroImages = useAdminStore((state) => state.setIntroImages);
-  const setSelectedIntroImage = useAdminStore((state) => state.setSelectedIntroImage);
+  const setSelectedIntroImage = useAdminStore(
+    (state) => state.setSelectedIntroImage
+  );
+
+  const authKey = useAdminStore((state) => state.authKey);
+  const setAuthKey = useAdminStore((state) => state.setAuthKey);
 
   return {
     connect,
@@ -119,5 +136,8 @@ export const adminStore = () => {
     selectedIntroImage,
     setIntroImages,
     setSelectedIntroImage,
+
+    authKey,
+    setAuthKey,
   };
 };
