@@ -26,6 +26,25 @@ export default function GalleryDetail() {
   const [isOrigin, setIsOrigin] = useState(false);
   const { galleryPage, setGalleryPage, toggleHasLiked } = useGalleryDetail();
 
+  const [text, setText]=useState("");
+  const loadingText=" 이미지 로딩중...";
+  const typingSpeed=200;
+  const delayBeforeRestart=1000;
+
+  useEffect(()=>{//이미지 로딩 글자 효과
+    let i=0;
+    const intarval=setInterval(()=>{
+      setText(loadingText.slice(0,i+1));
+      i++;
+      if(i===loadingText.length){
+        setTimeout(()=>{
+          i=0;
+        },delayBeforeRestart);
+      }
+    },typingSpeed);
+    return ()=>clearInterval(interval);
+  }, []);
+
   // useEffect(() => {
   //   const fetchGalleryPage = async () => {
   //     await setGalleryPage(galleryId);
@@ -69,12 +88,25 @@ export default function GalleryDetail() {
       {/* 본문 */}
       <div className="w-[974px] h-[540px] mt-[30px] relative flex justify-between items-center">
         {/* 이미지 */}
-        <div className="w-[540px] h-[540px]">
+        <div className="w-[540px] h-[540px] bg-white">
+          {isOrigin?galleryPage['originImg']:galleryPage['img']?(
           <img
             src={isOrigin ? galleryPage['originImg'] : galleryPage['img']}
             alt="그림"
             className="w-full h-full object-cover object-center bg-white"
           />
+          ):(/*null일때 대체 이미지 */
+            <div className="flex flex-col mt-[150px] items-center justify-center">
+              <img
+                src='/Gallery/movingDuck.gif'
+                alt="대체 이미지"
+                className="w-[150px] h-[150PX] object-cover object-center bg-white"
+                />
+              <div className="text-text-first text-xl font-NPSfont">
+                {text}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 그림 상세내용 */}
