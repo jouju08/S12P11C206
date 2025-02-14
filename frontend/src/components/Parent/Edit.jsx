@@ -1,23 +1,20 @@
-import authAPI from "@/apis/auth/userAxios";
-import { useProfile } from "@/store/parentStore";
-import React, { useEffect, useRef, useState } from "react";
-import { redirect, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-
+import { useProfile } from '@/store/parentStore';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import PasswordChangeModal from '../modal/PasswordChangeModal';
 
 export default function ProfileEdit() {
   const {
     profileImg,
     loginId,
     email,
-    nickname, 
+    nickname,
     birth,
     updateProfile,
     isNicknameAvailable,
     updateProfileImage,
   } = useProfile();
-
-  
 
   const navigate = useNavigate();
 
@@ -25,6 +22,7 @@ export default function ProfileEdit() {
   const [newBirth, setNewBirth] = useState(birth);
   const [newProfileImg, setProfileImg] = useState(profileImg);
   const [isNicknameValidated, setIsNicknameValidated] = useState(true);
+  const [show, setShow] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -44,7 +42,7 @@ export default function ProfileEdit() {
 
   const handleSave = async () => {
     if (newNickname !== nickname && !isNicknameValidated) {
-      Swal.fire("경고", "닉네임 중복확인을 진행해 주세요.", "error");
+      Swal.fire('경고', '닉네임 중복확인을 진행해 주세요.', 'error');
       return;
     }
 
@@ -54,16 +52,18 @@ export default function ProfileEdit() {
     };
 
     try {
-      console.log("업데이트할 데이터:", updatedData);
+      console.log('업데이트할 데이터:', updatedData);
       await updateProfile(updatedData);
-      Swal.fire("프로필 수정 성공", "프로필이 성공적으로 수정되었습니다.", "success");
+      Swal.fire(
+        '프로필 수정 성공',
+        '프로필이 성공적으로 수정되었습니다.',
+        'success'
+      );
     } catch (error) {
-      console.error("프로필 수정 실패", error);
-      Swal.fire("프로필 수정 실패", "프로필 수정에 실패했습니다.", "error");
+      console.error('프로필 수정 실패', error);
+      Swal.fire('프로필 수정 실패', '프로필 수정에 실패했습니다.', 'error');
     }
   };
-
-  
 
   // 파일 선택 후 실행될 핸들러 (프로필 이미지 변경)
   const handleProfileImageChange = async (event) => {
@@ -71,14 +71,18 @@ export default function ProfileEdit() {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("profileImage", file);
+    formData.append('profileImage', file);
 
     try {
       await updateProfileImage(formData);
-      console.log("프로필 이미지 업데이트 성공");
+      console.log('프로필 이미지 업데이트 성공');
     } catch (error) {
-      console.error("프로필 이미지 업데이트 실패:", error);
-      Swal.fire("오류", "프로필 이미지 업데이트에 실패했습니다. 다시 시도해 주세요.", "error");
+      console.error('프로필 이미지 업데이트 실패:', error);
+      Swal.fire(
+        '오류',
+        '프로필 이미지 업데이트에 실패했습니다. 다시 시도해 주세요.',
+        'error'
+      );
     }
   };
 
@@ -91,11 +95,19 @@ export default function ProfileEdit() {
   return (
     <div className="min-h-screen p-4">
       <div className="space-x-[50px] bg-white w-[635px] h-[568px] shadow-md ">
+        <PasswordChangeModal
+          isOpen={show}
+          onClose={() => setShow(false)}
+        />
         <div className="flex flex-col items-center">
           <div className="mt-[25px] ml-[28px] space-y-[16px] space-x-[28px] flex items-center">
             <img
               className="rounded-full w-[150px] h-[150px]"
-              src={profileImg ? profileImg : "/Parent/Edit/profile-edit-user-img.png"}
+              src={
+                profileImg
+                  ? profileImg
+                  : '/Parent/Edit/profile-edit-user-img.png'
+              }
               alt=""
             />
 
@@ -110,19 +122,23 @@ export default function ProfileEdit() {
                 type="file"
                 accept="image/*"
                 ref={fileInputRef}
-                style={{ display: "none" }}
+                style={{ display: 'none' }}
                 onChange={handleProfileImageChange}
               />
-              <a href="">
-                <div className="flex">
-                  <img
-                    className="w-[20px] h-[20px] mr-[4px]"
-                    src="/Parent/Edit/profile-edit-icon.png"
-                    alt=""
-                  />
-                  <div className="service-regular3 text-text-second">비밀번호 변경</div>
+
+              <div className="flex">
+                <img
+                  className="w-[20px] h-[20px] mr-[4px]"
+                  src="/Parent/Edit/profile-edit-icon.png"
+                  alt=""
+                />
+                <div
+                  className="service-regular3 text-text-second"
+                  onClick={() => setShow(true)}
+                >
+                  비밀번호 변경
                 </div>
-              </a>
+              </div>
             </div>
           </div>
           <div className="mt-[14px] ml-[28px] space-y-[6px]">
@@ -142,9 +158,6 @@ export default function ProfileEdit() {
               >
                 저장 하기
               </button>
-            </div>
-            <div className="flex justify-end">
-             
             </div>
           </div>
         </div>
@@ -181,21 +194,28 @@ function InputEmailItem({ email }) {
   );
 }
 
-function InputNickNameItem({ nickname, onNicknameChange, isNicknameAvailable, setIsNicknameValidated }) {
+function InputNickNameItem({
+  nickname,
+  onNicknameChange,
+  isNicknameAvailable,
+  setIsNicknameValidated,
+}) {
   return (
     <div className="flex flex-col items-start">
       <div className="service-regular3 text-text-first mb-[8px]">닉네임</div>
       <div className="flex space-x-[16px]">
         <input
           className="w-[246px] h-[42px] rounded-[8px] pl-[16px] pt-[12px] pb-[12px] border-[1px] border-gray-400"
-          value={nickname || ""}
+          value={nickname || ''}
           onChange={onNicknameChange}
           type="text"
         />
         <div className="flex items-center justify-center bg-main-pink w-[95px] h-[38px] rounded-[8px] shadow-md hover:bg-main-beige hover:cursor-pointer">
           <div
             className="service-regular3"
-            onClick={() => confirmDuplicate(isNicknameAvailable, nickname, setIsNicknameValidated)}
+            onClick={() =>
+              confirmDuplicate(isNicknameAvailable, nickname, setIsNicknameValidated)
+            }
           >
             중복확인
           </div>
@@ -209,22 +229,26 @@ function InputNickNameItem({ nickname, onNicknameChange, isNicknameAvailable, se
 async function confirmDuplicate(isNicknameAvailable, nickname, setIsNicknameValidated) {
   const nicknameRegex = /^[A-Za-z0-9가-힣]{2,12}$/;
   if (!nicknameRegex.test(nickname)) {
-    Swal.fire("경고", "닉네임은 2~12자, 영문자, 숫자, 한글만 포함할 수 있습니다.", "error");
+    Swal.fire(
+      '경고',
+      '닉네임은 2~12자, 영문자, 숫자, 한글만 포함할 수 있습니다.',
+      'error'
+    );
     setIsNicknameValidated(false);
     return;
   }
   try {
     const available = await isNicknameAvailable(nickname);
     if (available) {
-      Swal.fire("사용 가능", "사용 가능한 닉네임입니다.", "success");
+      Swal.fire('사용 가능', '사용 가능한 닉네임입니다.', 'success');
       setIsNicknameValidated(true);
     } else {
-      Swal.fire("중복", "이미 사용중인 닉네임입니다.", "error");
+      Swal.fire('중복', '이미 사용중인 닉네임입니다.', 'error');
       setIsNicknameValidated(false);
     }
   } catch (error) {
-    console.error("닉네임 중복 확인 중 오류:", error);
-    Swal.fire("오류", "닉네임 중복 확인에 실패했습니다.", "error");
+    console.error('닉네임 중복 확인 중 오류:', error);
+    Swal.fire('오류', '닉네임 중복 확인에 실패했습니다.', 'error');
     setIsNicknameValidated(false);
   }
 }
@@ -235,7 +259,7 @@ function InputBirthItem({ birth, setBirth }) {
       <div className="service-regular3 text-text-first mb-[8px]">생년월일</div>
       <input
         className="w-[357px] h-[38px] rounded-[8px] pl-[16px] pt-[12px] pb-[12px] border-[1px] border-gray-400"
-        value={birth || ""}
+        value={birth || ''}
         onChange={(e) => setBirth(e.target.value)}
         type="date"
       />

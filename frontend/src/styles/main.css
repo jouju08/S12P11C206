@@ -11,3 +11,20 @@
 .shaking-image {
   animation: verticalShake 1.5s ease-in-out infinite;
 }
+
+
+.tale-loader {
+  width: fit-content;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1px #000;
+  color: #0000;
+  background: 
+    linear-gradient(-60deg, #FFF 45%, #FFB0B0 0 55%, #FFF 0) 
+    0/300% 100% no-repeat text;
+  animation: l3 2s linear infinite;
+}
+
+@keyframes l3 {
+  0%{background-position: 100%}
+}
+

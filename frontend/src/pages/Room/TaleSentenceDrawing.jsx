@@ -9,17 +9,21 @@ import { useViduHook } from '@/store/tale/viduStore';
 import OpenviduCanvas from '@/components/TaleRoom/OpenviduCanvas';
 import { LocalVideoTrack, Room, RoomEvent, Track } from 'livekit-client';
 import { useUser } from '@/store/userStore';
-import '@/styles/taleRoom.css'
+
+import '@/styles/taleRoom.css';
+import '@/styles/main.css';
 
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
-  const [isWarning, setIsWarning]=useState(false);
+  const [isWarning, setIsWarning]=useState(false);// 시간 얼마 안 남으면 줄 효과
+  const warningAudioRef=useRef(null);//효과음
+
   const [canRead, setCanRead] = useState(false);
   const [currentStep, setCurrentStep] = useState(0); // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
 
   const [previousDrawings, setPreviousDrawings] = useState([]); // 싱글모드일때 사용, 이전에 그린 그림들 저장
 
-  const [loading, setLoading] = useState(false); //메시지 수신 loading
+  const [loading, setLoading] = useState(true); //메시지 수신 loading
   const [canvasReady, setCanvasReady] = useState(false); // DrawingBoard 렌더링
   const [hasPublished, setHasPublished] = useState(false);
 
@@ -154,6 +158,18 @@ const TaleSentenceDrawing = () => {
     }
   }, [drawDirection]);
 
+  useEffect(()=>{//타임아웃 임박할때 효과음
+    if(isWarning&&warningAudioRef.current){
+      warningAudioRef.current.muted=false;
+      warningAudioRef.current.currentTime=0;
+      warningAudioRef.current.volume=1;
+      warningAudioRef.current.play().catch((err) => console.error("Audio play error:", err));
+    }else{
+      warningAudioRef.current.pause();
+      warningAudioRef.current.volume=0;
+    }
+  },[isWarning]);
+
   //타이머
   useEffect(() => {
     if (loading) return;
@@ -167,9 +183,9 @@ const TaleSentenceDrawing = () => {
     // 1초마다 타이머 갱신
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if(prev<=30){
+        if(prev<=35){
           setIsWarning(true);
-        }else{
+        } else {
           setIsWarning(false);
         }
         if (prev <= 1) {
@@ -307,21 +323,28 @@ const TaleSentenceDrawing = () => {
               </>
             ) : (
               <>
-                <button
-                  onClick={() => moveToReadTale()}
-                  disabled={!canRead}
-                  className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center
-                  disabled:bg-slate-400">
-                  동화보러가기
-                </button>
+                {canRead ? (
+                  <button
+                    onClick={() => moveToReadTale()}
+                    className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
+                    동화보러가기
+                  </button>
+                ) : (
+                  <button
+                    disabled={!canRead}
+                    className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center
+                    disabled:bg-slate-400">
+                    <div className="tale-loader">동화가 만들어지고 있어요</div>
+                  </button>
+                )}
               </>
             )}
           </section>
 
           <section className="w-[30%] px-[25px] pt-3">
             {/* 타이머 */}
-            <div 
-            className={`relative ml-7 w-[206px] h-[70px] bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl border-[5px]  border-gray-500  ${isWarning?'time-shake red-blink' :' border-gray-500 '}`}>
+            <div
+              className={`relative ml-7 w-[206px] h-[70px] bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl border-[5px]  border-gray-500  ${isWarning ? 'time-shake red-blink' : ' border-gray-500 '}`}>
               <div className="left-[25px] top-0 absolute text-text-firest text-base font-normal font-NPSfont">
                 남은 시간
               </div>
@@ -333,6 +356,19 @@ const TaleSentenceDrawing = () => {
                 src="/TaleSentenceDrawing/time.png"
                 alt="타이머 이미지"
                 className="w-[50px] h-[50px] z-10 absolute top-[15%] left-[-25px]"
+              />
+              <audio
+              ref={warningAudioRef}
+              src={"/TaleSentenceDrawing/time-out.mp3"}
+              autoPlay
+              muted
+              onLoadedData={() => {
+              if (warningAudioRef.current&&isWarning){
+                console.log(warningAudioRef.current); 
+                warningAudioRef.current.muted = false;
+                warningAudioRef.current.volume = 1;
+              }
+              }}
               />
             </div>
 

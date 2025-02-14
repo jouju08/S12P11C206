@@ -66,3 +66,9 @@ aws:
     access-key: ${AWS_S3_ACCESS}
     secret-key: ${AWS_S3_SECRET}
     region: ${AWS_S3_REGION}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
