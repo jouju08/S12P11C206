@@ -8,7 +8,7 @@ export const useFriendSocket = () => {
   const { isAuthenticated } = useUser();
   const { connect, subscribeMain, disconnect } = useActiveUser();
   const { connectRoom, inviteFlag } = useTaleRoom();
-  const naviagte = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let stompClient;
@@ -31,7 +31,7 @@ export const useFriendSocket = () => {
 
   useEffect(() => {
     const handleInvite = () => {
-      naviagte('/tale/waiting');
+      navigate('/tale/waiting');
     };
 
     if (inviteFlag) {
