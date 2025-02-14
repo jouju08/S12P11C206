@@ -279,6 +279,17 @@ const userActions = (set, get) => ({
       throw error;
     }
   },
+
+  findId: async (payload) => {
+    try {
+      const response = await authAPI.findId(payload);
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      console.log('아이디 찾기 실패');
+      throw error;
+    }
+  },
 });
 
 const userStore = create(
@@ -318,6 +329,7 @@ export const useUser = () => {
   const register = userStore((state) => state.register);
   const myPage = userStore((state) => state.myPage);
   const memberInfo = userStore((state) => state.memberInfo);
+  const findId = userStore((state) => state.findId);
 
   return {
     loginId,
@@ -339,6 +351,7 @@ export const useUser = () => {
     register,
     myPage,
     memberInfo,
+    findId,
   };
 };
 

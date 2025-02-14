@@ -1,4 +1,5 @@
 import { api } from '@/store/userStore';
+import axios from 'axios';
 
 const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
@@ -19,6 +20,7 @@ const authAPI = {
   ),
   register:(credentials)=>api.post(`/auth/register`, credentials),
   getMemberInfo:()=>api.get("/member/mypage"),
+  findId:(payload)=>axios.post("/api/auth/find-id", payload),
 };
 
 export default authAPI;
