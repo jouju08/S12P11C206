@@ -22,13 +22,13 @@ export default function FairyTaleRoom({ item }) {
     taleTitle,
   } = item;
 
-  const { connect, joinRoom } = useTaleRoom();
+  const { connectRoom, joinRoom } = useTaleRoom();
   const { memberId } = useUser();
 
   const navigate = useNavigate();
 
   const handleJoinTale = async () => {
-    await connect();
+    await connectRoom();
     await joinRoom(roomId, memberId);
     navigate('/tale/waiting', { relative: 'path' });
   };
