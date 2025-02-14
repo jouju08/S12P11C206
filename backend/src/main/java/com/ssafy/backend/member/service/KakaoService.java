@@ -1,5 +1,6 @@
 package com.ssafy.backend.member.service;
 
+import com.ssafy.backend.common.ProfileInjector;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.auth.KakaoUserInfo;
 import com.ssafy.backend.db.entity.Member;
@@ -64,6 +65,7 @@ public class KakaoService {
                     .isDeleted(false)
                     .loginType('K')
                     .birth(formattedDate)
+                    .profileImg(new ProfileInjector().getRandImg())
                     .build();
             member = memberRepository.save(newMember);
         }

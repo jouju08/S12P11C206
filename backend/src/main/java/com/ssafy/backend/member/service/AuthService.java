@@ -1,5 +1,6 @@
 package com.ssafy.backend.member.service;
 
+import com.ssafy.backend.common.ProfileInjector;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.common.exception.NotFoundUserException;
@@ -53,6 +54,7 @@ public class AuthService {
         member.setNickname(request.getNickname());
         member.setBirth(request.getBirth());
         member.setLoginType('E');
+        member.setProfileImg(new ProfileInjector().getRandImg());
 //        member.setDeleted(false);
 
         memberRepository.save(member);
