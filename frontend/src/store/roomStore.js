@@ -25,7 +25,7 @@ const roomActions = (set, get) => ({
   //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS(import.meta.env.VITE_WS_URL_LOCAL);
+      const socket = new SockJS('/ws');
 
       console.log(socket);
       const stompClient = new Client({
