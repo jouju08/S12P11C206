@@ -12,6 +12,7 @@ const initialState = {
   selectedIntroImage: null,
   stompClient: null,
   authKey: null,
+  selectedMenu: null,
 };
 
 const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
@@ -93,6 +94,10 @@ const adminActions = (set, get) => ({
   setAuthKey: (authKey) => {
     set({ authKey });
   },
+
+  setSelectedMenu: (selectedMenu) => {
+    set({ selectedMenu });
+  },
 });
 
 const useAdminStore = create(
@@ -125,6 +130,9 @@ export const adminStore = () => {
   const authKey = useAdminStore((state) => state.authKey);
   const setAuthKey = useAdminStore((state) => state.setAuthKey);
 
+  const selectedMenu = useAdminStore((state) => state.selectedMenu);
+  const setSelectedMenu = useAdminStore((state) => state.setSelectedMenu);
+
   return {
     connect,
     titleImages,
@@ -139,5 +147,8 @@ export const adminStore = () => {
 
     authKey,
     setAuthKey,
+
+    selectedMenu,
+    setSelectedMenu,
   };
 };

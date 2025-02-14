@@ -1,6 +1,6 @@
 import React from 'react';
-import BaseTale from '@/components/BaseTale/BaseTale';
-import AdminAuthForm from '@/components/BaseTale/AdminAuthForm';
+import AdminMenu from '@/components/Admin/AdminMenu';
+import AdminAuthForm from '@/components/Admin/AdminAuthForm';
 import { adminStore } from '@/store/adminStore';
 export default function Admin() {
   const authKey = adminStore().authKey;
@@ -13,7 +13,7 @@ export default function Admin() {
   } else {
     return (
       <div>
-        <BaseTale />
+        <AdminMenu />
       </div>
     );
   }

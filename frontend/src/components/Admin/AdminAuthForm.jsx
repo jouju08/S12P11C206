@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { api, userStore } from '@/store/userStore';
 import { adminStore } from '@/store/adminStore';
-import LoadingText from './LoadingText';
+import LoadingText from '../BaseTale/LoadingText';
 
 const AdminAuthForm = () => {
   const { authKey, setAuthKey } = adminStore();
@@ -20,8 +20,6 @@ const AdminAuthForm = () => {
   const submitAuthKey = async (e) => {
     e.preventDefault();
     const res = await api.post('/admin/tale/auth', formData);
-    console.log('fdsak;fljdsakfljasdk;fljdsakf;fsfksafjkafjklsadf');
-    console.log(res.data.data);
     if (res.status === 200 && res.data && res.data.data == true) {
       setAuthKey(formData.text);
     } else {
@@ -38,17 +36,28 @@ const AdminAuthForm = () => {
   };
 
   return (
-    <div>
-      <div className="text-2xl font-bold text-center">관리자 페이지</div>
+    <div className="w-[60vw] h-[60vh] mt-[10vh] bg-white text-3xl font-bold text-center rounded-md">
+      <div className="text-5xl font-bold text-center pt-[20vh] pb-[5vh]">
+        관리자 페이지
+      </div>
       <form onSubmit={submitAuthKey}>
-        <input
-          type="new-password"
-          name="text"
-          value={formData.text}
-          placeholder="비밀번호를 입력해주세요"
-          className="border border-gray-300 rounded-md p-2 w-full"
-          onChange={handleInputChange}
-        />
+        <div className="flex-row">
+          <div>
+            <input
+              type="password"
+              name="text"
+              value={formData.text}
+              placeholder="비밀번호를 입력해주세요"
+              className="border border-gray-300 rounded-md p-2 text-center"
+              onChange={handleInputChange}
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-indigo-900 text-white w-1/2 p-2 mt-5 rounded-md">
+            확인
+          </button>
+        </div>
       </form>
     </div>
   );

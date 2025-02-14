@@ -5,17 +5,17 @@ import com.ssafy.backend.common.S3Service;
 import com.ssafy.backend.common.WebSocketNotiService;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.BaseTale;
+import com.ssafy.backend.db.entity.ParentBaseTale;
 import com.ssafy.backend.db.repository.BaseTaleRepository;
 import com.ssafy.backend.tale.dto.common.BaseTaleDto;
+import com.ssafy.backend.tale.dto.common.ParentBaseTaleDto;
 import com.ssafy.backend.tale.dto.request.TaleIntroImageRequestDto;
 import com.ssafy.backend.tale.dto.request.TaleTitleImageRequestDto;
 import com.ssafy.backend.tale.dto.request.TextRequestDto;
-import com.ssafy.backend.tale.dto.response.BaseTaleResponseDto;
-import com.ssafy.backend.tale.dto.response.ImageUrlListResponseDto;
-import com.ssafy.backend.tale.dto.response.TaleSentencesResponseDto;
-import com.ssafy.backend.tale.dto.response.TextResponseDto;
+import com.ssafy.backend.tale.dto.response.*;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.BaseTaleService;
+import com.ssafy.backend.tale.service.ParentBaseTaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +26,7 @@ import java.util.List;
 @RequestMapping("/api/admin/tale")
 public class AdminTaleController {
     private final BaseTaleService baseTaleService;
+    private final ParentBaseTaleService parentBaseTaleService;
     private final S3Service s3Service;
     private final AIServerRequestService aiServerRequestService;
     private final WebSocketNotiService webSocketNotiService;
@@ -126,7 +127,39 @@ public class AdminTaleController {
 
     @PostMapping("/auth")
     public ApiResponse<Boolean> checkAuthKey(@RequestBody TextRequestDto textRequestDto) {
-        System.out.println("authKey = " + textRequestDto.getText());
+        //System.out.println("authKey = " + textRequestDto.getText());
         return ApiResponse.<Boolean>builder().data(textRequestDto.getText().equals(AUTHKEY)).build();
+    }
+
+    @GetMapping("/parent/{authKey}")
+    public ApiResponse<List<ParentBaseTaleResponseDto>> getParentBaseTale(@PathVariable String authKey) {
+        if(!authKey.equals(AUTHKEY)) {
+            throw new BadRequestException("인증키가 일치하지 않습니다.");
+        }
+        return ApiResponse.<List<ParentBaseTaleResponseDto>>builder().data(parentBaseTaleService.getList(false)).build();
+    }
+
+    @GetMapping("/parent/{id}/{authKey}")
+    public ApiResponse<ParentBaseTaleDto> getParentBaseTale(@PathVariable Long id, @PathVariable String authKey) {
+        if(!authKey.equals(AUTHKEY)) {
+            throw new BadRequestException("인증키가 일치하지 않습니다.");
+        }
+        ParentBaseTaleDto parentBaseTale = parentBaseTaleService.getById(id);
+        return ApiResponse.<ParentBaseTaleDto>builder().data(parentBaseTale).build();
+    }
+
+    @PostMapping("/parent/{authKey}")
+    public ApiResponse<Void> saveParentBaseTale(@RequestBody ParentBaseTaleDto parentBaseTaleDto, @PathVariable String authKey) {
+        if(!authKey.equals(AUTHKEY)) {
+            throw new BadRequestException("인증키가 일치하지 않습니다.");
+        }
+        if(parentBaseTaleDto.getHasApproved()){
+            BaseTale baseTale = baseTaleService.parse(parentBaseTaleDto);
+            baseTaleService.save(baseTale);
+        }
+        parentBaseTaleDto.setHasApproved(true);
+        parentBaseTaleService.save(parentBaseTaleDto);
+
+        return ApiResponse.<Void>builder().build();
     }
 }
