@@ -9,7 +9,7 @@ import { userStore } from './userStore';
 import { useRoomStore } from './roomStore.js';
 import { getFriendList } from '@/apis/friend/friendAxios';
 
-const ACTIVE_SOCKET_URL = import.meta.env.VITE_WS_URL_LOCAL;
+const ACTIVE_SOCKET_URL = import.meta.env.VITE_WS_URL_DEPLOY;
 
 const initialState = {
   // STOMP 관련 상태 및 액션
@@ -28,7 +28,6 @@ const ActiveUserActions = (set, get) => ({
         webSocketFactory: () => socket,
 
         onConnect: () => {
-          get().subscribeMain();
           resolve(stompClient);
         },
 
@@ -41,7 +40,7 @@ const ActiveUserActions = (set, get) => ({
           console.error('Broker reported error: ' + frame.headers['message']);
           console.error('Additional details: ' + frame.body);
         },
-        debug: (str) => console.log(str),
+        // debug: (str) => console.log(str),
       });
 
       stompClient.activate();
@@ -62,6 +61,7 @@ const ActiveUserActions = (set, get) => ({
 
     stompClient.subscribe(`/active`, async (message) => {
       const newMsg = message.body;
+      // console.log(message.body);
 
       try {
         const response = await api.get(
@@ -75,10 +75,20 @@ const ActiveUserActions = (set, get) => ({
     stompClient.subscribe(`/active/invite`, async (message) => {
       const inviteMsg = message.body;
 
-      try {
-        console.log(message.body);
-      } catch (err) {
-        console.log(err);
+      if (inviteMsg) {
+        const roomId = JSON.parse(inviteMsg).roomId; // string type
+        const memberId = userStore.getState().memberId; // number type
+        try {
+          // `==` 연산자라 강제로 타입변환됨
+          if (JSON.parse(inviteMsg).to == userStore.getState().memberId) {
+            await useRoomStore.getState().connectRoom();
+            await useRoomStore.getState().joinRoom(roomId, memberId);
+            useRoomStore.setState({ inviteFlag: true });
+            console.log('here');
+          }
+        } catch (err) {
+          console.log(err);
+        }
       }
     });
   },
@@ -87,12 +97,14 @@ const ActiveUserActions = (set, get) => ({
     //친구 초대
     const stompClient = get().stompClient;
     if (stompClient && stompClient.connected) {
-      const roomId = useRoomStore.getState().roomId;
+      const room = useRoomStore.getState().currentRoom.roomId;
       const memberId = userStore.getState().memberId;
-      const data = { roomId: roomId, from: memberId, to: friendId };
+      const data = { roomId: room, from: memberId, to: friendId };
+
+      console.log(JSON.stringify(data));
 
       stompClient.publish({
-        destination: 'app/activity/invite',
+        destination: '/app/active/invite',
         body: JSON.stringify(data),
       });
     }

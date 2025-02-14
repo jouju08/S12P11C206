@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFriendSocket } from './hooks/useFriendSocket';
 
 export default function App() {
-  useFriendSocket();
+  // useFriendSocket();
 
   return (
     <div className="App">

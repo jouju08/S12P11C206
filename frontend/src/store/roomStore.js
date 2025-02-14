@@ -17,15 +17,16 @@ const initialState = {
   rawTale: null,
   isSingle: false,
   isStart: null,
+  inviteFlag: false,
 };
 
 const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
 
 const roomActions = (set, get) => ({
   //소켓 연결
-  connect: async () => {
+  connectRoom: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS(import.meta.env.VITE_WS_URL_LOCAL);
+      const socket = new SockJS('/ws');
 
       console.log(socket);
       const stompClient = new Client({
@@ -189,6 +190,7 @@ const roomActions = (set, get) => ({
         rawTale: null,
         isSingle: false,
         isStart: null,
+        inviteFlag: false,
       });
     }
   },
@@ -239,6 +241,7 @@ export const useTaleRoom = () => {
   const rawTale = useRoomStore((state) => state.rawTale, shallow);
   const isSingle = useRoomStore((state) => state.isSingle);
   const isStart = useRoomStore((state) => state.isStart);
+  const inviteFlag = useRoomStore((state) => state.inviteFlag);
 
   const setCurrentRoom = useRoomStore((state) => state.setCurrentRoom);
   const setParticipants = useRoomStore((state) => state.setParticipants);
@@ -246,7 +249,7 @@ export const useTaleRoom = () => {
   const addParticipant = useRoomStore((state) => state.addParticipant);
   const removeParticipant = useRoomStore((state) => state.removeParticipant);
 
-  const connect = useRoomStore((state) => state.connect);
+  const connectRoom = useRoomStore((state) => state.connectRoom);
   const subscribeMain = useRoomStore((state) => state.subscribeMain);
   const createRoom = useRoomStore((state) => state.createRoom);
   const joinRoom = useRoomStore((state) => state.joinRoom);
@@ -266,13 +269,14 @@ export const useTaleRoom = () => {
     taleTitle,
     rawTale,
     isStart,
+    inviteFlag,
 
     setCurrentRoom,
     setParticipants,
 
     addParticipant,
     removeParticipant,
-    connect,
+    connectRoom,
     subscribeMain,
     createRoom,
     startRoom,

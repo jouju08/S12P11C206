@@ -10,8 +10,13 @@ import { useNavigate } from 'react-router-dom';
 export default function RoomBtn({ isSingle, location, children }) {
   // 동화방 click 이벤트 발생 시, 모달 띄움
 
-  const { connect, createRoom, setCurrentRoom, setIsSingle, setBaseTaleId } =
-    useTaleRoom();
+  const {
+    connectRoom,
+    createRoom,
+    setCurrentRoom,
+    setIsSingle,
+    setBaseTaleId,
+  } = useTaleRoom();
 
   // const showGameModal = () => {
   //   setIsSingle(isSingle);
@@ -46,7 +51,7 @@ export default function RoomBtn({ isSingle, location, children }) {
   //멀티 방 만들기
   const multiTalePlay = async () => {
     setIsSingle(isSingle);
-    await connect();
+    await connectRoom();
 
     await createRoom();
 

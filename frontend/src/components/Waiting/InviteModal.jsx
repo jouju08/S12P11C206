@@ -61,7 +61,7 @@ const InviteModal = ({ handleExit }) => {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => inviteFriend(friend.loginId)}
+                      onClick={() => inviteFriend(friend.memberId)}
                       className="px-4 py-2 bg-main-success text-text-white rounded-lg hover:bg-green-600 transition-colors duration-200 font-NPSfont ">
                       같이 만들기
                     </button>
