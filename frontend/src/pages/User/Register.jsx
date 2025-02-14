@@ -26,9 +26,25 @@ export default function Register() {
   const [isEmailSent, setEmailSent] = useState(false);
   const navigate = useNavigate();
   const birthRegex = /^(19[0-9]{2}|20[0-9]{2})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;// 유효한 비밀번호 형식: 8~12자의 영문, 숫자, 특수문자(@$!%*?&) 포함
+  const [text, setText]=useState("");
+  const loadingText="메일 전송중...";
+  const typingSpeed=200;
+  const delayBeforeRestart=1000;
 
-  // 유효한 비밀번호 형식: 8~12자의 영문, 숫자, 특수문자(@$!%*?&) 포함
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,12}$/;
+  useEffect(()=>{//로딩 글자 효과
+      let i=0;
+      const interval=setInterval(()=>{
+        setText(loadingText.slice(0,i+1));
+        i++;
+        if(i===loadingText.length){
+          setTimeout(()=>{
+            i=0;
+          },delayBeforeRestart);
+        }
+      },typingSpeed);
+      return ()=>clearInterval(interval);
+    }, [isModalOpen]);
 
   // 생년월일 포맷 함수: 숫자만 입력 시 YYYY-MM-DD 형식으로 변환
   const formatBirth = (input) => {
@@ -97,19 +113,23 @@ export default function Register() {
       const response = await duplicate(type, value);
       console.log("response", response);
       if (response.status === "Success.") {
-        if (type === "id") {
-          setIdCheck(true);
-        } else if (type === "email") {
-          setEmailSent(false);
-          setEmail(email);
-          setEmailCheck(true);
-          setModalOpen(true);
-          setIsEmailVerified(false);
-          startEmailVerification();
-        } else {
-          setNicknameCheck(true);
-        }
-        Swal.fire("사용 가능", `사용 가능한 ${type}입니다`, "success");
+        Swal.fire("사용 가능", `사용 가능한 ${type}입니다`, "success")
+        .then((result)=>{
+          if(result.isConfirmed){
+            if (type === "id") {
+              setIdCheck(true);
+            } else if (type === "email") {
+              setEmailSent(false);
+              setEmail(email);
+              setEmailCheck(true);
+              setModalOpen(true);
+              setIsEmailVerified(false);
+              startEmailVerification();
+            } else {
+              setNicknameCheck(true);
+            }
+          }
+        });
       } else {
         Swal.fire("중복", `이미 사용중인 ${type}입니다`, "error");
       }
@@ -361,6 +381,11 @@ export default function Register() {
               ❌
             </button>
             <h3 className="text-2xl font-bold text-gray-800 mb-4">📩 이메일 인증</h3>
+            {!isEmailSent && (
+              <div className="text-gray-600 text-center text-sm mb-4">
+                  {text}
+              </div>
+            )}
             {isEmailSent && (
               <div>
                 <p className="text-gray-600 text-center text-sm mb-4">
