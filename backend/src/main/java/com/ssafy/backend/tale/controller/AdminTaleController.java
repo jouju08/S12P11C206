@@ -3,6 +3,7 @@ package com.ssafy.backend.tale.controller;
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.S3Service;
 import com.ssafy.backend.common.WebSocketNotiService;
+import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.repository.BaseTaleRepository;
 import com.ssafy.backend.tale.dto.common.BaseTaleDto;
@@ -28,7 +29,7 @@ public class AdminTaleController {
     private final S3Service s3Service;
     private final AIServerRequestService aiServerRequestService;
     private final WebSocketNotiService webSocketNotiService;
-
+    private final String AUTHKEY = "ssaf@ckuc!five7";
     //todo
     // 1. 동화 제목으로 동화 keyword sentence, 도입부 생성 API
     // 2. 동화 도입부 스크립트 읽기 API
@@ -94,23 +95,37 @@ public class AdminTaleController {
     }
 
     // 생성된 BaseTale 정보 저장
-    @PostMapping("/base-tale")
-    public  ApiResponse<Long> saveBaseTale(@RequestBody BaseTaleDto baseTaleDto) {
+    @PostMapping("/base-tale/{authKey}")
+    public  ApiResponse<Long> saveBaseTale(@RequestBody BaseTaleDto baseTaleDto, @PathVariable String authKey) {
+        if(!authKey.equals(AUTHKEY)) {
+            throw new BadRequestException("인증키가 일치하지 않습니다.");
+        }
         BaseTale baseTale = baseTaleService.parse(baseTaleDto);
         baseTale = baseTaleService.save(baseTale);
         return ApiResponse.<Long>builder().data(baseTale.getId()).build();
     }
 
     // BaseTale 정보 수정
-    @GetMapping("/base-tale/{id}")
-    public ApiResponse<BaseTaleDto> getBaseTale(@PathVariable Long id) { // requestBody title, intro, titleImage, introImage
+    @GetMapping("/base-tale/{id}/{authKey}")
+    public ApiResponse<BaseTaleDto> getBaseTale(@PathVariable Long id, @PathVariable String authKey) { // requestBody title, intro, titleImage, introImage
+        if(!authKey.equals(AUTHKEY)) {
+            throw new BadRequestException("인증키가 일치하지 않습니다.");
+        }
         BaseTale baseTale = baseTaleService.getById(id);
         BaseTaleDto baseTaleDto = baseTaleService.parse(baseTale);
         return ApiResponse.<BaseTaleDto>builder().data(baseTaleDto).build();
     }
 
-    @GetMapping("/base-tale")
-    public ApiResponse<List<BaseTaleResponseDto>> getBaseTale() {
+    @GetMapping("/base-tale/{authKey}")
+    public ApiResponse<List<BaseTaleResponseDto>> getBaseTale(@PathVariable String authKey) {
+        if(!authKey.equals(AUTHKEY)) {
+            throw new BadRequestException("인증키가 일치하지 않습니다.");
+        }
         return ApiResponse.<List<BaseTaleResponseDto>>builder().data(baseTaleService.getBaseTaleList()).build();
+    }
+
+    @PostMapping("/auth")
+    public ApiResponse<Boolean> checkAuthKey(@RequestBody String authKey) {
+        return ApiResponse.<Boolean>builder().data(authKey.equals(AUTHKEY)).build();
     }
 }

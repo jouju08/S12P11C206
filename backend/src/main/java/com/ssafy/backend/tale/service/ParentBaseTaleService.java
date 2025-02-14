@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ParentBaseTaleService {
-    ParentBaseTaleRepository parentBaseTaleRepository;
+    private final ParentBaseTaleRepository parentBaseTaleRepository;
 
     public List<ParentBaseTaleResponseDto> getList(){
         List<ParentBaseTaleResponseDto> parentBaseTaleResponseDtoList = new ArrayList<>();

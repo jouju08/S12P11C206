@@ -3,7 +3,6 @@ import MainLayout from '@/common/layout/MainLayout';
 import TaleLayout from '@/common/layout/TaleLayout';
 import { Loading } from '@/common/Loading';
 import { useUser } from '@/store/userStore';
-import Admin from '@/pages/Admin';
 
 import {
   createBrowserRouter,
@@ -33,6 +32,8 @@ const TaleSentenceDrawing = lazy(
 );
 const HotTale = lazy(() => import('@/pages/Room/HotTale'));
 const Waiting = lazy(() => import('@/pages/Room/Waiting'));
+const RequestBaseTale = lazy(() => import('@/pages/RequestBaseTale'));
+const Admin = lazy(() => import('@/pages/Admin'));
 
 //인증된 사용자
 const ProtectedLayout = () => {
@@ -76,6 +77,7 @@ const router = createBrowserRouter([
           { path: 'profile', element: <Profile /> },
           { path: 'sightseeing', element: <Sightseeing /> },
           { path: 'admin', element: <Admin /> },
+          { path: 'requestBasetale', element: <RequestBaseTale />},
           { path: 'friends', element: <Friends /> },
         ],
       },
