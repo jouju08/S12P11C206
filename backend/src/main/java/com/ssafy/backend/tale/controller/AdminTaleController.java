@@ -30,7 +30,7 @@ public class AdminTaleController {
     private final S3Service s3Service;
     private final AIServerRequestService aiServerRequestService;
     private final WebSocketNotiService webSocketNotiService;
-    private final String AUTHKEY = "ssaf@ckuc!five7";
+    private final String AUTHKEY = "ssafyssafy";
     //todo
     // 1. 동화 제목으로 동화 keyword sentence, 도입부 생성 API
     // 2. 동화 도입부 스크립트 읽기 API
