@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MemberDto {
+    private Long memberId;
     private String loginId;
     private String nickname;
     private String profilePic;

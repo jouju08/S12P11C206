@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { api, userStore } from '@/store/userStore';
 
@@ -13,7 +13,7 @@ import '@/styles/main.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
-
+import '@/styles/taleRoom.css'
 import { Link } from 'react-router-dom';
 
 const dummyDrawingList = [
@@ -60,12 +60,10 @@ const dummyDrawingList = [
 ];
 
 export default function Main() {
+
   // 로그인 되어있는 유저 닉네임 가져오기
   const { nickname , profileImg, memberInfo, myPage} = userStore((state) => state);
   const [member, setMember]=useState(memberInfo||{});
-  const [timeLeft, setTimeLeft] = useState(40); // 5분
-  const [isWarning, setIsWarning]=useState(false);
-
   
 
 
@@ -223,7 +221,7 @@ export default function Main() {
           만들어진 동화방
         </div>
         <div className="h-[300px] flex items-center text-center">
-          {taleData && taleData.length != 0 ? (
+          {taleData ? (
             <Swiper
               slidesPerView={3}
               spaceBetween={-10}
@@ -251,7 +249,7 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           지금 인기있는 그림
         </div>
-        {drawingData && drawingData.length != 0 ? (
+        {drawingData.length != 0 ? (
           <Swiper
             slidesPerView={4}
             spaceBetween={30}
@@ -273,7 +271,6 @@ export default function Main() {
           </div>
         )}
       </div>
-       
     </div>
   );
 }

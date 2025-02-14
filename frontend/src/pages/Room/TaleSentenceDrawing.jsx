@@ -16,7 +16,8 @@ import '@/styles/main.css';
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
   const [isWarning, setIsWarning]=useState(false);// 시간 얼마 안 남으면 줄 효과
-  const warningAudioRef=useRef(null);//효과음
+  const warningAudioRef=useRef(null);//시간 임박 효과음
+  const selectAudioRef=useRef(null);//확인 효과음
 
   const [canRead, setCanRead] = useState(false);
   const [currentStep, setCurrentStep] = useState(0); // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
@@ -158,6 +159,8 @@ const TaleSentenceDrawing = () => {
     }
   }, [drawDirection]);
 
+
+
   useEffect(()=>{//타임아웃 임박할때 효과음
     if(isWarning&&warningAudioRef.current){
       warningAudioRef.current.muted=false;
@@ -210,6 +213,11 @@ const TaleSentenceDrawing = () => {
 
   const handleConfirm = async () => {
     if (!canvasRef.current) return false;
+    if(selectAudioRef.current){//선택 효과음 재생
+      selectAudioRef.current.volume=1;
+      selectAudioRef.current.currentTime=0;
+      selectAudioRef.current.play().catch((err) => console.error("Audio play error:", err));
+    }
 
     const tmpFile = await canvasRef.current.getPNGFile();
 
@@ -244,6 +252,11 @@ const TaleSentenceDrawing = () => {
   };
 
   const moveToReadTale = async () => {
+    if(selectAudioRef.current){//선택 효과음 재생
+      selectAudioRef.current.volume=1;
+      selectAudioRef.current.currentTime=0;
+      selectAudioRef.current.play().catch((err) => console.error("Audio play error:", err));
+    }
     navigate('/tale/hotTale');
   };
 
@@ -320,6 +333,10 @@ const TaleSentenceDrawing = () => {
                   className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
                   확인
                 </button>
+                <audio /*확인 효과음*/
+                ref={warningAudioRef}
+                src={"/Common/select.mp3"}
+                />
               </>
             ) : (
               <>
