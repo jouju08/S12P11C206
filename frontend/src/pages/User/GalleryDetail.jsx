@@ -89,13 +89,21 @@ export default function GalleryDetail() {
       <div className="w-[974px] h-[540px] mt-[30px] relative flex justify-between items-center">
         {/* 이미지 */}
         <div className="w-[540px] h-[540px] bg-white">
-          {galleryPage['originImg']===null||galleryPage['img']===null?(
+          {(isOrigin&&galleryPage['originImg'])&&(
           <img
-            src={isOrigin ? galleryPage['originImg'] : galleryPage['img']}
+            src={galleryPage['originImg']}
             alt="그림"
             className="w-full h-full object-cover object-center bg-white"
           />
-          ):(/*null일때 대체 이미지 */
+          )}
+          {(!isOrigin&&galleryPage['img'])&&(
+          <img
+            src={galleryPage['img']}
+            alt="그림"
+            className="w-full h-full object-cover object-center bg-white"
+          />
+          )}
+          {(!galleryPage['originImg'] && !galleryPage['img']) && (
             <div className="flex flex-col mt-[150px] items-center justify-center">
               <img
                 src='/Gallery/movingDuck.gif'
