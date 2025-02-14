@@ -31,6 +31,8 @@ const initialState = {
   taleStart: { ...taleStart },
   seeTaleId: 1,
   taleDetail: { ...taleDetail },
+  participants: [],
+  createdAt: '',
 };
 
 const collectionActions = (set, get) => ({
@@ -110,6 +112,22 @@ const collectionActions = (set, get) => ({
     });
     console.log('디테일 바꼈는지 확인', get().taleDetail);
   },
+
+  setTaleFinish: async () => {
+    const response = await api.get(`/tale/${get().seeTaleId}`);
+    console.log('마지막 부분', response);
+
+    const { participants, createdAt } = response.data.data;
+
+    const uniqueParticipants = participants.filter((element, index) => {
+      return participants.indexOf(element) === index;
+    });
+
+    set((state) => {
+      state.participants = uniqueParticipants;
+      state.createdAt = createdAt;
+    });
+  },
 });
 
 const useCollectionStore = create(
@@ -129,11 +147,17 @@ export const useCollection = () => {
   const taleStart = useCollectionStore((state) => state.taleStart, shallow);
   const seeTaleId = useCollectionStore((state) => state.seeTaleId);
   const taleDetail = useCollectionStore((state) => state.taleDetail, shallow);
+  const participants = useCollectionStore(
+    (state) => state.participants,
+    shallow
+  );
+  const createdAt = useCollectionStore((state) => state.createdAt);
 
   const setMyTaleList = useCollectionStore((state) => state.setMyTaleList);
   const setTaleStart = useCollectionStore((state) => state.setTaleStart);
   const setSeeTaleId = useCollectionStore((state) => state.setSeeTaleId);
   const setTaleDetail = useCollectionStore((state) => state.setTaleDetail);
+  const setTaleFinish = useCollectionStore((state) => state.setTaleFinish);
 
   return {
     memberId,
@@ -141,10 +165,13 @@ export const useCollection = () => {
     taleStart,
     seeTaleId,
     taleDetail,
+    participants,
+    createdAt,
 
     setMyTaleList,
     setTaleStart,
     setSeeTaleId,
     setTaleDetail,
+    setTaleFinish,
   };
 };
