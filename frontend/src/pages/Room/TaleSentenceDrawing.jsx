@@ -15,7 +15,9 @@ import '@/styles/main.css';
 
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
-  const [isWarning, setIsWarning] = useState(false);
+  const [isWarning, setIsWarning]=useState(false);// 시간 얼마 안 남으면 줄 효과
+  const warningAudioRef=useRef(null);//효과음
+
   const [canRead, setCanRead] = useState(false);
   const [currentStep, setCurrentStep] = useState(0); // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
 
@@ -156,6 +158,18 @@ const TaleSentenceDrawing = () => {
     }
   }, [drawDirection]);
 
+  useEffect(()=>{//타임아웃 임박할때 효과음
+    if(isWarning&&warningAudioRef.current){
+      warningAudioRef.current.muted=false;
+      warningAudioRef.current.currentTime=0;
+      warningAudioRef.current.volume=1;
+      warningAudioRef.current.play().catch((err) => console.error("Audio play error:", err));
+    }else{
+      warningAudioRef.current.pause();
+      warningAudioRef.current.volume=0;
+    }
+  },[isWarning]);
+
   //타이머
   useEffect(() => {
     if (loading) return;
@@ -169,7 +183,7 @@ const TaleSentenceDrawing = () => {
     // 1초마다 타이머 갱신
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 30) {
+        if(prev<=35){
           setIsWarning(true);
         } else {
           setIsWarning(false);
@@ -342,6 +356,19 @@ const TaleSentenceDrawing = () => {
                 src="/TaleSentenceDrawing/time.png"
                 alt="타이머 이미지"
                 className="w-[50px] h-[50px] z-10 absolute top-[15%] left-[-25px]"
+              />
+              <audio
+              ref={warningAudioRef}
+              src={"/TaleSentenceDrawing/time-out.mp3"}
+              autoPlay
+              muted
+              onLoadedData={() => {
+              if (warningAudioRef.current&&isWarning){
+                console.log(warningAudioRef.current); 
+                warningAudioRef.current.muted = false;
+                warningAudioRef.current.volume = 1;
+              }
+              }}
               />
             </div>
 

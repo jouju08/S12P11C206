@@ -12,7 +12,7 @@ const taleAPI = {
   getAllTaleRooms: () => api.get('tale/rooms'),
 
   //기본 동화 정보 조회
-  getTaleTitle: (baseTaleId) => api.get(`/base-tale/${baseTaleId}`),
+  getTaleInfo: (baseTaleId) => api.get(`/base-tale/${baseTaleId}`),
 
   //동화 시작 요청 후 기본동화 정보들 받아옴
   startTale: (roomId) => api.get(`/tale/start/${roomId}`),

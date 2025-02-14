@@ -25,7 +25,7 @@ const roomActions = (set, get) => ({
   //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL_LOCAL);
 
       console.log(socket);
       const stompClient = new Client({
@@ -76,7 +76,7 @@ const roomActions = (set, get) => ({
         body: JSON.stringify(data),
       });
 
-      const res = await taleAPI.getTaleTitle(get().baseTaleId);
+      const res = await taleAPI.getTaleInfo(get().baseTaleId);
 
       set({ taleTitle: res.data.data.title || '' });
 
