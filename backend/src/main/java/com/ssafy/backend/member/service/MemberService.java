@@ -116,7 +116,7 @@ public class MemberService {
     public List<MemberDto> getAllMembers(String loginId) {
         List<MemberDto> members = memberRepository.findAllExceptMe(loginId)
                 .stream()
-                .map(member -> new MemberDto(member.getLoginId(), member.getNickname(), member.getProfileImg(), false))
+                .map(member -> new MemberDto(member.getId(), member.getLoginId(), member.getNickname(), member.getProfileImg(), false))
                 .collect(Collectors.toList());
         return members;
     }

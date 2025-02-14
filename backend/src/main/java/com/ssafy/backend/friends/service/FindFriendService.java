@@ -51,7 +51,7 @@ public class FindFriendService {
         // 친구 ID 목록으로 친구 정보를 일괄 조회
         List<MemberDto> friends =  memberRepository.findAllById(friendIds)
                 .stream()
-                .map(member -> new MemberDto(member.getLoginId(), member.getNickname(), member.getProfileImg(), finalActiveUserSet.contains(member.getId())))
+                .map(member -> new MemberDto(member.getId(), member.getLoginId(), member.getNickname(), member.getProfileImg(), finalActiveUserSet.contains(member.getId())))
                         .collect(Collectors.toList());
 
         return friends;
