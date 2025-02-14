@@ -93,7 +93,7 @@ export default function Hero() {
       </div>
 
       {/* 태블릿 */}
-      <div className="w-full h-[650px] relative overflow-hidden p-[4rem] bg-[url('Hero/tablet-background.png')] bg-cover object-bottom">
+      <div className="w-full h-[650px] relative overflow-hidden p-[4rem] bg-[url('/Hero/tablet-background.png')] bg-cover object-bottom">
         <img
           src="/Hero/tablet.png"
           alt="태블릿 사진"
@@ -112,7 +112,7 @@ export default function Hero() {
       </div>
 
       {/* ai */}
-      <div className="w-full h-[650px] relative overflow-hidden p-[4rem] bg-[url('Hero/ai-background.jpg')] bg-cover object-bottom">
+      <div className="w-full h-[650px] relative overflow-hidden p-[4rem] bg-[url('/Hero/ai-background.jpg')] bg-cover object-bottom">
         <div className="text-text-first text-center mx-auto text-4xl font-extrabold font-NPSfont xl:text-5xl">
           <p className=" leading-[180%]">아이들의 그림을 더 멋있게,</p>
           <p>AI 기술을 도입했어요</p>
