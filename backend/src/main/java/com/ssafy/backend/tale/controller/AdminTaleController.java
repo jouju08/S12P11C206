@@ -96,8 +96,8 @@ public class AdminTaleController {
     }
 
     // 생성된 BaseTale 정보 저장
-    @PostMapping("/base-tale/{authKey}")
-    public  ApiResponse<Long> saveBaseTale(@RequestBody BaseTaleDto baseTaleDto, @PathVariable String authKey) {
+    @PostMapping("/base-tale")
+    public  ApiResponse<Long> saveBaseTale(@RequestBody BaseTaleDto baseTaleDto, @RequestHeader("authKey") String authKey) {
         if(!authKey.equals(AUTHKEY)) {
             throw new BadRequestException("인증키가 일치하지 않습니다.");
         }
@@ -107,8 +107,8 @@ public class AdminTaleController {
     }
 
     // BaseTale 정보 수정
-    @GetMapping("/base-tale/{id}/{authKey}")
-    public ApiResponse<BaseTaleDto> getBaseTale(@PathVariable Long id, @PathVariable String authKey) { // requestBody title, intro, titleImage, introImage
+    @GetMapping("/base-tale/{id}")
+    public ApiResponse<BaseTaleDto> getBaseTale(@PathVariable Long id, @RequestHeader("authKey") String authKey) { // requestBody title, intro, titleImage, introImage
         if(!authKey.equals(AUTHKEY)) {
             throw new BadRequestException("인증키가 일치하지 않습니다.");
         }
@@ -117,8 +117,8 @@ public class AdminTaleController {
         return ApiResponse.<BaseTaleDto>builder().data(baseTaleDto).build();
     }
 
-    @GetMapping("/base-tale/{authKey}")
-    public ApiResponse<List<BaseTaleResponseDto>> getBaseTale(@PathVariable String authKey) {
+    @GetMapping("/base-tale")
+    public ApiResponse<List<BaseTaleResponseDto>> getBaseTale(@RequestHeader("authKey") String authKey) {
         if(!authKey.equals(AUTHKEY)) {
             throw new BadRequestException("인증키가 일치하지 않습니다.");
         }
@@ -131,16 +131,16 @@ public class AdminTaleController {
         return ApiResponse.<Boolean>builder().data(textRequestDto.getText().equals(AUTHKEY)).build();
     }
 
-    @GetMapping("/parent/{authKey}")
-    public ApiResponse<List<ParentBaseTaleResponseDto>> getParentBaseTale(@PathVariable String authKey) {
+    @GetMapping("/parent")
+    public ApiResponse<List<ParentBaseTaleResponseDto>> getParentBaseTale(@RequestHeader("authKey") String authKey) {
         if(!authKey.equals(AUTHKEY)) {
             throw new BadRequestException("인증키가 일치하지 않습니다.");
         }
         return ApiResponse.<List<ParentBaseTaleResponseDto>>builder().data(parentBaseTaleService.getList(false)).build();
     }
 
-    @GetMapping("/parent/{id}/{authKey}")
-    public ApiResponse<ParentBaseTaleDto> getParentBaseTale(@PathVariable Long id, @PathVariable String authKey) {
+    @GetMapping("/parent/{id}")
+    public ApiResponse<ParentBaseTaleDto> getParentBaseTale(@PathVariable Long id, @RequestHeader("authKey") String authKey) {
         if(!authKey.equals(AUTHKEY)) {
             throw new BadRequestException("인증키가 일치하지 않습니다.");
         }
@@ -148,8 +148,8 @@ public class AdminTaleController {
         return ApiResponse.<ParentBaseTaleDto>builder().data(parentBaseTale).build();
     }
 
-    @PostMapping("/parent/{authKey}")
-    public ApiResponse<Void> saveParentBaseTale(@RequestBody ParentBaseTaleDto parentBaseTaleDto, @PathVariable String authKey) {
+    @PostMapping("/parent")
+    public ApiResponse<Void> saveParentBaseTale(@RequestBody ParentBaseTaleDto parentBaseTaleDto, @RequestHeader("authKey") String authKey) {
         if(!authKey.equals(AUTHKEY)) {
             throw new BadRequestException("인증키가 일치하지 않습니다.");
         }

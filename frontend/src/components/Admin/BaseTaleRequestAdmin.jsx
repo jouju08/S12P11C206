@@ -74,7 +74,11 @@ const BaseTaleRequestAdmin = () => {
   const fetchBaseTales = async () => {
     try {
       console.log(authKey);
-      const response = await api.get(`/admin/tale/parent/${authKey}`);
+      const response = await api.get(`/admin/tale/parent`, {
+        headers: {
+          authKey: authKey,
+        },
+      });
       let taleList = response.data?.data;
       if (!Array.isArray(taleList)) {
         taleList = taleList ? [taleList] : [];
@@ -113,10 +117,11 @@ const BaseTaleRequestAdmin = () => {
       return;
     }
     try {
-      const response = await api.post(
-        `/admin/tale/parent/${authKey}`,
-        formData
-      );
+      const response = await api.post(`/admin/tale/parent`, formData, {
+        headers: {
+          authKey: authKey,
+        },
+      });
       if (response.status === 200) {
         Swal.fire({
           icon: 'success',
@@ -356,7 +361,11 @@ const BaseTaleRequestAdmin = () => {
   // 목록에서 동화 선택 시 상세 조회 후 form에 채우기
   const handleSelectTale = async (id) => {
     try {
-      const response = await api.get(`/admin/tale/parent/${id}/${authKey}`);
+      const response = await api.get(`/admin/tale/parent/${id}`, {
+        headers: {
+          authKey: authKey,
+        },
+      });
       handleNewTale();
       if (response.data && response.data.data) {
         const data = response.data.data;
