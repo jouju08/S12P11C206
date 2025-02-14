@@ -19,11 +19,9 @@ export default function Hero() {
       const scrollPosition = window.scrollY;
       const windowHeight = window.innerHeight;
 
-      console.log(scrollPosition);
-      // 스크롤이 100dvh(뷰포트 높이 초과) 이상인지 확인
+      // 스크롤 이상인지 확인
       if (scrollPosition > 150) {
         setIsScrolled(true);
-        console.log('실행');
       } else {
         setIsScrolled(false);
       }
@@ -55,7 +53,7 @@ export default function Hero() {
           alt="로고이미지"
           className="w-[141px] h-[70px] z-10 absolute left-1/2 top-16 -translate-x-1/2 -translate-y-1/2"
         />
-        <div className="text-center text-[#524e5a] text-[58px] xl:text-[78px] font-extrabold font-NPSfont leading-[180%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="text-center text-[#fcfaff] text-[58px] xl:text-[78px] font-extrabold font-NPSfont leading-[180%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           상상하고 표현하는
           <br />
           마이페어리
@@ -73,7 +71,7 @@ export default function Hero() {
           loop
           preload="auto"
           className="w-full h-full object-cover"
-          src="https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/static/hero-video.mp4"></video>
+          src="https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/static/hero.mp4"></video>
       </div>
 
       {/* 아이들 고른 단어로~ */}
