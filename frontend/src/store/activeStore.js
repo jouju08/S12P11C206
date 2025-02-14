@@ -1,15 +1,15 @@
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { api } from './userStore';
-
 import { create } from 'zustand';
 import { shallow } from 'zustand/shallow';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-
 import { userStore } from './userStore';
-
+import { useRoomStore } from './roomStore.js';
 import { getFriendList } from '@/apis/friend/friendAxios';
+
+const ACTIVE_SOCKET_URL = import.meta.env.VITE_WS_URL_DEPLOY;
 
 const initialState = {
   // STOMP 관련 상태 및 액션
@@ -21,7 +21,7 @@ const ActiveUserActions = (set, get) => ({
   //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('http://192.168.100.136:8080/ws');
+      const socket = new SockJS(ACTIVE_SOCKET_URL);
 
       console.log(socket);
       const stompClient = new Client({
@@ -37,6 +37,10 @@ const ActiveUserActions = (set, get) => ({
         },
 
         onDisconnect: () => console.log('Disconnected'),
+        onStompError: (frame) => {
+          console.error('Broker reported error: ' + frame.headers['message']);
+          console.error('Additional details: ' + frame.body);
+        },
         debug: (str) => console.log(str),
       });
 
@@ -60,17 +64,37 @@ const ActiveUserActions = (set, get) => ({
       const newMsg = message.body;
 
       try {
-        console.log('응답 active user', newMsg);
+        // console.log('응답 active user', newMsg);
         const response = await api.get(
           `/active?memberId=${userStore.getState().memberId}`
         );
 
-        console.log('찐짜임 : ', response);
+        // console.log('찐짜임 : ', response);
         // console.log('응답1111', response);
       } catch (err) {
         console.log(err);
       }
     });
+
+    stompClient.subscribe(`/active/invite`, async (message) => {
+      const inviteMsg = message.body;
+
+      try {
+      } catch (err) {
+        console.log(err);
+      }
+    });
+  },
+
+  inviteFriend: () => {
+    //친구 초대
+    const stompClient = get().stompClient;
+    if (stompClient && stompClient.connected) {
+      stompClient.publish({
+        destination: '',
+        body: JSON.stringify(),
+      });
+    }
   },
 
   disconnect: () => {

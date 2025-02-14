@@ -5,6 +5,8 @@ import com.ssafy.backend.tale.dto.request.JoinRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.LeaveRoomRequestDto;
 import com.ssafy.backend.tale.dto.request.MakeRoomRequestDto;
 import com.ssafy.backend.tale.dto.common.RoomInfo;
+import com.ssafy.backend.tale.dto.request.RoomInviteRequestDto;
+import com.ssafy.backend.tale.dto.response.RoomInviteResponseDto;
 import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
 import com.ssafy.backend.tale.service.RoomService;
 import com.ssafy.backend.tale.service.TaleService;
@@ -67,5 +69,11 @@ public class RoomController {
     @SendTo("/topic/room/start/{roomId}")
     public StartTaleMakingResponseDto start(@DestinationVariable String roomId) {
         return taleService.startMakingTale(Long.parseLong(roomId));
+    }
+
+    @MessageMapping("/active/invite")
+    @SendTo("/active/invite")
+    public RoomInviteResponseDto invite(RoomInviteRequestDto requestDto) {
+        return new RoomInviteResponseDto(requestDto.getRoomId(), requestDto.getFrom(), requestDto.getTo());
     }
 }
