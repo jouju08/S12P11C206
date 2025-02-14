@@ -33,7 +33,7 @@ export default function GalleryDetail() {
 
   useEffect(()=>{//이미지 로딩 글자 효과
     let i=0;
-    const intarval=setInterval(()=>{
+    const interval=setInterval(()=>{
       setText(loadingText.slice(0,i+1));
       i++;
       if(i===loadingText.length){
