@@ -35,4 +35,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m where m.nickname=:nickname And m.isDeleted=false")
     Optional<Member> findByNickname(String nickname);
     Optional<Member> findByEmailAndBirth(String email, String birth);
-}
+
+    @Query("SELECT m FROM Member m WHERE m.email=:email AND m.loginId=:loginId")//비밀번호 찾기
+    Optional<Member> findByLoginIdAndEmail(String loginId, String email);
+ }

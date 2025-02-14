@@ -21,6 +21,7 @@ const authAPI = {
   register:(credentials)=>api.post(`/auth/register`, credentials),
   getMemberInfo:()=>api.get("/member/mypage"),
   findId:(payload)=>axios.post("/api/auth/find-id", payload),
+  findPassword:(payload)=>axios.patch("/api/auth/find-password", payload),
 };
 
 export default authAPI;

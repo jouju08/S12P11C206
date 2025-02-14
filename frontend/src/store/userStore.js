@@ -290,6 +290,17 @@ const userActions = (set, get) => ({
       throw error;
     }
   },
+
+  findPassword: async(payload)=>{
+    try{
+      const response=await authAPI.findPassword(payload);
+      return response.data;
+    }catch(error){
+      console.log("비밀번호 전송 실패", error);
+      throw error;
+    }
+  }
+
 });
 
 const userStore = create(
@@ -330,6 +341,7 @@ export const useUser = () => {
   const myPage = userStore((state) => state.myPage);
   const memberInfo = userStore((state) => state.memberInfo);
   const findId = userStore((state) => state.findId);
+  const findPassword=userStore((state)=>state.findPassword);
 
   return {
     loginId,
@@ -352,6 +364,7 @@ export const useUser = () => {
     myPage,
     memberInfo,
     findId,
+    findPassword,
   };
 };
 

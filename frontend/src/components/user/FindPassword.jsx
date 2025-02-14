@@ -48,16 +48,34 @@ export default function FindPassword() {
       return;
     }
     try {
+      Swal.fire({
+        title: "이메일 전송 중...",
+        html: '<div id="progress-bar" style="width: 100%; height: 10px; background: orange;"></div>',
+        timer: 7000,
+        timerProgressBar: false,
+        didOpen: () => {let timerInterval;
+            const progressBar = document.getElementById("progress-bar");
+            let width = 100;
+            timerInterval = setInterval(() => {
+                width -= 1;
+                progressBar.style.width = width + "%";
+                if (width <= 0) {
+                    clearInterval(timerInterval);
+                }
+            }, 70); // 7초 동안 100% → 0%
+        },
+        showConfirmButton:false,
+      });
       const payload = {
-        LoginId: userId,
+        loginId: userId,
         email: email,
       };
       const response = await findPassword(payload);
       if (response.status === 'SU') {
-        Swal.fire('성공', `이메일에서 비밀번호 재설정 방법을 확인해주세요.`, 'success');
+        Swal.fire('성공', `이메일로 새로운 비밀번호를 전송하였습니다.`, 'success');
         navigate('/login');
       } else {
-        Swal.fire('실패', '비밀번호 찾기에 실패했습니다.', 'error');
+        Swal.fire('실패', '아이디와 이메일을 다시 확인해주세요.', 'error');
       }
     } catch (error) {
       console.error('비밀번호 찾기 실패', error);
