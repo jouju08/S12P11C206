@@ -12,7 +12,7 @@ const TaleStart = () => {
     useTalePlay();
 
   const {
-    connect,
+    connectRoom,
     createRoom,
     startRoom,
     setBaseTaleId,
@@ -31,7 +31,7 @@ const TaleStart = () => {
     const fetchTale = async () => {
       try {
         if (isSingle) {
-          await connect();
+          await connectRoom();
           const playRoom = await createRoom();
 
           setRoomId(playRoom.roomId);

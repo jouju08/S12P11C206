@@ -15,6 +15,7 @@ import {
 
 import KakaoCallback from '@/components/kakao/KakaoCallback';
 import Friends from '@/components/Friend/Friend';
+import { useFriendSocket } from '@/hooks/useFriendSocket';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
 const Login = lazy(() => import('@/pages/User/Login'));
@@ -40,6 +41,7 @@ const Waiting = lazy(() => import('@/pages/Room/Waiting'));
 const ProtectedLayout = () => {
   const { isAuthenticated, fetchUser } = useUser();
   const location = useLocation();
+  useFriendSocket();
 
   useEffect(() => {
     fetchUser();

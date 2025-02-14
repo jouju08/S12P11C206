@@ -28,7 +28,6 @@ const ActiveUserActions = (set, get) => ({
         webSocketFactory: () => socket,
 
         onConnect: () => {
-          get().subscribeMain();
           resolve(stompClient);
         },
 
@@ -41,7 +40,7 @@ const ActiveUserActions = (set, get) => ({
           console.error('Broker reported error: ' + frame.headers['message']);
           console.error('Additional details: ' + frame.body);
         },
-        debug: (str) => console.log(str),
+        // debug: (str) => console.log(str),
       });
 
       stompClient.activate();
@@ -62,15 +61,12 @@ const ActiveUserActions = (set, get) => ({
 
     stompClient.subscribe(`/active`, async (message) => {
       const newMsg = message.body;
+      // console.log(message.body);
 
       try {
-        // console.log('응답 active user', newMsg);
         const response = await api.get(
           `/active?memberId=${userStore.getState().memberId}`
         );
-
-        // console.log('찐짜임 : ', response);
-        // console.log('응답1111', response);
       } catch (err) {
         console.log(err);
       }
@@ -79,20 +75,37 @@ const ActiveUserActions = (set, get) => ({
     stompClient.subscribe(`/active/invite`, async (message) => {
       const inviteMsg = message.body;
 
-      try {
-      } catch (err) {
-        console.log(err);
+      if (inviteMsg) {
+        const roomId = JSON.parse(inviteMsg).roomId; // string type
+        const memberId = userStore.getState().memberId; // number type
+        try {
+          // `==` 연산자라 강제로 타입변환됨
+          if (JSON.parse(inviteMsg).to == userStore.getState().memberId) {
+            await useRoomStore.getState().connectRoom();
+            await useRoomStore.getState().joinRoom(roomId, memberId);
+            useRoomStore.setState({ inviteFlag: true });
+            console.log('here');
+          }
+        } catch (err) {
+          console.log(err);
+        }
       }
     });
   },
 
-  inviteFriend: () => {
+  inviteFriend: (friendId) => {
     //친구 초대
     const stompClient = get().stompClient;
     if (stompClient && stompClient.connected) {
+      const room = useRoomStore.getState().currentRoom.roomId;
+      const memberId = userStore.getState().memberId;
+      const data = { roomId: room, from: memberId, to: friendId };
+
+      console.log(JSON.stringify(data));
+
       stompClient.publish({
-        destination: '',
-        body: JSON.stringify(),
+        destination: '/app/active/invite',
+        body: JSON.stringify(data),
       });
     }
   },
@@ -140,6 +153,8 @@ export const useActiveUser = () => {
 
   const connect = activeUserStore((state) => state.connect);
   const subscribeMain = activeUserStore((state) => state.subscribeMain);
+
+  const inviteFriend = activeUserStore((state) => state.inviteFriend);
   const disconnect = activeUserStore((state) => state.disconnect);
   const setMyFriend = activeUserStore((state) => state.setMyFriend);
 
@@ -148,6 +163,7 @@ export const useActiveUser = () => {
     friendState,
 
     connect,
+    inviteFriend,
     subscribeMain,
     disconnect,
     setMyFriend,
