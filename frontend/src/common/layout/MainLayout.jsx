@@ -13,6 +13,7 @@ export default function MainLayout() {
   const friendsRef = useRef(null);
 
   const isCollectionPage = location.pathname === '/collection';
+  const isHeroPage = location.pathname === '/';
 
   // useEffect(() => {
   //   function handleClickOutside(event) {
@@ -31,12 +32,12 @@ export default function MainLayout() {
     <div
       className={`relative min-h-screen ${isCollectionPage ? 'bg-main-beige' : 'bg-main-background'}`}>
       {isAuthenticated ? (
-        <AuthHeader
+        <DefaultHeader
           showFriend={showFriend}
           setShowFriend={setShowFriend}
         />
-      ) : (
-        <DefaultHeader />
+      ) : isHeroPage ? null : (
+        <AuthHeader />
       )}
 
       {/* background option */}

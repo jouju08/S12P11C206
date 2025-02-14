@@ -11,5 +11,5 @@ public class MemberDto {
     private String loginId;
     private String nickname;
     private String profilePic;
-    private boolean connected;
+    private boolean connecting;
 }

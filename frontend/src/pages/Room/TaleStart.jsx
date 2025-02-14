@@ -128,7 +128,7 @@ const AudioPlayer = ({ audioSrc }) => {
   useEffect(() => {
     // 컴포넌트 마운트 시 자동 재생
     if (audioSrc !== null && audioSrc !== undefined && audioRef.current) {
-      setIsMuted(true);
+      setIsMuted(false);
       audioRef.current.play();
     } else {
       setIsMuted(true);

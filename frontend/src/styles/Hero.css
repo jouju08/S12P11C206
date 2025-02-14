@@ -1,0 +1,16 @@
+.background-image {
+  position: absolute;
+  top: -100%; /* 초기 위치 */
+  right: -100%; /* 초기 위치 */
+  width: 150%; /* 이미지 크기를 조정 */
+  height: auto;
+  transition:
+    transform 2s ease-in-out,
+    opacity 1s ease-in-out;
+  opacity: 1; /* 초기 상태에서 보이지 않음 */
+}
+
+/* .background-image.animate {
+  transform: translate(-30%, 20%);
+  opacity: 1;
+} */

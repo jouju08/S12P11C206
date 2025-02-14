@@ -11,6 +11,8 @@ import { userStore } from './userStore';
 
 import { getFriendList } from '@/apis/friend/friendAxios';
 
+const ACTIVE_SOCKET_URL = import.meta.env.VITE_WS_URL_DEPLOY;
+
 const initialState = {
   // STOMP 관련 상태 및 액션
   friendState: [],
@@ -21,7 +23,7 @@ const ActiveUserActions = (set, get) => ({
   //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('http://192.168.100.136:8080/ws');
+      const socket = new SockJS(ACTIVE_SOCKET_URL);
 
       console.log(socket);
       const stompClient = new Client({
@@ -37,6 +39,10 @@ const ActiveUserActions = (set, get) => ({
         },
 
         onDisconnect: () => console.log('Disconnected'),
+        onStompError: (frame) => {
+          console.error('Broker reported error: ' + frame.headers['message']);
+          console.error('Additional details: ' + frame.body);
+        },
         debug: (str) => console.log(str),
       });
 

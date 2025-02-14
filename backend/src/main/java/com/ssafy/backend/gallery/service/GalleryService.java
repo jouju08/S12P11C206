@@ -25,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -94,21 +95,21 @@ public class GalleryService {
             int orderNum = gallery.get().getTaleMember().getOrderNum();
             String keyword = "";
             String sentence = "";
-            if(orderNum == 1){
+            if(orderNum == 0){
                 keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword1();
                 sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence1();
-            } else if(orderNum == 2){
+            } else if(orderNum == 1){
                 keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword2();
                 sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence2();
-            } else if(orderNum == 3){
+            } else if(orderNum == 2){
                 keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword3();
                 sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence3();
-            } else if(orderNum == 4){
+            } else if(orderNum == 3){
                 keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword4();
                 sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence4();
             }
 
-            String replaceSentence = sentence.replace("xx", keyword);
+//            String replaceSentence = sentence.replace("xx", keyword);
 
             boolean hasLiked = !galleryLikeRepository.findByGalleryIdAndMemberId(gallery.get().getId(), memberRepository.findByLoginId(auth.getName()).get().getId()).isEmpty();
             return GalleryResponseDto.builder()
@@ -124,7 +125,7 @@ public class GalleryService {
                     .authorProfileImg(gallery.get().getMember().getProfileImg())
                     .taleId(gallery.get().getTaleMember().getTale().getId())
                     .baseTaleId(gallery.get().getTaleMember().getTale().getBaseTale().getId())
-                    .sentence(replaceSentence)
+                    .sentence(gallery.get().getTaleMember().getImgScript())
                     .createdAt(gallery.get().getTaleMember().getCreatedAt())
                     .build();
         } catch (Exception e) {
@@ -145,7 +146,14 @@ public class GalleryService {
             throw new AuthorizationDeniedException("잘못된 회원 접근입니다.");
         }
 
+        String today = LocalDate.now().toString();
+
         String imgPath = hasOrigin ? taleMember.getOrginImg() : taleMember.getImg();
+
+        List<Gallery> existGalleries = galleryRepository.findByMemberAndImgPathAndCreatedAtStartingWith(member, imgPath, today);
+        if (!existGalleries.isEmpty()) {
+            throw new RuntimeException("이미 이 이미지로 오늘 게시글을 올렸습니다.");
+        }
 
         try {
             galleryRepository.save(Gallery.builder()
