@@ -9,7 +9,7 @@ import { userStore } from './userStore';
 import { useRoomStore } from './roomStore.js';
 import { getFriendList } from '@/apis/friend/friendAxios';
 
-const ACTIVE_SOCKET_URL = import.meta.env.VITE_WS_URL_DEPLOY;
+const ACTIVE_SOCKET_URL = import.meta.env.VITE_WS_URL_LOCAL;
 
 const initialState = {
   // STOMP 관련 상태 및 액션
@@ -64,13 +64,9 @@ const ActiveUserActions = (set, get) => ({
       const newMsg = message.body;
 
       try {
-        // console.log('응답 active user', newMsg);
         const response = await api.get(
           `/active?memberId=${userStore.getState().memberId}`
         );
-
-        // console.log('찐짜임 : ', response);
-        // console.log('응답1111', response);
       } catch (err) {
         console.log(err);
       }
@@ -80,19 +76,24 @@ const ActiveUserActions = (set, get) => ({
       const inviteMsg = message.body;
 
       try {
+        console.log(message.body);
       } catch (err) {
         console.log(err);
       }
     });
   },
 
-  inviteFriend: () => {
+  inviteFriend: (friendId) => {
     //친구 초대
     const stompClient = get().stompClient;
     if (stompClient && stompClient.connected) {
+      const roomId = useRoomStore.getState().roomId;
+      const memberId = userStore.getState().memberId;
+      const data = { roomId: roomId, from: memberId, to: friendId };
+
       stompClient.publish({
-        destination: '',
-        body: JSON.stringify(),
+        destination: 'app/activity/invite',
+        body: JSON.stringify(data),
       });
     }
   },
@@ -140,6 +141,8 @@ export const useActiveUser = () => {
 
   const connect = activeUserStore((state) => state.connect);
   const subscribeMain = activeUserStore((state) => state.subscribeMain);
+
+  const inviteFriend = activeUserStore((state) => state.inviteFriend);
   const disconnect = activeUserStore((state) => state.disconnect);
   const setMyFriend = activeUserStore((state) => state.setMyFriend);
 
@@ -148,6 +151,7 @@ export const useActiveUser = () => {
     friendState,
 
     connect,
+    inviteFriend,
     subscribeMain,
     disconnect,
     setMyFriend,

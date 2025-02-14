@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useFriend } from '@/store/friendStore';
+import { useActiveUser } from '@/store/activeStore';
 
 const InviteModal = ({ handleExit }) => {
   const { friendList, fetchFriendList } = useFriend();
+  const { inviteFriend } = useActiveUser();
 
   useEffect(() => {
     fetchFriendList();
-  }, [friendList]);
+  }, []);
 
   return (
     <div className="w-[40%] h-[80%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center">
@@ -49,24 +51,36 @@ const InviteModal = ({ handleExit }) => {
                 </span>
               </div>
               {/* 접속중 상태 */}
-              <div>
-                {friend.connected ? (
-                  <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-success">
-                    들어와 있어 !
-                  </span>
-                ) : (
-                  <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-choose">
-                    다음에 놀자~
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => showDeleteSwal(friend.loginId)}
-                  className="px-4 py-2 bg-main-choose text-text-white rounded-lg hover:bg-rose-500 transition-colors duration-200 font-NPSfont ">
-                  친구 끊기
-                </button>
-              </div>
+
+              {friend.connecting ? (
+                <>
+                  <div>
+                    <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-success">
+                      들어와 있어 !
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => inviteFriend(friend.loginId)}
+                      className="px-4 py-2 bg-main-success text-text-white rounded-lg hover:bg-green-600 transition-colors duration-200 font-NPSfont ">
+                      같이 만들기
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-choose">
+                      다음에 놀자 ~
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="px-4 py-2 bg-main-choose text-text-white rounded-lg font-NPSfont ">
+                      다음에 놀기
+                    </button>
+                  </div>
+                </>
+              )}
             </li>
           ))}
         </ul>

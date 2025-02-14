@@ -283,7 +283,7 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
                   </div>
                   {/* 접속중 상태 */}
                   <div>
-                    {friend.connected ? (
+                    {friend.connecting ? (
                       <span className="text-text-second relative service-regular3 aftrer:content-[''] after:absolute after:w-full after:h-[5px] after:bottom-[-7px] after:left-0 after:bg-main-success">
                         들어와 있어 !
                       </span>
