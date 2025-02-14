@@ -103,7 +103,7 @@ export default function GalleryDetail() {
             className="w-full h-full object-cover object-center bg-white"
           />
           )}
-          {(!galleryPage['originImg'] && !galleryPage['img']) && (
+          {(!galleryPage['img']&&!isOrigin) && (
             <div className="flex flex-col mt-[150px] items-center justify-center">
               <img
                 src='/Gallery/movingDuck.gif'
