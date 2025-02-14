@@ -15,6 +15,7 @@ import {
 
 import KakaoCallback from '@/components/kakao/KakaoCallback';
 import Friends from '@/components/Friend/Friend';
+import { useFriendSocket } from '@/hooks/useFriendSocket';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
 const Login = lazy(() => import('@/pages/User/Login'));
@@ -28,6 +29,8 @@ const Profile = lazy(() => import('@/pages/User/Profile'));
 const Sightseeing = lazy(() => import('@/pages/User/Sightseeing'));
 const TaleStart = lazy(() => import('@/pages/Room/TaleStart'));
 const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));
+const FindId = lazy(() => import('@/components/user/FindId'));
+const FindPw = lazy(() => import('@/components/user/FindPassword'));
 const TaleSentenceDrawing = lazy(
   () => import('@/pages/Room/TaleSentenceDrawing')
 );
@@ -38,6 +41,7 @@ const Waiting = lazy(() => import('@/pages/Room/Waiting'));
 const ProtectedLayout = () => {
   const { isAuthenticated, fetchUser } = useUser();
   const location = useLocation();
+  useFriendSocket();
 
   useEffect(() => {
     fetchUser();
@@ -64,6 +68,8 @@ const router = createBrowserRouter([
       { path: 'login', element: <Login /> },
       { path: 'register', element: <Register /> },
       { path: 'auth/kakao/callback', element: <KakaoCallback /> },
+      { path: 'findid', element: <FindId /> },
+      { path: 'findpw', element: <FindPw /> },
 
       {
         element: <ProtectedLayout />, // 인증된 사용자

@@ -69,7 +69,6 @@ const playActions = (set, get) => ({
   },
 
   setClient: async () => {
-    console.log(useRoomStore.getState().stompClient);
     set({
       currentClient: useRoomStore.getState().stompClient,
     });
