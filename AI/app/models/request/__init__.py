@@ -3,3 +3,4 @@ from .TextRequestDto import TextRequestDto
 from .GeneratePictureRequestDto import GeneratePictureRequestDto
 from .GenerateDiffusionPromptsRequestDto import GenerateDiffusionPromptsRequestDto
 from .GenerateIntroImageRequestDto import GenerateIntroImageRequestDto
+from .GenerateTitleImageRequestDto import GenerateTitleImageRequestDto

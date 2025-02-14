@@ -19,7 +19,7 @@ const adminActions = (set, get) => ({
   //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL_DEPLOY);
 
       console.log(socket);
       const stompClient = new Client({
@@ -50,7 +50,7 @@ const adminActions = (set, get) => ({
       return;
     }
 
-    stompClient.subscribe(`/topic/admin/title-image`, (message) => {
+    stompClient.subscribe(`/topic/gen/title-image/${userStore.getState().memberId}`, (message) => {
       const newImages = JSON.parse(message.body);
       get().setTitleImages(newImages.images);
       console.log(newImages);
@@ -63,7 +63,7 @@ const adminActions = (set, get) => ({
       return;
     }
 
-    stompClient.subscribe(`/topic/admin/intro-image`, (message) => {
+    stompClient.subscribe(`/topic/gen/intro-image/${userStore.getState().memberId}`, (message) => {
       const newImages = JSON.parse(message.body);
       get().setIntroImages(newImages.images);
       console.log(newImages);

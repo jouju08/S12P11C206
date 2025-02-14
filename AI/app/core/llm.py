@@ -116,18 +116,19 @@ async def generate_diffusion_prompts(generate_diffusion_prompts_request: request
     return response_dto.GenerateDiffusionPromptsResponseDto(prompts=prompts)
 
 
-def generate_tale_image(title: str):
+def generate_tale_image(title_image_request_dto: request_dto.GenerateTitleImageRequestDto):
     """
     제목을 입력받아 이미지 프롬프트를 생성하는 함수
     """
 
-    response = chains.generate_tale_image_prompt.invoke({"title": title})
+    response = chains.generate_tale_image_prompt.invoke(
+        {"title": title_image_request_dto.title})
 
     prompt_set = PromptSet(prompt=positive_prompt_prefix + response,
                            negativePrompt=negative_prompt)
     print("prompt_set: ", prompt_set)
     picture_service.post_novita_api(
-        prompt_set, config.GEN_TALE_IMG_WEBHOOK)
+        prompt_set, config.GEN_TALE_IMG_WEBHOOK + f"/{title_image_request_dto.memberId}")
 
 
 def generate_tale_intro_image(generate_intro_image_request: request_dto.GenerateIntroImageRequestDto):
@@ -144,4 +145,4 @@ def generate_tale_intro_image(generate_intro_image_request: request_dto.Generate
                            negativePrompt=negative_prompt)
 
     picture_service.post_novita_api(
-        prompt_set, config.GEN_TALE_INTRO_IMG_WEBHOOK)
+        prompt_set, config.GEN_TALE_INTRO_IMG_WEBHOOK + f"/{generate_intro_image_request.memberId}")

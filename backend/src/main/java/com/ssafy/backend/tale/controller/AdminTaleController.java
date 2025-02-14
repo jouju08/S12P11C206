@@ -7,6 +7,7 @@ import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.repository.BaseTaleRepository;
 import com.ssafy.backend.tale.dto.common.BaseTaleDto;
 import com.ssafy.backend.tale.dto.request.TaleIntroImageRequestDto;
+import com.ssafy.backend.tale.dto.request.TaleTitleImageRequestDto;
 import com.ssafy.backend.tale.dto.request.TextRequestDto;
 import com.ssafy.backend.tale.dto.response.BaseTaleResponseDto;
 import com.ssafy.backend.tale.dto.response.ImageUrlListResponseDto;
@@ -55,18 +56,18 @@ public class AdminTaleController {
 
     // 타이틀 이미지 생성 요청
     @PostMapping("/gen-title-image")
-    public ApiResponse<Void> generateTitleImage(@RequestBody TextRequestDto textRequestDto) {
-        aiServerRequestService.requestTaleImage(textRequestDto);
+    public ApiResponse<Void> generateTitleImage(@RequestBody TaleTitleImageRequestDto taleTitleImageRequestDto) {
+        aiServerRequestService.requestTaleImage(taleTitleImageRequestDto);
         return ApiResponse.<Void>builder().build();
     }
 
     // 타이틀 이미지 생성 완료 후 AI 이미지 webhook 요청
-    @PostMapping("/submit/ai-picture")
-    public void submitAiPicture(@RequestBody ImageUrlListResponseDto imageUrlListResponseDto) {
+    @PostMapping("/submit/ai-picture/{memberId}")
+    public void submitAiPicture(@RequestBody ImageUrlListResponseDto imageUrlListResponseDto, @PathVariable Long memberId) {
         System.out.println("imageUrlListResponseDto = " + imageUrlListResponseDto);
         //websocket으로 알림
         System.out.println("imageUrlListResponseDto = " + imageUrlListResponseDto);
-        webSocketNotiService.sendNotification("/topic/admin/title-image", imageUrlListResponseDto);
+        webSocketNotiService.sendNotification("/topic/gen/title-image/"+memberId.toString(), imageUrlListResponseDto);
     }
 
     // 선택한 이미지 저장
@@ -85,11 +86,11 @@ public class AdminTaleController {
     }
 
     // 도입부 이미지 생성 완료 후 AI 이미지 webhook 요청
-    @PostMapping("/submit/ai-intro-picture")
-    public void submitAiIntroPicture(@RequestBody ImageUrlListResponseDto imageUrlListResponseDto) {
+    @PostMapping("/submit/ai-intro-picture/{memberId}")
+    public void submitAiIntroPicture(@RequestBody ImageUrlListResponseDto imageUrlListResponseDto, @PathVariable Long memberId) {
         System.out.println("imageUrlListResponseDto = " + imageUrlListResponseDto);
         //websocket으로 알림
-        webSocketNotiService.sendNotification("/topic/admin/intro-image", imageUrlListResponseDto);
+        webSocketNotiService.sendNotification("/topic/gen/intro-image/"+memberId.toString(), imageUrlListResponseDto);
     }
 
     // 생성된 BaseTale 정보 저장

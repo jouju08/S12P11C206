@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { api } from '@/store/userStore';
+import { api, userStore } from '@/store/userStore';
 import { adminStore } from '@/store/adminStore';
 import LoadingText from './LoadingText';
 
@@ -208,7 +208,7 @@ const BaseTale = () => {
     }
     try {
       setFormDataReadyState((prev) => ({ ...prev, titleImg: 0 }));
-      await api.post('/admin/tale/gen-title-image', { text: formData.title });
+      await api.post('/admin/tale/gen-title-image', { memberId: userStore.getState().memberId,title: formData.title });
       Swal.fire({
         icon: 'success',
         title: '요청 완료',
@@ -276,6 +276,7 @@ const BaseTale = () => {
     try {
       setFormDataReadyState((prev) => ({ ...prev, startImg: 0 }));
       await api.post('/admin/tale/gen-intro-image', {
+        memberId: userStore.getState().memberId,
         title: formData.title,
         intro: formData.startScript
       });
