@@ -27,16 +27,16 @@ def upgrade_handpicture_submit(roomId: str = Form(...),
     )
 
 
-@router.post("/gen-tale-image")
+@router.post("/gen-tale-image/{memberId}")
 @util.logger
-async def gen_tale_image_submit(request: Request):
+async def gen_tale_image_submit(request: Request, memberId: int):
     """
     novita 에서 동화 표지 이미지 생성이 완료됐을때, webhook으로 호출되는 API 
     """
     request = await request.body()
     request = util.parse_request(request)
     picture_service.return_novita_image(
-        request, config.SPRING_GEN_TALE_IMG_WEBHOOK)
+        request, config.SPRING_GEN_TALE_IMG_WEBHOOK+f"/{memberId}")
 
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
@@ -45,16 +45,16 @@ async def gen_tale_image_submit(request: Request):
     )
 
 
-@router.post("/gen-tale-intro-image")
+@router.post("/gen-tale-intro-image/{memberId}")
 @util.logger
-async def gen_tale_intro_image_submit(request: Request):
+async def gen_tale_intro_image_submit(request: Request, memberId: int):
     """
     novita 에서 서버에서 동화 도입부 이미지 생성이 완료됐을때, webhook으로 호출되는 API 
     """
     request = await request.body()
     request = util.parse_request(request)
     picture_service.return_novita_image(
-        request, config.SPRING_GEN_TALE_INTRO_IMG_WEBHOOK)
+        request, config.SPRING_GEN_TALE_INTRO_IMG_WEBHOOK+f"/{memberId}")
     return response_dto.ApiResponse(
         status=Status.SUCCESS,
         message="OK",
