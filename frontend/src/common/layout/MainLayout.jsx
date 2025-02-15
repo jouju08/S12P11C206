@@ -14,6 +14,8 @@ export default function MainLayout() {
 
   const isCollectionPage = location.pathname === '/collection';
   const isHeroPage = location.pathname === '/';
+  const isLoginPage = location.pathname === '/login';
+  const isRegisterPage = location.pathname === '/register';
 
   // useEffect(() => {
   //   function handleClickOutside(event) {
@@ -45,6 +47,20 @@ export default function MainLayout() {
         <img
           src="/Collection/field-background.png"
           alt="collection 배경"
+          className="absolute bottom-0 left-0 w-full h-[682px] object-cover"
+        />
+      ) : null}
+      {isLoginPage ? (
+        <img
+          src="/Login/login-background.png"
+          alt="login 배경"
+          className="absolute bottom-0 left-0 w-full h-[682px] object-cover"
+        />
+      ) : null}
+      {isRegisterPage ? (
+        <img
+          src="/Login/login-background.png"
+          alt="register 배경"
           className="absolute bottom-0 left-0 w-full h-[682px] object-cover"
         />
       ) : null}

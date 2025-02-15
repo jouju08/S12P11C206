@@ -59,9 +59,7 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="w-[1024px] h-[605px] mt-[30px] flex justify-center items-center bg-[url('/Login/login-background.png')] bg-cover bg-bottom bg-no-repeat"
-      style={{ backgroundSize: '100%' }}>
+    <div className="w-[1024px] h-[605px] mt-[30px] flex justify-center items-center">
       {/* 센터 */}
       <div className="w-[62.5%]">
         <div className="flex flex-col items-center w-full h-[538px] bg-white rounded-[40px]">
