@@ -20,6 +20,7 @@ export default function FairyTaleRoom({ item }) {
     participantsCnt,
     roomId,
     taleTitle,
+    taleTitleImg,
   } = item;
 
   const { connectRoom, joinRoom } = useTaleRoom();
@@ -38,12 +39,12 @@ export default function FairyTaleRoom({ item }) {
       className="cursor-pointer"
       onClick={() => handleJoinTale()}>
       {/* 클릭하면 lobby로 리다이렉트 하자 */}
-      <div className="w-[275px] w- h-[300px] bg-gray-50 rounded-[30px] flex-col justify-center items-start inline-flex overflow-hidden">
+      <div className="w-[275px] w- h-[300px] bg-gray-50 rounded-[30px] flex-col justify-between items-start inline-flex overflow-hidden">
         <div className="w-[275px] h-[186px] overflow-hidden relative">
           {/* 백에서 가져온 cover 쓰기 */}
           <img
             className="w-[275px] -translate-y-10"
-            src="/Main/tale-cover-test.png"
+            src={taleTitleImg}
           />
           <div className="w-fit px-4 py-1 absolute top-[8px] right-[13px] z-10 bg-main-beige rounded-xl">
             {/* 오른쪽 위 인원 수 */}
@@ -52,7 +53,7 @@ export default function FairyTaleRoom({ item }) {
             </div>
           </div>
         </div>
-        <div className="px-4 py-2 flex flex-col gap-1">
+        <div className="px-4 py-4 flex flex-col gap-1">
           {/* 방 번호 */}
           <div className="text-text-first font-NPSfont font-light text-left text-[14px]">
             {roomId} 번
@@ -63,17 +64,10 @@ export default function FairyTaleRoom({ item }) {
 
           <div className="flex justify-start items-center gap-3 overflow-hidden">
             {/* 방장 프로필 */}
-            {hostProfileImg ? (
-              <img
-                className="w-[25px] h-[25px] relative rounded-full"
-                src={hostProfileImg}
-              />
-            ) : (
-              <img
-                className="w-[35px] h-[35px] relative rounded-[100px]"
-                src="/Main/profile-img.png"
-              />
-            )}
+            <img
+              className="w-[25px] h-[25px] relative rounded-full"
+              src={hostProfileImg}
+            />
             {/* 방장 닉네임 */}
             <div className="text-text-second service-regular3">
               {hostNickname}
