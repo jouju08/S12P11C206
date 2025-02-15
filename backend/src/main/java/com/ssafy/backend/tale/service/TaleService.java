@@ -9,18 +9,12 @@ import com.ssafy.backend.db.entity.TaleMember;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.db.repository.TaleRepository;
-import com.ssafy.backend.tale.dto.common.Room;
-import com.ssafy.backend.tale.dto.common.TaleMemberDto;
+import com.ssafy.backend.tale.dto.common.*;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
 import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
-import com.ssafy.backend.tale.dto.common.PromptSet;
+import com.ssafy.backend.tale.dto.request.RoomInviteRequestDto;
 import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
-import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
-import com.ssafy.backend.tale.dto.common.PageInfo;
-import com.ssafy.backend.tale.dto.response.StartTaleMakingResponseDto;
-import com.ssafy.backend.tale.dto.response.TaleDetailResponseDto;
-import com.ssafy.backend.tale.dto.response.TalePageResponseDto;
-import com.ssafy.backend.tale.dto.response.TaleResponseDto;
+import com.ssafy.backend.tale.dto.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -600,5 +594,24 @@ public class TaleService {
         taleMember.setTale(tale);
 
         return taleMember;
+    }
+
+    public RoomInviteResponseDto invite(RoomInviteRequestDto requestDto) {
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
+        RoomInviteResponseDto responseDto = new RoomInviteResponseDto();
+        for(RoomInfo roomInfo : roomList) {
+            if(roomInfo.getRoomId().toString().equals(requestDto.getRoomId()) ){
+                responseDto.setRoomInfo(roomInfo);
+                break;
+            }
+        }
+        Member member = memberRepository.findById(Long.parseLong(requestDto.getFrom())).get();
+        responseDto.setFrom(requestDto.getFrom());
+        responseDto.setTo(requestDto.getTo());
+        responseDto.setRoomId(requestDto.getRoomId());
+        responseDto.setNickname(member.getNickname());
+
+        return responseDto;
     }
 }

@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 export const useFriendSocket = () => {
   const { isAuthenticated } = useUser();
   const { connect, subscribeMain, disconnect } = useActiveUser();
-  const { connectRoom, inviteFlag } = useTaleRoom();
+  const { connectRoom, inviteFlag, resetState } = useTaleRoom();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,14 +28,4 @@ export const useFriendSocket = () => {
       }
     };
   }, [isAuthenticated, connect, subscribeMain, disconnect]);
-
-  useEffect(() => {
-    const handleInvite = () => {
-      navigate('/tale/waiting');
-    };
-
-    if (inviteFlag) {
-      handleInvite();
-    }
-  }, [inviteFlag]);
 };
