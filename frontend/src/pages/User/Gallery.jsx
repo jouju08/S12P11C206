@@ -116,25 +116,38 @@ export default function Gallery() {
           </div>
         ) : (
           <div className="flex flex-wrap">
-            {displayedList.map((item) => (
-              <div
-                key={item.id}
-                className="relative z-0 w-[215px] h-[215px] bg-white flex items-center justify-center m-2 cursor-pointer mt-5"
-                onClick={() => handleOpen(item)}
-              >
-                <img
-                  src={item.orginImg}
-                  alt={`Image ${item.id}`}
-                  className="w-[195px] h-[195px] object-cover bg-gray-300"
-                />
-              </div>
-            ))}
+            {displayedList.map((item, index) => {
+              const isLineNeeded = index % 4 === 0;
+              return (
+                <React.Fragment key={item.id}>
+                  {isLineNeeded && (
+                    <div className="w-full mb-2 relative h-[40px]">
+                      <img
+                        src="/Gallery/picture-display.png"
+                        alt="빨래집게 라인"
+                        className="absolute top-0 left-0 w-full h-auto z-10"
+                      />
+                    </div>
+                  )}
+                  <div
+                    className="relative z-0 w-[215px] h-[215px] bg-white flex items-center justify-center m-2 cursor-pointer mt-5"
+                    onClick={() => handleOpen(item)}
+                  >
+                    <img
+                      src={item.orginImg}
+                      alt={`Image ${item.id}`}
+                      className="w-[195px] h-[195px] object-cover bg-gray-300"
+                    />
+                  </div>
+                </React.Fragment>
+              );
+            })}
           </div>
         )}
       </section>
 
       {showModal && (
-        <div className="absolute top-0 left-0 z-50 w-full h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
+        <div className="absolute top-0 left-0 z-50 w-full h-full flex justify-center items-center">
           <ImageModal isOpen={showModal} onClose={handleExit} detail={pictureDetail} />
         </div>
       )}
