@@ -138,7 +138,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
                 onClick={handleShowOff}
                 className="w-[195px] h-[56px] bg-[#FFC300] rounded-[50px] border border-gray-100 flex items-center justify-center service-bold3 text-text-second transition-all duration-200 hover:bg-main-carrot">
                 <img
-                  src="/image/painter.png"
+                  src="/Gallery/painter.png"
                   alt="painter"
                   className="w-[40px] h-[40px] mr-2"
                 />
