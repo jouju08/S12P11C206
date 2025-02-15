@@ -1,0 +1,62 @@
+import { useActiveUser } from '@/store/activeStore';
+import { useRoomStore, useTaleRoom } from '@/store/roomStore';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+export default function FriendInviteModal() {
+  const {
+    connectRoom,
+    joinRoom,
+    currentRoom,
+    inviteFlag,
+    setBaseTaleId,
+    setInviteFlag,
+    resetState,
+  } = useTaleRoom();
+  const { inviteInfo } = useActiveUser();
+  const navigate = useNavigate();
+
+  const handleAccpet = async () => {
+    setInviteFlag(false);
+    await connectRoom();
+    const room = await joinRoom(inviteInfo.roomId, inviteInfo.to);
+
+    setBaseTaleId(room?.baseTaleId);
+
+    navigate('/tale/waiting');
+  };
+
+  const handleReject = async () => {
+    await resetState();
+  };
+
+  useEffect(() => {
+    console.log(inviteFlag);
+  }, [inviteFlag]);
+
+  if (!inviteFlag) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 className="service-bold1">같이 동화 만들래?</h2>
+        <p className="my-4 text-gray-600">{JSON.stringify(inviteInfo)}</p>
+        <div className="mt-4 flex justify-end space-x-2">
+          <button
+            onClick={() => handleAccpet()}
+            className="w-[195px] h-[56px] bg-main-success rounded-[50px] flex items-center justify-center text-[20px] text-text-first
+            service-regular2">
+            같이 만들기
+          </button>
+
+          <button
+            onClick={() => handleReject()}
+            className="w-[195px] h-[56px] bg-main-choose rounded-[50px]  flex items-center justify-center text-[20px] text-text-first
+             service-regular2">
+            다음에 하기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

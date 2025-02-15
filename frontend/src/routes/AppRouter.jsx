@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import MainLayout from '@/common/layout/MainLayout';
 import TaleLayout from '@/common/layout/TaleLayout';
 import { Loading } from '@/common/Loading';
@@ -11,11 +11,14 @@ import {
   Outlet,
   RouterProvider,
   useLocation,
+  useNavigate,
 } from 'react-router-dom';
 
 import KakaoCallback from '@/components/kakao/KakaoCallback';
 import Friends from '@/components/Friend/Friend';
 import { useFriendSocket } from '@/hooks/useFriendSocket';
+import { useTaleRoom } from '@/store/roomStore';
+import FriendInviteModal from '@/components/modal/FriendInviteModal';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
 const Login = lazy(() => import('@/pages/User/Login'));
@@ -70,9 +73,13 @@ const router = createBrowserRouter([
       { path: 'auth/kakao/callback', element: <KakaoCallback /> },
       { path: 'findid', element: <FindId /> },
       { path: 'findpw', element: <FindPw /> },
-
       {
-        element: <ProtectedLayout />, // 인증된 사용자
+        element: (
+          <>
+            <ProtectedLayout />
+            <FriendInviteModal />
+          </>
+        ), // 인증된 사용자
         children: [
           { path: 'main', element: <Main /> },
           { path: 'room', element: <Room /> },
