@@ -201,7 +201,7 @@ export default function ProfileEdit() {
           )}
         </section>
         {showModal && (
-          <div className="absolute top-[-100px] left-0 z-50 w-full h-dvh bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
+          <div className="fixed top-0 left-0 w-full h-full z-50 flex justify-center items-center">
             <CollectionModal handleExit={() => setShowModal(false)} />
           </div>
         )}

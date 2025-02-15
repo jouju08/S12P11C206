@@ -7,7 +7,7 @@ const ParticipationStatus = ({ ParticipationList }) => {
         </div>
         {/* 참여자 목록 중 프로필 사진 렌더링 */}
         <img
-          src="/Main/profile-img.png"
+          src={participant.profileImg || "/Main/profile-img.png"}
           alt="profile"
           className="w-[45px] h-[45px] relative rounded-[100px] object-cover"
         />
@@ -22,7 +22,7 @@ const ParticipationStatus = ({ ParticipationList }) => {
         {ParticipationList.map((participants, index) => {
           <div key={participants.id}>
             <img
-              src="/Main/profile-img.png"
+              src={participant.profileImg || "/Main/profile-img.png"}
               alt="profile"
               className="w-[45px] h-[45px] relative rounded-[100px] object-cover"
             />
