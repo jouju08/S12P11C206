@@ -34,7 +34,7 @@ public class ActiveUserService {
 
         // 1. 접속자 자료구조 2개 체킹
 //        Set<Long> activeUsers = ops.get("activeUsers") != null ? (Set<Long>) ops.get("activeUsers") : new HashSet<>();
-        Set<Long> activeBackupUsers = ops.get("activeBackupUsers") != null ? (Set<Long>) ops.get("activeUsers") : new HashSet<>();
+        Set<Long> activeBackupUsers = ops.get("activeBackupUsers") != null ? (Set<Long>) ops.get("activeBackupUsers") : new HashSet<>();
         Set<Long> activeUsersTemp = new HashSet<>();
 
         ops.set("activeUsers", activeBackupUsers);
