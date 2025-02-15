@@ -54,7 +54,7 @@ public class WebSecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, AccessLogFilter accessLogFilter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Bean 참조
@@ -74,7 +74,8 @@ public class WebSecurityConfig {
 //                .oauth2Login(oauth -> oauth
 //                        .defaultSuccessUrl("/api/auth/kakao/callback")
 //                ) // 인증 성공 후 처리 경로
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);        // JWT 필터 추가
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)        // JWT 필터 추가
+                .addFilterBefore(accessLogFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 
@@ -90,5 +91,3 @@ public class WebSecurityConfig {
         return configuration.getAuthenticationManager();
     }
 }
-
-
