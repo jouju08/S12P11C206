@@ -31,13 +31,22 @@ const initialState = {
   taleStart: { ...taleStart },
   seeTaleId: 1,
   taleDetail: { ...taleDetail },
+  participants: [],
+  tailTitleList: [],
+  createdAt: '',
+  // 동화 페이지, 내 동화 목록 불러오기
+  sortBy: 'LATEST',
+  currentPage: 0,
+  filterBy: null,
 };
 
 const collectionActions = (set, get) => ({
   setMyTaleList: async () => {
     try {
       // 내가 참여한 동화 목록 불러오는 api
-      const response = await api.get('/tale/my-tale');
+      const response = await api.get('/tale/my-tale', {
+        params: { order: get().sortBy, baseTaleId: get().filterBy, page: 0 },
+      });
       console.log('📚 내가 참여한 동화 목록', response);
 
       // 응답 유효성 체크 추가
@@ -110,6 +119,55 @@ const collectionActions = (set, get) => ({
     });
     console.log('디테일 바꼈는지 확인', get().taleDetail);
   },
+
+  setTaleFinish: async () => {
+    const response = await api.get(`/tale/${get().seeTaleId}`);
+    console.log('마지막 부분', response);
+
+    const { participants, createdAt } = response.data.data;
+
+    const uniqueParticipants = participants.filter((element, index) => {
+      return participants.indexOf(element) === index;
+    });
+
+    set((state) => {
+      state.participants = uniqueParticipants;
+      state.createdAt = createdAt;
+    });
+  },
+
+  // sortBy 상태를 변경하고, 변경 후 새 데이터를 다시 불러옴
+  setSortBy: (newSortBy) => {
+    set((state) => {
+      state.sortBy = newSortBy;
+    });
+    // sortBy가 바뀌면 바로 새 데이터를 불러오도록 실행
+    get().setMyTaleList();
+  },
+
+  // filterBy 상태를 변경하고, 변경 후 새 데이터를 다시 불러옴
+  setFilterBy: (newFilterBy) => {
+    set((state) => {
+      state.filterBy = newFilterBy;
+    });
+    // filterBy 바뀌면 바로 새 데이터를 불러오도록 실행
+    get().setMyTaleList();
+  },
+
+  setTailTitleList: async () => {
+    const response = await api.get('/base-tale/list');
+
+    console.log('base 동화책들', response);
+    const uniqueTitle = response.data.data.map((element, index) => ({
+      title: element.title,
+      baseTaleId: element.id,
+    }));
+    console.log('유닠', uniqueTitle);
+
+    set((state) => {
+      state.tailTitleList = uniqueTitle;
+    });
+  },
 });
 
 const useCollectionStore = create(
@@ -129,11 +187,29 @@ export const useCollection = () => {
   const taleStart = useCollectionStore((state) => state.taleStart, shallow);
   const seeTaleId = useCollectionStore((state) => state.seeTaleId);
   const taleDetail = useCollectionStore((state) => state.taleDetail, shallow);
+  const participants = useCollectionStore(
+    (state) => state.participants,
+    shallow
+  );
+  const tailTitleList = useCollectionStore(
+    (state) => state.tailTitleList,
+    shallow
+  );
+  const createdAt = useCollectionStore((state) => state.createdAt);
+  const sortBy = useCollectionStore((state) => state.sortBy);
+  const filterBy = useCollectionStore((state) => state.filterBy);
+  const currentPage = useCollectionStore((state) => state.currentPage);
 
   const setMyTaleList = useCollectionStore((state) => state.setMyTaleList);
   const setTaleStart = useCollectionStore((state) => state.setTaleStart);
   const setSeeTaleId = useCollectionStore((state) => state.setSeeTaleId);
   const setTaleDetail = useCollectionStore((state) => state.setTaleDetail);
+  const setTaleFinish = useCollectionStore((state) => state.setTaleFinish);
+  const setFilterBy = useCollectionStore((state) => state.setFilterBy);
+  const setSortBy = useCollectionStore((state) => state.setSortBy);
+  const setTailTitleList = useCollectionStore(
+    (state) => state.setTailTitleList
+  );
 
   return {
     memberId,
@@ -141,10 +217,20 @@ export const useCollection = () => {
     taleStart,
     seeTaleId,
     taleDetail,
+    participants,
+    createdAt,
+    sortBy,
+    filterBy,
+    currentPage,
+    tailTitleList,
 
     setMyTaleList,
     setTaleStart,
     setSeeTaleId,
     setTaleDetail,
+    setTaleFinish,
+    setTailTitleList,
+    setSortBy,
+    setFilterBy,
   };
 };

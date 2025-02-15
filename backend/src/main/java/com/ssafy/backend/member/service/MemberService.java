@@ -25,6 +25,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final S3Service s3Service;
     private final PasswordEncoder passwordEncoder;
+    private final EmailSendService emailSendService;
 
 
     @Transactional(readOnly = true)
@@ -119,5 +120,17 @@ public class MemberService {
                 .map(member -> new MemberDto(member.getId(), member.getLoginId(), member.getNickname(), member.getProfileImg(), false))
                 .collect(Collectors.toList());
         return members;
+    }
+
+    @Transactional
+    public void findPasswordService(String loginId, String email) {
+        Member member=memberRepository.findByLoginIdAndEmail(loginId, email).orElseThrow(()->new BadRequestException("아이디 또는 이메일을 확인해주세요"));
+        System.out.println(member);
+        if(member.getIsDeleted()){
+            throw new BadRequestException("아이디 또는 비밀번호를 확인해주세요.");
+        }
+        String password=emailSendService.passwordEmail(email);
+        member.setPassword(passwordEncoder.encode(password));
+        memberRepository.save(member);
     }
 }
