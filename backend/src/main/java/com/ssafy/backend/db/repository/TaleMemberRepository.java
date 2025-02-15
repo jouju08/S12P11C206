@@ -29,12 +29,14 @@ public interface TaleMemberRepository extends JpaRepository<TaleMember, Long> {
             "JOIN tm.tale t " +
             "JOIN t.baseTale bt " +
             "WHERE tm.member.id = :memberId " +
-            "AND (:filter = '전체보기' OR bt.title = :filter)",
+            "AND (:filter = '전체보기' OR bt.title = :filter) " +
+            "AND tm.orginImg IS NOT NULL",
             countQuery = "SELECT COUNT(tm) FROM TaleMember tm " +
                     "JOIN tm.tale t " +
                     "JOIN t.baseTale bt " +
                     "WHERE tm.member.id = :memberId " +
-                    "AND (:filter = '전체보기' OR bt.title = :filter)")
+                    "AND (:filter = '전체보기' OR bt.title = :filter) " +
+                    "AND tm.orginImg IS NOT NULL")
     Page<PictureResponseDTO> findPicturesByMemberId(
             @Param("memberId") Long memberId,
             @Param("filter") String filter,

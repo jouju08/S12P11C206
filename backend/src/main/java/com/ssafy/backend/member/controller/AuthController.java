@@ -12,6 +12,7 @@ import com.ssafy.backend.member.dto.request.RefreshTokenRequestDto;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
 import com.ssafy.backend.member.dto.response.LoginResponseDto;
 import com.ssafy.backend.member.service.*;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,7 +40,7 @@ public class AuthController {
     private final AuthService authService;
     private final KakaoService kakaoService;
     private final MemberService memberService;
-
+    private final LoginLogService loginLogService;
 
     private final JwtUtil jwtUtil;
 
@@ -50,8 +51,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequest request) {
-        return ApiResponse.<LoginResponseDto>builder().data(authService.login(request)).build();
+    public ApiResponse<LoginResponseDto> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+
+        LoginResponseDto loginDto = authService.login(request, httpRequest);
+        String ipAddress = extractClientIp(httpRequest);
+        loginLogService.saveLoginLog(loginDto.getMember().getLoginId(), ipAddress);
+
+        return ApiResponse.<LoginResponseDto>builder().data(loginDto).build();
     }
 
     @PostMapping("/logout")
@@ -63,8 +69,11 @@ public class AuthController {
     }
 
     @GetMapping("/kakao/callback")
-    public ApiResponse<LoginResponseDto> kakaoCallback(@RequestParam String code) {
-        return ApiResponse.<LoginResponseDto>builder().data(kakaoService.kakaoLogin(code)).build();
+    public ApiResponse<LoginResponseDto> kakaoCallback(@RequestParam String code, HttpServletRequest httpRequest) {
+        LoginResponseDto loginDto = kakaoService.kakaoLogin(code, httpRequest);
+        String ipAddress = extractClientIp(httpRequest);
+        loginLogService.saveLoginLog(loginDto.getMember().getLoginId(), ipAddress);
+        return ApiResponse.<LoginResponseDto>builder().data(loginDto).build();
     }
 
     @PostMapping("/token/valid/access")
@@ -168,6 +177,15 @@ public class AuthController {
         return ApiResponse.builder().data("비밀번호 전송").build();
     }
 
+    private String extractClientIp(HttpServletRequest request) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = request.getRemoteAddr();
+        } else {
+            ipAddress = ipAddress.split(",")[0].trim();
+        }
+        return ipAddress;
+    }
 
 
 }
