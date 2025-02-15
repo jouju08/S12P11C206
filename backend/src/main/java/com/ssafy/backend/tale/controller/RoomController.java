@@ -74,6 +74,7 @@ public class RoomController {
     @MessageMapping("/active/invite")
     @SendTo("/active/invite")
     public RoomInviteResponseDto invite(RoomInviteRequestDto requestDto) {
-        return new RoomInviteResponseDto(requestDto.getRoomId(), requestDto.getFrom(), requestDto.getTo());
+
+        return taleService.invite(requestDto);
     }
 }
