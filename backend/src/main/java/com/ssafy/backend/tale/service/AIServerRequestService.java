@@ -286,10 +286,10 @@ public class AIServerRequestService {
                 .block();
     }
 
-    public void requestTaleImage(TextRequestDto textRequestDto){
+    public void requestTaleImage(TaleTitleImageRequestDto taleTitleImageRequestDto){
         webClient.post()
                 .uri("/gen/tale-image")
-                .bodyValue(textRequestDto)
+                .bodyValue(taleTitleImageRequestDto)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<String>>(){})
                 .block();

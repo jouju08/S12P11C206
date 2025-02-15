@@ -59,42 +59,38 @@ export default function Login() {
   };
 
   return (
-    <div
-      className="w-[1024px] h-[605px] mt-[30px] flex bg-[url('/Login/login-background.png')] bg-cover bg-bottom bg-no-repeat"
-      style={{ backgroundSize: '100%' }}>
-      {/* 왼쪽쪽 */}
-      <div className="w-[18.75%]" />
-      {/* 센터터 */}
+    <div className="w-[1024px] h-[605px] mt-[30px] flex justify-center items-center">
+      {/* 센터 */}
       <div className="w-[62.5%]">
-        <div className="flex flex-col items-center w-[540px] h-[538px] bg-white rounded-[40px]">
+        <div className="flex flex-col items-center w-full h-[538px] bg-white rounded-[40px]">
           {/* 로그인 텍스트 */}
           <div className="text-text-first auth-bold1 mt-[48px]">로그인</div>
           {/* 아이디 비번 입력칸 */}
           <form onSubmit={handleSubmit}>
-          <div className="flex flex-col space-y-[10px] mt-[30px]">
-            <input
-              type="email"
-              id="login-email"
-              onChange={(e) => setLoginId(e.target.value)}
-              className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
-              placeholder="아이디"
-            />
-            <input
-              type="password"
-              id="login-password"
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
-              placeholder="비밀번호"
-            />
-          </div>
-          {/* 로그인 버튼 */}
-          <div className="mt-[30px]">
-            <button
-              onClick={handleSubmit}
-              className="w-[445px] h-[65px]  bg-main-btn rounded-[30px] text-text-first auth-regular1">
-              로그인 하기
-            </button>
-          </div>
+            <div className="flex flex-col space-y-[10px] mt-[30px]">
+              <input
+                type="email"
+                id="login-email"
+                onChange={(e) => setLoginId(e.target.value)}
+                className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
+                placeholder="아이디"
+              />
+              <input
+                type="password"
+                id="login-password"
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
+                placeholder="비밀번호"
+              />
+            </div>
+            {/* 로그인 버튼 */}
+            <div className="mt-[30px]">
+              <button
+                onClick={handleSubmit}
+                className="w-[445px] h-[65px]  bg-main-btn rounded-[30px] text-text-first auth-regular1">
+                로그인 하기
+              </button>
+            </div>
           </form>
           {/* 각종 링크 */}
           <div className="mt-[20px] space-x-[10px] text-text-second auth-regular2">
@@ -118,8 +114,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-      {/* 오른쪽 공란 */}
-      <div className="w-[18.75%]"></div>
     </div>
   );
 }

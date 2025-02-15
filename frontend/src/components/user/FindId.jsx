@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useUser } from '@/store/userStore';
@@ -9,12 +9,19 @@ export default function FindId() {
   const [emailError, setEmailError] = useState('');
   const [birthError, setBirthError] = useState('');
 
-  const { findId } = useUser();
+  const { findId, isAuthenticated } = useUser();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/main');
+    }
+  }, [isAuthenticated, navigate]);
 
   // 이메일 및 생년월일 정규식
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const birthRegex = /^(19[0-9]{2}|20[0-9]{2})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
+  const birthRegex =
+    /^(19[0-9]{2}|20[0-9]{2})-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/;
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
@@ -58,9 +65,9 @@ export default function FindId() {
     }
     try {
       const payload = {
-        "email": email,
-        "birth": birth
-      }
+        email: email,
+        birth: birth,
+      };
       const response = await findId(payload);
       if (response.status === 'SU') {
         Swal.fire('성공', `이메일에서 아이디를 확인해주세요.`, 'success');
@@ -75,19 +82,18 @@ export default function FindId() {
   };
 
   return (
-    <div
-      className="w-[1024px] h-[605px] mt-[30px] flex bg-[url('/Login/login-background.png')] bg-cover bg-bottom bg-no-repeat"
-      style={{ backgroundSize: '100%' }}
-    >
-      {/* 왼쪽 공란 */}
-      <div className="w-[18.75%]" />
+    <div className="w-[1024px] h-[605px] mt-[30px] flex justify-center items-center">
       {/* 중앙 컨테이너 */}
       <div className="w-[62.5%]">
-        <div className="flex flex-col items-center w-[540px] h-[500px] bg-white rounded-[40px]">
+        <div className="flex flex-col items-center w-full h-fit pb-[40px] bg-white rounded-[40px]">
           {/* 페이지 제목 */}
-          <div className="text-text-first auth-bold1 mt-[48px]">아이디 찾기</div>
+          <div className="text-text-first auth-bold1 mt-[48px]">
+            아이디 찾기
+          </div>
           {/* 입력 폼 */}
-          <form onSubmit={handleSubmit} className="flex flex-col items-center mt-[30px]">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col items-center mt-[30px]">
             <div className="flex flex-col space-y-[10px] w-full items-center">
               <input
                 type="email"
@@ -96,7 +102,9 @@ export default function FindId() {
                 placeholder="이메일 입력"
                 className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
               />
-              {emailError && <p className="text-red-500 text-sm text-center">{emailError}</p>}
+              {emailError && (
+                <p className="text-red-500 text-sm text-center">{emailError}</p>
+              )}
 
               <input
                 type="text"
@@ -106,26 +114,27 @@ export default function FindId() {
                 className="w-[445px] h-[65px] rounded-[30px] pl-[30px] auth-regular1 focus:outline-none text-text-first placeholder:text-text-third bg-main-authInput"
                 maxLength={10}
               />
-              {birthError && <p className="text-red-500 text-sm text-center">{birthError}</p>}
+              {birthError && (
+                <p className="text-red-500 text-sm text-center">{birthError}</p>
+              )}
             </div>
-            
+
             <button
               type="submit"
-              className="w-[445px] h-[65px] bg-main-btn rounded-[30px] auth-regular1 text-text-first hover:bg-main-carrot transition-colors duration-200 mt-[30px]"
-            >
+              className="w-[445px] h-[65px] bg-main-btn rounded-[30px] auth-regular1 text-text-first hover:bg-main-carrot transition-colors duration-200 mt-[30px]">
               아이디 찾기
             </button>
           </form>
 
           <div className="mt-[20px] text-text-second auth-regular2">
-            <Link to="/login" className="underline">
+            <Link
+              to="/login"
+              className="underline">
               로그인 페이지로 돌아가기
             </Link>
           </div>
         </div>
       </div>
-      {/* 오른쪽 공란 */}
-      <div className="w-[18.75%]"></div>
     </div>
   );
 }

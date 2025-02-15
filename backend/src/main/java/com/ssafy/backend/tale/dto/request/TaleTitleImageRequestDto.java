@@ -9,8 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaleIntroImageRequestDto {
+public class TaleTitleImageRequestDto {
     private Long memberId;
     private String title;
-    private String intro;
 }

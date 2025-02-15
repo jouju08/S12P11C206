@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { api } from '@/store/userStore';
+import { api, userStore } from '@/store/userStore';
 import { adminStore } from '@/store/adminStore';
-import LoadingText from './LoadingText';
+import LoadingText from '../BaseTale/LoadingText';
 
-const BaseTale = () => {
+const BaseTaleRequestAdmin = () => {
   const initialFormData = {
     title: '',
     titleImg: '',
@@ -18,7 +18,9 @@ const BaseTale = () => {
     keywordSentence1: '',
     keywordSentence2: '',
     keywordSentence3: '',
-    keywordSentence4: ''
+    keywordSentence4: '',
+    hasApproved: false,
+    memberId: 0,
   };
 
   const [baseTales, setBaseTales] = useState([]);
@@ -28,20 +30,33 @@ const BaseTale = () => {
     title: -1,
     titleImg: -1,
     startImg: -1,
-    startVoice: -1
+    startVoice: -1,
   });
 
-  const { connect, selectedTitleImage, titleImages, selectedIntroImage, introImages } = adminStore();
-  const { setTitleImages, setSelectedTitleImage, setIntroImages, setSelectedIntroImage } = adminStore();
+  const {
+    connect,
+    selectedTitleImage,
+    titleImages,
+    selectedIntroImage,
+    introImages,
+    authKey,
+  } = adminStore();
+  const {
+    setTitleImages,
+    setSelectedTitleImage,
+    setIntroImages,
+    setSelectedIntroImage,
+  } = adminStore();
 
   useEffect(() => {
     fetchBaseTales();
+    handleNewTale();
     connect(); // 웹소켓 구독 (실제 사용하는 웹소켓 client에 맞게 수정)
   }, []);
 
   // titleImages 변경 시 titleImg ready 상태 업데이트
   useEffect(() => {
-    setFormDataReadyState(prev => ({
+    setFormDataReadyState((prev) => ({
       ...prev,
       titleImg: titleImages != null ? 1 : -1,
     }));
@@ -49,7 +64,7 @@ const BaseTale = () => {
 
   // introImages 변경 시 startImg ready 상태 업데이트
   useEffect(() => {
-    setFormDataReadyState(prev => ({
+    setFormDataReadyState((prev) => ({
       ...prev,
       startImg: introImages != null ? 1 : -1,
     }));
@@ -58,7 +73,12 @@ const BaseTale = () => {
   // BaseTale 목록 조회
   const fetchBaseTales = async () => {
     try {
-      const response = await api.get('/admin/tale/base-tale');
+      console.log(authKey);
+      const response = await api.get(`/admin/tale/parent`, {
+        headers: {
+          authKey: authKey,
+        },
+      });
       let taleList = response.data?.data;
       if (!Array.isArray(taleList)) {
         taleList = taleList ? [taleList] : [];
@@ -69,7 +89,7 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '오류',
-        text: '동화 목록을 불러오지 못했습니다.'
+        text: '동화 목록을 불러오지 못했습니다.',
       });
     }
   };
@@ -92,18 +112,21 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '오류',
-        text: '키워드 문장에는 "xx"가 포함되어야 합니다.'
+        text: '키워드 문장에는 "xx"가 포함되어야 합니다.',
       });
       return;
     }
     try {
-      const response = await api.post('/admin/tale/base-tale', formData);
-      if (response.data && response.data.data) {
-        console.log('생성된 BaseTale id:', response.data.data);
+      const response = await api.post(`/admin/tale/parent`, formData, {
+        headers: {
+          authKey: authKey,
+        },
+      });
+      if (response.status === 200) {
         Swal.fire({
           icon: 'success',
           title: '성공',
-          text: '동화가 성공적으로 저장되었습니다!'
+          text: '동화가 성공적으로 저장되었습니다!',
         });
         fetchBaseTales(); // 목록 새로 조회
       }
@@ -113,7 +136,7 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '저장 실패',
-        text: '동화 저장에 실패했습니다.'
+        text: '동화 요청에 실패했습니다.',
       });
     }
   };
@@ -124,7 +147,7 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '오류',
-        text: '제목을 입력해주세요.'
+        text: '제목을 입력해주세요.',
       });
       return;
     }
@@ -142,13 +165,13 @@ const BaseTale = () => {
           keywordSentence1: sentences[0] ?? '',
           keywordSentence2: sentences[1] ?? '',
           keywordSentence3: sentences[2] ?? '',
-          keywordSentence4: sentences[3] ?? ''
+          keywordSentence4: sentences[3] ?? '',
         }));
         setFormDataReadyState((prev) => ({ ...prev, title: 1 }));
         Swal.fire({
           icon: 'success',
           title: '성공',
-          text: '제목 기반 동화 생성에 성공했습니다.'
+          text: '제목 기반 동화 생성에 성공했습니다.',
         });
       }
     } catch (error) {
@@ -156,7 +179,7 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
-        text: '제목 기반 동화 생성에 실패했습니다.'
+        text: '제목 기반 동화 생성에 실패했습니다.',
       });
     }
   };
@@ -167,23 +190,25 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '오류',
-        text: '도입부 스크립트를 입력하거나 생성해주세요.'
+        text: '도입부 스크립트를 입력하거나 생성해주세요.',
       });
       return;
     }
     try {
       setFormDataReadyState((prev) => ({ ...prev, startVoice: 0 }));
-      const response = await api.post('/admin/tale/tale-script-read', { text: formData.startScript });
+      const response = await api.post('/admin/tale/tale-script-read', {
+        text: formData.startScript,
+      });
       if (response.data && response.data.data) {
         setFormData((prev) => ({
           ...prev,
-          startVoice: response.data.data
+          startVoice: response.data.data,
         }));
         setFormDataReadyState((prev) => ({ ...prev, startVoice: 1 }));
         Swal.fire({
           icon: 'success',
           title: '성공',
-          text: '도입부 음성 URL 생성에 성공했습니다.'
+          text: '도입부 음성 생성에 성공했습니다.',
         });
       }
     } catch (error) {
@@ -191,7 +216,7 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
-        text: '도입부 음성 URL 생성에 실패했습니다.'
+        text: '도입부 음성 생성에 실패했습니다.',
       });
     }
   };
@@ -202,24 +227,27 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '오류',
-        text: '제목을 입력해주세요.'
+        text: '제목을 입력해주세요.',
       });
       return;
     }
     try {
       setFormDataReadyState((prev) => ({ ...prev, titleImg: 0 }));
-      await api.post('/admin/tale/gen-title-image', { text: formData.title });
+      await api.post('/admin/tale/gen-title-image', {
+        memberId: userStore.getState().memberId,
+        title: formData.title,
+      });
       Swal.fire({
         icon: 'success',
         title: '요청 완료',
-        text: '타이틀 이미지 생성 요청을 보냈습니다.'
+        text: '타이틀 이미지 생성 요청을 보냈습니다.',
       });
     } catch (error) {
       console.error('타이틀 이미지 생성 요청 실패:', error);
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
-        text: '타이틀 이미지 생성 요청에 실패했습니다.'
+        text: '타이틀 이미지 생성 요청에 실패했습니다.',
       });
     }
   };
@@ -228,15 +256,11 @@ const BaseTale = () => {
     setSelectedTitleImage(url);
   };
 
-  const handleSubmitSelectedTitleImage = async () => {
+  const submitSelectedTitleImage = async () => {
     if (!selectedTitleImage) {
-      Swal.fire({
-        icon: 'error',
-        title: '오류',
-        text: '이미지를 선택해주세요.'
-      });
       return;
     }
+
     const url = selectedTitleImage;
     try {
       const response = await api.post('/admin/tale/set-image', { text: url });
@@ -244,22 +268,24 @@ const BaseTale = () => {
       if (response.data && response.data.data.text) {
         setFormData((prev) => ({
           ...prev,
-          titleImg: response.data.data.text
+          titleImg: response.data.data.text,
         }));
         setSelectedTitleImage(response.data.data.text);
         Swal.fire({
           icon: 'success',
-          title: '성공',
-          text: '타이틀 이미지가 등록되었습니다.'
+          title: '저장 완료',
+          text: '이미지 저장에 성공했습니다.',
         });
       }
+      return;
     } catch (error) {
-      console.error('타이틀 이미지 선택 실패:', error);
+      console.error('타이틀 이미지 제출 실패:', error);
       Swal.fire({
         icon: 'error',
-        title: '실패',
-        text: '타이틀 이미지 등록에 실패했습니다.'
+        title: '저장 실패',
+        text: '이미지 저장에 실패했습니다.',
       });
+      return;
     }
   };
 
@@ -269,27 +295,28 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '오류',
-        text: '제목과 도입부 스크립트를 모두 입력해주세요.'
+        text: '제목과 도입부 스크립트를 모두 입력해주세요.',
       });
       return;
     }
     try {
       setFormDataReadyState((prev) => ({ ...prev, startImg: 0 }));
       await api.post('/admin/tale/gen-intro-image', {
+        memberId: userStore.getState().memberId,
         title: formData.title,
-        intro: formData.startScript
+        intro: formData.startScript,
       });
       Swal.fire({
         icon: 'success',
         title: '요청 완료',
-        text: '도입부 이미지 생성 요청을 보냈습니다.'
+        text: '도입부 이미지 생성 요청을 보냈습니다.',
       });
     } catch (error) {
       console.error('도입부 이미지 생성 요청 실패:', error);
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
-        text: '도입부 이미지 생성 요청에 실패했습니다.'
+        text: '도입부 이미지 생성 요청에 실패했습니다.',
       });
     }
   };
@@ -298,15 +325,11 @@ const BaseTale = () => {
     setSelectedIntroImage(url);
   };
 
-  const handleSubmitSelectedIntroImage = async () => {
+  const submitSelectedIntroImage = async () => {
     if (!selectedIntroImage) {
-      Swal.fire({
-        icon: 'error',
-        title: '오류',
-        text: '이미지를 선택해주세요.'
-      });
       return;
     }
+
     const url = selectedIntroImage;
     try {
       const response = await api.post('/admin/tale/set-image', { text: url });
@@ -314,29 +337,35 @@ const BaseTale = () => {
       if (response.data && response.data.data.text) {
         setFormData((prev) => ({
           ...prev,
-          startImg: response.data.data.text
+          startImg: response.data.data.text,
         }));
         setSelectedIntroImage(response.data.data.text);
         Swal.fire({
           icon: 'success',
-          title: '성공',
-          text: '도입부 이미지가 등록되었습니다.'
+          title: '저장 완료',
+          text: '이미지 저장에 성공했습니다.',
         });
       }
+      return;
     } catch (error) {
-      console.error('도입부 이미지 선택 실패:', error);
+      console.error('도입부 이미지 제출 실패:', error);
       Swal.fire({
         icon: 'error',
-        title: '실패',
-        text: '도입부 이미지 등록에 실패했습니다.'
+        title: '저장 실패',
+        text: '이미지 저장에 실패했습니다.',
       });
+      return;
     }
   };
 
   // 목록에서 동화 선택 시 상세 조회 후 form에 채우기
   const handleSelectTale = async (id) => {
     try {
-      const response = await api.get(`/admin/tale/base-tale/${id}`);
+      const response = await api.get(`/admin/tale/parent/${id}`, {
+        headers: {
+          authKey: authKey,
+        },
+      });
       handleNewTale();
       if (response.data && response.data.data) {
         const data = response.data.data;
@@ -355,6 +384,8 @@ const BaseTale = () => {
           keywordSentence2: data.keywordSentence2 ?? '',
           keywordSentence3: data.keywordSentence3 ?? '',
           keywordSentence4: data.keywordSentence4 ?? '',
+          hasApproved: data.hasApproved ?? false,
+          memberId: data.memberId ?? 0,
         };
         setFormData(safeData);
         setSelectedId(id);
@@ -370,7 +401,7 @@ const BaseTale = () => {
       Swal.fire({
         icon: 'error',
         title: '조회 실패',
-        text: '동화 상세 정보를 불러오지 못했습니다.'
+        text: '동화 상세 정보를 불러오지 못했습니다.',
       });
     }
   };
@@ -382,7 +413,7 @@ const BaseTale = () => {
       title: -1,
       titleImg: -1,
       startImg: -1,
-      startVoice: -1
+      startVoice: -1,
     });
     setSelectedTitleImage(null);
     setSelectedIntroImage(null);
@@ -392,12 +423,16 @@ const BaseTale = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 mt-16 shadow-lg rounded-lg max-w-6xl mx-auto">
-      <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">동화 추가하기</h1>
+    <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto">
+      <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
+        동화 요청 관리
+      </h1>
       <div className="flex flex-col lg:flex-row gap-8">
         {/* 왼쪽: 동화 목록 */}
         <div className="lg:w-1/3 bg-white p-6 rounded-lg shadow-lg border border-gray-200">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">동화 목록</h2>
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            신청 동화 목록
+          </h2>
           {baseTales.length === 0 ? (
             <p className="text-gray-600">등록된 동화가 없습니다.</p>
           ) : (
@@ -406,32 +441,26 @@ const BaseTale = () => {
                 <li
                   key={tale.id}
                   onClick={() => handleSelectTale(tale.id)}
-                  className="cursor-pointer text-indigo-600 hover:bg-indigo-50 p-3 rounded-lg transition"
-                >
+                  className="cursor-pointer text-indigo-600 hover:bg-indigo-50 p-3 rounded-lg transition">
                   {tale.title} (ID: {tale.id})
                 </li>
               ))}
             </ul>
           )}
-          <button
-            onClick={handleNewTale}
-            className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md shadow transition duration-300"
-          >
-            새 동화 등록
-          </button>
         </div>
 
         {/* 오른쪽: 동화 등록/수정 form */}
         <div className="lg:w-2/3 bg-white p-6 rounded-lg shadow-lg border border-gray-200">
           <h2 className="text-2xl font-semibold mb-6 text-gray-700">
-            {selectedId ? '동화 상세 조회' : '새 동화 등록'}
+            신청 동화
           </h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-2">
             {/* 제목 입력 및 생성 */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <label className="w-32 font-medium text-gray-700">제목:</label>
+              <label className="w-32 font-medium text-gray-700">제목 :</label>
               <div className="flex-1 relative">
-                <LoadingText loading={formDataReadyState.title} />
                 <input
                   type="text"
                   name="title"
@@ -441,21 +470,27 @@ const BaseTale = () => {
                   required
                 />
               </div>
-              <button
-                type="button"
-                onClick={handleGenerateTaleByTitle}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow transition duration-300"
-              >
-                제목으로 동화 생성하기
-              </button>
             </div>
-
+            <button
+              type="button"
+              onClick={handleGenerateTaleByTitle}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow transition duration-300">
+              제목으로 동화 생성하기{' '}
+              <LoadingText loading={formDataReadyState.title} />
+            </button>
             {/* 타이틀 이미지 섹션 */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <label className="w-32 font-medium text-gray-700">타이틀 이미지:</label>
+            <div className="flex flex-col gap-3">
+              <div className="w-full font-medium text-gray-700">
+                표지 이미지{' '}
+                {!selectedTitleImage && (
+                  <div className="font-medium text-gray-300">
+                    (동화의 제목으로 표지를 생성합니다.)
+                  </div>
+                )}
+              </div>
               <div className="flex-1">
                 {selectedTitleImage && (
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex flex-col justify-center items-center gap-3 mb-2">
                     <img
                       src={selectedTitleImage}
                       alt="Selected Title"
@@ -463,102 +498,97 @@ const BaseTale = () => {
                     />
                     <button
                       type="button"
-                      onClick={handleSubmitSelectedTitleImage}
-                      className="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded-md shadow transition duration-300"
-                    >
-                      선택한 이미지 등록하기
+                      onClick={submitSelectedTitleImage}
+                      className="text-white bg-green-600 hover:bg-green-700 text-white w-24 h-auto rounded-md">
+                      저장하기
                     </button>
                   </div>
                 )}
-                <LoadingText loading={formDataReadyState.titleImg} />
-                <input
-                  type="text"
-                  name="titleImg"
-                  value={formData.titleImg}
-                  onChange={handleInputChange}
-                  readOnly
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
-                />
+                {!selectedTitleImage && (
+                  <div className="font-medium text-gray-700">
+                    이미지가 아직 없습니다.
+                  </div>
+                )}
               </div>
-              <button
-                type="button"
-                onClick={handleGenerateTitleImage}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow transition duration-300"
-              >
-                타이틀 이미지 생성하기
-              </button>
-            </div>
-
-            {titleImages && (
-              <div>
-                <p className="mb-2 font-medium text-gray-700">아래 이미지 중 원하는 이미지를 선택해주세요:</p>
-                <div className="flex gap-4">
-                  {titleImages.map((url, index) => (
-                    <div
-                      key={index}
-                      onClick={() => handleSelectTitleImage(url)}
-                      className="cursor-pointer border border-gray-200 p-2 rounded-lg hover:shadow-xl transition"
-                    >
-                      <img
-                        src={url}
-                        alt={`Option ${index + 1}`}
-                        className="w-24 h-auto rounded"
-                      />
+              <div className="flex flex-col gap-2">
+                {titleImages && (
+                  <div>
+                    {!selectedTitleImage && (
+                      <p className="mb-2 font-medium text-gray-700">
+                        아래 이미지 중 원하는 이미지를 선택해주세요:
+                      </p>
+                    )}
+                    <div className="flex gap-4">
+                      {titleImages.map((url, index) => (
+                        <div
+                          key={index}
+                          onClick={() => handleSelectTitleImage(url)}
+                          className="cursor-pointer border border-gray-200 p-2 rounded-lg hover:shadow-xl transition">
+                          <img
+                            src={url}
+                            alt={`Option ${index + 1}`}
+                            className="w-24 h-auto rounded"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={handleGenerateTitleImage}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow transition duration-300">
+                  타이틀 이미지 {selectedTitleImage && <span>다시 </span>}
+                  생성하기 <LoadingText loading={formDataReadyState.titleImg} />
+                </button>
               </div>
-            )}
+            </div>
 
             {/* 도입부 이미지 섹션 */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <label className="w-32 font-medium text-gray-700">도입부 이미지:</label>
-              <div className="flex-1">
-                {selectedIntroImage && (
-                  <div className="flex items-center gap-3 mb-2">
-                    <img
-                      src={selectedIntroImage}
-                      alt="Selected Intro"
-                      className="w-24 h-auto rounded shadow-md"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleSubmitSelectedIntroImage}
-                      className="bg-green-600 hover:bg-green-700 text-white py-1 px-3 rounded-md shadow transition duration-300"
-                    >
-                      선택한 이미지 등록하기
-                    </button>
+              <label className="w-full font-medium text-gray-700">
+                도입부 이미지
+                {!selectedTitleImage && (
+                  <div className="font-medium text-gray-300">
+                    {' '}
+                    (동화의 제목과 도입부로 표지를 생성합니다.)
                   </div>
                 )}
-                <LoadingText loading={formDataReadyState.startImg} />
-                <input
-                  type="text"
-                  name="startImg"
-                  value={formData.startImg}
-                  onChange={handleInputChange}
-                  readOnly
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={handleGenerateIntroImage}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow transition duration-300"
-              >
-                도입부 이미지 생성하기
-              </button>
+              </label>
             </div>
-
+            <div className="flex-1">
+              {selectedIntroImage && (
+                <div className="flex flex-col justify-center items-center gap-3 mb-2">
+                  <img
+                    src={selectedIntroImage}
+                    alt="Selected Intro"
+                    className="w-24 h-auto rounded shadow-md"
+                  />
+                  <button
+                    type="button"
+                    onClick={submitSelectedIntroImage}
+                    className="text-white bg-green-600 hover:bg-green-700 text-white w-24 h-auto rounded-md">
+                    저장하기
+                  </button>
+                </div>
+              )}
+              {!selectedIntroImage && (
+                <div className="font-medium text-gray-700">
+                  이미지가 아직 없습니다.
+                </div>
+              )}
+            </div>
             {introImages && (
               <div>
-                <p className="mb-2 font-medium text-gray-700">아래 이미지 중 원하는 이미지를 선택해주세요:</p>
+                <p className="mb-2 font-medium text-gray-700">
+                  아래 이미지 중 원하는 이미지를 선택해주세요:
+                </p>
                 <div className="flex gap-4">
                   {introImages.map((url, index) => (
                     <div
                       key={index}
                       onClick={() => handleSelectIntroImage(url)}
-                      className="cursor-pointer border border-gray-200 p-2 rounded-lg hover:shadow-xl transition"
-                    >
+                      className="cursor-pointer border border-gray-200 p-2 rounded-lg hover:shadow-xl transition">
                       <img
                         src={url}
                         alt={`Option ${index + 1}`}
@@ -569,10 +599,18 @@ const BaseTale = () => {
                 </div>
               </div>
             )}
-
+            <button
+              type="button"
+              onClick={handleGenerateIntroImage}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow transition duration-300">
+              도입부 {introImages && <span>다시 </span>}이미지 생성하기
+              <LoadingText loading={formDataReadyState.startImg} />
+            </button>
             {/* 도입부 스크립트 */}
             <div>
-              <label className="block font-medium text-gray-700 mb-1">도입부 스크립트:</label>
+              <label className="block font-medium text-gray-700 mb-1">
+                도입부 스크립트:
+              </label>
               <textarea
                 name="startScript"
                 value={formData.startScript}
@@ -584,35 +622,40 @@ const BaseTale = () => {
             </div>
 
             {/* 도입부 음성 URL 및 생성 */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <label className="w-32 font-medium text-gray-700">도입부 음성:</label>
-              <div className="flex-1">
-                <LoadingText loading={formDataReadyState.startVoice} />
-                <input
-                  type="text"
-                  name="startVoice"
-                  value={formData.startVoice}
-                  onChange={handleInputChange}
-                  readOnly
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100"
-                />
-                {formData.startVoice && (
-                  <audio controls src={formData.startVoice} className="mt-2 w-full" />
+            <div className="flex-col gap-3">
+              <label className="w-32 font-medium text-gray-700">
+                도입부 음성
+              </label>
+              <div className="flex-2">
+                {!formData.startVoice && (
+                  <div className="font-medium text-gray-300">
+                    도입부 음성이 아직 생성되지 않았습니다.
+                  </div>
                 )}
+                {formData.startVoice && (
+                  <audio
+                    controls
+                    src={formData.startVoice}
+                    className="mt-2 w-full"
+                  />
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleGenerateVoiceUrl}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow transition duration-300">
+                  도입부 음성 생성하기{' '}
+                  <LoadingText loading={formDataReadyState.startVoice} />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={handleGenerateVoiceUrl}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow transition duration-300"
-              >
-                도입부 음성 생성하기
-              </button>
             </div>
 
             {/* 키워드 및 키워드 문장 입력 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block font-medium text-gray-700 mb-1">키워드1:</label>
+                <label className="block font-medium text-gray-700 mb-1">
+                  키워드1:
+                </label>
                 <input
                   type="text"
                   name="keyword1"
@@ -624,7 +667,9 @@ const BaseTale = () => {
                 />
               </div>
               <div>
-                <label className="block font-medium text-gray-700 mb-1">키워드 문장1:</label>
+                <label className="block font-medium text-gray-700 mb-1">
+                  키워드 문장1:
+                </label>
                 <input
                   type="text"
                   name="keywordSentence1"
@@ -636,7 +681,9 @@ const BaseTale = () => {
                 />
               </div>
               <div>
-                <label className="block font-medium text-gray-700 mb-1">키워드2:</label>
+                <label className="block font-medium text-gray-700 mb-1">
+                  키워드2:
+                </label>
                 <input
                   type="text"
                   name="keyword2"
@@ -648,7 +695,9 @@ const BaseTale = () => {
                 />
               </div>
               <div>
-                <label className="block font-medium text-gray-700 mb-1">키워드 문장2:</label>
+                <label className="block font-medium text-gray-700 mb-1">
+                  키워드 문장2:
+                </label>
                 <input
                   type="text"
                   name="keywordSentence2"
@@ -660,7 +709,9 @@ const BaseTale = () => {
                 />
               </div>
               <div>
-                <label className="block font-medium text-gray-700 mb-1">키워드3:</label>
+                <label className="block font-medium text-gray-700 mb-1">
+                  키워드3:
+                </label>
                 <input
                   type="text"
                   name="keyword3"
@@ -672,7 +723,9 @@ const BaseTale = () => {
                 />
               </div>
               <div>
-                <label className="block font-medium text-gray-700 mb-1">키워드 문장3:</label>
+                <label className="block font-medium text-gray-700 mb-1">
+                  키워드 문장3:
+                </label>
                 <input
                   type="text"
                   name="keywordSentence3"
@@ -684,7 +737,9 @@ const BaseTale = () => {
                 />
               </div>
               <div>
-                <label className="block font-medium text-gray-700 mb-1">키워드4:</label>
+                <label className="block font-medium text-gray-700 mb-1">
+                  키워드4:
+                </label>
                 <input
                   type="text"
                   name="keyword4"
@@ -696,7 +751,9 @@ const BaseTale = () => {
                 />
               </div>
               <div>
-                <label className="block font-medium text-gray-700 mb-1">키워드 문장4:</label>
+                <label className="block font-medium text-gray-700 mb-1">
+                  키워드 문장4:
+                </label>
                 <input
                   type="text"
                   name="keywordSentence4"
@@ -708,13 +765,40 @@ const BaseTale = () => {
                 />
               </div>
             </div>
-
-            <button
-              type="submit"
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-md shadow-lg transition-all duration-300"
-            >
-              {selectedId ? '등록' : '저장 (새로운 동화로 등록)'}
-            </button>
+            {selectedId && (
+              <>
+                <radiogroup required>
+                  <label className="block font-medium text-gray-700 mb-1">
+                    승인 여부:
+                  </label>
+                  <label className="block">
+                    <input
+                      type="radio"
+                      name="hasApproved"
+                      value="true"
+                      onChange={handleInputChange}
+                      className="mr-2"
+                    />
+                    승인
+                  </label>
+                  <label className="block">
+                    <input
+                      type="radio"
+                      name="hasApproved"
+                      value="false"
+                      onChange={handleInputChange}
+                      className="mr-2"
+                    />
+                    미승인
+                  </label>
+                </radiogroup>
+                <button
+                  type="submit"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-md shadow-lg transition-all duration-300">
+                  제출
+                </button>
+              </>
+            )}
           </form>
         </div>
       </div>
@@ -722,4 +806,4 @@ const BaseTale = () => {
   );
 };
 
-export default BaseTale;
+export default BaseTaleRequestAdmin;
