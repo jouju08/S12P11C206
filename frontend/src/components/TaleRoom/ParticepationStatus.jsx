@@ -7,7 +7,7 @@ const ParticipationStatus = ({ ParticipationList }) => {
         </div>
         {/* 참여자 목록 중 프로필 사진 렌더링 */}
         <img
-          src={participant.profileImg || "/Main/profile-img.png"}
+          src={ParticipationList[0].profileImg || "/Main/profile-img.png"}
           alt="profile"
           className="w-[45px] h-[45px] relative rounded-[100px] object-cover"
         />
