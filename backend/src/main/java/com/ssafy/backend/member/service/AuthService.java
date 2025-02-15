@@ -9,6 +9,7 @@ import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.member.dto.request.LoginRequest;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
 import com.ssafy.backend.member.dto.response.LoginResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -65,7 +66,7 @@ public class AuthService {
     /**
      * 로그인
      */
-    public LoginResponseDto login(LoginRequest request) {
+    public LoginResponseDto login(LoginRequest request, HttpServletRequest httpRequest) {
         // 사용자 조회
         Member member = memberRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new NotFoundUserException("사용자 정보를 다시 확인하세요."));
@@ -96,6 +97,7 @@ public class AuthService {
         loginResponseDto.setTokens(tokens);
         member.setPassword(null);
         loginResponseDto.setMember(member);
+
 
         return loginResponseDto;
     }
@@ -170,4 +172,7 @@ public class AuthService {
     public boolean isMemberExists(String email, String birth) {
         return memberRepository.findByEmailAndBirth(email, birth).isPresent();
     }
+
+
 }
+
