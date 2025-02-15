@@ -82,14 +82,10 @@ export default function FindId() {
   };
 
   return (
-    <div
-      className="w-[1024px] h-[605px] mt-[30px] flex bg-[url('/Login/login-background.png')] bg-cover bg-bottom bg-no-repeat"
-      style={{ backgroundSize: '100%' }}>
-      {/* 왼쪽 공란 */}
-      <div className="w-[18.75%]" />
+    <div className="w-[1024px] h-[605px] mt-[30px] flex justify-center items-center">
       {/* 중앙 컨테이너 */}
       <div className="w-[62.5%]">
-        <div className="flex flex-col items-center w-[540px] h-[500px] bg-white rounded-[40px]">
+        <div className="flex flex-col items-center w-full h-fit pb-[40px] bg-white rounded-[40px]">
           {/* 페이지 제목 */}
           <div className="text-text-first auth-bold1 mt-[48px]">
             아이디 찾기
@@ -139,8 +135,6 @@ export default function FindId() {
           </div>
         </div>
       </div>
-      {/* 오른쪽 공란 */}
-      <div className="w-[18.75%]"></div>
     </div>
   );
 }
