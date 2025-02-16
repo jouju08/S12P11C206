@@ -1,6 +1,7 @@
 import AuthHeader from '@/common/Header/AuthHeader';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '@/store/userStore';
 
 import '@/styles/main.css';
 import '@/styles/Hero.css';
@@ -13,6 +14,14 @@ import 'swiper/css';
 
 export default function Hero() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { isAuthenticated } = useUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/main');
+    }
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     const handleScroll = () => {

@@ -3,6 +3,7 @@ package com.ssafy.backend.tale.service;
 import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.repository.BaseTaleRepository;
 import com.ssafy.backend.tale.dto.common.BaseTaleDto;
+import com.ssafy.backend.tale.dto.common.ParentBaseTaleDto;
 import com.ssafy.backend.tale.dto.response.BaseTaleResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,24 @@ public class BaseTaleService {
             throw new IllegalArgumentException("키워드 문장에 xx를 포함해야 합니다.");
         }
 
+        return baseTale;
+    }
+
+    public BaseTale parse(ParentBaseTaleDto parentBaseTaleDto){
+        BaseTale baseTale = new BaseTale();
+        baseTale.setTitle(parentBaseTaleDto.getTitle());
+        baseTale.setTitleImg(parentBaseTaleDto.getTitleImg());
+        baseTale.setStartVoice(parentBaseTaleDto.getStartVoice());
+        baseTale.setStartImg(parentBaseTaleDto.getStartImg());
+        baseTale.setStartScript(parentBaseTaleDto.getStartScript());
+        baseTale.setKeyword1(parentBaseTaleDto.getKeyword1());
+        baseTale.setKeyword2(parentBaseTaleDto.getKeyword2());
+        baseTale.setKeyword3(parentBaseTaleDto.getKeyword3());
+        baseTale.setKeyword4(parentBaseTaleDto.getKeyword4());
+        baseTale.setKeywordSentence1(parentBaseTaleDto.getKeywordSentence1());
+        baseTale.setKeywordSentence2(parentBaseTaleDto.getKeywordSentence2());
+        baseTale.setKeywordSentence3(parentBaseTaleDto.getKeywordSentence3());
+        baseTale.setKeywordSentence4(parentBaseTaleDto.getKeywordSentence4());
         return baseTale;
     }
 

@@ -11,6 +11,8 @@ const initialState = {
   selectedTitleImage: null,
   selectedIntroImage: null,
   stompClient: null,
+  authKey: null,
+  selectedMenu: null,
 };
 
 const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
@@ -19,7 +21,7 @@ const adminActions = (set, get) => ({
   //소켓 연결
   connect: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL_DEPLOY);
 
       console.log(socket);
       const stompClient = new Client({
@@ -50,11 +52,14 @@ const adminActions = (set, get) => ({
       return;
     }
 
-    stompClient.subscribe(`/topic/admin/title-image`, (message) => {
-      const newImages = JSON.parse(message.body);
-      get().setTitleImages(newImages.images);
-      console.log(newImages);
-    });
+    stompClient.subscribe(
+      `/topic/gen/title-image/${userStore.getState().memberId}`,
+      (message) => {
+        const newImages = JSON.parse(message.body);
+        get().setTitleImages(newImages.images);
+        console.log(newImages);
+      }
+    );
   },
 
   subscribeIntroImage: async () => {
@@ -63,11 +68,14 @@ const adminActions = (set, get) => ({
       return;
     }
 
-    stompClient.subscribe(`/topic/admin/intro-image`, (message) => {
-      const newImages = JSON.parse(message.body);
-      get().setIntroImages(newImages.images);
-      console.log(newImages);
-    });
+    stompClient.subscribe(
+      `/topic/gen/intro-image/${userStore.getState().memberId}`,
+      (message) => {
+        const newImages = JSON.parse(message.body);
+        get().setIntroImages(newImages.images);
+        console.log(newImages);
+      }
+    );
   },
 
   setTitleImages: (titleImages) => {
@@ -82,6 +90,14 @@ const adminActions = (set, get) => ({
   setSelectedIntroImage: (selectedIntroImage) => {
     set({ selectedIntroImage });
   },
+
+  setAuthKey: (authKey) => {
+    set({ authKey });
+  },
+
+  setSelectedMenu: (selectedMenu) => {
+    set({ selectedMenu });
+  },
 });
 
 const useAdminStore = create(
@@ -95,18 +111,27 @@ const useAdminStore = create(
   )
 );
 
-
 export const adminStore = () => {
   const connect = useAdminStore((state) => state.connect);
   const titleImages = useAdminStore((state) => state.titleImages);
   const selectedTitleImage = useAdminStore((state) => state.selectedTitleImage);
   const setTitleImages = useAdminStore((state) => state.setTitleImages);
-  const setSelectedTitleImage = useAdminStore((state) => state.setSelectedTitleImage);
+  const setSelectedTitleImage = useAdminStore(
+    (state) => state.setSelectedTitleImage
+  );
 
   const introImages = useAdminStore((state) => state.introImages);
   const selectedIntroImage = useAdminStore((state) => state.selectedIntroImage);
   const setIntroImages = useAdminStore((state) => state.setIntroImages);
-  const setSelectedIntroImage = useAdminStore((state) => state.setSelectedIntroImage);
+  const setSelectedIntroImage = useAdminStore(
+    (state) => state.setSelectedIntroImage
+  );
+
+  const authKey = useAdminStore((state) => state.authKey);
+  const setAuthKey = useAdminStore((state) => state.setAuthKey);
+
+  const selectedMenu = useAdminStore((state) => state.selectedMenu);
+  const setSelectedMenu = useAdminStore((state) => state.setSelectedMenu);
 
   return {
     connect,
@@ -119,5 +144,11 @@ export const adminStore = () => {
     selectedIntroImage,
     setIntroImages,
     setSelectedIntroImage,
+
+    authKey,
+    setAuthKey,
+
+    selectedMenu,
+    setSelectedMenu,
   };
 };

@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaleIntroImageRequestDto {
+    private Long memberId;
     private String title;
     private String intro;
 }

@@ -1,9 +1,8 @@
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import MainLayout from '@/common/layout/MainLayout';
 import TaleLayout from '@/common/layout/TaleLayout';
 import { Loading } from '@/common/Loading';
 import { useUser } from '@/store/userStore';
-import Admin from '@/pages/Admin';
 
 import {
   createBrowserRouter,
@@ -11,11 +10,14 @@ import {
   Outlet,
   RouterProvider,
   useLocation,
+  useNavigate,
 } from 'react-router-dom';
 
 import KakaoCallback from '@/components/kakao/KakaoCallback';
 import Friends from '@/components/Friend/Friend';
 import { useFriendSocket } from '@/hooks/useFriendSocket';
+import { useTaleRoom } from '@/store/roomStore';
+import FriendInviteModal from '@/components/modal/FriendInviteModal';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
 const Login = lazy(() => import('@/pages/User/Login'));
@@ -36,6 +38,8 @@ const TaleSentenceDrawing = lazy(
 );
 const HotTale = lazy(() => import('@/pages/Room/HotTale'));
 const Waiting = lazy(() => import('@/pages/Room/Waiting'));
+const RequestBaseTale = lazy(() => import('@/pages/RequestBaseTale'));
+const Admin = lazy(() => import('@/pages/Admin'));
 
 //인증된 사용자
 const ProtectedLayout = () => {
@@ -70,9 +74,13 @@ const router = createBrowserRouter([
       { path: 'auth/kakao/callback', element: <KakaoCallback /> },
       { path: 'findid', element: <FindId /> },
       { path: 'findpw', element: <FindPw /> },
-
       {
-        element: <ProtectedLayout />, // 인증된 사용자
+        element: (
+          <>
+            <ProtectedLayout />
+            <FriendInviteModal />
+          </>
+        ), // 인증된 사용자
         children: [
           { path: 'main', element: <Main /> },
           { path: 'room', element: <Room /> },
@@ -82,6 +90,7 @@ const router = createBrowserRouter([
           { path: 'profile', element: <Profile /> },
           { path: 'sightseeing', element: <Sightseeing /> },
           { path: 'admin', element: <Admin /> },
+          { path: 'requestBasetale', element: <RequestBaseTale />},
           { path: 'friends', element: <Friends /> },
         ],
       },

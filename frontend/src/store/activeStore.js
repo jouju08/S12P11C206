@@ -9,12 +9,12 @@ import { userStore } from './userStore';
 import { useRoomStore } from './roomStore.js';
 import { getFriendList } from '@/apis/friend/friendAxios';
 
-const ACTIVE_SOCKET_URL = import.meta.env.VITE_WS_URL_DEPLOY;
+const ACTIVE_SOCKET_URL = import.meta.env.VITE_WS_URL_LOCAL;
 
 const initialState = {
-  // STOMP 관련 상태 및 액션
   friendState: [],
   userState: [],
+  inviteInfo: [],
 };
 
 const ActiveUserActions = (set, get) => ({
@@ -52,8 +52,6 @@ const ActiveUserActions = (set, get) => ({
   subscribeMain: async () => {
     const friendState = getFriendList();
 
-    console.log(friendState);
-
     const stompClient = get().stompClient;
     if (!stompClient || !stompClient.connected) {
       return;
@@ -81,10 +79,8 @@ const ActiveUserActions = (set, get) => ({
         try {
           // `==` 연산자라 강제로 타입변환됨
           if (JSON.parse(inviteMsg).to == userStore.getState().memberId) {
-            await useRoomStore.getState().connectRoom();
-            await useRoomStore.getState().joinRoom(roomId, memberId);
-            useRoomStore.setState({ inviteFlag: true });
-            console.log('here');
+            useRoomStore.getState().setInviteFlag(true);
+            get().setInviteInfo(JSON.parse(inviteMsg));
           }
         } catch (err) {
           console.log(err);
@@ -101,8 +97,6 @@ const ActiveUserActions = (set, get) => ({
       const memberId = userStore.getState().memberId;
       const data = { roomId: room, from: memberId, to: friendId };
 
-      console.log(JSON.stringify(data));
-
       stompClient.publish({
         destination: '/app/active/invite',
         body: JSON.stringify(data),
@@ -114,13 +108,16 @@ const ActiveUserActions = (set, get) => ({
     const stompClient = get().stompClient;
     if (stompClient && stompClient.connected) {
       stompClient.deactivate();
-      console.log('STOMP client disconnected');
     }
     set({ stompClient: null });
   },
 
   setMyFriend: (friends) => {
     set((state) => ({ friendState: [...friends] }));
+  },
+
+  setInviteInfo: (info) => {
+    set((state) => ({ inviteInfo: { ...info } }));
   },
 
   // publishMain: async () => {
@@ -150,6 +147,7 @@ const activeUserStore = create(
 export const useActiveUser = () => {
   const userState = activeUserStore((state) => state.userState, shallow);
   const friendState = activeUserStore((state) => state.friendState, shallow);
+  const inviteInfo = activeUserStore((state) => state.inviteInfo, shallow);
 
   const connect = activeUserStore((state) => state.connect);
   const subscribeMain = activeUserStore((state) => state.subscribeMain);
@@ -161,6 +159,7 @@ export const useActiveUser = () => {
   return {
     userState,
     friendState,
+    inviteInfo,
 
     connect,
     inviteFriend,

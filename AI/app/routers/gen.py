@@ -91,7 +91,7 @@ def generate_sentences(generateSentencesRequestDto: request_dto.TextRequestDto):
 
 @router.post("/tale-image", response_model=response_dto.ApiResponse[str])
 @util.logger
-def generate_tale_image(title: request_dto.TextRequestDto, backgroundTask: BackgroundTasks):
+def generate_tale_image(title_image_request_dto: request_dto.GenerateTitleImageRequestDto, backgroundTask: BackgroundTasks):
     """
     todo: 동화 이미지 생성
     title을 받고 
@@ -100,7 +100,7 @@ def generate_tale_image(title: request_dto.TextRequestDto, backgroundTask: Backg
     3. webhook으로 이미지 전송
     """
     backgroundTask.add_task(
-        llm_service.generate_tale_image, title.text)
+        llm_service.generate_tale_image, title_image_request_dto)
 
     return response_dto.ApiResponse(
         status=Status.SUCCESS,

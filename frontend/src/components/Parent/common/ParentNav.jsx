@@ -80,6 +80,13 @@ export default function ParentNav({ nickname, loginId, selectedComponent, onTabC
             onTabClick={onTabClick}
           />
           <MenuItem
+            icon="/Parent/profile-request-basetale-icon.png"
+            text="기본동화 요청하기"
+            item="requestBaseTale"
+            selectedComponent={selectedComponent}
+            onTabClick={onTabClick}
+          />
+          <MenuItem
             icon="/Parent/profile-kids-mode-icon.png"
             text="아이 모드 돌아가기"
             item="kidsMode"
@@ -115,6 +122,8 @@ function MenuItem({ icon, text, item, selectedComponent, onTabClick }) {
   const handleClick = () => {
     if (item === "kidsMode") {
       navigate("/main");
+    } else if (item === "requestBaseTale") {
+      navigate("/requestBaseTale");
     } else {
       onTabClick(item);
     }

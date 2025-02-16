@@ -14,7 +14,11 @@ const Participant = ({ item, isHost = false }) => {
       <div className="flex items-center justify-between px-2.5 py-[7px] relative bg-white rounded-[30px] overflow-hidden">
         <div className="overflow-hidden w-[45px] h-[45px] rounded-full">
           <img
-            src="/Main/profile-img.png"
+            src={
+              item.profileImg
+              ? item.profileImg
+              : "/Main/profile-img.png"
+            }
             alt="프로필 이미지"
             className="w-[45px]"
           />
