@@ -535,6 +535,10 @@ public class TaleService {
         }
     }
 
+    public TaleMember getTaleMember(long taleMemberId){
+        return taleMemberRepository.getReferenceById(taleMemberId);
+    }
+
     // 레디스에서 방 정보를 불러옵니다.
     private Room getRoomFromRedis(long roomId) {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
