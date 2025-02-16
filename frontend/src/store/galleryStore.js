@@ -11,10 +11,20 @@ const initialState = {
 };
 
 const myPictureActions = (set, get) => ({
-  fetchMyPictures: async (page = 0, size = 12, sort = "전체보기", filter = "전체보기") => {
+  fetchMyPictures: async (
+    page = 0,
+    size = 12,
+    sort = '전체보기',
+    filter = '전체보기'
+  ) => {
     try {
-      const response = await galleryAPI.fetchMyPictures(page, size, sort, filter);
-      const pageData = response.data.data; 
+      const response = await galleryAPI.fetchMyPictures(
+        page,
+        size,
+        sort,
+        filter
+      );
+      const pageData = response.data.data;
       set((state) => {
         if (page === 0) {
           state.myPictures = pageData.content;
@@ -31,6 +41,14 @@ const myPictureActions = (set, get) => ({
     try {
       const response = await galleryAPI.fetchPictureDetail(payload);
       const detail = response.data.data;
+      // 이미지가 없거나 처리 전인 경우 다시 요청
+      if (detail.img === null || detail.img === 'before processing') {
+        console.log(
+          'AI 이미지가 없거나, 전처리중이기 때문에 다시 요청합니다.',
+          payload
+        );
+        const reresponse = await galleryAPI.reRequestAiPicture(payload);
+      }
       set((state) => {
         state.pictureDetail = detail;
       });
@@ -76,8 +94,12 @@ export const useMyPictures = () => {
   const pictureTitles = myPictureStore((state) => state.pictureTitles);
   const hasMore = myPictureStore((state) => state.hasMore);
   const fetchMyPictures = myPictureStore((state) => state.fetchMyPictures);
-  const fetchPictureDetail = myPictureStore((state) => state.fetchPictureDetail);
-  const fetchPictureTitles = myPictureStore((state) => state.fetchPictureTitles);
+  const fetchPictureDetail = myPictureStore(
+    (state) => state.fetchPictureDetail
+  );
+  const fetchPictureTitles = myPictureStore(
+    (state) => state.fetchPictureTitles
+  );
   const uploadGallery = myPictureStore((state) => state.uploadGallery);
   return {
     myPictures,
@@ -87,6 +109,6 @@ export const useMyPictures = () => {
     fetchMyPictures,
     fetchPictureDetail,
     fetchPictureTitles,
-    uploadGallery
+    uploadGallery,
   };
 };
