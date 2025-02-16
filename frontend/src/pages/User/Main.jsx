@@ -13,7 +13,7 @@ import '@/styles/main.css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
-import '@/styles/taleRoom.css'
+import '@/styles/taleRoom.css';
 import { Link } from 'react-router-dom';
 
 const dummyDrawingList = [
@@ -60,22 +60,21 @@ const dummyDrawingList = [
 ];
 
 export default function Main() {
-
   // 로그인 되어있는 유저 닉네임 가져오기
-  const { nickname , profileImg, memberInfo, myPage} = userStore((state) => state);
-  const [member, setMember]=useState(memberInfo||{});
-  
-
+  const { nickname, profileImg, memberInfo, myPage } = userStore(
+    (state) => state
+  );
+  const [member, setMember] = useState(memberInfo || {});
 
   //페이지 랜더링 될때마다 유저 정보 불러오기
-  useEffect(()=>{
+  useEffect(() => {
     myPage();
-  },[]);
-  useEffect(()=>{
-    if(memberInfo){
+  }, []);
+  useEffect(() => {
+    if (memberInfo) {
       setMember(memberInfo);
     }
-  },[memberInfo]);
+  }, [memberInfo]);
 
   const imgArray = [
     'nav-colored-pencils.png',
@@ -107,9 +106,12 @@ export default function Main() {
     async function fetchData() {
       try {
         const response = await api.get('/tale/rooms');
-        console.log('📌 만들어진 동화방 가져온 데이터:', response.data);
-        setTaleData(response.data.data); // 상태에 저장
-        // console.log(taleData);
+
+        if (response.data.status === 'SU') {
+          setTaleData(response.data.data); //
+        } else {
+          return;
+        }
       } catch (error) {
         console.error('만들어진 동화방 실패:', error);
       }
@@ -124,8 +126,12 @@ export default function Main() {
         const response = await api.get('/gallery', {
           params: { order: 'POP', page: 1 },
         });
-        console.log('📌 인기있는 그림 데이터:', response.data); // 콘솔 출력
-        setdrawingData(response.data.data); // 상태에 저장
+
+        if (response.data.status === 'SU') {
+          setdrawingData(response.data.data);
+        } else {
+          return;
+        }
       } catch (error) {
         console.error('인기있는 그림 실패:', error);
       }
@@ -174,10 +180,10 @@ export default function Main() {
           {/* 로그인 정보 store에서 가져오기기 */}
           <img
             className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px]"
-            src={member.profileImg||'/Common/blank_profile.jpg'}
+            src={member.profileImg || '/Common/blank_profile.jpg'}
             alt="profileImg"
-            />
-      
+          />
+
           <img
             className="shaking-image w-[140px] h-[140px] left-[9px] top-0 absolute"
             src="/Main/main-fairy.png"

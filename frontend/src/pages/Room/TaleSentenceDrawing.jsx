@@ -15,9 +15,9 @@ import '@/styles/main.css';
 
 const TaleSentenceDrawing = () => {
   const [timeLeft, setTimeLeft] = useState(300); // 5분
-  const [isWarning, setIsWarning]=useState(false);// 시간 얼마 안 남으면 줄 효과
-  const warningAudioRef=useRef(null);//시간 임박 효과음
-  const selectAudioRef=useRef(null);//확인 효과음
+  const [isWarning, setIsWarning] = useState(false); // 시간 얼마 안 남으면 줄 효과
+  const warningAudioRef = useRef(null); //시간 임박 효과음
+  const selectAudioRef = useRef(null); //확인 효과음
 
   const [canRead, setCanRead] = useState(false);
   const [currentStep, setCurrentStep] = useState(0); // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
@@ -129,8 +129,10 @@ const TaleSentenceDrawing = () => {
   };
 
   useEffect(() => {
-    joinVidu();
-  }, []);
+    if (!isSingle) {
+      joinVidu();
+    }
+  }, [isSingle]);
 
   useEffect(() => {
     const handleConnected = () => {
@@ -159,19 +161,20 @@ const TaleSentenceDrawing = () => {
     }
   }, [drawDirection]);
 
-
-
-  useEffect(()=>{//타임아웃 임박할때 효과음
-    if(isWarning&&warningAudioRef.current){
-      warningAudioRef.current.muted=false;
-      warningAudioRef.current.currentTime=0;
-      warningAudioRef.current.volume=1;
-      warningAudioRef.current.play().catch((err) => console.error("Audio play error:", err));
-    }else{
+  useEffect(() => {
+    //타임아웃 임박할때 효과음
+    if (isWarning && warningAudioRef.current) {
+      warningAudioRef.current.muted = false;
+      warningAudioRef.current.currentTime = 0;
+      warningAudioRef.current.volume = 1;
+      warningAudioRef.current
+        .play()
+        .catch((err) => console.error('Audio play error:', err));
+    } else {
       warningAudioRef.current.pause();
-      warningAudioRef.current.volume=0;
+      warningAudioRef.current.volume = 0;
     }
-  },[isWarning]);
+  }, [isWarning]);
 
   //타이머
   useEffect(() => {
@@ -186,7 +189,7 @@ const TaleSentenceDrawing = () => {
     // 1초마다 타이머 갱신
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if(prev<=35){
+        if (prev <= 35) {
           setIsWarning(true);
         } else {
           setIsWarning(false);
@@ -211,13 +214,22 @@ const TaleSentenceDrawing = () => {
     }
   }, [isFinish]);
 
+  const handleConfirmSound = async () => {
+    if (selectAudioRef.current) {
+      //선택 효과음 재생
+
+      selectAudioRef.current.volume = 1;
+      selectAudioRef.current.currentTime = 0;
+      selectAudioRef.current
+        .play()
+        .catch((err) => console.error('Audio play error:', err));
+    }
+  };
+
   const handleConfirm = async () => {
     if (!canvasRef.current) return false;
-    if(selectAudioRef.current){//선택 효과음 재생
-      selectAudioRef.current.volume=1;
-      selectAudioRef.current.currentTime=0;
-      selectAudioRef.current.play().catch((err) => console.error("Audio play error:", err));
-    }
+
+    handleConfirmSound();
 
     const tmpFile = await canvasRef.current.getPNGFile();
 
@@ -252,10 +264,13 @@ const TaleSentenceDrawing = () => {
   };
 
   const moveToReadTale = async () => {
-    if(selectAudioRef.current){//선택 효과음 재생
-      selectAudioRef.current.volume=1;
-      selectAudioRef.current.currentTime=0;
-      selectAudioRef.current.play().catch((err) => console.error("Audio play error:", err));
+    if (selectAudioRef.current) {
+      //선택 효과음 재생
+      selectAudioRef.current.volume = 1;
+      selectAudioRef.current.currentTime = 0;
+      selectAudioRef.current
+        .play()
+        .catch((err) => console.error('Audio play error:', err));
     }
     navigate('/tale/hotTale');
   };
@@ -333,10 +348,6 @@ const TaleSentenceDrawing = () => {
                   className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
                   확인
                 </button>
-                <audio /*확인 효과음*/
-                ref={warningAudioRef}
-                src={"/Common/select.mp3"}
-                />
               </>
             ) : (
               <>
@@ -356,6 +367,10 @@ const TaleSentenceDrawing = () => {
                 )}
               </>
             )}
+            <audio /*확인 효과음*/
+              ref={selectAudioRef}
+              src={'/Common/select.mp3'}
+            />
           </section>
 
           <section className="w-[30%] px-[25px] pt-3">
@@ -375,17 +390,17 @@ const TaleSentenceDrawing = () => {
                 className="w-[50px] h-[50px] z-10 absolute top-[15%] left-[-25px]"
               />
               <audio
-              ref={warningAudioRef}
-              src={"/TaleSentenceDrawing/time-out.mp3"}
-              autoPlay
-              muted
-              onLoadedData={() => {
-              if (warningAudioRef.current&&isWarning){
-                console.log(warningAudioRef.current); 
-                warningAudioRef.current.muted = false;
-                warningAudioRef.current.volume = 1;
-              }
-              }}
+                ref={warningAudioRef}
+                src={'/TaleSentenceDrawing/time-out.mp3'}
+                autoPlay
+                muted
+                onLoadedData={() => {
+                  if (warningAudioRef.current && isWarning) {
+                    console.log(warningAudioRef.current);
+                    warningAudioRef.current.muted = false;
+                    warningAudioRef.current.volume = 1;
+                  }
+                }}
               />
             </div>
 

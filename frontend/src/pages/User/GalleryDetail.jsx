@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGalleryDetail } from '@/store/galleryDetailStore';
+import '@/styles/shakingDown.css';
 
 // 더미 데이터 - 내가 그린 문장이 뭔지도 들어와야 함
 const dummyGalleryPage = {
@@ -26,23 +27,24 @@ export default function GalleryDetail() {
   const [isOrigin, setIsOrigin] = useState(false);
   const { galleryPage, setGalleryPage, toggleHasLiked } = useGalleryDetail();
 
-  const [text, setText]=useState("");
-  const loadingText=" 이미지 로딩중...";
-  const typingSpeed=200;
-  const delayBeforeRestart=1000;
+  const [text, setText] = useState('');
+  const loadingText = ' 이미지 로딩중...';
+  const typingSpeed = 200;
+  const delayBeforeRestart = 1000;
 
-  useEffect(()=>{//이미지 로딩 글자 효과
-    let i=0;
-    const interval=setInterval(()=>{
-      setText(loadingText.slice(0,i+1));
+  useEffect(() => {
+    //이미지 로딩 글자 효과
+    let i = 0;
+    const interval = setInterval(() => {
+      setText(loadingText.slice(0, i + 1));
       i++;
-      if(i===loadingText.length){
-        setTimeout(()=>{
-          i=0;
-        },delayBeforeRestart);
+      if (i === loadingText.length) {
+        setTimeout(() => {
+          i = 0;
+        }, delayBeforeRestart);
       }
-    },typingSpeed);
-    return ()=>clearInterval(interval);
+    }, typingSpeed);
+    return () => clearInterval(interval);
   }, []);
 
   // useEffect(() => {
@@ -89,30 +91,28 @@ export default function GalleryDetail() {
       <div className="w-[974px] h-[540px] mt-[30px] relative flex justify-between items-center">
         {/* 이미지 */}
         <div className="w-[540px] h-[540px] bg-white">
-          {(isOrigin&&galleryPage['originImg'])&&(
-          <img
-            src={galleryPage['originImg']}
-            alt="그림"
-            className="w-full h-full object-cover object-center bg-white"
-          />
+          {isOrigin && galleryPage['originImg'] && (
+            <img
+              src={galleryPage['originImg']}
+              alt="그림"
+              className="w-full h-full object-cover object-center bg-white"
+            />
           )}
-          {(!isOrigin&&galleryPage['img'])&&(
-          <img
-            src={galleryPage['img']}
-            alt="그림"
-            className="w-full h-full object-cover object-center bg-white"
-          />
+          {!isOrigin && galleryPage['img'] && (
+            <img
+              src={galleryPage['img']}
+              alt="그림"
+              className="w-full h-full object-cover object-center bg-white"
+            />
           )}
-          {(!isOrigin&& !galleryPage['img']) && (
+          {!isOrigin && !galleryPage['img'] && (
             <div className="flex flex-col mt-[150px] items-center justify-center">
               <img
-                src='/Gallery/movingDuck.gif'
+                src="/Gallery/movingDuck.gif"
                 alt="대체 이미지"
                 className="w-[150px] h-[150PX] object-cover object-center bg-white"
-                />
-              <div className="text-text-first text-xl font-NPSfont">
-                {text}
-              </div>
+              />
+              <div className="text-text-first text-xl font-NPSfont">{text}</div>
             </div>
           )}
         </div>
@@ -154,7 +154,7 @@ export default function GalleryDetail() {
               <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
                 <img
                   className="w-full h-full object-cover object-center"
-                  src="/Main/profile-img.png"
+                  src={galleryPage['authorProfileImg']}
                 />
               </div>
               {/* 작성자 이름 */}
@@ -176,7 +176,7 @@ export default function GalleryDetail() {
               className="bg-center"
               src="/Sightseeing/frame.png"
             />
-            <div className="text-center text-text-first story-basic3">
+            <div className="text-center text-text-first story-basic3 mx-5">
               {galleryPage['sentence']}
             </div>
             <img
@@ -190,7 +190,7 @@ export default function GalleryDetail() {
             onClick={() => setIsOrigin(!isOrigin)}
             className="left-[10px] top-[447px] absolute flex transition-all ease-linear hover:scale-105">
             <img
-              className="w-20 h-20"
+              className="w-20 h-20 shaking-image"
               src="/Sightseeing/change-fairy.png"
               alt="그림 바꿔주는 요정"
             />

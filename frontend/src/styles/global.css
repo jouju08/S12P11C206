@@ -160,3 +160,36 @@ select {
     url('/public/circle-outline.svg') 12 12,
     auto;
 }
+
+.crayon {
+  width: 20px; /* 전체 크레용의 너비 */
+}
+
+/* 크레용 삼각형 모양 */
+.crayon-tip {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 15px solid #ffeb3b; /* 원하는 크레용 색상 */
+}
+
+/* 크레용의 몸통 (직사각형 + 둥근 하단) */
+.crayon-body {
+  width: 20px;
+  height: 40px;
+  background-color: #ffeb3b; /* 팁과 동일한 색상 */
+  border-radius: 0 0 20px 20px; /* 하단을 둥글게 처리 */
+  position: relative;
+}
+
+/* (선택사항) 크레용 몸통에 리본(밴드) 효과 추가 */
+.crayon-body::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background-color: #f57f17; /* 밴드 색상 */
+}
