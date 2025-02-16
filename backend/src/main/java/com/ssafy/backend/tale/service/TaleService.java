@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -613,5 +614,23 @@ public class TaleService {
         responseDto.setNickname(member.getNickname());
 
         return responseDto;
+    }
+
+    @Transactional
+    public void breakRoom(Long roomId) {
+        taleMemberRepository.findByTaleId(roomId).forEach(taleMember -> {
+            redisTemplate.delete("tale_member-"+taleMember.getId()); // tale_member redis 삭제
+            taleMemberRepository.delete(taleMember); // tale_member db 삭제
+        });
+        redisTemplate.delete("tale-"+ roomId); // room redis 삭제
+        taleRepository.deleteById(roomId); // room db삭제
+
+        List<RoomInfo> roomList = (List<RoomInfo>) redisTemplate.opsForValue().get("tale-roomList");
+        for(RoomInfo roomInfo : roomList) {
+            if(roomInfo.getRoomId() == roomId){
+                roomList.remove(roomInfo);
+                break;
+            }
+        }
     }
 }
