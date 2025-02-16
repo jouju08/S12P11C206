@@ -1,5 +1,6 @@
 package com.ssafy.backend.tale.controller;
 
+import com.google.protobuf.Api;
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.WebSocketNotiService;
 import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.ssafy.backend.db.repository.MemberRepository;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -147,8 +147,12 @@ public class TaleController {
     // 동화 요청
     // mySQL에서 동화 정보를 가져와서 반환
     @GetMapping("/{taleId}/{page}")
-    public ApiResponse<TalePageResponseDto> getTale(@PathVariable long taleId, @PathVariable int page){
+    public ApiResponse<?> getTale(@PathVariable long taleId, @PathVariable int page){
+        if ( page == 5) {
+            return ApiResponse.<TaleDetailResponseDto>builder().data(taleService.getByTaleId(taleId)).build();
+        }
         return ApiResponse.<TalePageResponseDto>builder().data(taleService.getTalePage(taleId, page)).build();
+
     }
 
     // 햇동화 다읽음
@@ -167,6 +171,7 @@ public class TaleController {
 
         return ApiResponse.<String>builder().build();
     }
+
 
     // AI 서버에서 그림이 완성됐을때 여기로 제출합니다. (테스트용)
 //    @PostMapping("/submitt/ai-picture")

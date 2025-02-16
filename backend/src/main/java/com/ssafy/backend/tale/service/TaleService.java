@@ -109,6 +109,9 @@ public class TaleService {
         taleDetailResponseDto.setParticipants(participants);
 
         taleDetailResponseDto.setCreatedAt(tale.getCreatedAt());
+
+        taleDetailResponseDto.setCoverImg(tale.getBaseTale().getTitleImg());
+        taleDetailResponseDto.setTitle(tale.getBaseTale().getTitle());
         return taleDetailResponseDto;
     }
 
@@ -317,7 +320,9 @@ public class TaleService {
         if(order-- == 0){ //order가 0인경우 -> baseTale에서 불러와야함.
             BaseTale baseTale = getBaseTaleByRoomId(roomId);
             talePageResponseDto = parseTalePage(baseTale);
-        }else { // 그 외에 경우 원래 order대로 받아오면됨
+        } else if (order == 4) {
+            
+        } else { // 그 외에 경우 원래 order대로 받아오면됨
             TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
             if(taleMember == null)
                 throw new RuntimeException("유효하지 않은 동화페이지입니다.");
@@ -614,4 +619,5 @@ public class TaleService {
 
         return responseDto;
     }
+
 }
