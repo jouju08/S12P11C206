@@ -98,7 +98,7 @@ export default function TaleLayout() {
 
           <Outlet />
           {showModal && (
-            <div className="absolute top-0 left-0 z-50 w-[1024px] h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
+            <div className="absolute top-0 left-0 z-50 w-full h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
               <Modal
                 handleConfirm={handleConfirm}
                 handleCancel={handleCancel}
