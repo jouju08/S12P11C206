@@ -27,7 +27,7 @@ const roomActions = (set, get) => ({
   //소켓 연결
   connectRoom: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL_LOCAL);
 
       console.log(socket);
       const stompClient = new Client({
@@ -79,7 +79,7 @@ const roomActions = (set, get) => ({
         body: JSON.stringify(data),
       });
 
-      const res = await taleAPI.getTaleInfo(get().baseTaleId);
+      const res = await taleAPI.getTaleInfo(get().baseTaleId || 1);
 
       set({ taleTitle: res.data.data.title || '' });
 
@@ -137,6 +137,23 @@ const roomActions = (set, get) => ({
           get().addParticipant(participants);
         }
       });
+
+      //탈주 감지
+      stompClient.subscribe(
+        `/topic/room/escape/before/${roomId}`,
+        (message) => {
+          if (message.body === 'break') {
+            get().setIsEscape(true);
+          }
+        }
+      );
+
+      stompClient.subscribe(
+        `/topic/room/escape/after/${roomId}/${memberId}`,
+        (message) => {
+          get().setIsEscape(true);
+        }
+      );
 
       // 참가 요청
       stompClient.publish({
@@ -252,6 +269,7 @@ const useRoomStore = create(
 );
 
 export const useTaleRoom = () => {
+  const stompClient = useRoomStore((state) => state.stompClient);
   const currentRoom = useRoomStore((state) => state.currentRoom);
   const participants = useRoomStore((state) => state.participants);
   const baseTaleId = useRoomStore((state) => state.baseTaleId);
@@ -282,9 +300,11 @@ export const useTaleRoom = () => {
 
   const isEscape = useRoomStore((state) => state.isEscape);
   const setIsEscape = useRoomStore((state) => state.setIsEscape);
-  const resetState = useRoomStore((state) => state.resetState);
+  const resetStateRoom = useRoomStore((state) => state.resetState);
 
   return {
+    stompClient,
+
     currentRoom,
     participants,
     baseTaleId,
@@ -314,7 +334,7 @@ export const useTaleRoom = () => {
 
     isEscape,
     setIsEscape,
-    resetState,
+    resetStateRoom,
   };
 };
 

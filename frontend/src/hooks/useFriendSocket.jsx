@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 export const useFriendSocket = () => {
   const { isAuthenticated } = useUser();
   const { connect, subscribeMain, disconnect } = useActiveUser();
-  const { connectRoom, inviteFlag, resetState } = useTaleRoom();
+  const { connectRoom, inviteFlag, resetStateRoom } = useTaleRoom();
   const navigate = useNavigate();
 
   useEffect(() => {

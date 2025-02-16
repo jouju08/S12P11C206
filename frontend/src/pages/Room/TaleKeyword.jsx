@@ -17,7 +17,8 @@ const TaleKeyword = () => {
 
   const navigate = useNavigate();
 
-  const { isSingle, participants, leaveRoom } = useTaleRoom();
+  const { isSingle, participants, leaveRoom, isEscape, resetStateRoom } =
+    useTaleRoom();
 
   // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
   const [currentStep, setCurrentStep] = useState(0);
@@ -59,6 +60,17 @@ const TaleKeyword = () => {
 
     handleUnMount();
   }, [currentStep]); // 페이지 넘어가는 side effect
+
+  //누군가 탈주하면 방폭파
+  useEffect(() => {
+    if (isEscape) {
+      leaveRoom();
+      leaveViduRoom();
+      resetStateRoom();
+      resetState();
+      navigate('/room');
+    }
+  }, [isEscape]);
 
   const sortedSentences = useMemo(() => {
     return [...(tale?.sentenceOwnerPairs || [])].sort(

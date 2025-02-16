@@ -15,7 +15,7 @@ export default function TaleRoomHeader({ onClose }) {
 
   useEffect(() => {
     const fetchTaleTitle = async () => {
-      const response = await api.get(`/base-tale/${baseTaleId}`);
+      const response = await api.get(`/base-tale/${baseTaleId || 1}`);
 
       if (response.data.status == 'SER') {
         leaveRoom();

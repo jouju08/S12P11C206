@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import Participant from '@/components/Waiting/Participant';
 import { useTaleRoom } from '@/store/roomStore';
 import { userStore, useUser } from '@/store/userStore';
@@ -6,6 +6,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import taleAPI from '@/apis/tale/taleAxios';
 import InviteModal from '@/components/Waiting/InviteModal';
 import WaitingModal from '@/components/modal/WaitingModal';
+import { useViduHook } from '@/store/tale/viduStore';
+import { useTalePlay } from '@/store/tale/playStore';
 
 export default function Waiting() {
   const {
@@ -15,8 +17,13 @@ export default function Waiting() {
     baseTaleId,
     taleTitle,
     rawTale,
+    leaveRoom,
     setIsStart,
+    resetStateRoom,
   } = useTaleRoom();
+
+  const { resetState } = useTalePlay();
+  const { leaveViduRoom } = useViduHook();
   const { memberId } = useUser();
 
   const [tale, setTale] = useState({});
@@ -34,44 +41,54 @@ export default function Waiting() {
   const handleStart = async () => {
     await startRoom();
   };
-  const audioRef=useRef(new Audio("/Room/waiting-room.mp3"));
+  const audioRef = useRef(new Audio('/Room/waiting-room.mp3'));
 
-  const handleMusic=()=>{
-    audioRef.current.volume=1;
-    audioRef.current.currentTime=0;
-    audioRef.current.loop=true;
-    audioRef.current.play().catch(error=>console.error("대기방 음악 재생 실패", error));
+  const handleMusic = () => {
+    audioRef.current.volume = 1;
+    audioRef.current.currentTime = 0;
+    audioRef.current.loop = true;
+    audioRef.current
+      .play()
+      .catch((error) => console.error('대기방 음악 재생 실패', error));
     setShowWaitingModal(false);
-    if(onClose){
-      onClose;
-    }
-  }
+    // if (onClose) {
+    //   onClose;
+    // }
+  };
 
   useEffect(() => {
-    const hostId = currentRoom?.memberId;
-    const isFull = currentRoom?.full;
+    if (currentRoom !== null) {
+      const hostId = currentRoom?.memberId;
+      const isFull = currentRoom?.full;
 
-    //방장인지 판단
-    if (hostId == memberId) {
-      setIsHost(true);
-    }
-    setShowWaitingModal(true);
-
-    //방장이면서 4명이 됬는지 판단해서 시작버튼 활성화
-    if (isFull && hostId == memberId) {
-      setIsDisabled(false);
-    } else {
-      setIsDisabled(true);
-    }
-
-    //기본 동화 정보
-    const response = taleAPI.getTaleInfo(baseTaleId);
-
-    response.then((resolve, reject) => {
-      if (resolve.data?.status == 'SU') {
-        setTale({ ...resolve.data.data });
+      //방장인지 판단
+      if (hostId == memberId) {
+        setIsHost(true);
       }
-    });
+      setShowWaitingModal(true);
+
+      //방장이면서 4명이 됬는지 판단해서 시작버튼 활성화
+      if (isFull && hostId == memberId) {
+        setIsDisabled(false);
+      } else {
+        setIsDisabled(true);
+      }
+
+      //기본 동화 정보
+      const response = taleAPI.getTaleInfo(baseTaleId);
+
+      response.then((resolve, reject) => {
+        if (resolve.data?.status == 'SU') {
+          setTale({ ...resolve.data.data });
+        }
+      });
+    } else {
+      leaveRoom();
+      leaveViduRoom();
+      resetState();
+
+      navigate('/room');
+    }
 
     return () => {
       setIsHost(false);
@@ -88,6 +105,8 @@ export default function Waiting() {
     return () => {};
   }, [rawTale]);
 
+  useEffect(() => {});
+
   return (
     <div className="w-[1021px] h-[668px] relative">
       {/* 배경 필드 이미지 */}
@@ -96,16 +115,15 @@ export default function Waiting() {
         src="/Waiting/field-background.png"
       />
 
-      {showWaitingModal&&
-        <WaitingModal 
-        isHost={isHost}
-        onClick={()=>{
-          setShowWaitingModal(false);
-          handleMusic();
-          }
-        } 
+      {showWaitingModal && (
+        <WaitingModal
+          isHost={isHost}
+          onClick={() => {
+            setShowWaitingModal(false);
+            handleMusic();
+          }}
         />
-      }
+      )}
 
       {/* 요정 말풍선 */}
       <div
@@ -232,7 +250,7 @@ export default function Waiting() {
           </button>
         </div>
       </div>
-      {ShowModal && <InviteModal handleExit={() => handleExit()} />}
+      {showModal && <InviteModal handleExit={() => handleExit()} />}
     </div>
   );
 }

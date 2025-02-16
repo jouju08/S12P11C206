@@ -2,112 +2,123 @@ import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useViduHook } from '@/store/tale/viduStore';
 import { userStore } from '@/store/userStore';
-import { restore } from '@excalidraw/excalidraw';
-import { useStartVideo } from '@livekit/components-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 /**
- * @description 동화 이탈 방지 커스텀 훅
- * @param {Object} routeMapping - 특정 경로에 따른 이동 대상 및 WebSocket 매핑
- * @returns {Object} 모달 표시 여부, 이동 허용 함수, 이동 취소 함수
+ * @description 동화 이탈 방지
+ * - 새로고침/창 닫기 시: beforeunload 이벤트
+ * - 뒤로가기/앞으로가기 시: popstate 이벤트, window.confirm()을 이용해
+ *   확인 시 WebSocket 메시지 전송 및 상태 정리, 아니면 페이지 유지.
  */
-
-export const useNavigationBlocker = (routeMapping) => {
-  const [showEscape, setShowEscape] = useState(false); // 모달
-  const [nextPath, setNextPath] = useState(null); //이동경로
+export const useNavigationBlocker = () => {
+  const [nextPath, setNextPath] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { stompClient, leaveRoom, setIsEscape } = useTaleRoom();
-  const { roomId, resetState } = useTalePlay();
+  const { stompClient, currentRoom, leaveRoom, setIsEscape } = useTaleRoom();
+  const { resetState } = useTalePlay();
   const { leaveViduRoom } = useViduHook();
 
+  const routeMapping = useMemo(
+    () => ({
+      '/tale/waiting': {
+        redirect: '/room',
+        wsUrl: currentRoom
+          ? `/app/room/escape/before/${currentRoom.roomId}`
+          : null,
+      },
+      '/tale/taleStart': {
+        redirect: '/room',
+        wsUrl: currentRoom
+          ? `/app/room/escape/before/${currentRoom.roomId}`
+          : null,
+      },
+      '/tale/taleKeyword': {
+        redirect: '/room',
+        wsUrl: currentRoom
+          ? `/app/room/escape/before/${currentRoom.roomId}`
+          : null,
+      },
+      '/tale/taleSentenceDrawing': {
+        redirect: '/room',
+        wsUrl: currentRoom
+          ? `/app/room/escape/after/${currentRoom.roomId}/${userStore.getState().memberId}`
+          : null,
+      },
+    }),
+    [currentRoom]
+  );
+
+  // 새로고침이나 창 닫기 시
   useEffect(() => {
-    /**
-     * @description 창 닫기 또는 새로고침
-     */
-
     const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = '';
-    };
+      if (routeMapping[location.pathname]) {
+        const { redirect, wsUrl } = routeMapping[location.pathname];
+        const data = JSON.stringify({ escape: 'bye' });
 
-    /**
-     * @description 뒤로 가기 시
-     */
+        if (wsUrl && stompClient && stompClient.connected) {
+          stompClient.publish({
+            destination: wsUrl,
+            body: data,
+          });
+        }
 
-    const handlePopState = (e) => {
-      e.preventDefault();
-      if (!showEscape) {
-        setShowEscape(true);
-        window.history.pushState(null, '', location.pathname); // 뒤로 가기 막기
+        e.preventDefault();
+        e.returnValue = '정말 방을 나갈껀가요?';
       }
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', handlePopState);
-
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      window.removeEventListener('popstate', handlePopState);
     };
-  }, [location.pathname, showEscape]);
+  }, [location.pathname, routeMapping]);
 
+  //  뒤로가기/앞으로가기 시 처리: window.confirm()을 사용해 사용자 확인
   useEffect(() => {
-    /**
-     * @description  네비게이션 감지
-     */
-    const handleNavigation = () => {
-      setShowEscape(true);
-      setNextPath(location.pathname);
-    };
-
-    return () => {
-      setShowModal(false);
-    };
-  }, [location.pathname]);
-
-  /**
-   * @description 이동 허용
-   */
-  const handleConfirmExit = async () => {
-    const currentPath = location.pathname;
-    const { redirect, wsUrl } = routeMapping[currentPath] || {
-      redirect: '/room',
-      wsUrl: null,
-    };
-
-    try {
-      if (wsUrl !== null) {
-        if (stompClient && stompClient.connected) {
-          stompClient.publish({
-            destination: wsUrl, //keyword Before After
-            body: JSON.stringify({ escape: 'bye' }),
-          });
+    const handlePopState = (e) => {
+      if (routeMapping[location.pathname]) {
+        const answer = window.confirm('정말 방을 나갈껀가요?');
+        if (answer) {
+          // 확인 시 WebSocket 메시지 전송 및 상태 정리
+          const { redirect, wsUrl } = routeMapping[location.pathname] || {
+            redirect: '/room',
+            wsUrl: null,
+          };
+          try {
+            if (wsUrl && stompClient && stompClient.connected) {
+              console.log('WebSocket 연결: 메시지 전송', wsUrl);
+              stompClient.publish({
+                destination: wsUrl,
+                body: JSON.stringify({ escape: 'bye' }),
+              });
+            }
+          } catch (error) {
+            console.error('WebSocket 메시지 전송 실패:', error);
+          } finally {
+            leaveRoom();
+            leaveViduRoom();
+            resetState();
+            setIsEscape(true);
+            navigate(redirect || nextPath, { replace: true });
+          }
+        } else {
+          navigate(location.pathname, { replace: true });
         }
       }
-    } catch (error) {
-      console.error('사스케 실패:', error);
-    } finally {
-      leaveRoom();
-      leaveViduRoom();
-      resetState();
+    };
 
-      setIsEscape(true);
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [location.pathname, routeMapping, stompClient, nextPath]);
 
-      setShowEscape(false);
+  // 페이지 내 경로 변화 감지
+  useEffect(() => {
+    setNextPath(location.pathname);
+  }, [location.pathname]);
 
-      navigate(redirect || nextPath, { replace: true });
-    }
-  };
-
-  /**
-   * @description 이동 취소
-   */
-  const handleCancelExit = () => {
-    setShowEscape(false);
-  };
-
-  return { showEscape, handleConfirmExit, handleCancelExit };
+  return {}; // 필요에 따라 반환 값 추가 가능
 };
