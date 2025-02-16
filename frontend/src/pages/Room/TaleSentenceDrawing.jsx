@@ -9,7 +9,7 @@ import { useViduHook } from '@/store/tale/viduStore';
 import OpenviduCanvas from '@/components/TaleRoom/OpenviduCanvas';
 import { LocalVideoTrack, Room, RoomEvent, Track } from 'livekit-client';
 import { useUser } from '@/store/userStore';
-
+import DrawingModal from '@/components/modal/DrawingModal';
 import '@/styles/taleRoom.css';
 import '@/styles/main.css';
 
@@ -33,6 +33,18 @@ const TaleSentenceDrawing = () => {
   const navigate = useNavigate();
 
   const { currentRoom } = useTaleRoom();
+  const [showDrawingModal, setShowDrawingModal] = useState(false);
+  const drawingaudioRef=useRef(new Audio("/TaleSentenceDrawing/drawing.mp3"));//그리는 중 노래
+  const handleDrawingMusic=()=>{
+    drawingaudioRef.current.volume=1;
+    drawingaudioRef.current.currentTime=0;
+    drawingaudioRef.current.loop=true;
+    drawingaudioRef.current.play().catch(error=>console.error("대기방 음악 재생 실패", error));
+    setShowDrawingModal(false);
+    if(onClose){
+      onClose;
+    }
+  }
   const {
     drawDirection,
     setDrawDirection,
@@ -129,12 +141,14 @@ const TaleSentenceDrawing = () => {
   };
 
   useEffect(() => {
+    setShowDrawingModal(true);//페이지 들어가자마자 모달 오픈
     if (!isSingle) {
       joinVidu();
     }
   }, [isSingle]);
 
   useEffect(() => {
+
     const handleConnected = () => {
       publishCanvasTrack();
     };
@@ -305,6 +319,15 @@ const TaleSentenceDrawing = () => {
             <Loading />
           </div>
         )}
+        {showDrawingModal&&
+          <DrawingModal 
+            onClick={()=>{
+              setShowDrawingModal(false);
+              handleDrawingMusic();
+              }
+            } 
+        />
+        }
         <div
           className="w-[1024px] h-[668px] bg-cover flex"
           style={{
