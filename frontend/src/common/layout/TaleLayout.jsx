@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { userStore, useUser } from '@/store/userStore';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useUser } from '@/store/userStore';
 import { useTalePlay } from '@/store/tale/playStore';
 
 import TaleRoomHeader from '../Header/TaleRoomHeader';
 import { useTaleRoom } from '@/store/roomStore';
 import { useViduHook } from '@/store/tale/viduStore';
+import { useNavigationBlocker } from '@/hooks/useNavigationBlocker';
 
 export default function TaleLayout() {
   const { isAuthenticated } = useUser();
@@ -14,7 +15,7 @@ export default function TaleLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { leaveRoom } = useTaleRoom();
+  const { currentRoom, leaveRoom } = useTaleRoom();
   const { roomId, resetState } = useTalePlay();
   const { leaveViduRoom } = useViduHook();
 
@@ -22,6 +23,26 @@ export default function TaleLayout() {
   const isSentence = location.pathname === '/tale/taleSentenceDrawing';
   const isKeyword = location.pathname === '/tale/taleKeyword';
   const isHotTale = location.pathname === '/tale/hottale';
+
+  const routeMapping = {
+    '/tale/taleStart': {
+      redirect: '/room',
+      wsUrl: `app/room/escape/before/${currentRoom.roomId}`,
+    },
+
+    '/tale/taleKeyword': {
+      redirect: '/room',
+      wsUrl: `app/room/escape/before/${currentRoom.roomId}`,
+    },
+
+    'tale/taleSentenceDrawing': {
+      redirect: '/room',
+      wsUrl: `app/room/escape/after/${currentRoom.roomId}/${userStore.getState().memberId}`,
+    },
+  };
+
+  const { showEscape, handleCancelExit, handleConfirmExit } =
+    useNavigationBlocker(routeMapping); //탈주 감지
 
   // 나가기 버튼 누르면 모달을 띄워줌
   const handleExit = () => {
@@ -84,8 +105,8 @@ export default function TaleLayout() {
           {showModal && (
             <div className="absolute top-0 left-0 z-50 w-[1024px] h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
               <Modal
-                handleConfirm={handleConfirm}
-                handleCancel={handleCancel}
+                handleConfirm={handleConfirmExit}
+                handleCancel={handleCancelExit}
               />
             </div>
           )}
