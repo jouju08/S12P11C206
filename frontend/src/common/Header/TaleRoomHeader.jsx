@@ -31,7 +31,7 @@ export default function TaleRoomHeader({ onClose }) {
   }, []);
 
   return (
-    <header className="bg-main-background shadow-md sticky top-0 z-50">
+    <header className="w-dvw bg-main-background shadow-md top-0 z-50">
       <nav className="w-[1024px] h-[100px] px-[20px] flex flex-row justify-between mx-auto items-center">
         <div className="w-[141px] h-[70px]">
           <img

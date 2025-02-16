@@ -169,7 +169,7 @@ public class RoomService {
         room.setFull(false);
 
         if (room.getParticipants().isEmpty()) { // 호스트 0명일 경우 방 삭제
-            redisTemplate.delete(room.getRoomId().toString());
+            redisTemplate.delete("tale-"+room.getRoomId().toString());
 
             // room list 방 삭제
             for (RoomInfo roomInfo : roomList) {
