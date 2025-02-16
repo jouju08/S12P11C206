@@ -23,6 +23,7 @@ export default function Waiting() {
   const [isHost, setIsHost] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showWaitingModal, setShowWaitingModal] = useState(false);
 
   const handleExit = () => {
     setShowModal(false);
@@ -40,7 +41,7 @@ export default function Waiting() {
     audioRef.current.currentTime=0;
     audioRef.current.loop=true;
     audioRef.current.play().catch(error=>console.error("대기방 음악 재생 실패", error));
-    setIsModalOpen(false);
+    setShowWaitingModal(false);
     if(onClose){
       onClose;
     }
@@ -54,7 +55,7 @@ export default function Waiting() {
     if (hostId == memberId) {
       setIsHost(true);
     }
-    setShowModal(true);
+    setShowWaitingModal(true);
 
     //방장이면서 4명이 됬는지 판단해서 시작버튼 활성화
     if (isFull && hostId == memberId) {
@@ -95,11 +96,11 @@ export default function Waiting() {
         src="/Waiting/field-background.png"
       />
 
-      {showModal&&
+      {showWaitingModal&&
         <WaitingModal 
         isHost={isHost}
         onClick={()=>{
-          setShowModal(false);
+          setShowWaitingModal(false);
           handleMusic();
           }
         } 
