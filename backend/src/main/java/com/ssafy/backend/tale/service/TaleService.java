@@ -635,5 +635,6 @@ public class TaleService {
                 break;
             }
         }
+        redisTemplate.opsForValue().set("tale-roomList", roomList);
     }
 }
