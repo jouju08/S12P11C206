@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
@@ -11,12 +11,14 @@ import AudioPlayer from '@/components/Common/AudioPlayer';
 
 const HotTale = () => {
   const { roomId } = useTalePlay();
-  const { hotTale, setHotTale } = useTalePlay();
+  const { tale, hotTale, setHotTale } = useTalePlay();
 
   const [pageNum, setPageNum] = useState(0);
 
   //메시지 수신 loading
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (pageNum !== 5) {
@@ -33,14 +35,50 @@ const HotTale = () => {
     }
   }, [pageNum]);
 
+  const handleClick = () => {
+    navigate('/collection', { relative: 'path', replace: true });
+  };
+
   const renderPageContent = (pageNum) => {
     if (pageNum === 5) {
+      let today = new Date();
+
       return (
         <>
-          {/* <p>동화제목 : {hotTale['hotTaleTitle']}</p> */}
-          <p>동화제목 : 무엇일까요</p>
-          <p>글쓴이 : 누구일까요</p>
-          <p>완성날짜 : 언제일까요</p>
+          <div className="flex flex-col gap-5">
+            <p className="relative after:content[''] after:h-[20px] after:w-[85px] after:-z-10 after:absolute after:bottom-0 after:left-0 after:bg-main-strawberry">
+              동화제목 : {hotTale['hotTaleTitle']}
+            </p>
+            <div className="flex items-start gap-5">
+              <p
+                className="
+            relative after:content[''] after:h-[20px] after:w-[65px] after:-z-10 after:absolute after:bottom-0 after:left-0 after:bg-main-strawberry">
+                글쓴이 :
+              </p>
+              <ul className="pl">
+                {hotTale['keywordSentences']?.map((item, idx) => (
+                  <li key={{ idx }}>{item.owner}</li>
+                ))}
+              </ul>
+            </div>
+            <p
+              className="
+            relative after:content[''] after:h-[20px] after:w-[90px] after:-z-10 after:absolute after:bottom-0 after:left-0 after:bg-main-strawberry">
+              완성날짜 : {today.getFullYear()}년 {today.getMonth() + 1}월{' '}
+              {today.getDate()}일
+            </p>
+          </div>
+
+          {/* ai 동화 보러가기 */}
+          <div className="w-[140px] h-32 pl-3.5 pt-1 bg-[url('/TaleStart/chat.png')] bg-contain object-contain bg-no-repeat absolute right-[65px] bottom-[-110px] service-regular3 text-text-first">
+            AI 그림으로
+            <br />
+            동화 보러가기
+          </div>
+          <button
+            onClick={() => handleClick()}
+            className="w-20 h-20 bg-[url('/Room/together.png')] bg-contain bg-center object-center bg-no-repeat absolute right-[-20px] bottom-[-50px] service-regular2 text-text-first hover:scale-105 transition-all duration-200"
+          />
         </>
       );
     } else {
@@ -72,15 +110,32 @@ const HotTale = () => {
             )}
           </div>
 
-          <img
-            className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
-            src={hotTale?.['originImg']}
-          />
-          <img
-            src={hotTale?.['originImg']}
-            alt="동화 만든 이미지"
-            className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
-          />
+          {pageNum === 5 ? (
+            <div>
+              <img
+                src={tale.taleStartImage ? ['taleStartImage'] : null}
+                alt="블러 처리 이미지"
+                className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+              />
+              <img
+                src={tale.taleStartImage ? ['taleStartImage'] : null}
+                alt="동화 만든 이미지"
+                className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+              />
+            </div>
+          ) : (
+            <div>
+              <img
+                className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+                src={hotTale?.['originImg']}
+              />
+              <img
+                src={hotTale?.['originImg']}
+                alt="동화 만든 이미지"
+                className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+              />
+            </div>
+          )}
 
           <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex flex-col justify-center items-center text-text-first story-basic2">
             {renderPageContent(pageNum)}
