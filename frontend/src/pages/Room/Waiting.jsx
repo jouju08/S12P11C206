@@ -5,6 +5,7 @@ import { userStore, useUser } from '@/store/userStore';
 import { useLocation, useNavigate } from 'react-router-dom';
 import taleAPI from '@/apis/tale/taleAxios';
 import InviteModal from '@/components/Waiting/InviteModal';
+import WaitingModal from '@/components/modal/WaitingModal';
 
 export default function Waiting() {
   const {
@@ -21,7 +22,7 @@ export default function Waiting() {
   const [tale, setTale] = useState({});
   const [isHost, setIsHost] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
-  const [ShowModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const handleExit = () => {
     setShowModal(false);
@@ -32,6 +33,18 @@ export default function Waiting() {
   const handleStart = async () => {
     await startRoom();
   };
+  const audioRef=useRef(new Audio("/Room/waiting-room.mp3"));
+
+  const handleMusic=()=>{
+    audioRef.current.volume=1;
+    audioRef.current.currentTime=0;
+    audioRef.current.loop=true;
+    audioRef.current.play().catch(error=>console.error("대기방 음악 재생 실패", error));
+    setIsModalOpen(false);
+    if(onClose){
+      onClose;
+    }
+  }
 
   useEffect(() => {
     const hostId = currentRoom?.memberId;
@@ -41,6 +54,7 @@ export default function Waiting() {
     if (hostId == memberId) {
       setIsHost(true);
     }
+    setShowModal(true);
 
     //방장이면서 4명이 됬는지 판단해서 시작버튼 활성화
     if (isFull && hostId == memberId) {
@@ -80,6 +94,17 @@ export default function Waiting() {
         className="w-[1024px] h-[668px] absolute top-0 left-0 -z-10"
         src="/Waiting/field-background.png"
       />
+
+      {showModal&&
+        <WaitingModal 
+        isHost={isHost}
+        onClick={()=>{
+          setShowModal(false);
+          handleMusic();
+          }
+        } 
+        />
+      }
 
       {/* 요정 말풍선 */}
       <div
