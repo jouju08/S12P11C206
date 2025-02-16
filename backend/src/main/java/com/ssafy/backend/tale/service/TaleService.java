@@ -428,7 +428,7 @@ public class TaleService {
         // 손그림을 s3에 업로드하고, url을 저장합니다.
         String imgUrl = s3Service.uploadFile(submitFileRequestDto.getFile());
         taleMemberDto.setOrginImg(imgUrl);
-
+        taleMemberDto.setImg("before processing");
         // taleMember를 redis에 업데이트합니다.
         setTaleMemberDtoToRedis(taleMemberDto);
 
@@ -554,7 +554,7 @@ public class TaleService {
     }
     
     // redis에 tale_member 저장
-    private void setTaleMemberDtoToRedis(TaleMemberDto taleMemberDto){
+    public void setTaleMemberDtoToRedis(TaleMemberDto taleMemberDto){
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         ops.set("tale_member-"+taleMemberDto.getId(), taleMemberDto);
         System.out.println("생성되고 있는 동화 정보 수정 (TaleService)\n" + taleMemberDto);

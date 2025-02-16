@@ -12,6 +12,7 @@ import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 
 import com.ssafy.backend.tale.dto.response.TaleSentencesResponseDto;
 import com.ssafy.backend.tale.dto.response.TextResponseDto;
+import com.ssafy.backend.taleMember.service.TaleMemberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -108,6 +109,9 @@ public class AIServerRequestService {
         for (int i = 0; i < 4; i++) {
             // AI 서버에 이미지를 보내기 위해 promptset과 original image url을 담은 dto를 생성
             taleMemberDto = taleService.getTaleMemberDtoFromRedis(roomId, i);
+            taleMemberDto.setImg("processing");
+            taleService.setTaleMemberDtoToRedis(taleMemberDto);
+
             // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
             int finalI = i;
             ByteArrayResource fileResource = getByteArrayResource(s3Service.getFileAsBytes(taleMemberDto.getOrginImg()), "origin_" + roomId + "_" + finalI + ".png");
