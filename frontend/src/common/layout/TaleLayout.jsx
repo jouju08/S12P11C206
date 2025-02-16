@@ -1,21 +1,48 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/store/userStore';
+import { userStore, useUser } from '@/store/userStore';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTalePlay } from '@/store/tale/playStore';
 
 import TaleRoomHeader from '../Header/TaleRoomHeader';
 import { useTaleRoom } from '@/store/roomStore';
 import { useViduHook } from '@/store/tale/viduStore';
+import { useNavigationBlocker } from '@/hooks/useNavigationBlocker';
 
 export default function TaleLayout() {
   const { isAuthenticated } = useUser();
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const { leaveRoom } = useTaleRoom();
+  const { currentRoom, leaveRoom } = useTaleRoom();
   const { roomId, resetState } = useTalePlay();
   const { leaveViduRoom } = useViduHook();
+
+  const isStart = location.pathname === '/tale/taleStart';
+  const isSentence = location.pathname === '/tale/taleSentenceDrawing';
+  const isKeyword = location.pathname === '/tale/taleKeyword';
+  const isHotTale = location.pathname === '/tale/hottale';
+
+  const routeMapping = {
+    '/tale/taleStart': {
+      redirect: '/room',
+      wsUrl: `app/room/escape/before/${currentRoom.roomId}`,
+    },
+
+    '/tale/taleKeyword': {
+      redirect: '/room',
+      wsUrl: `app/room/escape/before/${currentRoom.roomId}`,
+    },
+
+    'tale/taleSentenceDrawing': {
+      redirect: '/room',
+      wsUrl: `app/room/escape/after/${currentRoom.roomId}/${userStore.getState().memberId}`,
+    },
+  };
+
+  const { showEscape, handleCancelExit, handleConfirmExit } =
+    useNavigationBlocker(routeMapping); //탈주 감지
 
   // 나가기 버튼 누르면 모달을 띄워줌
   const handleExit = () => {
@@ -39,14 +66,47 @@ export default function TaleLayout() {
   return (
     <>
       <div className="flex flex-col justify-center h-full w-full">
-        <div className="relative flex flex-col mx-auto w-[1024px] h-[768px] justify-center items-center">
-          {isAuthenticated ? <TaleRoomHeader onClose={handleExit} /> : null}
+        <div className="relative flex flex-col mx-auto w-dvw h-lvh justify-between items-center">
+          {isSentence ? null : isAuthenticated ? (
+            <TaleRoomHeader onClose={handleExit} />
+          ) : null}
+
+          {/* background option */}
+          {isStart ? (
+            <img
+              src="/TaleStart/field-background.png"
+              alt="TaleStart 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover"
+            />
+          ) : null}
+          {isHotTale ? (
+            <img
+              src="/TaleStart/field-background.png"
+              alt="HotTale 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover"
+            />
+          ) : null}
+          {isKeyword ? (
+            <img
+              src="/TaleKeyword/field-background.png"
+              alt="TaleKeyword 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover opacity-80"
+            />
+          ) : null}
+          {isSentence ? (
+            <img
+              src="/TaleSentenceDrawing/field-background1.png"
+              alt="TaleSentenceDrawing 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover opacity-50"
+            />
+          ) : null}
+
           <Outlet />
           {showModal && (
             <div className="absolute top-0 left-0 z-50 w-[1024px] h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
               <Modal
-                handleConfirm={handleConfirm}
-                handleCancel={handleCancel}
+                handleConfirm={handleConfirmExit}
+                handleCancel={handleCancelExit}
               />
             </div>
           )}

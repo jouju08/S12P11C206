@@ -5,7 +5,7 @@ import { Loading } from '@/common/Loading';
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-
+import '@/styles/text.css'
 const Friends = ({ friends, setShowFriend, showFriend }) => {
   const [activeTab, setActiveTab] = useState('friends'); // 기본값: 친구 요청
   const {
@@ -121,12 +121,12 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
   return (
     <div className="w-[514px] h-dvh relative bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] flex flex-col justify-between p-6 border border-gray-100">
       <button
-        className="h-[50px] w-[50px]"
+        className="h-[30px] w-[30px] mb-4 ml-2"
         onClick={() => setShowFriend(!showFriend)}>
         <img
           src="/Common/black-close.png"
           alt="닫기 버튼"
-          className="h-[50px] w-[50px]"
+          className="h-[30px] w-[30px]"
         />
       </button>
       <div className="flex justify-around items-center pb-2 mb-4">
@@ -270,16 +270,24 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
                 <li
                   key={friend.loginId}
                   className="flex items-center justify-between w-full p-3 border-b border-[#e6e6e6]">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 w-[165px]">
                     <img
                       className="w-12 h-12 rounded-full"
                       src={friend.profilePic || '/Common/blank_profile.jpg'}
                       alt="profile"
-                    />
-
-                    <span className="text-text-first text-lg font-NPSfont">
-                      {friend.nickname}
-                    </span>
+                    />  
+                    <div className="relative group w-[ch-6] overflow-hidden">
+                      {friend.nickname.length<7?(
+                        <span className="block  text-text-first text-lg font-NPSfont">
+                          {friend.nickname}
+                        </span>):(<>
+                        <span className="block truncate text-text-first text-lg font-NPSfont group-hover:hidden">
+                          {friend.nickname}
+                        </span>
+                        <span className="whitespace-nowrap hidden text-text-first text-lg font-NPSfont group-hover:block animate-marquee">
+                          {friend.nickname}
+                        </span></>)}
+                    </div>
                   </div>
                   {/* 접속중 상태 */}
                   <div>

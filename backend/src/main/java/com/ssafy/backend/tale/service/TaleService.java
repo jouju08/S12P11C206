@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -102,6 +103,7 @@ public class TaleService {
         for (TaleMember taleMember : taleMembers) {
             if(taleMemberIdSet.contains(taleMember.getMember().getId().longValue())) // 중복된 taleMember는 제외합니다.
                 continue;
+
             taleMemberIdSet.add(taleMember.getMember().getId().longValue());
             participants.add(taleMember.getMember().getNickname());
         }
@@ -319,7 +321,7 @@ public class TaleService {
         if(order-- == 0){ //order가 0인경우 -> baseTale에서 불러와야함.
             BaseTale baseTale = getBaseTaleByRoomId(roomId);
             talePageResponseDto = parseTalePage(baseTale);
-        }else { // 그 외에 경우 원래 order대로 받아오면됨
+        } else { // 그 외에 경우 원래 order대로 받아오면됨
             TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
             if(taleMember == null)
                 throw new RuntimeException("유효하지 않은 동화페이지입니다.");
@@ -615,5 +617,24 @@ public class TaleService {
         responseDto.setNickname(member.getNickname());
 
         return responseDto;
+    }
+
+    @Transactional
+    public void breakRoom(Long roomId) {
+        taleMemberRepository.findByTaleId(roomId).forEach(taleMember -> {
+            redisTemplate.delete("tale_member-"+taleMember.getId()); // tale_member redis 삭제
+            taleMemberRepository.delete(taleMember); // tale_member db 삭제
+        });
+        redisTemplate.delete("tale-"+ roomId); // room redis 삭제
+        taleRepository.deleteById(roomId); // room db삭제
+
+        List<RoomInfo> roomList = (List<RoomInfo>) redisTemplate.opsForValue().get("tale-roomList");
+        for(RoomInfo roomInfo : roomList) {
+            if(roomInfo.getRoomId() == roomId){
+                roomList.remove(roomInfo);
+                break;
+            }
+        }
+        redisTemplate.opsForValue().set("tale-roomList", roomList);
     }
 }
