@@ -133,7 +133,7 @@ export default function ProfileEdit() {
                   alt=""
                 />
                 <div
-                  className="service-regular3 text-text-second"
+                  className="service-regular3 text-text-second cursor-pointer"
                   onClick={() => setShow(true)}
                 >
                   비밀번호 변경
