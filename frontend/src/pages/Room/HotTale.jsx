@@ -21,18 +21,18 @@ const HotTale = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (pageNum !== 5) {
-      const handleHotTale = async () => {
-        try {
-          await setHotTale(pageNum);
-          setLoading(false);
-        } catch (error) {
-          console.error('Hot Tale Error 발생:', error);
-        }
-      };
+    // if (pageNum !== 5) {
+    const handleHotTale = async () => {
+      try {
+        await setHotTale(pageNum);
+        setLoading(false);
+      } catch (error) {
+        console.error('Hot Tale Error 발생:', error);
+      }
+    };
 
-      handleHotTale();
-    }
+    handleHotTale();
+    // }
   }, [pageNum]);
 
   const handleClick = () => {
@@ -47,7 +47,7 @@ const HotTale = () => {
         <>
           <div className="flex flex-col gap-5">
             <p className="relative after:content[''] after:h-[20px] after:w-[85px] after:-z-10 after:absolute after:bottom-0 after:left-0 after:bg-main-strawberry">
-              동화제목 : {hotTale['hotTaleTitle']}
+              동화제목 : {hotTale['title']}
             </p>
             <div className="flex items-start gap-5">
               <p
@@ -56,8 +56,8 @@ const HotTale = () => {
                 글쓴이 :
               </p>
               <ul className="pl">
-                {hotTale['keywordSentences']?.map((item, idx) => (
-                  <li key={{ idx }}>{item.owner}</li>
+                {hotTale['participants']?.map((item, idx) => (
+                  <li key={{ idx }}>{item}</li>
                 ))}
               </ul>
             </div>
@@ -92,9 +92,7 @@ const HotTale = () => {
       {loading ? (
         <Loading />
       ) : (
-        <div
-          className="relative w-[1024px] h-[668px]"
-          style={{ backgroundImage: `url('/TaleStart/field-background.png')` }}>
+        <div className="relative w-[1024px] h-[668px]">
           {/* 배경 - 책 이미지 */}
           <img
             className="w-[1024px] h-[555px] absolute bottom-[18px] left-0"
@@ -113,12 +111,12 @@ const HotTale = () => {
           {pageNum === 5 ? (
             <div>
               <img
-                src={tale.taleStartImage ? ['taleStartImage'] : null}
+                src={hotTale?.['coverImg']}
                 alt="블러 처리 이미지"
                 className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
               />
               <img
-                src={tale.taleStartImage ? ['taleStartImage'] : null}
+                src={hotTale?.['coverImg']}
                 alt="동화 만든 이미지"
                 className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
               />
@@ -126,18 +124,18 @@ const HotTale = () => {
           ) : (
             <div>
               <img
-                className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+                className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] bottom-[133px]"
                 src={hotTale?.['originImg']}
               />
               <img
                 src={hotTale?.['originImg']}
                 alt="동화 만든 이미지"
-                className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+                className="w-[300px] h-[300px] z-10 absolute left-[168px] bottom-[153px]"
               />
             </div>
           )}
 
-          <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex flex-col justify-center items-center text-text-first story-basic2">
+          <div className="w-[378px] h-[430px] z-10 absolute right-[105px] bottom-[105px] flex flex-col justify-center items-center text-text-first story-basic2">
             {renderPageContent(pageNum)}
           </div>
 

@@ -14,6 +14,8 @@ import java.util.List;
 public class TaleDetailResponseDto {
     long taleId;
     long baseTaleId;
+    String title;
+    String coverImg;
     List<String> participants; // 참여자 닉네임
     String createdAt;
 }
