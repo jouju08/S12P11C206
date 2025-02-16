@@ -18,6 +18,7 @@ const initialState = {
   isSingle: false,
   isStart: null,
   inviteFlag: false,
+  isEscape: false,
 };
 
 const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
@@ -92,7 +93,7 @@ const roomActions = (set, get) => ({
           } else {
             reject(new Error('방 생성 후 참가 실패'));
           }
-        }, 500);
+        }, 1000);
       });
     } else {
       throw new Error('Stomp Client not connected');
@@ -125,6 +126,7 @@ const roomActions = (set, get) => ({
         set({ rawTale: newData });
       });
 
+      //나가기
       stompClient.subscribe(`/topic/room/leave/${roomId}`, (message) => {
         const leaveData = JSON.parse(message.body);
         if (leaveData.leaveMemberId !== memberId) {
@@ -150,7 +152,7 @@ const roomActions = (set, get) => ({
           } else {
             reject(new Error('방 참가 실패'));
           }
-        }, 500);
+        }, 1000);
       });
     }
   },
@@ -233,6 +235,7 @@ const roomActions = (set, get) => ({
     })),
 
   setInviteFlag: (value) => set({ inviteFlag: value }),
+  setIsEscape: (value) => set({ isEscape: value }),
 });
 
 const useRoomStore = create(
@@ -277,6 +280,8 @@ export const useTaleRoom = () => {
   const setBaseTaleId = useRoomStore((state) => state.setBaseTaleId);
   const setInviteFlag = useRoomStore((state) => state.setInviteFlag);
 
+  const isEscape = useRoomStore((state) => state.isEscape);
+  const setIsEscape = useRoomStore((state) => state.setIsEscape);
   const resetState = useRoomStore((state) => state.resetState);
 
   return {
@@ -307,6 +312,8 @@ export const useTaleRoom = () => {
 
     setInviteFlag,
 
+    isEscape,
+    setIsEscape,
     resetState,
   };
 };

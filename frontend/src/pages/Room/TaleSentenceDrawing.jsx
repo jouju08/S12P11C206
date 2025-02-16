@@ -66,7 +66,7 @@ const TaleSentenceDrawing = () => {
     [sortedSentences, memberId]
   );
 
-  const { isSingle } = useTaleRoom(); // 싱글모드 판단
+  const { isSingle, isEscape } = useTaleRoom(); // 싱글모드 판단
 
   //livekit
   const joinVidu = async () => {
@@ -107,7 +107,6 @@ const TaleSentenceDrawing = () => {
         name: 'video_from_canvas',
         source: Track.Source.Camera,
       });
-      console.log('Canvas track published successfully!');
 
       // .then(() => {
       //   console.log('Canvas track published successfully!');
@@ -276,26 +275,32 @@ const TaleSentenceDrawing = () => {
   };
 
   useEffect(() => {
-    // 뒤로가기 방지
-    window.history.pushState(null, document.title, window.location.href);
-    const preventBack = () => {
-      window.history.pushState(null, document.title, window.location.href);
-    };
-    window.addEventListener('popstate', preventBack);
+    if (isEscape && !isSingle) {
+      handleConfirm();
+    }
+  }, [isEscape]);
 
-    // 새로고침 방지
-    const preventRefresh = (e) => {
-      e.preventDefault();
-      e.returnValue = '';
-    };
-    window.addEventListener('beforeunload', preventRefresh);
+  // useEffect(() => {
+  //   // 뒤로가기 방지
+  //   window.history.pushState(null, document.title, window.location.href);
+  //   const preventBack = () => {
+  //     window.history.pushState(null, document.title, window.location.href);
+  //   };
+  //   window.addEventListener('popstate', preventBack);
 
-    // 컴포넌트 언마운트 시 이벤트 리스너 제거
-    return () => {
-      window.removeEventListener('popstate', preventBack);
-      window.removeEventListener('beforeunload', preventRefresh);
-    };
-  }, []);
+  //   // 새로고침 방지
+  //   const preventRefresh = (e) => {
+  //     e.preventDefault();
+  //     e.returnValue = '';
+  //   };
+  //   window.addEventListener('beforeunload', preventRefresh);
+
+  //   // 컴포넌트 언마운트 시 이벤트 리스너 제거
+  //   return () => {
+  //     window.removeEventListener('popstate', preventBack);
+  //     window.removeEventListener('beforeunload', preventRefresh);
+  //   };
+  // }, []);
 
   return (
     <>
@@ -325,7 +330,7 @@ const TaleSentenceDrawing = () => {
               />
             </div>
             <div
-              className="w-[550px] h-[100px] mx-auto rounded-[10px] border border-gray-200 text-center py-2 bg-white story-basic2 text-text-first
+              className="w-[550px] h-[80px] mx-auto rounded-[10px] border border-gray-200 text-center  bg-white story-basic2 text-text-first
             overflow-y-scroll">
               {/* currentStep은 1부터 시작하므로 인덱스로 사용할 때는 -1 */}
               <>{isSingle && singleModeSentences[currentStep]?.sentence}</>
@@ -373,10 +378,10 @@ const TaleSentenceDrawing = () => {
             />
           </section>
 
-          <section className="w-[30%] px-[25px] pt-3">
+          <section className="w-[30%] px-[10px] pt-3">
             {/* 타이머 */}
             <div
-              className={`relative ml-7 w-[206px] h-[70px] bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl border-[5px]  border-gray-500  ${isWarning ? 'time-shake red-blink' : ' border-gray-500 '}`}>
+              className={`relative ml-12 w-[205px] h-[70px] bg-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] rounded-xl border-[5px]  border-gray-500  ${isWarning ? 'time-shake red-blink' : ' border-gray-500 '}`}>
               <div className="left-[25px] top-0 absolute text-text-firest text-base font-normal font-NPSfont">
                 남은 시간
               </div>
@@ -405,7 +410,7 @@ const TaleSentenceDrawing = () => {
             </div>
 
             {/* 그림 보여지는 곳(싱글은 내가 그린거, 멀티는 다른 사람 실시간) */}
-            <div className="mt-5">
+            <div className="mt-4">
               {/* 싱글 모드일 때 */}
               {isSingle ? (
                 <div className="flex flex-col items-center gap-4">
@@ -435,14 +440,16 @@ const TaleSentenceDrawing = () => {
                 </div>
               ) : (
                 <>
-                  {remoteTracks.length > 0 &&
-                    remoteTracks.map((remoteTrack) => (
-                      <OpenviduCanvas
-                        key={remoteTrack.trackPublication.trackSid}
-                        track={remoteTrack.trackPublication.track}
-                        participantIdentity={remoteTrack.participantIdentity}
-                      />
-                    ))}
+                  <div className="flex flex-col items-center gap-4">
+                    {remoteTracks.length > 0 &&
+                      remoteTracks.map((remoteTrack) => (
+                        <OpenviduCanvas
+                          key={remoteTrack.trackPublication.trackSid}
+                          track={remoteTrack.trackPublication.track}
+                          participantIdentity={remoteTrack.participantIdentity}
+                        />
+                      ))}
+                  </div>
                 </>
               )}
             </div>
