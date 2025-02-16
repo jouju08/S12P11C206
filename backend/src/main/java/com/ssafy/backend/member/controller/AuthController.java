@@ -4,19 +4,24 @@ import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.common.ResponseCode;
 import com.ssafy.backend.common.ResponseMessage;
 import com.ssafy.backend.common.auth.JwtUtil;
+import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.db.entity.LoginLog;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.dto.FindIdDto;
 import com.ssafy.backend.member.dto.request.FindPasswordRequestDto;
 import com.ssafy.backend.member.dto.request.LoginRequest;
 import com.ssafy.backend.member.dto.request.RefreshTokenRequestDto;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
+import com.ssafy.backend.member.dto.response.LoginLogAggregateDTO;
 import com.ssafy.backend.member.dto.response.LoginResponseDto;
 import com.ssafy.backend.member.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -177,6 +182,32 @@ public class AuthController {
         return ApiResponse.builder().data("비밀번호 전송").build();
     }
 
+    @GetMapping("/child")
+    public ApiResponse<Object> getLoginLogsForChild(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        String loginId = extractLoginId(token);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("loginTime").descending());
+        Page<LoginLog> loginLogs = loginLogService.getLoginLogsForChild(loginId, pageable);
+
+        return ApiResponse.builder()
+                .data(loginLogs)
+                .message("로그인 로그 조회 성공")
+                .build();
+    }
+
+    @GetMapping("/child/aggregate")
+    public ApiResponse<Object> getLoginLogAggregate(@RequestHeader("Authorization") String token) {
+        String loginId = extractLoginId(token);
+        LoginLogAggregateDTO aggregate = loginLogService.getLoginLogAggregate(loginId);
+        return ApiResponse.builder()
+                .data(aggregate)
+                .message("로그인 로그 집계 조회 성공")
+                .build();
+    }
+
     private String extractClientIp(HttpServletRequest request) {
         String ipAddress = request.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty()) {
@@ -187,5 +218,12 @@ public class AuthController {
         return ipAddress;
     }
 
+    private String extractLoginId(String token) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            throw new BadRequestException("유효하지 않은 토큰입니다.");
+        }
+        String accessToken = token.substring(7);
+        return jwtUtil.extractUsername(accessToken);
+    }
 
 }

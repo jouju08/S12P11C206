@@ -5,6 +5,7 @@ import Bookcase from '@/components/Parent/Bookcase';
 import Exhibition from '@/components/Parent/Exhibition';
 import { useProfile } from '@/store/parentStore';
 import CollectionModal from '@/components/modal/CollectionModal';
+import KidTrack from '@/components/Parent/KidTrack';
 
 export default function Profile() {
   // 탭 선택 상태 관리
@@ -35,6 +36,7 @@ export default function Profile() {
     edit: <Edit />,
     bookcase: <Bookcase onOpenModal={handleOpenModal} />,
     exhibition: <Exhibition />,
+    KidTrack: <KidTrack />,
   };
 
   return (
