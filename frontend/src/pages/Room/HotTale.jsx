@@ -21,18 +21,18 @@ const HotTale = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (pageNum !== 5) {
-      const handleHotTale = async () => {
-        try {
-          await setHotTale(pageNum);
-          setLoading(false);
-        } catch (error) {
-          console.error('Hot Tale Error 발생:', error);
-        }
-      };
+    // if (pageNum !== 5) {
+    const handleHotTale = async () => {
+      try {
+        await setHotTale(pageNum);
+        setLoading(false);
+      } catch (error) {
+        console.error('Hot Tale Error 발생:', error);
+      }
+    };
 
-      handleHotTale();
-    }
+    handleHotTale();
+    // }
   }, [pageNum]);
 
   const handleClick = () => {
