@@ -100,10 +100,10 @@ public class TaleService {
         HashSet<Long> taleMemberIdSet = new HashSet<>();
 
         for (TaleMember taleMember : taleMembers) {
-            if(taleMemberIdSet.contains(taleMember.getId())) // 중복된 taleMember는 제외합니다.
+            if(taleMemberIdSet.contains(taleMember.getMember().getId().longValue())) // 중복된 taleMember는 제외합니다.
                 continue;
 
-            taleMemberIdSet.add(taleMember.getId());
+            taleMemberIdSet.add(taleMember.getMember().getId().longValue());
             participants.add(taleMember.getMember().getNickname());
         }
         taleDetailResponseDto.setParticipants(participants);
@@ -320,8 +320,6 @@ public class TaleService {
         if(order-- == 0){ //order가 0인경우 -> baseTale에서 불러와야함.
             BaseTale baseTale = getBaseTaleByRoomId(roomId);
             talePageResponseDto = parseTalePage(baseTale);
-        } else if (order == 4) {
-            
         } else { // 그 외에 경우 원래 order대로 받아오면됨
             TaleMember taleMember = taleMemberRepository.findByTaleIdAndOrderNum(roomId, order);
             if(taleMember == null)
