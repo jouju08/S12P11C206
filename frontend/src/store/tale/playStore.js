@@ -153,10 +153,13 @@ const playActions = (set, get) => ({
 
     const formData = new FormData();
 
+    const fileName = 'recorded-audio.wav';
+    const audioFile = new File([voice], fileName, { type: 'audio/wav' });
+
     formData.append('order', String(order));
     formData.append('roomId', String(get().roomId));
     formData.append('memberId', String(userStore.getState().memberId));
-    formData.append('file', voice);
+    formData.append('keyword', audioFile);
 
     const response = await taleAPI.taleKeyWordVoice(formData);
 
