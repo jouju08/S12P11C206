@@ -5,6 +5,7 @@ import { shallow } from 'zustand/shallow';
 import taleAPI from '@/apis/tale/taleAxios';
 import { userStore } from '../userStore';
 import { useRoomStore } from '../roomStore';
+import WavEncoder from 'wav-encoder';
 
 //기본 동화 정보
 const tale = {
@@ -154,12 +155,15 @@ const playActions = (set, get) => ({
     const formData = new FormData();
 
     const fileName = 'recorded-audio.wav';
-    const audioFile = new File([voice], fileName, { type: 'audio/wav' });
+    const wavBlob = await get().convertWebMBlobToWav(voice);
+    const audioFile = new File([wavBlob], fileName, { type: 'audio/wav' });
 
     formData.append('order', String(order));
     formData.append('roomId', String(get().roomId));
     formData.append('memberId', String(userStore.getState().memberId));
     formData.append('keyword', audioFile);
+
+    console.log(audioFile);
 
     const response = await taleAPI.taleKeyWordVoice(formData);
 
@@ -226,7 +230,10 @@ const playActions = (set, get) => ({
     const formData = new FormData();
 
     const fileName = 'recorded-audio.wav';
-    const audioFile = new File([voice], fileName, { type: 'audio/wav' });
+    const wavBlob = await get().convertWebMBlobToWav(voice);
+
+    console.log(wavBlob);
+    const audioFile = new File([wavBlob], fileName, { type: 'audio/wav' });
 
     formData.append('order', String(order));
     formData.append('roomId', String(get().roomId));
@@ -367,6 +374,28 @@ const playActions = (set, get) => ({
       state.hotTale = hotPage;
     });
   },
+
+  convertWebMBlobToWav: async (webmBlob) => {
+    //Buffer
+    const arrayBuffer = await webmBlob.arrayBuffer();
+
+    const audioCtx = new AudioContext();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+    const audioData = {
+      sampleRate: audioBuffer.sampleRate,
+      channelData: [],
+    };
+
+    //Channel WAV로 인코딩
+    for (let i = 0; i < audioBuffer.numberOfChannels; i++) {
+      audioData.channelData.push(audioBuffer.getChannelData(i));
+    }
+
+    const wavArrayBuffer = await WavEncoder.encode(audioData);
+
+    return new Blob([wavArrayBuffer], { type: 'audio/wav' });
+  },
 });
 
 const initialState = {
@@ -448,6 +477,10 @@ export const useTalePlay = () => {
 
   const resetState = usePlayStore((state) => state.resetState);
 
+  const convertWebMBlobToWav = usePlayStore(
+    (state) => state.convertWebMBlobToWav
+  );
+
   return {
     tale,
     hotTale,
@@ -489,5 +522,7 @@ export const useTalePlay = () => {
     isFinish,
     setHotTale,
     resetState,
+
+    convertWebMBlobToWav,
   };
 };

@@ -34,17 +34,19 @@ const TaleSentenceDrawing = () => {
 
   const { currentRoom } = useTaleRoom();
   const [showDrawingModal, setShowDrawingModal] = useState(false);
-  const drawingaudioRef=useRef(new Audio("/TaleSentenceDrawing/drawing.mp3"));//그리는 중 노래
-  const handleDrawingMusic=()=>{
-    drawingaudioRef.current.volume=1;
-    drawingaudioRef.current.currentTime=0;
-    drawingaudioRef.current.loop=true;
-    drawingaudioRef.current.play().catch(error=>console.error("대기방 음악 재생 실패", error));
+  const drawingaudioRef = useRef(new Audio('/TaleSentenceDrawing/drawing.mp3')); //그리는 중 노래
+  const handleDrawingMusic = () => {
+    drawingaudioRef.current.volume = 1;
+    drawingaudioRef.current.currentTime = 0;
+    drawingaudioRef.current.loop = true;
+    drawingaudioRef.current
+      .play()
+      .catch((error) => console.error('대기방 음악 재생 실패', error));
     setShowDrawingModal(false);
-    if(onClose){
+    if (onClose) {
       onClose;
     }
-  }
+  };
   const {
     drawDirection,
     setDrawDirection,
@@ -140,14 +142,12 @@ const TaleSentenceDrawing = () => {
   };
 
   useEffect(() => {
-    
     if (!isSingle) {
       joinVidu();
     }
   }, [isSingle]);
 
   useEffect(() => {
-    
     const handleConnected = () => {
       publishCanvasTrack();
     };
@@ -171,7 +171,7 @@ const TaleSentenceDrawing = () => {
   useEffect(() => {
     if (drawDirection.length >= 4) {
       setLoading(false);
-      setShowDrawingModal(true);//페이지 로딩 완료시 모달 오픈
+      setShowDrawingModal(true); //페이지 로딩 완료시 모달 오픈
     }
   }, [drawDirection]);
 
@@ -192,7 +192,7 @@ const TaleSentenceDrawing = () => {
 
   //타이머
   useEffect(() => {
-    if (loading||showDrawingModal) return;
+    if (loading || showDrawingModal) return;
 
     if (currentStep >= 4) {
       setTimeLeft(0);
@@ -297,15 +297,15 @@ const TaleSentenceDrawing = () => {
     }
   }, [isEscape]);
 
-  useEffect(() => {// 페이지를 벗어날 때 음악 멈추기
+  useEffect(() => {
+    // 페이지를 벗어날 때 음악 멈추기
     return () => {
-          if (drawingaudioRef.current) {
+      if (drawingaudioRef.current) {
         drawingaudioRef.current.pause();
         drawingaudioRef.current.currentTime = 0;
       }
     };
   }, []);
-  
 
   // useEffect(() => {
   //   // 뒤로가기 방지
@@ -337,15 +337,14 @@ const TaleSentenceDrawing = () => {
             <Loading />
           </div>
         )}
-        {showDrawingModal&&
-          <DrawingModal 
-            onClick={()=>{
+        {showDrawingModal && (
+          <DrawingModal
+            onClick={() => {
               setShowDrawingModal(false);
               handleDrawingMusic();
-              }
-            } 
-        />
-        }
+            }}
+          />
+        )}
         <div
           className="w-[1024px] h-[668px] bg-cover flex"
           style={{
@@ -366,7 +365,7 @@ const TaleSentenceDrawing = () => {
               />
             </div>
             <div
-              className="w-[550px] h-[80px] mx-auto rounded-[10px] border border-gray-200 text-center  bg-white story-basic2 text-text-first
+              className="w-[550px] h-[80px] mx-auto rounded-[10px] border-2 border-gray-400 text-center  bg-white story-basic2 text-text-first
             overflow-y-scroll">
               {/* currentStep은 1부터 시작하므로 인덱스로 사용할 때는 -1 */}
               <>{isSingle && singleModeSentences[currentStep]?.sentence}</>
