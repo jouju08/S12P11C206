@@ -2,6 +2,7 @@ package com.ssafy.backend.tale.service;
 
 import com.ssafy.backend.common.*;
 import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.db.entity.TaleMember;
 import com.ssafy.backend.tale.dto.common.PromptSet;
 import com.ssafy.backend.tale.dto.common.TaleMemberDto;
 import com.ssafy.backend.tale.dto.request.*;
@@ -12,6 +13,7 @@ import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 
 import com.ssafy.backend.tale.dto.response.TaleSentencesResponseDto;
 import com.ssafy.backend.tale.dto.response.TextResponseDto;
+import com.ssafy.backend.taleMember.service.TaleMemberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -108,6 +110,9 @@ public class AIServerRequestService {
         for (int i = 0; i < 4; i++) {
             // AI 서버에 이미지를 보내기 위해 promptset과 original image url을 담은 dto를 생성
             taleMemberDto = taleService.getTaleMemberDtoFromRedis(roomId, i);
+            taleMemberDto.setImg("processing");
+            taleService.setTaleMemberDtoToRedis(taleMemberDto);
+
             // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
             int finalI = i;
             ByteArrayResource fileResource = getByteArrayResource(s3Service.getFileAsBytes(taleMemberDto.getOrginImg()), "origin_" + roomId + "_" + finalI + ".png");
@@ -132,31 +137,52 @@ public class AIServerRequestService {
         }
     }
 
-//    public void requestTestAIPicture(SubmitFileRequestDto submitFileRequestDto) {
-//        System.out.println("submitFileRequestDto = " + submitFileRequestDto);
-//
-//        // ByteArrayResource 생성 (이미 메모리에 있는 파일 바이트 사용)
-//        ByteArrayResource fileResource = getByteArrayResource(submitFileRequestDto.getFile());
-//        PromptSet promptSet = new PromptSet("긍정 프롬프트", "부정 프롬프트");
-//
-//        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-//        parts.add("roomId", 55555);
-//        parts.add("order", 4444);
-//        parts.add("image", fileResource);
-//        parts.add("prompt", promptSet.getPrompt());
-//        parts.add("negativePrompt", promptSet.getNegativePrompt());
-//        System.out.println("parts = " + parts);
-//
-//        webClient.post()
-//                .uri("/gen/picture")
-//                .contentType(MediaType.MULTIPART_FORM_DATA)
-//                .body(BodyInserters.fromMultipartData(parts))
-//                .retrieve()
-//                .bodyToMono(void.class)
-//                .subscribe(unused -> System.out.println("요청 성공"),
-//                        error -> System.err.println("요청 실패: " + error.getMessage()));
-//
-//    }
+    public void rerequestAIPicture(Long taleMemberId){
+        if(taleMemberId == null)
+            throw new BadRequestException("잘못된 요청입니다.");
+
+        // ByteArrayResource 생성
+        TaleMember taleMember = taleService.getTaleMember(taleMemberId);
+        Long taleId = taleMember.getTale().getId();
+        int order = taleMember.getOrderNum();
+        if(taleMember == null)
+            throw new BadRequestException("해당하는 동화 멤버가 없습니다.");
+
+        if(taleMember.getOrginImg() == null)
+            throw new BadRequestException("원본 이미지가 없습니다.");
+
+        if(taleMember.getPrompt() == null || taleMember.getNegativePrompt() == null)
+            throw new BadRequestException("프롬프트가 없습니다.");
+
+        if(taleMember.getImg().equals("processing"))
+            throw new BadRequestException("이미 처리중인 이미지입니다.");
+
+        byte[] fileBytes = s3Service.getFileAsBytes(taleMember.getOrginImg());
+        ByteArrayResource fileResource = getByteArrayResource(fileBytes, "origin_" + taleId + "_" + order + ".png");
+
+        // promptSet 불러오기
+        String prompt = taleMember.getPrompt();
+        String negativePrompt = taleMember.getNegativePrompt();
+
+        // request 보내기
+        MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+        parts.add("roomId", taleId);
+        parts.add("order", order);
+        parts.add("image", fileResource);
+        parts.add("prompt", prompt);
+        parts.add("negativePrompt", negativePrompt);
+        System.out.println("parts = " + parts);
+
+        webClient.post()
+                .uri("/gen/picture")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(parts))
+                .retrieve()
+                .bodyToMono(void.class)
+                .subscribe(unused -> System.out.println("요청 성공"),
+                        error -> System.err.println("요청 실패: " + error.getMessage()));
+
+    }
 
     private int getAudioDurationSecond(AudioFileFormat audioFileFormat) {
         AudioFormat format = audioFileFormat.getFormat();
