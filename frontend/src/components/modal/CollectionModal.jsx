@@ -57,7 +57,7 @@ const CollectionModal = ({ handleExit }) => {
   };
 
   return (
-    <div className="w-[1024px] h-[768px] bg-white rounded-[20px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] border border-gray-200 flex-col justify-center items-start inline-flex overflow-hidden">
+    <div className="w-[1024px] h-fit bg-white rounded-[20px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] border border-gray-200 flex-col justify-center items-start inline-flex overflow-hidden">
       <div className="w-[1024px] h-[100px] px-[60px] relative overflow-hidden bg-main-background flex justify-between items-center shadow-lg z-10">
         <div className="w-[141px] h-[72px]">
           <img
@@ -80,7 +80,7 @@ const CollectionModal = ({ handleExit }) => {
       </div>
 
       <div
-        className="w-[1024px] h-[668px] relative"
+        className="relative w-[1024px] h-[580px] tall:h-[668px]"
         style={{ backgroundImage: "url('TaleStart/field-background.png')" }}>
         <img
           className="w-[1024px] h-[555px] absolute bottom-[18px] left-0"
@@ -100,7 +100,7 @@ const CollectionModal = ({ handleExit }) => {
         {pageNum === 5 || pageNum === 0 ? null : (
           <button
             onClick={() => setIsOrigin(!isOrigin)}
-            className="w-[200px] h-[100px] absolute top-[115px] left-[90px] flex items-center cursor-pointer">
+            className="w-[200px] h-[100px] absolute bottom-[425px] left-[90px] z-50 flex items-center cursor-pointer">
             <img
               src="/Collection/fairy-magic.png"
               className="w-[100px] transition-transform duration-200 hover:scale-105"
@@ -123,12 +123,12 @@ const CollectionModal = ({ handleExit }) => {
             <img
               src={taleStart['startImg']}
               alt="블러 처리 이미지"
-              className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+              className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] bottom-[133px]"
             />
             <img
               src={taleStart['startImg']}
               alt="동화 만든 이미지"
-              className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+              className="w-[300px] h-[300px] z-10 absolute left-[168px] bottom-[153px]"
             />
           </div>
         ) : pageNum === 5 ? (
@@ -136,12 +136,12 @@ const CollectionModal = ({ handleExit }) => {
             <img
               src={taleStart['startImg']}
               alt="블러 처리 이미지"
-              className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+              className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] bottom-[133px]"
             />
             <img
               src={taleStart['startImg']}
               alt="동화 만든 이미지"
-              className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+              className="w-[300px] h-[300px] z-10 absolute left-[168px] bottom-[153px]"
             />
           </div>
         ) : (
@@ -149,17 +149,17 @@ const CollectionModal = ({ handleExit }) => {
             <img
               src={isOrigin ? taleDetail['originImg'] : taleDetail['img']}
               alt="블러 처리 이미지"
-              className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+              className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] bottom-[133px]"
             />
             <img
               src={isOrigin ? taleDetail['originImg'] : taleDetail['img']}
               alt="동화 만든 이미지"
-              className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+              className="w-[300px] h-[300px] z-10 absolute left-[168px] bottom-[153px]"
             />
           </div>
         )}
 
-        <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex flex-col justify-center items-center text-text-first story-basic2">
+        <div className="w-[378px] h-[430px] z-10 absolute right-[105px] bottom-[95px] flex flex-col justify-center items-center text-text-first story-basic2">
           <p className="text-text-first story-basic2"></p>
           {renderPageContent(pageNum)}
         </div>
