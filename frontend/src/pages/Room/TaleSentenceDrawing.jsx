@@ -140,14 +140,14 @@ const TaleSentenceDrawing = () => {
   };
 
   useEffect(() => {
-    setShowDrawingModal(true);//페이지 들어가자마자 모달 오픈
+    
     if (!isSingle) {
       joinVidu();
     }
   }, [isSingle]);
 
   useEffect(() => {
-
+    
     const handleConnected = () => {
       publishCanvasTrack();
     };
@@ -171,6 +171,7 @@ const TaleSentenceDrawing = () => {
   useEffect(() => {
     if (drawDirection.length >= 4) {
       setLoading(false);
+      setShowDrawingModal(true);//페이지 로딩 완료시 모달 오픈
     }
   }, [drawDirection]);
 
@@ -191,7 +192,7 @@ const TaleSentenceDrawing = () => {
 
   //타이머
   useEffect(() => {
-    if (loading) return;
+    if (loading||showDrawingModal) return;
 
     if (currentStep >= 4) {
       setTimeLeft(0);
@@ -218,7 +219,7 @@ const TaleSentenceDrawing = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentStep, loading]);
+  }, [currentStep, loading, showDrawingModal]);
 
   //완료처리
   useEffect(() => {
@@ -293,6 +294,16 @@ const TaleSentenceDrawing = () => {
       handleConfirm();
     }
   }, [isEscape]);
+
+  useEffect(() => {// 페이지를 벗어날 때 음악 멈추기
+    return () => {
+          if (drawingaudioRef.current) {
+        drawingaudioRef.current.pause();
+        drawingaudioRef.current.currentTime = 0;
+      }
+    };
+  }, []);
+  
 
   // useEffect(() => {
   //   // 뒤로가기 방지
