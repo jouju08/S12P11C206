@@ -88,9 +88,6 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
                       alt="대체 이미지"
                       className="w-[150px] h-[150PX] object-cover object-center bg-white"
                     />
-                    <div className="text-text-first text-xl font-NPSfont">
-                      {text}
-                    </div>
                   </div>
                 )}
 
