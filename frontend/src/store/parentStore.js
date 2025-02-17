@@ -206,3 +206,94 @@ export const useMyTales = () => {
         fetchMyTale
     };
 };
+
+const initialKidTrackState = {
+  loginSummary: null, 
+  loginEvents: [],   
+  page: 0,
+  hasMore: true,
+};
+
+const kidTrackActions = (set, get) => ({
+
+  fetchKidTrackAggregate: async () => {
+    try {
+      
+      const response = await api.get("/auth/child/aggregate");
+      console.log("Aggregate response:", response.data.data);
+      set((state) => {
+        state.loginSummary = response.data.data;
+      });
+    } catch (error) {
+      console.log("Aggregate fetch error", error);
+      throw error;
+    }
+  },
+
+  
+  fetchKidTrackEvents: async () => {
+    try {
+      const response = await api.get("/auth/child", {
+        params: { page: get().page, size: 10 },
+      });
+      console.log("Login events response:", response.data.data);
+      const newEvents = response.data.data.content;
+      set((state) => {
+        state.loginEvents = [...state.loginEvents, ...newEvents];
+        if (newEvents.length < 10) {
+          state.hasMore = false;
+        }
+      });
+    } catch (error) {
+      console.log("Login events fetch error", error);
+      throw error;
+    }
+  },
+
+  
+  incrementKidTrackPage: () => {
+    set((state) => {
+      state.page += 1;
+    });
+    get().fetchKidTrackEvents();
+  },
+
+  
+  resetKidTrack: () =>
+    set(() => ({
+      loginSummary: null,
+      loginEvents: [],
+      page: 0,
+      hasMore: true,
+    })),
+});
+
+const kidTrackStore = create(
+  devtools(
+    immer((set, get) => ({
+      ...initialKidTrackState,
+      ...kidTrackActions(set, get),
+    }))
+  )
+);
+
+
+export const useKidTrack = () => {
+  const loginSummary = kidTrackStore((state) => state.loginSummary);
+  const loginEvents = kidTrackStore((state) => state.loginEvents);
+  const fetchKidTrackAggregate = kidTrackStore((state) => state.fetchKidTrackAggregate);
+  const fetchKidTrackEvents = kidTrackStore((state) => state.fetchKidTrackEvents);
+  const incrementKidTrackPage = kidTrackStore((state) => state.incrementKidTrackPage);
+  const hasMore = kidTrackStore((state) => state.hasMore);
+  const page = kidTrackStore((state) => state.page);
+
+  return {
+    loginSummary,
+    loginEvents,
+    fetchKidTrackAggregate,
+    fetchKidTrackEvents,
+    incrementKidTrackPage,
+    hasMore,
+    page,
+  };
+};
