@@ -31,7 +31,7 @@ export default function Waiting() {
   const [isDisabled, setIsDisabled] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showWaitingModal, setShowWaitingModal] = useState(false);
-  const [hasEntered, setHasEntered]=useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
   const handleExit = () => {
     setShowModal(false);
   };
@@ -65,9 +65,9 @@ export default function Waiting() {
       if (hostId == memberId) {
         setIsHost(true);
       }
-      if(!hasEntered){
+      if (!hasEntered) {
         setHasEntered(true);
-      setShowWaitingModal(true);
+        setShowWaitingModal(true);
       }
       //방장이면서 4명이 됬는지 판단해서 시작버튼 활성화
       if (isFull && hostId == memberId) {
@@ -112,13 +112,13 @@ export default function Waiting() {
   }, [rawTale]);
 
   return (
-    <div className="w-[1024px] h-[668px] relative">
+    <div className="relative w-[1024px] h-[580px] tall:h-[668px]">
+      {' '}
       {/* 배경 필드 이미지 */}
       {/* <img
         className="w-[1024px] h-[668px] absolute top-0 left-0 -z-10"
         src="/Waiting/field-background.png"
       /> */}
-
       {showWaitingModal && (
         <WaitingModal
           isHost={isHost}
@@ -128,7 +128,6 @@ export default function Waiting() {
           }}
         />
       )}
-
       {/* 요정 말풍선 */}
       <div
         style={{ backgroundImage: "url('/Waiting/waiting-chat-bubble.png')" }}
@@ -164,7 +163,6 @@ export default function Waiting() {
           )}
         </div>
       </div>
-
       {/* 요정 이미지 */}
       <div className="w-[200px] h-[269px] absolute top-[50px] left-[110px] flex justify-center items-center">
         <img
@@ -172,7 +170,6 @@ export default function Waiting() {
           src="/Waiting/waiting-fairy.png"
         />
       </div>
-
       {/* 참여자 명단과 동화 정보 flex-row */}
       <div className="w-full h-fit flex justify-between items-center mt-[340px] px-[25px]">
         {/* 참여자 명단 */}

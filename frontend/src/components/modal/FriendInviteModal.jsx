@@ -40,7 +40,7 @@ export default function FriendInviteModal() {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96 flex flex-col text-center items-center">
-        <h2 className="service-bold1 w-[300px]">같이 
+        <h2 className="service-bold1 w-[300px] overflow-hidden">같이 
           {inviteInfo.roomInfo.taleTitle.length<8?(
             <span className="text-main-carrot">{inviteInfo.roomInfo.taleTitle}</span>
           ):(
@@ -48,7 +48,7 @@ export default function FriendInviteModal() {
           )}
          만들래?</h2>
         <img src={inviteInfo.roomInfo.hostProfileImg}
-        className='w-25 h-25 rounded-full mx-auto mt-4 border-2 border-gray-300'
+        className='w-18 h-18 rounded-full mx-auto mt-4 border-2 border-gray-300'
         alt='Host Profile'/>
         <p className="my-4 text-gray-600 service-regular3">{inviteInfo.nickname}님이 초대했어요!</p>
         <div className="mt-4 flex justify-end space-x-2">

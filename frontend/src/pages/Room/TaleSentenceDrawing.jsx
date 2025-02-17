@@ -43,9 +43,6 @@ const TaleSentenceDrawing = () => {
       .play()
       .catch((error) => console.error('대기방 음악 재생 실패', error));
     setShowDrawingModal(false);
-    if (onClose) {
-      onClose;
-    }
   };
   const {
     drawDirection,

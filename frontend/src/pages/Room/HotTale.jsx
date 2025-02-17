@@ -92,7 +92,7 @@ const HotTale = () => {
       {loading ? (
         <Loading />
       ) : (
-        <div className="relative w-[1024px] h-[668px]">
+        <div className="relative w-[1024px] h-[580px] tall:h-[668px]">
           {/* 배경 - 책 이미지 */}
           <img
             className="w-[1024px] h-[555px] absolute bottom-[18px] left-0"

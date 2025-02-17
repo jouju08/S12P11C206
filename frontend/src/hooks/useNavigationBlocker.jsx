@@ -107,11 +107,7 @@ export const useNavigationBlocker = () => {
           } catch (error) {
             console.error('WebSocket 메시지 전송 실패:', error);
           } finally {
-            leaveRoom();
-            leaveViduRoom();
-            resetState();
             setIsEscape(true);
-            navigate(redirect || nextPath, { replace: true });
           }
         } else {
           navigate(location.pathname, { replace: true });
