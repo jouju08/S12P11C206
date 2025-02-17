@@ -17,7 +17,7 @@ services:
       - ./config/backend.env
 
   # frontend
-  frontend:
+  # frontend:
     # build: ./frontend
     # ports:
     #   - "${FRONT_PORT}:2828"
