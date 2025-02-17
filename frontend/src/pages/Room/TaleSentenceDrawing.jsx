@@ -204,6 +204,8 @@ const TaleSentenceDrawing = () => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 35) {
+          drawingaudioRef.current.pause();
+          drawingaudioRef.current.currentTime = 0;
           setIsWarning(true);
         } else {
           setIsWarning(false);
