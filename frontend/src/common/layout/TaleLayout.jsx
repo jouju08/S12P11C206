@@ -16,7 +16,14 @@ export default function TaleLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { currentRoom, leaveRoom, resetStateRoom } = useTaleRoom();
+  const {
+    currentRoom,
+    leaveRoom,
+    isEscape,
+    isEscapeAfter,
+    isleaveRoom,
+    resetStateRoom,
+  } = useTaleRoom();
   const { roomId, resetState } = useTalePlay();
   const { leaveViduRoom } = useViduHook();
 
@@ -46,17 +53,6 @@ export default function TaleLayout() {
   const handleCancel = () => {
     setShowModal(false);
   };
-
-  useEffect(() => {
-    if (!currentRoom) {
-      leaveRoom();
-      leaveViduRoom();
-      resetStateRoom();
-      resetState();
-
-      navigate('/room');
-    }
-  }, [currentRoom]);
 
   return (
     <>

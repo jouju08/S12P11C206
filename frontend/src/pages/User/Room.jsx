@@ -93,7 +93,6 @@ export default function Room() {
         const response = await api.get('/base-tale/list');
         setTaleList(response.data.data || []);
       } catch (err) {
-        console.error(err);
         setTaleList([]); // 에러 발생 시 빈 배열 설정
       } finally {
         setLoading(false);

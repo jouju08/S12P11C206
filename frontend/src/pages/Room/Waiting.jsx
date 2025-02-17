@@ -105,7 +105,11 @@ export default function Waiting() {
     return () => {};
   }, [rawTale]);
 
-  useEffect(() => {});
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.stop();
+    }
+  }, [audioRef.current]);
 
   return (
     <div className="w-[1021px] h-[668px] relative">
