@@ -42,10 +42,10 @@ export default function FriendInviteModal() {
       <div className="bg-white p-6 rounded-lg shadow-lg w-[400] flex flex-col text-center items-center">
         <h2 className="service-bold1">초대장</h2>
         <img src={inviteInfo.roomInfo.taleTitleImg}
-        className='w-[140px] h-[226px] mx-auto mt-4 border-2 border-gray-300'
+        className='w-[140px] h-[100%] mx-auto mt-4 border-2 border-gray-300'
         alt='Host Profile'/>
-        <p className="my-4 text-gray-600 service-regular3">제목: {inviteInfo.roomInfo.taleTitle}</p>
-        <p className="my-4 text-gray-600 service-regular3">{inviteInfo.nickname}님이 초대했어요!</p>
+        <p className="mt-4 text-gray-600 service-regular3">제목: {inviteInfo.roomInfo.taleTitle}</p>
+        <p className="my-2 text-gray-600 service-regular3"><span className='text-main-carrot'>{inviteInfo.nickname}</span>님이 초대했어요!</p>
         <div className="mt-4 flex justify-end space-x-2">
           <button
             onClick={() => handleAccpet()}
