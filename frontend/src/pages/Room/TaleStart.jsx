@@ -87,9 +87,7 @@ const TaleStart = () => {
       {loading ? (
         <Loading />
       ) : (
-        <div
-          className="relative w-[1024px] h-[668px]"
-          style={{ backgroundImage: "url('/TaleStart/field-background.png')" }}>
+        <div className="relative w-[1024px] h-[668px]">
           {/* 배경 - 책 이미지 */}
           <img
             className="w-[1024px] h-[555px] absolute bottom-[18px] left-0"
@@ -109,16 +107,16 @@ const TaleStart = () => {
           {/* 이미지와 스크립트는 absolute */}
           {/* 이미지 데이터 받아오면 바꾸기 */}
           <img
-            className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+            className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] bottom-[133px]"
             src={tale?.taleStartImage}
           />
           <img
             src={tale?.taleStartImage}
             alt="동화 만든 이미지"
-            className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+            className="w-[300px] h-[300px] z-10 absolute left-[168px] bottom-[153px]"
           />
 
-          <div className="w-[378px] h-[430px] z-10 absolute right-[105px] top-[140px] flex justify-center items-center">
+          <div className="w-[378px] h-[430px] z-10 absolute right-[105px] bottom-[105px] flex justify-center items-center">
             <p className="text-text-first story-basic2">
               <span>{tale?.taleStartScript}</span>
             </p>

@@ -27,6 +27,7 @@ export default function TaleLayout() {
   const { roomId, resetState } = useTalePlay();
   const { leaveViduRoom } = useViduHook();
 
+  const isWaiting = location.pathname === '/tale/waiting';
   const isStart = location.pathname === '/tale/taleStart';
   const isSentence = location.pathname === '/tale/taleSentenceDrawing';
   const isKeyword = location.pathname === '/tale/taleKeyword';
@@ -59,12 +60,18 @@ export default function TaleLayout() {
   return (
     <>
       <div className="flex flex-col justify-center h-full w-full">
-        <div className="relative flex flex-col mx-auto w-dvw h-lvh justify-between items-center">
+        <div className="relative flex flex-col mx-auto w-dvw min-h-svh justify-start items-center">
           {isSentence ? null : isAuthenticated ? (
             <TaleRoomHeader onClose={handleExit} />
           ) : null}
-
           {/* background option */}
+          {isWaiting ? (
+            <img
+              src="/Waiting/field-background.png"
+              alt="Waiting 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover"
+            />
+          ) : null}
           {isStart ? (
             <img
               src="/TaleStart/field-background.png"
@@ -90,7 +97,7 @@ export default function TaleLayout() {
             <img
               src="/TaleSentenceDrawing/field-background1.png"
               alt="TaleSentenceDrawing 배경"
-              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover opacity-50"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover opacity-75"
             />
           ) : null}
 
