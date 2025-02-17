@@ -153,7 +153,7 @@ export default function Hero() {
                 spaceBetween: 50,
               },
               1420: {
-                slidesPerView: 3.5,
+                slidesPerView: 3.2,
                 spaceBetween: 50,
               },
             }}
@@ -187,10 +187,23 @@ export default function Hero() {
               </div>
             </SwiperSlide>
             <SwiperSlide>
-              <div className="w-[400px] h-[270px] bg-main-point rounded-[50px]"></div>
+              <div className="w-[400px] h-[270px] rounded-[50px] bg-[url('/Hero/ai4.png')] bg-cover bg-bottom overflow-hidden">
+                <div className="w-full h-full bg-[rgba(0,0,0,0.2)] flex justify-center items-center">
+                  <p className="text-3xl font-bold font-NPSfont leading-[180%] text-center text-white">
+                    Control net scribble <br /> 와 같은 기술 이용
+                  </p>
+                </div>
+              </div>
             </SwiperSlide>
             <SwiperSlide>
-              <div className="w-[400px] h-[270px] bg-main-point rounded-[50px]"></div>
+              <div className="w-[400px] h-[270px] rounded-[50px] bg-[url('/Hero/ai5.png')] bg-cover object-center overflow-hidden">
+                <div className="w-full h-full bg-[rgba(0,0,0,0.3)] flex justify-center items-center">
+                  <p className="text-3xl font-bold font-NPSfont leading-[180%] text-center text-white">
+                    GPT-3.5/4로 새롭게
+                    <br /> 나만의 동화 생성
+                  </p>
+                </div>
+              </div>
             </SwiperSlide>
           </Swiper>
         </div>
