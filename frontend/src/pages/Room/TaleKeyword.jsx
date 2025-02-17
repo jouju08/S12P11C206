@@ -18,8 +18,14 @@ const TaleKeyword = () => {
 
   const navigate = useNavigate();
 
-  const { isSingle, participants, leaveRoom, isEscape, resetStateRoom } =
-    useTaleRoom();
+  const {
+    currentRoom,
+    isSingle,
+    participants,
+    leaveRoom,
+    isEscape,
+    resetStateRoom,
+  } = useTaleRoom();
 
   // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
   const [currentStep, setCurrentStep] = useState(0);
@@ -71,7 +77,7 @@ const TaleKeyword = () => {
       resetState();
       navigate('/room');
     }
-  }, [isEscape]);
+  }, [isEscape, currentRoom]);
 
   const sortedSentences = useMemo(() => {
     return [...(tale?.sentenceOwnerPairs || [])].sort(
