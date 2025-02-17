@@ -144,6 +144,14 @@ public class RoomService {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         return (List<RoomInfo>) ops.get("tale-roomList");
     }
+    public RoomInfo getRoom(long roomId) {
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
+        for (RoomInfo room : roomList) {
+            if (room.getRoomId().equals(roomId)) return room;
+        }
+        return null;
+    }
 
     /*
      *       방 나가기

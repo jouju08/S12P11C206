@@ -24,6 +24,10 @@ public class RoomRestController {
     public ApiResponse<List<RoomInfo>> getAllRooms() {
         return ApiResponse.<List<RoomInfo>>builder().data(roomService.getRoomList()).build();
     }
+    @GetMapping("/tale/rooms/{roomId}")
+    public ApiResponse<RoomInfo> getRoom(@PathVariable("roomId") String roomId) {
+        return ApiResponse.<RoomInfo>builder().data(roomService.getRoom(Long.parseLong(roomId))).build();
+    }
 
     @GetMapping("/tale/room/token")
     public ApiResponse<String> getRoomToken(Authentication authentication, @RequestParam String roomId) {
