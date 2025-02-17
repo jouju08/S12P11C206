@@ -217,7 +217,7 @@ export default function Waiting() {
         </div>
 
         {/* 동화책 */}
-        <div className="w-fit h-[270px] flex gap-10 items-center overflow-hidden pr-10">
+        <div className="w-fit relative h-[270px] flex gap-10 items-center overflow-hidden pr-10">
           <img
             className="w-40 h-[220px] inline-block"
             src={tale?.startImg}
@@ -240,7 +240,7 @@ export default function Waiting() {
           <button
             onClick={handleStart}
             disabled={isDisabled}
-            className={`h-16 px-4 py-3 absolute bottom-6 right-6 rounded-[64px] border-4 justify-start items-center gap-2.5 inline-flex overflow-hidden
+            className={`h-16 px-4 py-3 absolute bottom-[-0%] right-0 rounded-[64px] border-4 justify-start items-center gap-2.5 inline-flex overflow-hidden
               ${isDisabled ? 'bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed' : 'bg-white border-main-btn text-black'}
             `}>
             <img
