@@ -58,8 +58,8 @@ public class TaleMemberController {
 
     // 동화 손그림 재제출
     // 그림이 잘못됐을 경우, 그림 생성을 다시 요청합니다.
-    @GetMapping("/resubmit/picture/{taleMemberId}")
-    public ApiResponse<String> resubmitHandPicture(@PathVariable Long taleMemberId){
+    @PostMapping("/resubmit/picture")
+    public ApiResponse<String> resubmitHandPicture(@RequestParam("taleMemberId") Long taleMemberId){
         if(aiServerRequestService.isAIPictureServerAlive().getData()){ // 그림생성 AI 서버가 켜져있을 경우
             aiServerRequestService.rerequestAIPicture(taleMemberId); // ai 쪽으로 그림 생성 요청
         }else{

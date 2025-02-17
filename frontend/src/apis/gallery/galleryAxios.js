@@ -16,7 +16,7 @@ const galleryAPI = {
   fetchPictureTitles: () => api.get('/talemember/view/picture-titles'),
   uploadGallery: (payload) => api.post('/gallery', payload),
   reRequestAiPicture: (payload) =>
-    api.get('/talemember/view/picture-detail', { params: payload }),
+    api.post('/talemember/resubmit/picture', { params: payload }),
 };
 
 export default galleryAPI;
