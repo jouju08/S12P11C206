@@ -47,7 +47,7 @@ export default function TaleLayout() {
     leaveRoom();
     leaveViduRoom();
     resetStateRoom();
-
+    resetState();
     navigate('/room');
   };
 
@@ -55,6 +55,16 @@ export default function TaleLayout() {
   const handleCancel = () => {
     setShowModal(false);
   };
+
+  useEffect(() => {
+    return () => {
+      leaveRoom();
+      leaveViduRoom();
+      resetStateRoom();
+      resetState();
+      navigate('/room');
+    };
+  }, []);
 
   return (
     <>
