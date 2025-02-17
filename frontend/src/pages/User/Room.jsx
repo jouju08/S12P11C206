@@ -93,7 +93,6 @@ export default function Room() {
         const response = await api.get('/base-tale/list');
         setTaleList(response.data.data || []);
       } catch (err) {
-        console.error(err);
         setTaleList([]); // 에러 발생 시 빈 배열 설정
       } finally {
         setLoading(false);
@@ -186,7 +185,7 @@ export default function Room() {
               <RoomBtn
                 isSingle={false}
                 location={'together.png'}>
-                내가 방 만들기
+                친구들과 시작하기
               </RoomBtn>
             </div>
 
@@ -202,7 +201,20 @@ export default function Room() {
                   </div>
                 </div>
               ) : (
-                <p>방이 없음</p>
+                <div className="w-full h-[300px] flex flex-col justify-center items-center">
+                  <img
+                    src="/Common/nodata.png"
+                    alt="No Data"
+                    className="w-[100px] h-[100px]"
+                  />
+                  <p className="service-accent2 text-text-first mt-2">
+                    아직 만들어진{' '}
+                    <span className="text-main-carrot">
+                      {taleList[selectedIndex].title}
+                    </span>{' '}
+                    방이 없어요
+                  </p>
+                </div>
               )}
             </section>
           </>

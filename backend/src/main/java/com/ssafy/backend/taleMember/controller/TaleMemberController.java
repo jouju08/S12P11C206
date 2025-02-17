@@ -1,5 +1,7 @@
 package com.ssafy.backend.taleMember.controller;
 
+import com.ssafy.backend.common.ResponseCode;
+import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.taleMember.dto.*;
 import com.ssafy.backend.common.ApiResponse;
 import com.ssafy.backend.taleMember.service.TaleMemberService;
@@ -18,7 +20,7 @@ import java.util.List;
 public class TaleMemberController {
 
     private  final TaleMemberService taleMemberService;
-
+    private final AIServerRequestService aiServerRequestService;
     @GetMapping("/view/my-pictures")
     public ApiResponse<Page<PictureResponseDTO>> viewMyPictures(
             Authentication auth,
@@ -54,4 +56,16 @@ public class TaleMemberController {
                 .build();
     }
 
+    // 동화 손그림 재제출
+    // 그림이 잘못됐을 경우, 그림 생성을 다시 요청합니다.
+    @PostMapping("/resubmit/picture")
+    public ApiResponse<String> resubmitHandPicture(@RequestParam("taleMemberId") Long taleMemberId){
+        if(aiServerRequestService.isAIPictureServerAlive().getData()){ // 그림생성 AI 서버가 켜져있을 경우
+            aiServerRequestService.rerequestAIPicture(taleMemberId); // ai 쪽으로 그림 생성 요청
+        }else{
+            return ApiResponse.<String>builder().status(ResponseCode.NO_PERMISSION).data("AI 서버가 꺼져있습니다.").build();
+        }
+
+        return ApiResponse.<String>builder().build();
+    }
 }

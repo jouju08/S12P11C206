@@ -2,11 +2,9 @@ package com.ssafy.backend.tale.controller;
 
 import com.google.protobuf.Api;
 import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.common.ResponseCode;
 import com.ssafy.backend.common.WebSocketNotiService;
-import com.ssafy.backend.tale.dto.request.GenerateTaleRequestDto;
-import com.ssafy.backend.tale.dto.request.KeywordFileRequestDto;
-import com.ssafy.backend.tale.dto.request.KeywordRequestDto;
-import com.ssafy.backend.tale.dto.request.SubmitFileRequestDto;
+import com.ssafy.backend.tale.dto.request.*;
 import com.ssafy.backend.tale.dto.response.*;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.tale.service.TaleService;
