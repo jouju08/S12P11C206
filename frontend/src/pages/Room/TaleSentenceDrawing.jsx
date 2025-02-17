@@ -24,7 +24,7 @@ const TaleSentenceDrawing = () => {
 
   const [previousDrawings, setPreviousDrawings] = useState([]); // 싱글모드일때 사용, 이전에 그린 그림들 저장
 
-  const [loading, setLoading] = useState(false); //메시지 수신 loading
+  const [loading, setLoading] = useState(true); //메시지 수신 loading
   const [canvasReady, setCanvasReady] = useState(false); // DrawingBoard 렌더링
   const [hasPublished, setHasPublished] = useState(false);
 
