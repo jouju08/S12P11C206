@@ -94,6 +94,10 @@ export default function Waiting() {
       setIsHost(false);
       setIsDisabled(false);
       setTale(null);
+
+      if (audioRef.current) {
+        audioRef.current.stop();
+      }
     };
   }, [currentRoom]);
 
@@ -104,12 +108,6 @@ export default function Waiting() {
 
     return () => {};
   }, [rawTale]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.stop();
-    }
-  }, [audioRef.current]);
 
   return (
     <div className="w-[1021px] h-[668px] relative">
