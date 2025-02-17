@@ -5,7 +5,7 @@ import { Loading } from '@/common/Loading';
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import '@/styles/text.css'
+import '@/styles/text.css';
 const Friends = ({ friends, setShowFriend, showFriend }) => {
   const [activeTab, setActiveTab] = useState('friends'); // 기본값: 친구 요청
   const {
@@ -72,19 +72,15 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
   //     </p>
   //   );
 
-  const showDeleteSwal = (friendId) => {
+  const showDeleteSwal = (friendId, freindName) => {
     withReactContent(Swal)
       .fire({
-        title: (
-          <p className="text-text-first service-accent1 mb-7">
+        title: `<p className="text-text-first service-accent1 mb-7">
             정말 친구를 그만둘까요?
-          </p>
-        ),
-        html: (
-          <p className="text-text-second service-regular1 mb-5">
+          </p>`,
+        html: `<p className="text-text-second service-regular1 mb-5">
             물론 다시 친구 신청할 수 있어요!
-          </p>
-        ),
+          </p>`,
         // icon: "warning",
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -101,12 +97,12 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
       .then((result) => {
         if (result.isConfirmed) {
           Swal.fire({
-            title: (
-              <p className="text-text-first service-accent1 mb-7">
+            title: `<p className="text-text-first service-accent1 mb-7">
                 친구 삭제 완료
-              </p>
-            ),
-
+              </p>`,
+            html: `<p className="text-text-second service-regular1 mb-5">
+              ${freindName} 님과는 다음에 만나요!
+            </p>`,
             // icon: "success"
             width: 500,
             padding: '50px 50px',
@@ -275,18 +271,22 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
                       className="w-12 h-12 rounded-full"
                       src={friend.profilePic || '/Common/blank_profile.jpg'}
                       alt="profile"
-                    />  
+                    />
                     <div className="relative group w-[ch-6] overflow-hidden">
-                      {friend.nickname.length<7?(
+                      {friend.nickname.length < 7 ? (
                         <span className="block  text-text-first text-lg font-NPSfont">
                           {friend.nickname}
-                        </span>):(<>
-                        <span className="block truncate text-text-first text-lg font-NPSfont group-hover:hidden">
-                          {friend.nickname}
                         </span>
-                        <span className="whitespace-nowrap hidden text-text-first text-lg font-NPSfont group-hover:block animate-marquee">
-                          {friend.nickname}
-                        </span></>)}
+                      ) : (
+                        <>
+                          <span className="block truncate text-text-first text-lg font-NPSfont group-hover:hidden">
+                            {friend.nickname}
+                          </span>
+                          <span className="whitespace-nowrap hidden text-text-first text-lg font-NPSfont group-hover:block animate-marquee">
+                            {friend.nickname}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                   {/* 접속중 상태 */}
@@ -303,7 +303,9 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => showDeleteSwal(friend.loginId)}
+                      onClick={() =>
+                        showDeleteSwal(friend.loginId, friend.nickname)
+                      }
                       className="px-4 py-2 bg-main-choose text-text-white rounded-lg hover:bg-rose-500 transition-colors duration-200 font-NPSfont ">
                       친구 끊기
                     </button>
