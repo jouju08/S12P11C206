@@ -22,12 +22,6 @@ export const useNavigationBlocker = () => {
 
   const routeMapping = useMemo(
     () => ({
-      '/tale/waiting': {
-        redirect: '/room',
-        wsUrl: currentRoom
-          ? `/app/room/escape/before/${currentRoom.roomId}`
-          : null,
-      },
       '/tale/taleStart': {
         redirect: '/room',
         wsUrl: currentRoom
@@ -49,6 +43,22 @@ export const useNavigationBlocker = () => {
     }),
     [currentRoom]
   );
+
+  const handleEscape = (location) => {
+    if (routeMapping[location.pathname]) {
+      const { redirect, wsUrl } = routeMapping[location.pathname];
+      const data = JSON.stringify({ escape: 'bye' });
+
+      if (wsUrl && stompClient && stompClient.connected) {
+        stompClient.publish({
+          destination: wsUrl,
+          body: data,
+        });
+      }
+
+      return 'escape';
+    }
+  };
 
   // 새로고침이나 창 닫기 시
   useEffect(() => {
@@ -120,5 +130,5 @@ export const useNavigationBlocker = () => {
     setNextPath(location.pathname);
   }, [location.pathname]);
 
-  return {}; // 필요에 따라 반환 값 추가 가능
+  return { handleEscape };
 };
