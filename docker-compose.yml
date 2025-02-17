@@ -18,16 +18,16 @@ services:
 
   # frontend
   frontend:
-    build: ./frontend
-    ports:
-      - "${FRONT_PORT}:2828"
-    volumes:
-      - /home/ubuntu/MyFairy/frontend/dist:/app/dist
-    networks:
-      - app-network
-    env_file:
-      - ./config/frontend.env
-    command: npm run build
+    # build: ./frontend
+    # ports:
+    #   - "${FRONT_PORT}:2828"
+    # volumes:
+    #   - /home/ubuntu/MyFairy/frontend/dist:/app/dist
+    # networks:
+    #   - app-network
+    # env_file:
+    #   - ./config/frontend.env
+    # command: npm run build
 
   # redis
   redis:
@@ -62,7 +62,7 @@ services:
       - "2828:2828"
       - "443:443"
     depends_on:
-      - frontend
+      # - frontend
       - backend
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -70,7 +70,7 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/certbot:/var/www/certbot
-      - /home/ubuntu/MyFairy/frontend/dist:/usr/share/nginx/html:ro
+      # - /home/ubuntu/MyFairy/frontend/dist:/usr/share/nginx/html:ro
     networks:
       - app-network
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
