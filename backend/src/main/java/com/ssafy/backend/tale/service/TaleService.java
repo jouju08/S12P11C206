@@ -23,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -427,7 +428,7 @@ public class TaleService {
         // 손그림을 s3에 업로드하고, url을 저장합니다.
         String imgUrl = s3Service.uploadFile(submitFileRequestDto.getFile());
         taleMemberDto.setOrginImg(imgUrl);
-
+        taleMemberDto.setImg("before processing");
         // taleMember를 redis에 업데이트합니다.
         setTaleMemberDtoToRedis(taleMemberDto);
 
@@ -534,6 +535,10 @@ public class TaleService {
         }
     }
 
+    public TaleMember getTaleMember(long taleMemberId){
+        return taleMemberRepository.getReferenceById(taleMemberId);
+    }
+
     // 레디스에서 방 정보를 불러옵니다.
     private Room getRoomFromRedis(long roomId) {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
@@ -553,7 +558,7 @@ public class TaleService {
     }
     
     // redis에 tale_member 저장
-    private void setTaleMemberDtoToRedis(TaleMemberDto taleMemberDto){
+    public void setTaleMemberDtoToRedis(TaleMemberDto taleMemberDto){
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         ops.set("tale_member-"+taleMemberDto.getId(), taleMemberDto);
         System.out.println("생성되고 있는 동화 정보 수정 (TaleService)\n" + taleMemberDto);
@@ -618,4 +623,22 @@ public class TaleService {
         return responseDto;
     }
 
+    @Transactional
+    public void breakRoom(Long roomId) {
+        taleMemberRepository.findByTaleId(roomId).forEach(taleMember -> {
+            redisTemplate.delete("tale_member-"+taleMember.getId()); // tale_member redis 삭제
+            taleMemberRepository.delete(taleMember); // tale_member db 삭제
+        });
+        redisTemplate.delete("tale-"+ roomId); // room redis 삭제
+        taleRepository.deleteById(roomId); // room db삭제
+
+        List<RoomInfo> roomList = (List<RoomInfo>) redisTemplate.opsForValue().get("tale-roomList");
+        for(RoomInfo roomInfo : roomList) {
+            if(roomInfo.getRoomId() == roomId){
+                roomList.remove(roomInfo);
+                break;
+            }
+        }
+        redisTemplate.opsForValue().set("tale-roomList", roomList);
+    }
 }

@@ -8,6 +8,7 @@ import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 import GalleryItem from '@/components/Common/GalleyItem';
 
 import '@/styles/main.css';
+import '@/styles/text.css';
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -193,10 +194,10 @@ export default function Main() {
               className="w-[271px] h-[180px] left-0 top-0 absolute"
               src="/Main/fairy-chat-bubble.png"
             />
-            <div className="h-[68px] left-[36px] top-[74px] absolute flex-col justify-start items-start gap-1 inline-flex overflow-hidden">
-              <div className="justify-start items-center gap-2 inline-flex overflow-hidden">
+            <div className="h-[68px] left-[34px] top-[74px] absolute flex-col justify-start items-start gap-1 inline-flex overflow-hidden">
+              <div className="justify-start items-center gap-1.5 inline-flex overflow-hidden">
                 {/* 로그인 정보 store에서 가져오기기 */}
-                <div className="text-main-point service-accent3">
+                <div className="text-main-point service-accent3 max-w-[120px] h-fit truncate hover:animate-marquee">
                   {member.nickname}
                 </div>
                 <div className="text-text-first service-accent3">어서 와!</div>
@@ -211,8 +212,8 @@ export default function Main() {
         {/* 오른쪽 메뉴바 */}
         <div className="w-[594px] h-[316px] py-[40px] ">
           <Swiper
-            slidesPerView={3}
-            spaceBetween={-10}
+            slidesPerView={3.2}
+            spaceBetween={20}
             grabCursor={true}
             className="mySwiper w-[509px] overflow-visible"
             style={{ padding: 20 }}>
@@ -227,10 +228,10 @@ export default function Main() {
           만들어진 동화방
         </div>
         <div className="h-[300px] flex items-center text-center">
-          {taleData ? (
+          {taleData && taleData.length != 0 ? (
             <Swiper
-              slidesPerView={3}
-              spaceBetween={-10}
+              slidesPerView={3.15}
+              spaceBetween={20}
               className="mySwiper w-[904px] overflow-hidden">
               {listFairyTaleRoom}
             </Swiper>
@@ -255,7 +256,7 @@ export default function Main() {
         <div className="text-text-first service-accent2 mb-[10px]">
           지금 인기있는 그림
         </div>
-        {drawingData.length != 0 ? (
+        {drawingData && drawingData.length != 0 ? (
           <Swiper
             slidesPerView={4}
             spaceBetween={30}

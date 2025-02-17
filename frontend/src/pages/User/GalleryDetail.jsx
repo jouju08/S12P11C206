@@ -105,16 +105,22 @@ export default function GalleryDetail() {
               className="w-full h-full object-cover object-center bg-white"
             />
           )}
-          {!isOrigin && !galleryPage['img'] && (
-            <div className="flex flex-col mt-[150px] items-center justify-center">
-              <img
-                src="/Gallery/movingDuck.gif"
-                alt="대체 이미지"
-                className="w-[150px] h-[150PX] object-cover object-center bg-white"
-              />
-              <div className="text-text-first text-xl font-NPSfont">{text}</div>
-            </div>
-          )}
+          {/* 이미지가 없거나, AI 서버에서 아직 처리중인 경우, 마찬가지로 대체 이미지를 보여줍니다. */}
+          {!isOrigin &&
+            (!galleryPage['img'] ||
+              galleryPage['img'] === 'processing' ||
+              galleryPage['img'] === 'before processing') && (
+              <div className="flex flex-col mt-[150px] items-center justify-center">
+                <img
+                  src="/Gallery/movingDuck.gif"
+                  alt="대체 이미지"
+                  className="w-[150px] h-[150PX] object-cover object-center bg-white"
+                />
+                <div className="text-text-first text-xl font-NPSfont">
+                  {text}
+                </div>
+              </div>
+            )}
         </div>
 
         {/* 그림 상세내용 */}

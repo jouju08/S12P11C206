@@ -113,12 +113,12 @@ const HotTale = () => {
               <img
                 src={hotTale?.['coverImg']}
                 alt="블러 처리 이미지"
-                className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] top-[195px]"
+                className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] bottom-[133px]"
               />
               <img
                 src={hotTale?.['coverImg']}
                 alt="동화 만든 이미지"
-                className="w-[300px] h-[300px] z-10 absolute left-[168px] top-[215px]"
+                className="w-[300px] h-[300px] z-10 absolute left-[168px] bottom-[153px]"
               />
             </div>
           ) : (

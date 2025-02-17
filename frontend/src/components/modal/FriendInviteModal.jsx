@@ -11,7 +11,7 @@ export default function FriendInviteModal() {
     inviteFlag,
     setBaseTaleId,
     setInviteFlag,
-    resetState,
+    resetStateRoom,
   } = useTaleRoom();
   const { inviteInfo } = useActiveUser();
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ export default function FriendInviteModal() {
   };
 
   const handleReject = async () => {
-    await resetState();
+    await resetStateRoom();
   };
 
   useEffect(() => {

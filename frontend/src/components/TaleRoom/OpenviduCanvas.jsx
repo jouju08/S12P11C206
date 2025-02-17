@@ -19,15 +19,14 @@ export default function OpenviduCanvas({
   }, [track]);
 
   return (
-    <div
-      id={participantIdentity}
-      className="bg-white">
-      <div className="bg-red-400">
-        <p>{participantIdentity + (local ? ' (You)' : '')}</p>
+    <div className="relative bg-white flex justify-center items-center text-text-third story-basic3 w-[236px] h-[168px] boxShadow: '4px 4px 4px rgba(0, 0, 0, 0.25) ">
+      <div className="absolute top-0 left-0 bg-main-strawberry text-gray-500 p-1 text-xs">
+        {local ? '' : participantIdentity}
       </div>
       <video
         ref={videoElement}
-        id={track.sid}></video>
+        id={track.sid}
+      />
     </div>
   );
 }

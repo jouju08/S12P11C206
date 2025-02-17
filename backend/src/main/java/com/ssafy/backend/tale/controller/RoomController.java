@@ -74,7 +74,18 @@ public class RoomController {
     @MessageMapping("/active/invite")
     @SendTo("/active/invite")
     public RoomInviteResponseDto invite(RoomInviteRequestDto requestDto) {
-
         return taleService.invite(requestDto);
+    }
+    @MessageMapping("/room/escape/before/{roomId}")
+    @SendTo("/topic/room/escape/before/{roomId}")
+    public String escapeBefore(@DestinationVariable String roomId) {
+        taleService.breakRoom(Long.parseLong(roomId));
+        return "break";
+    }
+
+    @MessageMapping("/room/escape/after/{roomId}/{memberId}")
+    @SendTo("/topic/room/escape/after/{roomId}")
+    public void escapeAfter(@DestinationVariable String roomId, @DestinationVariable String memberId) {
+        // 확인 처리.. 멤버 아이디 필요함...
     }
 }

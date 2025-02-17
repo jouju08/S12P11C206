@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useEffect, useState, useRef } from 'react';
@@ -8,24 +8,38 @@ import { useUser } from '@/store/userStore';
 import { Loading } from '@/common/Loading';
 
 const TaleStart = () => {
-  const { setBaseTale, setRoomId, setSubscribeTale, roomId, tale, setClient } =
-    useTalePlay();
+  const {
+    setBaseTale,
+    setRoomId,
+    setSubscribeTale,
+    roomId,
+    tale,
+    setClient,
+    resetState,
+  } = useTalePlay();
 
   const {
     connectRoom,
     createRoom,
     startRoom,
+    leaveRoom,
+
     setBaseTaleId,
     participants,
     currentRoom,
+
+    resetStateRoom,
     isSingle,
+    isEscape,
   } = useTaleRoom();
 
-  const { getTokenByAxios } = useViduHook();
+  const { getTokenByAxios, leaveViduRoom } = useViduHook();
 
   const { memberId } = useUser();
 
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTale = async () => {
@@ -41,14 +55,12 @@ const TaleStart = () => {
           await setClient();
 
           await setSubscribeTale(playRoom.roomId);
-          // await getTokenByAxios(playRoom.roomId);
         } else if (!isSingle) {
           setRoomId(currentRoom.roomId);
 
           await setClient();
 
           await setSubscribeTale(currentRoom.roomId);
-          // await getTokenByAxios(currentRoom.roomId);
         }
       } catch (error) {
         console.log(error);
@@ -59,6 +71,16 @@ const TaleStart = () => {
 
     fetchTale();
   }, []);
+
+  useEffect(() => {
+    if (isEscape) {
+      leaveRoom();
+      leaveViduRoom();
+      resetStateRoom();
+      resetState();
+      navigate('/room');
+    }
+  }, [isEscape]);
 
   return (
     <>

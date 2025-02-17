@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { userStore, useUser } from '@/store/userStore';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useUser } from '@/store/userStore';
 import { useTalePlay } from '@/store/tale/playStore';
 
 import TaleRoomHeader from '../Header/TaleRoomHeader';
 import { useTaleRoom } from '@/store/roomStore';
 import { useViduHook } from '@/store/tale/viduStore';
+import { useNavigationBlocker } from '@/hooks/useNavigationBlocker';
+import { current } from 'immer';
 
 export default function TaleLayout() {
   const { isAuthenticated } = useUser();
@@ -14,7 +16,14 @@ export default function TaleLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { leaveRoom } = useTaleRoom();
+  const {
+    currentRoom,
+    leaveRoom,
+    isEscape,
+    isEscapeAfter,
+    isleaveRoom,
+    resetStateRoom,
+  } = useTaleRoom();
   const { roomId, resetState } = useTalePlay();
   const { leaveViduRoom } = useViduHook();
 
@@ -22,6 +31,9 @@ export default function TaleLayout() {
   const isSentence = location.pathname === '/tale/taleSentenceDrawing';
   const isKeyword = location.pathname === '/tale/taleKeyword';
   const isHotTale = location.pathname === '/tale/hottale';
+
+  const { showEscape, setShowEscape, handleConfirmExit, handleCancelExit } =
+    useNavigationBlocker(); //탈주 감지
 
   // 나가기 버튼 누르면 모달을 띄워줌
   const handleExit = () => {
@@ -32,7 +44,7 @@ export default function TaleLayout() {
     //방 나가기전 초기화
     leaveRoom();
     leaveViduRoom();
-    resetState();
+    resetStateRoom();
 
     navigate('/room');
   };
@@ -82,7 +94,7 @@ export default function TaleLayout() {
 
           <Outlet />
           {showModal && (
-            <div className="absolute top-0 left-0 z-50 w-[1024px] h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
+            <div className="absolute top-0 left-0 z-50 w-full h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
               <Modal
                 handleConfirm={handleConfirm}
                 handleCancel={handleCancel}

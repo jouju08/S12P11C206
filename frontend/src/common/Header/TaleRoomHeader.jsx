@@ -6,29 +6,28 @@ import { useTalePlay } from '@/store/tale/playStore';
 import { useNavigate } from 'react-router-dom';
 
 export default function TaleRoomHeader({ onClose }) {
-  const [taleTitle, setTaleTitle] = useState(null);
-  const { baseTaleId, leaveRoom } = useTaleRoom();
+  const { baseTaleId, taleTitle, leaveRoom } = useTaleRoom();
   const { leaveViduRoom } = useViduHook();
   const { resetState } = useTalePlay();
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchTaleTitle = async () => {
-      const response = await api.get(`/base-tale/${baseTaleId}`);
+  // useEffect(() => {
+  //   const fetchTaleTitle = async () => {
+  //     const response = await api.get(`/base-tale/${baseTaleId || 1}`);
 
-      if (response.data.status == 'SER') {
-        leaveRoom();
-        leaveViduRoom();
-        resetState();
+  //     if (response.data.status == 'SER') {
+  //       leaveRoom();
+  //       leaveViduRoom();
+  //       resetState();
 
-        // navigate('/room');
-      } else if (response.data.status == 'SU') {
-        setTaleTitle(response.data.data.title);
-      }
-    };
-    fetchTaleTitle();
-  }, []);
+  //       // navigate('/room');
+  //     } else if (response.data.status == 'SU') {
+  //       setTaleTitle(response.data.data.title);
+  //     }
+  //   };
+  //   fetchTaleTitle();
+  // }, []);
 
   return (
     <header className="w-dvw bg-main-background shadow-md top-0 z-50">

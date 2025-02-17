@@ -18,6 +18,7 @@ const initialState = {
   isSingle: false,
   isStart: null,
   inviteFlag: false,
+  isEscape: false,
 };
 
 const tabId = `tab-${Math.random().toString(36).substr(2, 9)}`;
@@ -28,7 +29,6 @@ const roomActions = (set, get) => ({
     return new Promise((resolve, reject) => {
       const socket = new SockJS('/ws');
 
-      console.log(socket);
       const stompClient = new Client({
         webSocketFactory: () => socket,
 
@@ -78,21 +78,21 @@ const roomActions = (set, get) => ({
         body: JSON.stringify(data),
       });
 
-      const res = await taleAPI.getTaleInfo(get().baseTaleId);
+      const res = await taleAPI.getTaleInfo(get().baseTaleId || 1);
 
       set({ taleTitle: res.data.data.title || '' });
 
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           const createRoom = get().currentRoom;
-          console.log(createRoom);
+
           if (createRoom) {
             get().joinRoom(createRoom.roomId, userStore.getState().memberId);
             resolve(createRoom);
           } else {
             reject(new Error('방 생성 후 참가 실패'));
           }
-        }, 500);
+        }, 1000);
       });
     } else {
       throw new Error('Stomp Client not connected');
@@ -125,6 +125,7 @@ const roomActions = (set, get) => ({
         set({ rawTale: newData });
       });
 
+      //나가기
       stompClient.subscribe(`/topic/room/leave/${roomId}`, (message) => {
         const leaveData = JSON.parse(message.body);
         if (leaveData.leaveMemberId !== memberId) {
@@ -135,6 +136,23 @@ const roomActions = (set, get) => ({
           get().addParticipant(participants);
         }
       });
+
+      //탈주 감지
+      stompClient.subscribe(
+        `/topic/room/escape/before/${roomId}`,
+        (message) => {
+          if (message.body === 'break') {
+            get().setIsEscape(true);
+          }
+        }
+      );
+
+      stompClient.subscribe(
+        `/topic/room/escape/after/${roomId}/${memberId}`,
+        (message) => {
+          get().setIsEscape(true);
+        }
+      );
 
       // 참가 요청
       stompClient.publish({
@@ -150,7 +168,7 @@ const roomActions = (set, get) => ({
           } else {
             reject(new Error('방 참가 실패'));
           }
-        }, 500);
+        }, 1000);
       });
     }
   },
@@ -233,6 +251,7 @@ const roomActions = (set, get) => ({
     })),
 
   setInviteFlag: (value) => set({ inviteFlag: value }),
+  setIsEscape: (value) => set({ isEscape: value }),
 });
 
 const useRoomStore = create(
@@ -249,6 +268,7 @@ const useRoomStore = create(
 );
 
 export const useTaleRoom = () => {
+  const stompClient = useRoomStore((state) => state.stompClient);
   const currentRoom = useRoomStore((state) => state.currentRoom);
   const participants = useRoomStore((state) => state.participants);
   const baseTaleId = useRoomStore((state) => state.baseTaleId);
@@ -277,9 +297,13 @@ export const useTaleRoom = () => {
   const setBaseTaleId = useRoomStore((state) => state.setBaseTaleId);
   const setInviteFlag = useRoomStore((state) => state.setInviteFlag);
 
-  const resetState = useRoomStore((state) => state.resetState);
+  const isEscape = useRoomStore((state) => state.isEscape);
+  const setIsEscape = useRoomStore((state) => state.setIsEscape);
+  const resetStateRoom = useRoomStore((state) => state.resetState);
 
   return {
+    stompClient,
+
     currentRoom,
     participants,
     baseTaleId,
@@ -307,7 +331,9 @@ export const useTaleRoom = () => {
 
     setInviteFlag,
 
-    resetState,
+    isEscape,
+    setIsEscape,
+    resetStateRoom,
   };
 };
 

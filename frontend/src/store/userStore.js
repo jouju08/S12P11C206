@@ -324,7 +324,7 @@ const userStore = create(
       }),
       {
         name: `user-store`,
-        storage: createJSONStorage(() => localStorage),
+        storage: createJSONStorage(() => sessionStorage),
       }
     ),
     { name: `Auth Store ${tabId}` }
