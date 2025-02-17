@@ -17,7 +17,7 @@ services:
       - ./config/backend.env
 
   # frontend
-  frontend:
+  # frontend:
     # build: ./frontend
     # ports:
     #   - "${FRONT_PORT}:2828"
@@ -71,6 +71,8 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt
       - /var/www/certbot:/var/www/certbot
       # - /home/ubuntu/MyFairy/frontend/dist:/usr/share/nginx/html:ro
+    env_file:
+      - ./config/frontend.env
     networks:
       - app-network
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
