@@ -31,10 +31,9 @@ export default function TaleLayout() {
   const isStart = location.pathname === '/tale/taleStart';
   const isSentence = location.pathname === '/tale/taleSentenceDrawing';
   const isKeyword = location.pathname === '/tale/taleKeyword';
-  const isHotTale = location.pathname === '/tale/hottale';
+  const isHotTale = location.pathname === '/tale/hotTale';
 
-  const { showEscape, setShowEscape, handleConfirmExit, handleCancelExit } =
-    useNavigationBlocker(); //탈주 감지
+  const { handleEscape } = useNavigationBlocker(); //탈주 감지
 
   // 나가기 버튼 누르면 모달을 띄워줌
   const handleExit = () => {
@@ -42,6 +41,9 @@ export default function TaleLayout() {
   };
 
   const handleConfirm = () => {
+    //탈주감지
+    handleEscape(location);
+
     //방 나가기전 초기화
     leaveRoom();
     leaveViduRoom();

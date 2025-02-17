@@ -9,6 +9,7 @@ import { useUser } from '@/store/userStore';
 import { useViduHook } from '@/store/tale/viduStore';
 
 const TaleKeyword = () => {
+  const selectAudioRef = useRef(null); //확인 효과음
   const [mode, setMode] = useState('default'); // 현재 모드: default, typing, voice, writing
   const [inputText, setInputText] = useState(''); // 타자 입력 텍스트
   const [isNextActive, setIsNextActive] = useState(false); // 다음 버튼 활성화 상태
@@ -96,15 +97,11 @@ const TaleKeyword = () => {
         ? await submitTypingSingle(inputText)
         : await submitTyping(inputText);
 
-      if (response) {
+      if (response.status == 'SU') {
         setIsNextActive(true);
         setCurrentKeyword(response.data);
       } else if (response.status == 'SER') {
-        leaveRoom();
-        leaveViduRoom();
-        resetState();
-
-        navigate('/room');
+        return;
       }
     } else if (mode === 'voice') {
       const response = isSingle
@@ -117,11 +114,7 @@ const TaleKeyword = () => {
         setIsNextActive(true);
         setCurrentKeyword(response.data.text);
       } else if (response.status == 'SER') {
-        leaveRoom();
-        leaveViduRoom();
-        resetState();
-
-        navigate('/room');
+        return;
       }
     }
 
@@ -196,7 +189,16 @@ const TaleKeyword = () => {
       setCurrentStep((prev) => prev + 5);
     }
   };
-
+  const handleConfirmSound = async () => {
+    if (selectAudioRef.current) {
+      //선택 효과음 재생
+      selectAudioRef.current.volume = 1;
+      selectAudioRef.current.currentTime = 0;
+      selectAudioRef.current
+        .play()
+        .catch((err) => console.error('Audio play error:', err));
+    }
+  };
   const modeButtons = [
     {
       mode: 'typing',
@@ -217,12 +219,12 @@ const TaleKeyword = () => {
 
   return (
     <div className="relative w-[1024px] h-[668px]">
+      <audio /*확인 효과음*/
+        ref={selectAudioRef}
+        src={'/Common/select.mp3'}
+      />
       {/* 배경 absolute */}
-      <div
-        className="absolute top-0 left-0 opacity-70 w-[1024px] h-[668px] bg-cover bg-center"
-        style={{
-          backgroundImage: "url('/TaleKeyword/field-background.png')",
-        }}></div>
+      <div className="absolute top-0 left-0 opacity-70 w-[1024px] h-[668px] bg-cover bg-center"></div>
 
       {/* 참여인원 섹션 */}
       <div className="absolute top-4 left-[84px]">
@@ -372,7 +374,11 @@ const TaleKeyword = () => {
             }}></button>
 
           {/* 다음 */}
-          <button onClick={handleNext}>
+          <button
+            onClick={() => {
+              handleNext();
+              handleConfirmSound();
+            }}>
             <img
               src={
                 isNextActive
@@ -435,6 +441,7 @@ const ModeButton = ({ mode, text, imageSrc, onClick }) => {
 
 const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
   const [isRecording, setIsRecording] = useState(false);
+
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 

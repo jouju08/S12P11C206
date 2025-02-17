@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFriend } from '@/store/friendStore';
 import { useActiveUser } from '@/store/activeStore';
-
+import '@/styles/text.css';
 const InviteModal = ({ handleExit }) => {
   const { friendList, fetchFriendList } = useFriend();
   const { inviteFriend } = useActiveUser();
@@ -39,16 +39,28 @@ const InviteModal = ({ handleExit }) => {
             <li
               key={friend.loginId}
               className="flex items-center justify-between w-full p-3 border-b border-[#e6e6e6]">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 w-[120px]">
                 <img
                   className="w-12 h-12 rounded-full"
                   src={friend.profilePic || '/Common/blank_profile.jpg'}
                   alt="profile"
                 />
-
-                <span className="text-text-first text-lg font-NPSfont">
-                  {friend.nickname}
-                </span>
+                <div className="relative group w-[ch-4] overflow-hidden">
+                  {friend.nickname.length < 4 ? (
+                    <span className="block  text-text-first text-lg font-NPSfont">
+                      {friend.nickname}
+                    </span>
+                    ) : (
+                    <>
+                      <span className="block truncate text-text-first text-lg font-NPSfont group-hover:hidden">
+                        {friend.nickname}
+                      </span>
+                      <span className="whitespace-nowrap hidden text-text-first text-lg font-NPSfont group-hover:block animate-marquee">
+                        {friend.nickname}
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
               {/* 접속중 상태 */}
 

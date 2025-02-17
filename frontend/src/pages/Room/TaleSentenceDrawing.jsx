@@ -142,7 +142,6 @@ const TaleSentenceDrawing = () => {
   };
 
   useEffect(() => {
-    setShowDrawingModal(true); //페이지 들어가자마자 모달 오픈
     if (!isSingle) {
       joinVidu();
     }
@@ -172,6 +171,7 @@ const TaleSentenceDrawing = () => {
   useEffect(() => {
     if (drawDirection.length >= 4) {
       setLoading(false);
+      setShowDrawingModal(true); //페이지 로딩 완료시 모달 오픈
     }
   }, [drawDirection]);
 
@@ -192,7 +192,7 @@ const TaleSentenceDrawing = () => {
 
   //타이머
   useEffect(() => {
-    if (loading) return;
+    if (loading || showDrawingModal) return;
 
     if (currentStep >= 4) {
       setTimeLeft(0);
@@ -204,6 +204,8 @@ const TaleSentenceDrawing = () => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 35) {
+          drawingaudioRef.current.pause();
+          drawingaudioRef.current.currentTime = 0;
           setIsWarning(true);
         } else {
           setIsWarning(false);
@@ -219,7 +221,7 @@ const TaleSentenceDrawing = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentStep, loading]);
+  }, [currentStep, loading, showDrawingModal]);
 
   //완료처리
   useEffect(() => {
@@ -295,6 +297,16 @@ const TaleSentenceDrawing = () => {
     }
   }, [isEscape]);
 
+  useEffect(() => {
+    // 페이지를 벗어날 때 음악 멈추기
+    return () => {
+      if (drawingaudioRef.current) {
+        drawingaudioRef.current.pause();
+        drawingaudioRef.current.currentTime = 0;
+      }
+    };
+  }, []);
+
   // useEffect(() => {
   //   // 뒤로가기 방지
   //   window.history.pushState(null, document.title, window.location.href);
@@ -354,7 +366,7 @@ const TaleSentenceDrawing = () => {
               />
             </div>
             <div
-              className="w-[550px] h-[80px] mx-auto rounded-[10px] border border-gray-200 text-center  bg-white story-basic2 text-text-first
+              className="w-[550px] h-[80px] mx-auto rounded-[10px] border-2 border-gray-400 text-center  bg-white story-basic2 text-text-first
             overflow-y-scroll">
               {/* currentStep은 1부터 시작하므로 인덱스로 사용할 때는 -1 */}
               <>{isSingle && singleModeSentences[currentStep]?.sentence}</>

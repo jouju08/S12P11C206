@@ -31,7 +31,7 @@ export default function Waiting() {
   const [isDisabled, setIsDisabled] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showWaitingModal, setShowWaitingModal] = useState(false);
-
+  const [hasEntered, setHasEntered]=useState(false);
   const handleExit = () => {
     setShowModal(false);
   };
@@ -65,8 +65,10 @@ export default function Waiting() {
       if (hostId == memberId) {
         setIsHost(true);
       }
+      if(!hasEntered){
+        setHasEntered(true);
       setShowWaitingModal(true);
-
+      }
       //방장이면서 4명이 됬는지 판단해서 시작버튼 활성화
       if (isFull && hostId == memberId) {
         setIsDisabled(false);
@@ -94,6 +96,10 @@ export default function Waiting() {
       setIsHost(false);
       setIsDisabled(false);
       setTale(null);
+
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
     };
   }, [currentRoom]);
 
@@ -104,12 +110,6 @@ export default function Waiting() {
 
     return () => {};
   }, [rawTale]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.stop();
-    }
-  }, [audioRef.current]);
 
   return (
     <div className="w-[1024px] h-[668px] relative">
