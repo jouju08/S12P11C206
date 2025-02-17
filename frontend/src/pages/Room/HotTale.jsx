@@ -135,7 +135,7 @@ const HotTale = () => {
             </div>
           )}
 
-          <div className="w-[378px] h-[430px] z-10 absolute right-[105px] bottom-[105px] flex flex-col justify-center items-center text-text-first story-basic2">
+          <div className="w-[378px] h-[430px] z-10 absolute right-[105px] bottom-[95px] flex flex-col justify-center items-center text-text-first story-basic2">
             {renderPageContent(pageNum)}
           </div>
 
