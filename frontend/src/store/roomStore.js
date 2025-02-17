@@ -29,7 +29,6 @@ const roomActions = (set, get) => ({
     return new Promise((resolve, reject) => {
       const socket = new SockJS(import.meta.env.VITE_WS_URL_LOCAL);
 
-      console.log(socket);
       const stompClient = new Client({
         webSocketFactory: () => socket,
 
@@ -86,7 +85,7 @@ const roomActions = (set, get) => ({
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           const createRoom = get().currentRoom;
-          console.log(createRoom);
+
           if (createRoom) {
             get().joinRoom(createRoom.roomId, userStore.getState().memberId);
             resolve(createRoom);
