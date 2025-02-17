@@ -152,6 +152,7 @@ const DrawingBoard = forwardRef(
     };
 
     const handleTouchMove = (e) => {
+      e.preventDefault();
       if (!isDrawing) return;
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
@@ -200,7 +201,7 @@ const DrawingBoard = forwardRef(
           <canvas
             ref={canvasRef}
             className={`${isEraser ? 'cursor-crosshair' : 'cursor-pointer'}  ${usePalette ? `` : `${border}`} md:cursor-pointer`}
-            style={{ width, height }}
+            style={{ width, height, touchAction: 'none' }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
