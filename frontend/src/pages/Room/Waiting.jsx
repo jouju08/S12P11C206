@@ -31,7 +31,7 @@ export default function Waiting() {
   const [isDisabled, setIsDisabled] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showWaitingModal, setShowWaitingModal] = useState(false);
-  const [isConfirmed, setIsConfirmed]=useState(false);
+  const [hasEntered, setHasEntered]=useState(false);
   const handleExit = () => {
     setShowModal(false);
   };
@@ -65,7 +65,8 @@ export default function Waiting() {
       if (hostId == memberId) {
         setIsHost(true);
       }
-      if(!isConfirmed){
+      if(!hasEntered){
+        setHasEntered(true);
       setShowWaitingModal(true);
       }
       //방장이면서 4명이 됬는지 판단해서 시작버튼 활성화
@@ -111,12 +112,12 @@ export default function Waiting() {
   }, [rawTale]);
 
   return (
-    <div className="w-[1021px] h-[668px] relative">
+    <div className="w-[1024px] h-[668px] relative">
       {/* 배경 필드 이미지 */}
-      <img
+      {/* <img
         className="w-[1024px] h-[668px] absolute top-0 left-0 -z-10"
         src="/Waiting/field-background.png"
-      />
+      /> */}
 
       {showWaitingModal && (
         <WaitingModal
@@ -124,7 +125,6 @@ export default function Waiting() {
           onClick={() => {
             setShowWaitingModal(false);
             handleMusic();
-            setIsConfirmed(true);
           }}
         />
       )}
