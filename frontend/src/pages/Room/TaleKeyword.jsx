@@ -9,6 +9,7 @@ import { useUser } from '@/store/userStore';
 import { useViduHook } from '@/store/tale/viduStore';
 
 const TaleKeyword = () => {
+  const selectAudioRef = useRef(null); //확인 효과음
   const [mode, setMode] = useState('default'); // 현재 모드: default, typing, voice, writing
   const [inputText, setInputText] = useState(''); // 타자 입력 텍스트
   const [isNextActive, setIsNextActive] = useState(false); // 다음 버튼 활성화 상태
@@ -196,7 +197,16 @@ const TaleKeyword = () => {
       setCurrentStep((prev) => prev + 5);
     }
   };
-
+  const handleConfirmSound = async () => {
+    if (selectAudioRef.current) {
+      //선택 효과음 재생
+      selectAudioRef.current.volume = 1;
+      selectAudioRef.current.currentTime = 0;
+      selectAudioRef.current
+        .play()
+        .catch((err) => console.error('Audio play error:', err));
+    }
+  };
   const modeButtons = [
     {
       mode: 'typing',
@@ -214,9 +224,14 @@ const TaleKeyword = () => {
     //   imageSrc: '/TaleKeyword/keyword-writing.png',
     // },
   ];
+  
 
   return (
-    <div className="relative w-[1024px] h-[668px]">
+      <div className="relative w-[1024px] h-[668px]">
+      <audio /*확인 효과음*/
+              ref={selectAudioRef}
+              src={'/Common/select.mp3'}
+            />
       {/* 배경 absolute */}
       <div
         className="absolute top-0 left-0 opacity-70 w-[1024px] h-[668px] bg-cover bg-center"
@@ -372,7 +387,10 @@ const TaleKeyword = () => {
             }}></button>
 
           {/* 다음 */}
-          <button onClick={handleNext}>
+          <button onClick={() => {
+                    handleNext();
+                    handleConfirmSound();
+                  }}>
             <img
               src={
                 isNextActive
