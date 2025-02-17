@@ -346,9 +346,10 @@ const TaleSentenceDrawing = () => {
           />
         )}
         <div
-          className="w-[1024px] h-[668px] bg-cover flex"
+          className="w-[1024px] h-[668px] bg-contain bg-no-repeat bg-bottom flex"
           style={{
-            backgroundImage: "url('/TaleSentenceDrawing/field-background.png')",
+            backgroundImage: "url('/Collection/modal-open-book.png')",
+            backgroundSize: '100% 90%',
           }}>
           <section className="w-[70%] relative text-center">
             {/* 내가 그려볼 문장 */}
