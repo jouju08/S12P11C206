@@ -96,7 +96,7 @@ export default function Waiting() {
       setTale(null);
 
       if (audioRef.current) {
-        audioRef.current.stop();
+        audioRef.current.pause();
       }
     };
   }, [currentRoom]);
