@@ -88,7 +88,7 @@ export default function Hero() {
         <img
           src="/Hero/service-cut.png"
           alt="서비스 사진"
-          className={`background-image ${isScrolled ? 'translate-y-[70%] -translate-x-[80%] opacity-100 xl:translate-y-[25%]' : ''}`}></img>
+          className={`background-image ${isScrolled ? 'translate-y-[70%] -translate-x-[80%] opacity-100 xl:translate-y-[40%]' : ''}`}></img>
         <div className="text-text-first text-4xl font-extrabold font-NPSfont xl:text-5xl">
           <p className=" leading-[180%]">아이들이 고른 단어로</p>
           <p>새로운 이야기가 탄생!</p>
