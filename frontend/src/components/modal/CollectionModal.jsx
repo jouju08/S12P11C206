@@ -24,12 +24,24 @@ const CollectionModal = ({ handleExit }) => {
     setTaleFinish();
   }, []);
 
+  const getTextClass = (where, text) => {
+    if (where === 'header') {
+      return text.length > 16 ? 'service-accent2' : 'service-accent1';
+    } else {
+      return text.length > 16 ? 'story-basic3' : 'story-basic2';
+    }
+  };
+
   const renderPageContent = (pageNum) => {
     if (pageNum === 5) {
       return (
         <div className="flex flex-col gap-5">
-          <p className="relative after:content[''] after:h-[20px] after:w-[85px] after:-z-10 after:absolute after:bottom-0 after:left-0 after:bg-main-strawberry">
-            동화제목 : {taleStart['title']}
+          <p className="relative flex after:content[''] after:h-[20px] after:w-[85px] after:-z-10 after:absolute after:top-[15px] after:left-0 after:bg-main-strawberry">
+            <span className="w-[110px]">동화제목 :</span>
+            <span
+              className={`w-[250px] ${getTextClass('title', taleStart['title'])}`}>
+              {taleStart['title']}
+            </span>
           </p>
           <div className="flex items-start gap-5">
             <p
@@ -66,7 +78,9 @@ const CollectionModal = ({ handleExit }) => {
             alt="Logo"
           />
         </div>
-        <div className="text-text-first absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 service-accent1">
+        <div
+          id="tale-title"
+          className={`text-text-first absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${getTextClass('header', taleStart['title'])}`}>
           {taleStart['title']}
         </div>
         <button
