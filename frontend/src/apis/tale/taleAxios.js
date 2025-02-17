@@ -11,6 +11,9 @@ const taleAPI = {
   //방목록조회
   getAllTaleRooms: () => api.get('tale/rooms'),
 
+  //방 번호 검색 조회
+  getSearchTaleRooms: (roomId) => api.get(`/tale/rooms/${roomId}`),
+
   //기본 동화 정보 조회
   getTaleInfo: (baseTaleId) => api.get(`/base-tale/${baseTaleId}`),
 
