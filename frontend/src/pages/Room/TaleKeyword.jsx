@@ -218,19 +218,18 @@ const TaleKeyword = () => {
   ];
 
   return (
-    <div className="relative w-[1024px] h-[668px]">
+    <div className="relative w-[1024px] h-[580px] tall:h-[668px]">
+      {' '}
       <audio /*확인 효과음*/
         ref={selectAudioRef}
         src={'/Common/select.mp3'}
       />
       {/* 배경 absolute */}
-      <div className="absolute top-0 left-0 opacity-70 w-[1024px] h-[668px] bg-cover bg-center"></div>
-
+      <div className="absolute top-0 left-0 opacity-70 w-[1024px] h-[580px] tall:h-[668px] bg-cover bg-center"></div>
       {/* 참여인원 섹션 */}
       <div className="absolute top-4 left-[84px]">
         <ParticipationStatus ParticipationList={participants} />
       </div>
-
       {/* 제목 */}
       <div className="py-1.5 left-[367px] top-[80px] absolute justify-start items-center inline-flex overflow-hidden">
         <div className="w-[240px] h-[53px] relative">
@@ -244,7 +243,6 @@ const TaleKeyword = () => {
           src="/TaleKeyword/pencil.png"
         />
       </div>
-
       {/* 문장 */}
       <div className="absolute top-[150px] left-0 w-full text-center">
         <div className="h-[75px] px-[41px] py-4 bg-white rounded-[10px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] border border-[#787878] justify-start items-center gap-5 inline-flex overflow-hidden">
@@ -281,7 +279,6 @@ const TaleKeyword = () => {
           )}
         </div>
       </div>
-
       {/* 말풍선 */}
       <div
         className="w-[214px] h-[279px] absolute top-[250px] left-[100px] bg-cover"
@@ -317,10 +314,9 @@ const TaleKeyword = () => {
           )} */}
         </FairyChatBubble>
       </div>
-
       {/* 모드별 UI */}
       {mode === 'typing' && (
-        <div className="absolute bottom-[170px] right-[100px] h-[118px] px-7 py-5 bg-main-background rounded-[50px] justify-start items-center gap-5 inline-flex">
+        <div className="absolute bottom-[18%] right-[100px] h-[118px] px-7 py-5 bg-main-background rounded-[50px] justify-start items-center gap-5 inline-flex">
           <input
             type="text"
             value={inputText}
@@ -332,9 +328,8 @@ const TaleKeyword = () => {
           <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
-
       {mode === 'voice' && (
-        <div className="absolute bottom-[150px] right-[250px] flex items-center gap-8">
+        <div className="absolute bottom-[18%] right-[230px] flex items-center gap-8">
           <VoiceRecorder
             recordedAudio={recordedAudio}
             setRecordedAudio={setRecordedAudio}
@@ -342,7 +337,6 @@ const TaleKeyword = () => {
           <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
-
       {/* {mode === 'writing' && (
         <div className="absolute bottom-[140px] left-[500px] flex items-center gap-4">
           <div className="relative">
@@ -358,10 +352,9 @@ const TaleKeyword = () => {
           </div>
         </div>
       )} */}
-
       {/* 하단 버튼들 */}
       {mode !== 'default' && (
-        <div className="absolute bottom-[20px] right-[50px] flex gap-4">
+        <div className="absolute bottom-[0px] right-[50px] flex gap-4">
           {/* 뒤로가기 */}
           <button
             onClick={() => {
@@ -399,10 +392,9 @@ const TaleKeyword = () => {
             }}></button>
         </div>
       )}
-
       {/* 첫 번째 화면 버튼들 */}
       {mode === 'default' && (
-        <div className="absolute bottom-[160px] left-[450px] flex gap-4">
+        <div className="absolute bottom-[100px] left-[450px] flex gap-4">
           {modeButtons.map((button) => (
             <ModeButton
               key={button.mode}
@@ -529,7 +521,7 @@ const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
       </button>
 
       {/* 녹음 완료 후 다운로드 버튼 클릭 시 */}
-      <button onClick={() => downloadWavFile(recordedAudio)}>다운로드</button>
+      {/* <button onClick={() => downloadWavFile(recordedAudio)}>다운로드</button> */}
     </div>
   );
 };
