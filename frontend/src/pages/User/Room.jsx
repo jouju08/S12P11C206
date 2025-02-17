@@ -37,16 +37,40 @@ export default function Room() {
   const { setBaseTaleId } = useTaleRoom();
 
   // 클릭된 동화 업데이트
-  const handleClick = (index) => {
+  const handleClick = async (index) => {
     setBaseTaleId(taleList[index].id);
     setSelectedIndex((prevIndex) => (prevIndex === index ? null : index));
     // 세터함수로 selectedIndex
   };
 
   // 검색어를 받아서 부모 상태 업데이트
-  const handleSearch = (query) => {
+  const handleSearch = async (query) => {
     setSearchQuery(query);
+    setLoading(true);
     console.log('부모 컴포넌트가 받은 검색어:', query);
+
+    try {
+      const SearchList = await taleAPI.getSearchTaleRooms(Number(query));
+      const SearchTale = SearchList.data.data;
+      console.log('검색 방', SearchTale);
+
+      setExistTaleRoom(
+        SearchTale
+          ? [
+              <FairyTaleRoom
+                key={SearchTale.id || 1}
+                item={SearchTale}
+              />,
+            ]
+          : []
+      );
+      setSelectedIndex(SearchTale?.['baseTaleId'] - 1);
+    } catch (error) {
+      console.error(error);
+      setExistTaleRoom([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // selectedIndex 변경될 때마다 데이터 요청
@@ -102,6 +126,44 @@ export default function Room() {
     fetchData();
   }, []);
 
+  // 검색한 방목록 불러오기
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const SearchList = await taleAPI.getSearchTaleRooms(
+  //         Number(searchQuery)
+  //       );
+
+  //       const SearchTale = SearchList.data.data;
+  //       console.log('검색 방', SearchTale);
+
+  //       setExistTaleRoom(
+  //         SearchTale
+  //           ? Array(
+  //               <FairyTaleRoom
+  //                 key={1}
+  //                 item={SearchTale}
+  //               />
+  //             )
+  //           : []
+  //       );
+  //       setSelectedIndex(SearchTale?.['baseTaleId']);
+  //     } catch (error) {
+  //       console.error(error);
+  //       // setExistTaleRoom([])
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   if (isMounted.current) {
+  //     isMounted.current = false;
+  //   } else {
+  //     fetchData();
+  //   }
+  // }, [setSearchQuery, searchQuery]);
+
   return (
     <div className="w-[1024px] px-[25px]">
       <h1 className="text-center text-text-first service-accent1 mx-auto mb-3">
@@ -119,6 +181,7 @@ export default function Room() {
           className="block w-[50px] h-[50px] bg-gray-50 rounded-full after:content-[url(/Room/room-navigater.png)]"></button>
         <div className="flex justify-center">
           <Swiper
+            onSlideChangeTransitionEnd={handleClick}
             slidesPerView={3}
             spaceBetween={-80}
             slidesOffsetAfter={-110}
@@ -194,7 +257,7 @@ export default function Room() {
               {loading ? (
                 // <p>로딩 중...</p>
                 <Loading />
-              ) : existTaleRoom ? (
+              ) : existTaleRoom && existTaleRoom.length > 0 ? (
                 <div>
                   <div className="grid grid-flow-row grid-cols-3 gap-4">
                     {...existTaleRoom}
