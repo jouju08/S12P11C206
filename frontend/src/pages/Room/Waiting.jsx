@@ -112,12 +112,12 @@ export default function Waiting() {
   }, [audioRef.current]);
 
   return (
-    <div className="w-[1021px] h-[668px] relative">
+    <div className="w-[1024px] h-[668px] relative">
       {/* 배경 필드 이미지 */}
-      <img
+      {/* <img
         className="w-[1024px] h-[668px] absolute top-0 left-0 -z-10"
         src="/Waiting/field-background.png"
-      />
+      /> */}
 
       {showWaitingModal && (
         <WaitingModal

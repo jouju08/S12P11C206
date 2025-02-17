@@ -24,7 +24,7 @@ const TaleSentenceDrawing = () => {
 
   const [previousDrawings, setPreviousDrawings] = useState([]); // 싱글모드일때 사용, 이전에 그린 그림들 저장
 
-  const [loading, setLoading] = useState(true); //메시지 수신 loading
+  const [loading, setLoading] = useState(false); //메시지 수신 loading
   const [canvasReady, setCanvasReady] = useState(false); // DrawingBoard 렌더링
   const [hasPublished, setHasPublished] = useState(false);
 
@@ -34,17 +34,19 @@ const TaleSentenceDrawing = () => {
 
   const { currentRoom } = useTaleRoom();
   const [showDrawingModal, setShowDrawingModal] = useState(false);
-  const drawingaudioRef=useRef(new Audio("/TaleSentenceDrawing/drawing.mp3"));//그리는 중 노래
-  const handleDrawingMusic=()=>{
-    drawingaudioRef.current.volume=1;
-    drawingaudioRef.current.currentTime=0;
-    drawingaudioRef.current.loop=true;
-    drawingaudioRef.current.play().catch(error=>console.error("대기방 음악 재생 실패", error));
+  const drawingaudioRef = useRef(new Audio('/TaleSentenceDrawing/drawing.mp3')); //그리는 중 노래
+  const handleDrawingMusic = () => {
+    drawingaudioRef.current.volume = 1;
+    drawingaudioRef.current.currentTime = 0;
+    drawingaudioRef.current.loop = true;
+    drawingaudioRef.current
+      .play()
+      .catch((error) => console.error('대기방 음악 재생 실패', error));
     setShowDrawingModal(false);
-    if(onClose){
+    if (onClose) {
       onClose;
     }
-  }
+  };
   const {
     drawDirection,
     setDrawDirection,
@@ -140,14 +142,13 @@ const TaleSentenceDrawing = () => {
   };
 
   useEffect(() => {
-    setShowDrawingModal(true);//페이지 들어가자마자 모달 오픈
+    setShowDrawingModal(true); //페이지 들어가자마자 모달 오픈
     if (!isSingle) {
       joinVidu();
     }
   }, [isSingle]);
 
   useEffect(() => {
-
     const handleConnected = () => {
       publishCanvasTrack();
     };
@@ -324,19 +325,19 @@ const TaleSentenceDrawing = () => {
             <Loading />
           </div>
         )}
-        {showDrawingModal&&
-          <DrawingModal 
-            onClick={()=>{
+        {showDrawingModal && (
+          <DrawingModal
+            onClick={() => {
               setShowDrawingModal(false);
               handleDrawingMusic();
-              }
-            } 
-        />
-        }
+            }}
+          />
+        )}
         <div
-          className="w-[1024px] h-[668px] bg-cover flex"
+          className="w-[1024px] h-[668px] bg-contain bg-no-repeat bg-bottom flex"
           style={{
-            backgroundImage: "url('/TaleSentenceDrawing/field-background.png')",
+            backgroundImage: "url('/Collection/modal-open-book.png')",
+            backgroundSize: '100% 90%',
           }}>
           <section className="w-[70%] relative text-center">
             {/* 내가 그려볼 문장 */}
