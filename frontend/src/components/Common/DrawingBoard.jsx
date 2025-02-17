@@ -152,7 +152,6 @@ const DrawingBoard = forwardRef(
     };
 
     const handleTouchMove = (e) => {
-      e.preventDefault();
       if (!isDrawing) return;
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
