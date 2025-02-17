@@ -41,7 +41,7 @@ export default function TaleLayout() {
 
   const handleConfirm = () => {
     //탈주감지
-    handleEscape(location.pathname);
+    handleEscape(location);
 
     //방 나가기전 초기화
     leaveRoom();
