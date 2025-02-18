@@ -11,8 +11,8 @@ const initialState = {
   currentRoom: null,
   stompClient: null,
   participants: [],
-  baseTaleId: '',
-  taleTitle: '',
+  baseTaleId: null,
+  taleTitle: null,
 
   rawTale: null,
   isSingle: false,
@@ -160,6 +160,10 @@ const roomActions = (set, get) => ({
         body: JSON.stringify(room),
       });
 
+      const res = await taleAPI.getTaleInfo(get().baseTaleId);
+
+      set({ taleTitle: res.data.data.title || '' });
+
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           const joinRoom = get().currentRoom;
@@ -215,8 +219,8 @@ const roomActions = (set, get) => ({
         currentRoom: null,
         participants: [],
 
-        baseTaleId: '',
-        taleTitle: '',
+        baseTaleId: null,
+        taleTitle: null,
 
         rawTale: null,
         isSingle: false,
