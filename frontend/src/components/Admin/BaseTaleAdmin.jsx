@@ -82,7 +82,7 @@ const BaseTale = () => {
       }
       setBaseTales(taleList);
     } catch (error) {
-      console.error('BaseTale 목록 조회 실패:', error);
+
       Swal.fire({
         icon: 'error',
         title: '오류',
@@ -120,7 +120,7 @@ const BaseTale = () => {
         },
       });
       if (response.data && response.data.data) {
-        console.log('생성된 BaseTale id:', response.data.data);
+
         Swal.fire({
           icon: 'success',
           title: '성공',
@@ -130,7 +130,7 @@ const BaseTale = () => {
       }
       handleNewTale();
     } catch (error) {
-      console.error('BaseTale 저장 실패:', error);
+
       Swal.fire({
         icon: 'error',
         title: '저장 실패',
@@ -173,7 +173,7 @@ const BaseTale = () => {
         });
       }
     } catch (error) {
-      console.error('동화 생성 실패:', error);
+
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -210,7 +210,7 @@ const BaseTale = () => {
         });
       }
     } catch (error) {
-      console.error('도입부 음성 URL 생성 실패:', error);
+
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -241,7 +241,7 @@ const BaseTale = () => {
         text: '타이틀 이미지 생성 요청을 보냈습니다.',
       });
     } catch (error) {
-      console.error('타이틀 이미지 생성 요청 실패:', error);
+
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -262,7 +262,7 @@ const BaseTale = () => {
     const url = selectedTitleImage;
     try {
       const response = await api.post('/admin/tale/set-image', { text: url });
-      console.log(response);
+
       if (response.data && response.data.data.text) {
         setFormData((prev) => ({
           ...prev,
@@ -277,7 +277,7 @@ const BaseTale = () => {
       }
       return;
     } catch (error) {
-      console.error('타이틀 이미지 제출 실패:', error);
+
       Swal.fire({
         icon: 'error',
         title: '저장 실패',
@@ -310,7 +310,7 @@ const BaseTale = () => {
         text: '도입부 이미지 생성 요청을 보냈습니다.',
       });
     } catch (error) {
-      console.error('도입부 이미지 생성 요청 실패:', error);
+
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -331,7 +331,7 @@ const BaseTale = () => {
     const url = selectedIntroImage;
     try {
       const response = await api.post('/admin/tale/set-image', { text: url });
-      console.log(response);
+
       if (response.data && response.data.data.text) {
         setFormData((prev) => ({
           ...prev,
@@ -346,7 +346,7 @@ const BaseTale = () => {
       }
       return;
     } catch (error) {
-      console.error('도입부 이미지 제출 실패:', error);
+
       Swal.fire({
         icon: 'error',
         title: '저장 실패',
@@ -393,7 +393,7 @@ const BaseTale = () => {
         }
       }
     } catch (error) {
-      console.error('BaseTale 상세 조회 실패:', error);
+
       Swal.fire({
         icon: 'error',
         title: '조회 실패',

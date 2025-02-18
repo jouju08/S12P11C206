@@ -1,3 +1,10 @@
+/**
+ * author : Lim Chaehyeon (chaehyeon)
+ * data : 2025.02.18
+ * description : 동화 레이아웃
+ * React
+ */
+
 import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { userStore, useUser } from '@/store/userStore';
@@ -8,7 +15,6 @@ import TaleRoomHeader from '../Header/TaleRoomHeader';
 import { useTaleRoom } from '@/store/roomStore';
 import { useViduHook } from '@/store/tale/viduStore';
 import { useNavigationBlocker } from '@/hooks/useNavigationBlocker';
-import { current } from 'immer';
 
 export default function TaleLayout() {
   const { isAuthenticated } = useUser();

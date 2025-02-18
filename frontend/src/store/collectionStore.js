@@ -11,7 +11,7 @@ const taleStart = {
   startScript: 'store start str',
 };
 
-// const seeTaleId = 1;
+
 
 const taleDetail = {
   orderNum: 1,
@@ -47,7 +47,7 @@ const collectionActions = (set, get) => ({
       const response = await api.get('/tale/my-tale', {
         params: { order: get().sortBy, baseTaleId: get().filterBy, page: 0 },
       });
-      console.log('📚 내가 참여한 동화 목록', response);
+
 
       // 응답 유효성 체크 추가
       if (!response || !response.data) {
@@ -60,7 +60,6 @@ const collectionActions = (set, get) => ({
         state.myTaleList = taleList;
       });
     } catch (error) {
-      console.error('❌ 동화 목록 불러오기 실패:', error);
 
       // 오류 상태 처리
       set((state) => {
@@ -72,8 +71,7 @@ const collectionActions = (set, get) => ({
   setTaleStart: async (baseTaleId) => {
     try {
       const response = await api.get(`/base-tale/${baseTaleId}`);
-      console.log('모달에 basetaleID는 ', baseTaleId);
-      console.log('동화 초입부 불러오기!: ', response);
+
 
       const { title, startVoice, startImg, startScript } = response.data.data;
 
@@ -85,18 +83,9 @@ const collectionActions = (set, get) => ({
         state.taleStart.startScript = startScript;
       });
 
-      // set((state) => {
-      //   state.taleStart = {
-      //     title: response.data.data.title,
-      //     startVoice: response.data.data.startVoice,
-      //     startImg: response.data.data.startImg,
-      //     startScript: response.data.data.startScript,
-      //   };
 
-      // });
-      console.log('도입부 바꼈는지 확인', get().taleStart);
     } catch (error) {
-      console.log('동화 초입부 불러오기 실패: ', error);
+      return error;
     }
   },
 
@@ -109,20 +98,17 @@ const collectionActions = (set, get) => ({
   setTaleDetail: async (pageNum) => {
     //  0번째 페이지 -> basetale start 불러옴
     const response = await api.get(`/tale/${get().seeTaleId}/${pageNum}`);
-    console.log(
-      `${get().seeTaleId}번째 동화 ${get().taleStart['title']}의 ${pageNum} idx 페이지 불러오기: `,
-      response
-    );
+
 
     set((state) => {
       state.taleDetail = response.data.data;
     });
-    console.log('디테일 바꼈는지 확인', get().taleDetail);
+
   },
 
   setTaleFinish: async () => {
     const response = await api.get(`/tale/${get().seeTaleId}`);
-    console.log('마지막 부분', response);
+
 
     const { participants, createdAt } = response.data.data;
 
@@ -163,12 +149,12 @@ const collectionActions = (set, get) => ({
   setTailTitleList: async () => {
     const response = await api.get('/base-tale/list');
 
-    console.log('base 동화책들', response);
+
     const uniqueTitle = response.data.data.map((element, index) => ({
       title: element.title,
       baseTaleId: element.id,
     }));
-    console.log('유닠', uniqueTitle);
+
 
     set((state) => {
       state.tailTitleList = uniqueTitle;

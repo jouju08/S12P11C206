@@ -4,7 +4,6 @@ import FairyChatBubble from '@/components/Common/FairyChatBubble';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
-import DrawingBoard from '@/components/Common/DrawingBoard';
 import { useUser } from '@/store/userStore';
 import { useViduHook } from '@/store/tale/viduStore';
 
@@ -114,7 +113,6 @@ const TaleKeyword = () => {
         ? await submitVoiceSingle(recordedAudio)
         : await submitVoice(recordedAudio);
 
-      console.log(response.status);
 
       if (response.status == 'SU') {
         setIsNextActive(true);
@@ -124,19 +122,7 @@ const TaleKeyword = () => {
       }
     }
 
-    // else if (mode === 'writing') {
-    //   const file = await canvasRef.current.getPNGFile();
-    //   const response = isSingle
-    //     ? await submitHandWriteSingle(file)
-    //     : await submitHandWrite(file);
 
-    //   if (response) {
-    //     setIsNextActive(true);
-    //     setCurrentKeyword(response);
-    //   } else {
-    //     alert('fail keyword');
-    //   }
-    // }
   };
 
   const handleSubmit = async () => {
@@ -202,7 +188,7 @@ const TaleKeyword = () => {
       selectAudioRef.current.currentTime = 0;
       selectAudioRef.current
         .play()
-        .catch((err) => console.error('Audio play error:', err));
+        .catch(() => {});
     }
   };
   const modeButtons = [
@@ -216,11 +202,7 @@ const TaleKeyword = () => {
       text: '목소리',
       imageSrc: '/TaleKeyword/keyword-mic.png',
     },
-    // {
-    //   mode: 'writing',
-    //   text: '글쓰기',
-    //   imageSrc: '/TaleKeyword/keyword-writing.png',
-    // },
+
   ];
 
   return (
@@ -312,12 +294,7 @@ const TaleKeyword = () => {
               크게 말해보자!
             </>
           )}
-          {/* {mode === 'writing' && (
-            <>
-              아래 하얀 도화지에 <br />
-              단어를 써줄래?
-            </>
-          )} */}
+
         </FairyChatBubble>
       </div>
       {/* 모드별 UI */}
@@ -343,21 +320,7 @@ const TaleKeyword = () => {
           <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
-      {/* {mode === 'writing' && (
-        <div className="absolute bottom-[140px] left-[500px] flex items-center gap-4">
-          <div className="relative">
-            <DrawingBoard
-              ref={canvasRef}
-              width={300}
-              height={100}
-              usePalette={false}
-            />
-          </div>
-          <div className="pb-12">
-            <ConfirmBtn onClick={handleConfirm} />
-          </div>
-        </div>
-      )} */}
+
       {/* 하단 버튼들 */}
       {mode !== 'default' && (
         <div className="absolute bottom-[0px] right-[50px] flex gap-4">
@@ -463,7 +426,6 @@ const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
       mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (err) {
-      console.error('Error accessing microphone:', err);
       return;
     }
   };
@@ -526,8 +488,7 @@ const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
         />
       </button>
 
-      {/* 녹음 완료 후 다운로드 버튼 클릭 시 */}
-      {/* <button onClick={() => downloadWavFile(recordedAudio)}>다운로드</button> */}
+
     </div>
   );
 };

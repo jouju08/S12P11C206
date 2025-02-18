@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useUser } from '@/store/userStore';
 
 const KakaoCallback = () => {
@@ -14,7 +13,7 @@ const KakaoCallback = () => {
       try {
         const response = await loginWithKakao(code);
       } catch (error) {
-        console.error('카카오 로그인 실패:', error);
+        return error;
       }
     };
 

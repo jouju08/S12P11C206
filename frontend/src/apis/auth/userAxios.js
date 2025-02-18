@@ -1,3 +1,10 @@
+/**
+ * author : Oh GwangSik (cheonbi)
+ * data : 2025.02.18
+ * description : 유저 API
+ * React -> SpringBoot
+ */
+
 import { api } from '@/store/userStore';
 import axios from 'axios';
 

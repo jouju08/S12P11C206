@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import authAPI from '@/apis/auth/userAxios';
 import Swal from 'sweetalert2';
 import { useProfile } from '@/store/parentStore';
 
@@ -105,7 +104,7 @@ export default function PasswordChangeModal({ isOpen, onClose }) {
       }
         
     } catch (error) {
-      console.error('비밀번호 변경 실패', error);
+
       Swal.fire('오류', '비밀번호 변경에 실패했습니다.', 'error');
     }
   };

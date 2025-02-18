@@ -52,7 +52,7 @@ export default function ProfileEdit() {
     };
 
     try {
-      console.log('업데이트할 데이터:', updatedData);
+
       await updateProfile(updatedData);
       Swal.fire(
         '프로필 수정 성공',
@@ -60,7 +60,6 @@ export default function ProfileEdit() {
         'success'
       );
     } catch (error) {
-      console.error('프로필 수정 실패', error);
       Swal.fire('프로필 수정 실패', '프로필 수정에 실패했습니다.', 'error');
     }
   };
@@ -75,9 +74,9 @@ export default function ProfileEdit() {
 
     try {
       await updateProfileImage(formData);
-      console.log('프로필 이미지 업데이트 성공');
+
     } catch (error) {
-      console.error('프로필 이미지 업데이트 실패:', error);
+
       Swal.fire(
         '오류',
         '프로필 이미지 업데이트에 실패했습니다. 다시 시도해 주세요.',
@@ -247,7 +246,7 @@ async function confirmDuplicate(isNicknameAvailable, nickname, setIsNicknameVali
       setIsNicknameValidated(false);
     }
   } catch (error) {
-    console.error('닉네임 중복 확인 중 오류:', error);
+
     Swal.fire('오류', '닉네임 중복 확인에 실패했습니다.', 'error');
     setIsNicknameValidated(false);
   }

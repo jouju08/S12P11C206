@@ -1,9 +1,6 @@
 import React, { useEffect } from 'react';
-import TaleRoomHeader from '@/common/Header/TaleRoomHeader';
 
-// sweetAlert2 with react
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
+
 import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,27 +15,7 @@ export default function RoomBtn({ isSingle, location, children }) {
     setBaseTaleId,
   } = useTaleRoom();
 
-  // const showGameModal = () => {
-  //   setIsSingle(isSingle);
-  //   const iframeSrc = isSingle === true ? '/tale/taleStart' : '/tale/lobby';
 
-  //   withReactContent(Swal).fire({
-  //     // html: <MyComponent />, // 여기에 jsx 컴포넌트 가능
-  //     title: <TaleRoomHeader onClose={() => withReactContent(Swal).close()} />,
-  //     html: (
-  //       <iframe
-  //         src={iframeSrc}
-  //         className="w-full h-[768px]"
-  //       />
-  //     ), // 여기에 jsx 컴포넌트 가능
-  //     showConfirmButton: false,
-  //     allowOutsideClick: false,
-  //     customClass: {
-  //       popup: 'h-[768px] w-[1024px]',
-  //     },
-  //     animation: false,
-  //   });
-  // };
 
   const navigate = useNavigate();
 

@@ -41,8 +41,8 @@ const roomActions = (set, get) => ({
           Authorization: `Bearer ${userStore.getState().accessToken}`,
         },
 
-        onDisconnect: () => console.log('Disconnected'),
-        debug: (str) => console.log(str),
+        onDisconnect: () => {},
+        debug: (str) => {},
       });
 
       stompClient.activate();
@@ -53,7 +53,7 @@ const roomActions = (set, get) => ({
 
   subscribeMain: async () => {
     const stompClient = get().stompClient;
-    console.log(get().stompClient);
+
     if (!stompClient || !stompClient.connected) {
       return;
     }
@@ -116,7 +116,7 @@ const roomActions = (set, get) => ({
 
       //동화 시작
       stompClient.subscribe(`/topic/room/start/${roomId}`, (message) => {
-        console.log(message.body);
+
         const parsedData = JSON.parse(message.body);
 
         // Deep copy

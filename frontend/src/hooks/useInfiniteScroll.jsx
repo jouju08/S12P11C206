@@ -1,3 +1,10 @@
+/**
+ * author : Lim Chaehyeon (chaehyeon)
+ * data : 2025.02.18
+ * description : 스크롤
+ * React
+ */
+
 import React, { useRef, useEffect } from 'react';
 
 export default function useInfiniteScroll(callback) {

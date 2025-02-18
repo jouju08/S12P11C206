@@ -32,7 +32,7 @@ export default function FriendInviteModal() {
   };
 
   useEffect(() => {
-    console.log(inviteFlag);
+
   }, [inviteFlag]);
 
   if (!inviteFlag) return null;

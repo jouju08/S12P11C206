@@ -30,11 +30,11 @@ const galleryPageActions = (set, get) => ({
       const response = await api.get('/gallery/detail', {
         params: { id: galleryId },
       });
-      console.log(`galleryId ${galleryId} 디테일 response 확인: `, response);
+
 
       // 응답 데이터가 정상이면 drawingList 업데이트
       if (response.data && response.data.status === 'SU') {
-        console.log(`galleryId ${galleryId} 디테일 불러오기 성공: `, response);
+
 
         set((state) => {
           state.galleryPage = response.data.data;
@@ -43,7 +43,7 @@ const galleryPageActions = (set, get) => ({
         throw new Error('API 응답 오류');
       }
     } catch (error) {
-      console.log(`galleryId ${galleryId} 디테일 불러오기 실패: `, error);
+      return error;
     }
   },
 
@@ -56,22 +56,19 @@ const galleryPageActions = (set, get) => ({
         id: galleryId,
         hasLiked: hasLiked,
       });
-      console.log('좋아요 토글에 따른 응답 ', hasLiked);
-      console.log('좋아요 토글에 따른 응답 ', response);
+
 
       if (response.data && response.data.status === 'SU') {
         set((state) => {
           state.galleryPage.hasLiked = !hasLiked;
           state.galleryPage.likeCount += hasLiked ? -1 : 1;
-          console.log(
-            `하트 ${!hasLiked}로 변경, 좋아요 수: ${state.galleryPage.likeCount}`
-          );
+
         });
       } else {
         throw new Error('좋아요 API 응답 오류');
       }
     } catch (error) {
-      console.error('좋아요 API 호출 실패: ', error);
+      return error;
     }
   },
 });

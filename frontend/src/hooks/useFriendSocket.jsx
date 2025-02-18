@@ -1,3 +1,10 @@
+/**
+ * author : Lim Chaehyeon (chaehyeon)
+ * data : 2025.02.18
+ * description : 친구 소켓
+ * React
+ */
+
 import React, { useEffect } from 'react';
 import { useActiveUser } from '@/store/activeStore';
 import { useUser } from '@/store/userStore';

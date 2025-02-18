@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import Swal from 'sweetalert2';
 import { useMyPictures } from '@/store/galleryStore';
 
@@ -36,7 +35,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
           });
         }
       } catch (error) {
-        console.error('그림 자랑하기 실패:', error);
+
         Swal.fire({
           icon: 'error',
           title: '실패',

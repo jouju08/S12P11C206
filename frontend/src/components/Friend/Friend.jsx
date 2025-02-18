@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useFriend } from '@/store/friendStore';
 import { userStore } from '@/store/userStore';
-import { Loading } from '@/common/Loading';
+
 
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -55,7 +55,6 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
       fetchSendFriendRequests();
     } else {
       fetchFindMembers();
-      console.log(searchMembers);
     }
   }, [activeTab]);
 
@@ -65,12 +64,6 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
     fetchFriendRequests();
   };
 
-  // if (loading)
-  //   return (
-  //     <p>
-  //       <Loading />
-  //     </p>
-  //   );
 
   const showDeleteSwal = (friendId, freindName) => {
     withReactContent(Swal)
@@ -103,7 +96,7 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
             html: `<p className="text-text-second service-regular1 mb-5">
               ${freindName} 님과는 다음에 만나요!
             </p>`,
-            // icon: "success"
+
             width: 500,
             padding: '50px 50px',
             cancelButtonText: '닫기',

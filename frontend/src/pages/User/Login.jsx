@@ -1,6 +1,5 @@
 import { use, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-// import authAPI from '@/apis/auth/userAxios';
 import { useUser } from '@/store/userStore';
 import Swal from 'sweetalert2';
 
@@ -28,7 +27,6 @@ export default function Login() {
 
     const status = response.data.status;
     if (status === 'NF') {
-      // console.log('사용자 정보 틀림')
       Swal.fire({
         title: `<div class="flex justify-center items-center"><div class="w-[84px] h-[84px] bg-[url('/Login/exclamation-circle-solid.png')] bg-cover"></div></div>`,
         html: `

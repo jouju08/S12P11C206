@@ -5,7 +5,7 @@ import GalleryItem from '@/components/Common/GalleyItem';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 
 export default function Sightseeing() {
-  // const [sortBy, setSortBy] = useState('최신순');
+
   const {
     drawingList,
     setDrawingList,
@@ -34,7 +34,7 @@ export default function Sightseeing() {
       setIsLoading(false);
       if (!hasMore) {
         // 더 이상 불러올 데이터가 없을 때의 처리
-        console.log('모든 데이터를 불러왔습니다.');
+
       }
     }
   }, [loadMoreDrawings]);
@@ -165,12 +165,6 @@ export default function Sightseeing() {
               아직 게시글이 없어요!
             </div>
           ) : (
-            // DrawingList.map((item, idx) => (
-            //   <GalleryItem
-            //     item={item}
-            //     key={idx}
-            //   />
-            // ))
             <div className="grid grid-flow-row grid-cols-4 gap-4 mt-[30px]">
               {drawingList.map((item, idx) => (
                 <GalleryItem
@@ -187,7 +181,7 @@ export default function Sightseeing() {
           ref={infiniteScrollRef}
           style={{ height: '20px' }}></div>
 
-        {/* {isLoading && <div>Loading more...</div>} */}
+
       </div>
     </div>
   );
