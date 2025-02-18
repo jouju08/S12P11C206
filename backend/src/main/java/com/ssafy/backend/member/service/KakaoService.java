@@ -1,6 +1,6 @@
 package com.ssafy.backend.member.service;
 
-import com.ssafy.backend.common.ProfileInjector;
+import com.ssafy.backend.common.util.ProfileInjector;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.auth.KakaoUserInfo;
 import com.ssafy.backend.db.entity.Member;
@@ -17,6 +17,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+/**
+ *  author : park byeongju
+ *  date : 2025.01.25
+ *  description : 카카오 로그인 서비스
+ *  update
+ *      1.
+ * */
 
 @Service
 @RequiredArgsConstructor

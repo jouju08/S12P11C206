@@ -1,7 +1,11 @@
 package com.ssafy.backend.tale.service;
 
 import com.ssafy.backend.common.*;
+import com.ssafy.backend.common.dto.ApiResponse;
 import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.common.service.S3Service;
+import com.ssafy.backend.common.service.WebSocketNotiService;
+import com.ssafy.backend.common.util.CustomMultipartFile;
 import com.ssafy.backend.db.entity.TaleMember;
 import com.ssafy.backend.tale.dto.common.PromptSet;
 import com.ssafy.backend.tale.dto.common.TaleMemberDto;
@@ -13,7 +17,6 @@ import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 
 import com.ssafy.backend.tale.dto.response.TaleSentencesResponseDto;
 import com.ssafy.backend.tale.dto.response.TextResponseDto;
-import com.ssafy.backend.taleMember.service.TaleMemberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;

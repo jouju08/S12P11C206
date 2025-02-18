@@ -1,6 +1,5 @@
 package com.ssafy.backend.member.service;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -17,7 +16,6 @@ import java.util.*;
  * update
  * 1.
  */
-
 
 @Service
 @RequiredArgsConstructor

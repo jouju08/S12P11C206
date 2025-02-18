@@ -1,18 +1,19 @@
 package com.ssafy.backend.member.controller;
 
-import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.common.dto.ApiResponse;
 import com.ssafy.backend.common.ResponseCode;
 import com.ssafy.backend.common.ResponseMessage;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.common.service.LoginLogService;
 import com.ssafy.backend.db.entity.LoginLog;
 import com.ssafy.backend.db.entity.Member;
-import com.ssafy.backend.dto.FindIdDto;
+import com.ssafy.backend.friends.dto.request.FindIdRequestDto;
 import com.ssafy.backend.member.dto.request.FindPasswordRequestDto;
 import com.ssafy.backend.member.dto.request.LoginRequest;
 import com.ssafy.backend.member.dto.request.RefreshTokenRequestDto;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
-import com.ssafy.backend.member.dto.response.LoginLogAggregateDTO;
+import com.ssafy.backend.common.dto.LoginLogAggregateDTO;
 import com.ssafy.backend.member.dto.response.LoginResponseDto;
 import com.ssafy.backend.member.service.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +33,7 @@ import java.util.*;
  *  date : 2025.01.21
  *  description : 인증 관련 컨트롤러
  *  update
- *      1. 0125: 로그인 리펙토링 및 리프레시 토큰 추가
+ *      1. park byeongju - 로그인 리펙토링 및 리프레시 토큰 추가 (25.01.25)
  * */
 
 
@@ -40,6 +41,7 @@ import java.util.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final EmailSendService emailSendService;
     private final RefreshTokenService refreshTokenService;
     private final AuthService authService;
@@ -152,9 +154,9 @@ public class AuthController {
 
 
     @PostMapping("/find-id")
-    public ApiResponse<Object> mailSend(@RequestBody @Valid FindIdDto findIdDto) {
-        String email = findIdDto.getEmail();
-        String birth = findIdDto.getBirth();
+    public ApiResponse<Object> mailSend(@RequestBody @Valid FindIdRequestDto findIdRequestDto) {
+        String email = findIdRequestDto.getEmail();
+        String birth = findIdRequestDto.getBirth();
         boolean exists = authService.isMemberExists(email, birth);
         if (exists) {
             String loginID=emailSendService.findIdEmail(email);

@@ -1,5 +1,6 @@
-package com.ssafy.backend.common;
+package com.ssafy.backend.common.service;
 
+import com.ssafy.backend.common.util.CustomMultipartFile;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +22,7 @@ import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.UUID;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.20
  *  description : AWS S3 파일 IO 서비스

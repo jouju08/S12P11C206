@@ -1,6 +1,5 @@
 package com.ssafy.backend.tale.dto.common;
 
-import com.ssafy.backend.db.entity.TaleMember;
 import lombok.*;
 
 /**

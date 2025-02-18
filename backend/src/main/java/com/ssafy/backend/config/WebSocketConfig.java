@@ -9,6 +9,15 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+/**
+ *  author : park byeongju
+ *  date : 2025.01.25
+ *  description : 소켓 설정 파일
+ *                configureMessageBroker - 브로커 등록
+ *  update
+ *      1. 허용된 Orgin 배포 주소 외에는 제거 (25.02.18)
+ * */
+
 @Configuration
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor

@@ -1,18 +1,26 @@
 package com.ssafy.backend.member.controller;
 
-import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.dto.MemberDto;
+import com.ssafy.backend.common.dto.ApiResponse;
+import com.ssafy.backend.member.dto.MemberDto;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
-import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
+import com.ssafy.backend.member.dto.response.MemberResponseDTO;
 import com.ssafy.backend.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+/**
+ * author : lee youngjae
+ * date : 2025.02.18
+ * description : 멤버 컨트롤러(마이페이지)
+ * update
+ * 1.
+ */
 
 import java.util.*;
 @RestController
@@ -25,24 +33,24 @@ public class MemberController {
 
     // 회원 정보 조회
     @GetMapping("/mypage")
-    public ApiResponse<GetMemberResponseDTO> getMember(@RequestHeader("Authorization") String token) {
+    public ApiResponse<MemberResponseDTO> getMember(@RequestHeader("Authorization") String token) {
         String loginId = extractLoginId(token);
-        GetMemberResponseDTO memberResponse = memberService.getMember(loginId);
+        MemberResponseDTO memberResponse = memberService.getMember(loginId);
         System.out.println(memberResponse);
-        return ApiResponse.<GetMemberResponseDTO>builder()
+        return ApiResponse.<MemberResponseDTO>builder()
                 .data(memberResponse)
                 .build();
     }
 
     // 회원 정보 수정
     @PatchMapping("/mypage")
-    public ApiResponse<GetMemberResponseDTO> updateMember(
+    public ApiResponse<MemberResponseDTO> updateMember(
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody UpdateMemberRequestDTO updateMemberRequestDTO) {
 
         String loginId = extractLoginId(token);
-        GetMemberResponseDTO memberResponse = memberService.updateMember(loginId, updateMemberRequestDTO);
-        return ApiResponse.<GetMemberResponseDTO>builder()
+        MemberResponseDTO memberResponse = memberService.updateMember(loginId, updateMemberRequestDTO);
+        return ApiResponse.<MemberResponseDTO>builder()
                 .data(memberResponse)
                 .build();
     }

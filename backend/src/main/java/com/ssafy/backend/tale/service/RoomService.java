@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.23
  *  description : 방 서비스

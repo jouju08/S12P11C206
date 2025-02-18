@@ -1,15 +1,19 @@
-package com.ssafy.backend.common;
+package com.ssafy.backend.common.handler;
 
+import com.ssafy.backend.common.dto.ApiResponse;
+import com.ssafy.backend.common.ResponseCode;
+import com.ssafy.backend.common.ResponseMessage;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.common.exception.NotFoundPage;
 import com.ssafy.backend.common.exception.NotFoundUserException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.19
  *  description : 예외 처리 컨틀로러
+ *                정의 되어있지 않은 에러는 SERVER_ERROR로 마지막에 한번에 처리
  *  update
  *      1.
  * */

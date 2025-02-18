@@ -10,6 +10,12 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * author : heo hyungjun
+ * date : 2025.01.31
+ * description : 부모 동화 생성 서비스
+ */
+
 @Service
 @RequiredArgsConstructor
 public class ParentBaseTaleService {

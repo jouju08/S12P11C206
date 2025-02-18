@@ -14,17 +14,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.23
- *  description : 동화 만들기 Room 컨트롤러, 
- *                방 만들기, 참여하기, 나가기, 방 조회, 방리스트(TODO)
+ *  description : 동화 만들기 Room 소켓 컨트롤러,
+ *                방 만들기, 참여하기, 나가기, 방 조회, 방리스트
  *  update
  *      1.
  * */

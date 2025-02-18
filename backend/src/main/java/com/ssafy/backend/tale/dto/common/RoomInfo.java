@@ -2,7 +2,7 @@ package com.ssafy.backend.tale.dto.common;
 
 import lombok.*;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.23
  *  description : Room list를 위해 경량화 된 Room 정보 객체,

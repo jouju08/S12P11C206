@@ -7,8 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
-
-// AI 서버에 이미지를 보내기 위한 DTO
+/**
+ * author : HEO-hyunjun
+ * date : 2025.01.31
+ * description : AI 서버에 이미지를 보내기 위한 DTO
+ */
 
 @Getter
 @Setter

@@ -13,6 +13,12 @@ import io.livekit.server.WebhookReceiver;
 import livekit.LivekitWebhook.WebhookEvent;
 import org.springframework.web.bind.annotation.RequestBody;
 
+/**
+ * author : park byeongju
+ * date : 2025.01.31
+ * description : Openvidu livekit을 연동 서비스
+ */
+
 @Service
 public class LiveKitService {
 

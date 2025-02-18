@@ -1,7 +1,14 @@
-package com.ssafy.backend.common;
+package com.ssafy.backend.common.util;
 
-import java.util.List;
 import java.util.Random;
+
+/**
+ *  author : park byeongju
+ *  date : 2025.02.17
+ *  description : 랜덤 닉네임 제공을 위한 유틸
+ *  update
+ *      1.
+ * */
 
 public class ProfileInjector {
     String[] imgs = {

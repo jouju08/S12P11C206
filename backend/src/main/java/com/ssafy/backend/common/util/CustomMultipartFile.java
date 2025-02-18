@@ -1,11 +1,18 @@
-package com.ssafy.backend.common;
+package com.ssafy.backend.common.util;
 
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Mono;
 
 import java.io.*;
+
+/**
+ *  author : heo hyunjun
+ *  date : 2025.02.17
+ *  description : 멀티파트 전송 커스텀
+ *  update
+ *      1.
+ * */
 
 public class CustomMultipartFile implements MultipartFile {
 

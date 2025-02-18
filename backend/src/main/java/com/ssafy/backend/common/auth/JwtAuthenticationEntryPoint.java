@@ -11,7 +11,7 @@ import java.io.IOException;
  *  author : park byeongju
  *  date : 2025.01.25
  *  description : AuthenticationEntryPoint 인터페이스에 대한 구현체
- *               commence메서드는 인증 실패 상황에서 호출 됨
+ *               commence 메서드는 인증 실패 상황에서 호출 됨
  *  update
  *      1.
  * */

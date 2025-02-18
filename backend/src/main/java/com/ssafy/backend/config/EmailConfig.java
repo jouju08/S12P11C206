@@ -9,6 +9,14 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
 
+/**
+ *  author : jung juha
+ *  date : 2025.02.18
+ *  description : 이메일 전송을 위한 설정 파일
+ *  update
+ *      1.
+ * */
+
 @Configuration
 public class EmailConfig {
 

@@ -1,13 +1,13 @@
 package com.ssafy.backend.gallery.controller;
 
-import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.common.ResponseCode;
-import com.ssafy.backend.common.ResponseMessage;
-import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.common.dto.ApiResponse;
 import com.ssafy.backend.common.exception.ResourceNotFoundException;
 import com.ssafy.backend.db.repository.GalleryRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.gallery.dto.*;
+import com.ssafy.backend.gallery.dto.request.GalleryRequestDto;
+import com.ssafy.backend.gallery.dto.response.GalleryListResponseDto;
+import com.ssafy.backend.gallery.dto.response.GalleryResponseDto;
 import com.ssafy.backend.gallery.service.GalleryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +16,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * author : park byeongju
+ * date : 2025.02.18
+ * description : 자랑하기 게시판 컨트롤러
+ * update
+ * 1.
+ */
 
 @Slf4j
 @RestController

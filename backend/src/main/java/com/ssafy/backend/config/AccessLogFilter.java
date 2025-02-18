@@ -1,24 +1,30 @@
 package com.ssafy.backend.config;
 
-import com.ssafy.backend.accessLog.service.AccessLogService;
+import com.ssafy.backend.common.service.AccessLogService;
 import com.ssafy.backend.db.entity.AccessLog;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 
+/**
+ *  author : lee youngjae
+ *  date : 2025.02.18
+ *  description : 로그인 로깅을 위한 필터
+ *  update
+ *      1.
+ * */
+
 @Component
+@RequiredArgsConstructor
 public class AccessLogFilter extends OncePerRequestFilter {
     private final AccessLogService accessLogService;
-
-    public AccessLogFilter(AccessLogService accessLogService) {
-        this.accessLogService = accessLogService;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

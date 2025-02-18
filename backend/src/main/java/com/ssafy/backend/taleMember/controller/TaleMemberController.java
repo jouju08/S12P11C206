@@ -3,7 +3,7 @@ package com.ssafy.backend.taleMember.controller;
 import com.ssafy.backend.common.ResponseCode;
 import com.ssafy.backend.tale.service.AIServerRequestService;
 import com.ssafy.backend.taleMember.dto.*;
-import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.common.dto.ApiResponse;
 import com.ssafy.backend.taleMember.service.TaleMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * author : lee youngjae
+ * date : 2025.01.31
+ * description : 부모 동화 생성 서비스
+ */
 
 @RestController
 @RequiredArgsConstructor

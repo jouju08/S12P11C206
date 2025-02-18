@@ -14,6 +14,12 @@ import com.ssafy.backend.taleMember.dto.*;
 
 import java.util.List;
 
+/**
+ * author : lee youngjae
+ * date : 2025.02.10
+ * description : Tale member service
+ */
+
 @Service
 @RequiredArgsConstructor
 public class TaleMemberService {

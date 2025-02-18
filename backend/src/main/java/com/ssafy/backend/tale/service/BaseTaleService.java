@@ -11,6 +11,12 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * author : heo hyunjun
+ * date : 2025.01.31
+ * description : Text 전송을 위한 응답 DTO
+ */
+
 @Service
 @RequiredArgsConstructor
 public class BaseTaleService {

@@ -1,10 +1,16 @@
 package com.ssafy.backend.member.dto.request;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
+
+/**
+ *  author : lee youngjae
+ *  date : 2025.01.25
+ *  description : 회원 정보 수정을 위한 요청 DTO
+ *  update
+ *      1.
+ * */
 
 @Getter
 @Setter

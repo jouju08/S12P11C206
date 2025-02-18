@@ -1,7 +1,7 @@
 package com.ssafy.backend.tale.service;
 
-import com.ssafy.backend.common.S3Service;
-import com.ssafy.backend.common.WebSocketNotiService;
+import com.ssafy.backend.common.service.S3Service;
+import com.ssafy.backend.common.service.WebSocketNotiService;
 import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.entity.Tale;

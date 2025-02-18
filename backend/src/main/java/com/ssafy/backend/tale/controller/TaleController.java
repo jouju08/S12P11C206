@@ -1,9 +1,7 @@
 package com.ssafy.backend.tale.controller;
 
-import com.google.protobuf.Api;
-import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.common.ResponseCode;
-import com.ssafy.backend.common.WebSocketNotiService;
+import com.ssafy.backend.common.dto.ApiResponse;
+import com.ssafy.backend.common.service.WebSocketNotiService;
 import com.ssafy.backend.tale.dto.request.*;
 import com.ssafy.backend.tale.dto.response.*;
 import com.ssafy.backend.tale.service.AIServerRequestService;
