@@ -13,6 +13,12 @@ import io.livekit.server.WebhookReceiver;
 import livekit.LivekitWebhook.WebhookEvent;
 import org.springframework.web.bind.annotation.RequestBody;
 
+/**
+ * author : park byeongju
+ * date : 2025.01.31
+ * description : Openvidu livekit을 연동 서비스
+ */
+
 @Service
 public class LiveKitService {
 
@@ -40,7 +46,6 @@ public class LiveKitService {
         WebhookReceiver webhookReceiver = new WebhookReceiver(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
         try {
             LivekitWebhook.WebhookEvent event = webhookReceiver.receive(body, authHeader);
-            System.out.println("LiveKit Webhook: " + event.toString());
         } catch (Exception e) {
             throw new RuntimeException("Error validating webhook event: " + e.getMessage());
         }

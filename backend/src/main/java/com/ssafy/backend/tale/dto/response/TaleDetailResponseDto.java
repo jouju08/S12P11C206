@@ -7,6 +7,12 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * author : park byeongju
+ * date : 2025.01.31
+ * description : 동화 상세 정보를 제공하기 위한 응답 DTO
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor

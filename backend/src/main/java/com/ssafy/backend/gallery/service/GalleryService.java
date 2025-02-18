@@ -11,9 +11,9 @@ import com.ssafy.backend.db.repository.GalleryRepository;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.gallery.dto.GalleryDto;
-import com.ssafy.backend.gallery.dto.GalleryListResponseDto;
-import com.ssafy.backend.gallery.dto.GalleryRequestDto;
-import com.ssafy.backend.gallery.dto.GalleryResponseDto;
+import com.ssafy.backend.gallery.dto.response.GalleryListResponseDto;
+import com.ssafy.backend.gallery.dto.request.GalleryRequestDto;
+import com.ssafy.backend.gallery.dto.response.GalleryResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
@@ -29,6 +29,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+/**
+ * author : park byeongju
+ * date : 2025.02.18
+ * description : 자랑하기 게시판 서비스
+ * update
+ * 1.
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -52,8 +60,6 @@ public class GalleryService {
         List<GalleryListResponseDto> result = new ArrayList<GalleryListResponseDto>();
 
         Pageable pageable = PageRequest.of(page, 8);
-        System.out.println("page = " + page);
-        System.out.println("order = " + order);
 
         try {
             Page<Gallery> galleryPage = galleryRepository.findAllPictures(order.toUpperCase(), pageable);
@@ -181,7 +187,6 @@ public class GalleryService {
         Long memberId = member.getId();
 
         if (!galleryDto.getHasLiked()) {
-            System.out.println("좋아요 처리");
             // 좋아요 처리
             galleryLikeRepository.save(GalleryLike.builder()
                     .memberId(memberId)

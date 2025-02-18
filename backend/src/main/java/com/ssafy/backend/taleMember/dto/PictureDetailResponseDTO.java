@@ -4,6 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * author : lee youngjae
+ * date : 2025.02.10
+ * description : 그림 상세 응답을 위한 DTO
+ */
+
 @Getter
 @Setter
 @Builder

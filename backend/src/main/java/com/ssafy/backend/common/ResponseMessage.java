@@ -1,5 +1,5 @@
 package com.ssafy.backend.common;
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.19
  *  description : 프로젝트 표준 응답상태 메세지

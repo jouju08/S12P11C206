@@ -1,6 +1,6 @@
 package com.ssafy.backend.member.service;
 
-import com.ssafy.backend.common.ProfileInjector;
+import com.ssafy.backend.common.util.ProfileInjector;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.auth.KakaoUserInfo;
 import com.ssafy.backend.db.entity.Member;
@@ -17,6 +17,14 @@ import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+/**
+ *  author : park byeongju
+ *  date : 2025.01.25
+ *  description : 카카오 로그인 서비스
+ *  update
+ *      1.
+ * */
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +49,6 @@ public class KakaoService {
 
         // 2. 사용자 정보 요청
         KakaoUserInfo userInfo = getKakaoUserInfo(accessToken);
-        System.out.println("userInfo : " + userInfo);
         // 3. 회원가입 또는 로그인 처리
 
         // 오늘 날짜 패턴 맞추기
@@ -81,11 +88,6 @@ public class KakaoService {
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", jwtAccessToken);
         tokens.put("refreshToken", jwtRefreshToken);
-
-
-        System.out.println("jwtRefreshToken = " + jwtRefreshToken);
-        System.out.println("jwtAccessToken = " + jwtAccessToken);
-        System.out.println("member.getLoginId() = " + member.getLoginId());
 
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setTokens(tokens);

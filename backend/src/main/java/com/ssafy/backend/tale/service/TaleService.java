@@ -1,7 +1,7 @@
 package com.ssafy.backend.tale.service;
 
-import com.ssafy.backend.common.S3Service;
-import com.ssafy.backend.common.WebSocketNotiService;
+import com.ssafy.backend.common.service.S3Service;
+import com.ssafy.backend.common.service.WebSocketNotiService;
 import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.entity.Tale;
@@ -213,7 +213,6 @@ public class TaleService {
 
         // 3. tale_member redis에 저장
         for(int i = 0; i < 4; i++) {
-            //System.out.println("taleMemberDtos.get(i) = " + taleMemberDtos.get(i));
             setTaleMemberDtoToRedis(taleMemberDtos.get(i));
         }
 
@@ -522,13 +521,8 @@ public class TaleService {
             if(taleMemberDto.getPromptSet() != null)
                 promptCnt++;
         }
-        System.out.println(roomId + "room이 완성 됐나 확인해보자~~~~~~~~~~~~~~~~~~" );
-        System.out.println("promptCnt = " + promptCnt);
-        System.out.println("originImgCnt = " + originImgCnt);
-        System.out.println("voiceCnt = " + voiceCnt);
         if(voiceCnt == 4 && originImgCnt == 4 && promptCnt == 4){
             // mysql에 저장합니다.
-            System.out.println(roomId+"room이 완성! mysql에 저장합니다.");
             saveTaleFromRedis(roomId);
             deleteTaleFromRedis(roomId);
             webSocketNotiService.sendNotification("/topic/tale/" + roomId + "/finish", "finish tale making");
@@ -561,7 +555,6 @@ public class TaleService {
     public void setTaleMemberDtoToRedis(TaleMemberDto taleMemberDto){
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         ops.set("tale_member-"+taleMemberDto.getId(), taleMemberDto);
-        System.out.println("생성되고 있는 동화 정보 수정 (TaleService)\n" + taleMemberDto);
     }
 
     private TaleMemberDto taleMember2taleMemberDto(TaleMember taleMember) {

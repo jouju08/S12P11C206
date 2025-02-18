@@ -1,12 +1,14 @@
-package com.ssafy.backend.common;
+package com.ssafy.backend.common.dto;
 
+import com.ssafy.backend.common.ResponseCode;
+import com.ssafy.backend.common.ResponseMessage;
 import lombok.Builder;
 import lombok.Data;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.19
- *  description : 프로젝트 표준 API 리턴 객체
+ *  description : 프로젝트 표준 API 리턴 객체, status와 message 기입 안하면 Success 제공
  *  update
  *      1.
  * */

@@ -1,7 +1,11 @@
 package com.ssafy.backend.tale.service;
 
 import com.ssafy.backend.common.*;
+import com.ssafy.backend.common.dto.ApiResponse;
 import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.common.service.S3Service;
+import com.ssafy.backend.common.service.WebSocketNotiService;
+import com.ssafy.backend.common.util.CustomMultipartFile;
 import com.ssafy.backend.db.entity.TaleMember;
 import com.ssafy.backend.tale.dto.common.PromptSet;
 import com.ssafy.backend.tale.dto.common.TaleMemberDto;
@@ -13,7 +17,6 @@ import com.ssafy.backend.tale.dto.common.SentenceOwnerPair;
 
 import com.ssafy.backend.tale.dto.response.TaleSentencesResponseDto;
 import com.ssafy.backend.tale.dto.response.TextResponseDto;
-import com.ssafy.backend.taleMember.service.TaleMemberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ByteArrayResource;
@@ -132,8 +135,7 @@ public class AIServerRequestService {
                     .body(BodyInserters.fromMultipartData(parts))
                     .retrieve()
                     .bodyToMono(void.class)
-                    .subscribe(unused -> System.out.println("요청 성공"),
-                            error -> System.err.println("요청 실패: " + error.getMessage()));
+                    .subscribe();
         }
     }
 
@@ -171,7 +173,6 @@ public class AIServerRequestService {
         parts.add("image", fileResource);
         parts.add("prompt", prompt);
         parts.add("negativePrompt", negativePrompt);
-        System.out.println("parts = " + parts);
 
         webClient.post()
                 .uri("/gen/picture")
@@ -179,8 +180,7 @@ public class AIServerRequestService {
                 .body(BodyInserters.fromMultipartData(parts))
                 .retrieve()
                 .bodyToMono(void.class)
-                .subscribe(unused -> System.out.println("요청 성공"),
-                        error -> System.err.println("요청 실패: " + error.getMessage()));
+                .subscribe();
 
     }
 
@@ -251,7 +251,6 @@ public class AIServerRequestService {
     private void handleGenerateTaleResponse(long roomId,GenerateTaleRequestDto generateTaleRequestDto, ApiResponse<GenerateTaleResponseDto> response){
         // 완성된 동화를 redis에 저장
         List<PageInfo> pages = response.getData().getPages();
-        System.out.println("pages = " + pages);
         List<SentenceOwnerPair> sentenceOwnerPairList =  taleService.saveTaleText(roomId, pages);
         // websocket으로 알림
         webSocketNotiService.sendNotification("/topic/tale/" + roomId, sentenceOwnerPairList);

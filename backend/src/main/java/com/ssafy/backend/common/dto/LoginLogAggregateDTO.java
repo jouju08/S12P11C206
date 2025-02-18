@@ -1,8 +1,16 @@
-package com.ssafy.backend.member.dto.response;
+package com.ssafy.backend.common.dto;
 
 import lombok.*;
 
 import java.time.LocalDateTime;
+
+/**
+ *  author : park byeongju
+ *  date : 2025.02.16
+ *  description : 로그인 로깅 제공 위한 응답 DTO
+ *  update
+ *      1.
+ * */
 
 @Getter
 @Setter

@@ -1,9 +1,7 @@
 package com.ssafy.backend.tale.controller;
 
-import com.google.protobuf.Api;
-import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.common.ResponseCode;
-import com.ssafy.backend.common.WebSocketNotiService;
+import com.ssafy.backend.common.dto.ApiResponse;
+import com.ssafy.backend.common.service.WebSocketNotiService;
 import com.ssafy.backend.tale.dto.request.*;
 import com.ssafy.backend.tale.dto.response.*;
 import com.ssafy.backend.tale.service.AIServerRequestService;
@@ -164,7 +162,6 @@ public class TaleController {
     // AI 서버에서 그림이 완성됐을때 여기로 제출합니다.
     @PostMapping("/submit/ai-picture")
     public ApiResponse<String> submitAIPicture(@ModelAttribute SubmitFileRequestDto submitFileRequestDto){
-        System.out.println("submitFileRequestDto = " + submitFileRequestDto);
         taleService.saveAIPicture(submitFileRequestDto);
 
         return ApiResponse.<String>builder().build();
@@ -174,10 +171,6 @@ public class TaleController {
     // AI 서버에서 그림이 완성됐을때 여기로 제출합니다. (테스트용)
 //    @PostMapping("/submitt/ai-picture")
 //    public ApiResponse<String> submitAIPictures(@ModelAttribute SubmitFileRequestDto submitFileRequestDto){
-//        System.out.println("submitFileRequestDto = " + submitFileRequestDto);
-//        System.out.println(
-//                "submitaipicture 도착햇다아아아아랑ㄴㅁ;러ㅏㅇ니라ㅓ마;ㅣㄹㅇ"
-//        );
 //        //aiServerRequestService.requestTestAIPicture(submitFileRequestDto);
 //        //taleService.saveAIPicture(submitFileRequestDto);
 //        return ApiResponse.<String>builder().build();

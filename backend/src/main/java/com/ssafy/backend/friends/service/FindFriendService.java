@@ -4,17 +4,24 @@ import com.ssafy.backend.db.entity.Friend;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.FriendRepository;
 import com.ssafy.backend.db.repository.MemberRepository;
-import com.ssafy.backend.dto.MemberDto;
+import com.ssafy.backend.member.dto.MemberDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+
+/**
+ * author : jung juha
+ * date : 2025.02.18
+ * description : 친구 찾기 서비스
+ * update
+ * 1.
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +49,6 @@ public class FindFriendService {
         long myMemberId = getMemberId(myLoginId);
         // 내 친구 ID 목록 가져오기
         List<Long> friendIds = friendRepository.findFriendById(myMemberId);
-        System.out.println(friendIds);
 
         if(activeUserSet == null){ // null에 대한 에러 방지
             activeUserSet = new HashSet<>();
@@ -69,10 +75,7 @@ public class FindFriendService {
         Long friendID = getMemberId(friendId);
         Friend friend1=friendRepository.findByUserIdAndFriendId(userID, friendID);
         Friend friend2=friendRepository.findByUserIdAndFriendId(friendID,userID);
-        System.out.println(friendID);
-        System.out.println(userID);
         if(friend1==null||friend2==null) {
-            System.out.println(friend1+" "+friend2);
             return false;
         }
         friendRepository.delete(friend1);

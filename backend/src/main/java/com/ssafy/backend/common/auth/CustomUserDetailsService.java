@@ -1,28 +1,26 @@
-package com.ssafy.backend.member.service;
+package com.ssafy.backend.common.auth;
 
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.25
  *  description : UserDetailsService에 대한 구현체
  *  update
- *      1.
+ *      1. 파일 위치 변경 및 빈 주입 방식 통일 (25.02.18)
  * */
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
-
-    public CustomUserDetailsService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

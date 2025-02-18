@@ -9,6 +9,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import java.time.LocalDateTime;
 import java.util.TimeZone;
 
+/**
+ * author : common
+ * date : -
+ * description : 스프링 부팅 파일
+ *               스케쥴링, 비동기 활성화
+ */
+
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync

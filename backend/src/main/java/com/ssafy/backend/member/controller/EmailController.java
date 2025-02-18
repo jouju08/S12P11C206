@@ -1,9 +1,9 @@
 package com.ssafy.backend.member.controller;
 
-import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.common.dto.ApiResponse;
 import com.ssafy.backend.common.ResponseCode;
-import com.ssafy.backend.dto.EmailCheckDto;
-import com.ssafy.backend.dto.EmailRequestDto;
+import com.ssafy.backend.member.dto.request.EmailCheckDto;
+import com.ssafy.backend.member.dto.request.EmailRequestDto;
 import com.ssafy.backend.member.service.EmailSendService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,10 +11,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+
+/**
+ * author : jung juha
+ * date : 2025.02.18
+ * description : 이메일 전송 컨트롤러
+ * update
+ * 1.
+ */
+
 @RequestMapping("/api/auth/email")
 @RestController
 @RequiredArgsConstructor
 public class EmailController {
+
     private final EmailSendService emailSendService;
 
     /* Send Email: 인증번호 전송 버튼 click */

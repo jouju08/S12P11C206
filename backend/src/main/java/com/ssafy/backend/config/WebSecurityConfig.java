@@ -21,13 +21,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.17
  *  description : 스프링 시큐리티 설정 파일
  *  update
- *      1.
+ *      1. 허용된 Orgin 배포 주소 외에는 제거 (25.02.18)
  * */
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -40,7 +41,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("https://i12c206.p.ssafy.io:3000", "http://localhost:3000", "https://i12c206.p.ssafy.io", "http://192.168.100.136:3000", "http://172.30.1.84:3000", "https://i12c206.p.ssafy.io:8000")); // 허용할 Origin 설정
+        config.setAllowedOrigins(List.of("https://i12c206.p.ssafy.io:3000", "https://i12c206.p.ssafy.io", "https://i12c206.p.ssafy.io:8000")); // 허용할 Origin 설정
 
         config.setAllowedMethods(List.of("GET", "POST","PATCH", "PUT", "DELETE", "OPTIONS", "MESSAGE")); // 허용할 HTTP 메서드 설정
         config.setAllowedHeaders(List.of("*")); // 모든 헤더 허용

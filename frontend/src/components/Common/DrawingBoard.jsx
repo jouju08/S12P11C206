@@ -88,7 +88,6 @@ const DrawingBoard = forwardRef(
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       },
@@ -122,9 +121,9 @@ const DrawingBoard = forwardRef(
       // console.log(x, y);
 
       if (isEraser) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.strokeStyle = 'rgba(0,0,0,1)';
-        ctx.lineWidth = 35;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = 'white'; // 투명 대신 흰색으로 지움
+        ctx.lineWidth = 25;
       } else {
         ctx.globalCompositeOperation = 'source-over';
         ctx.strokeStyle = lineColor;

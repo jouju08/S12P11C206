@@ -10,64 +10,17 @@ import GalleryItem from '@/components/Common/GalleyItem';
 import '@/styles/main.css';
 import '@/styles/text.css';
 
-// Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
-// Import Swiper styles
 import 'swiper/css';
 import '@/styles/taleRoom.css';
 import { Link } from 'react-router-dom';
 
-const dummyDrawingList = [
-  {
-    galleryId: 4,
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-    authorId: 5,
-    authorNickname: '테스터',
-    authorProfileImg: null,
-    hasLiked: false,
-    likeCnt: 0,
-    createdAt: '2025-02-07T11:04:57.572662600',
-  },
-  {
-    galleryId: 3,
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-    authorId: 5,
-    authorNickname: '테스터',
-    authorProfileImg: null,
-    hasLiked: true,
-    likeCnt: 10,
-    createdAt: '2025-02-07T11:02:57.843395',
-  },
-  {
-    galleryId: 2,
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-    authorId: 5,
-    authorNickname: '테스터',
-    authorProfileImg: null,
-    hasLiked: false,
-    likeCnt: 0,
-    createdAt: '2025-02-06T15:23:24.819179600',
-  },
-  {
-    galleryId: 1,
-    img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-    authorId: 5,
-    authorNickname: '테스터',
-    authorProfileImg: null,
-    hasLiked: false,
-    likeCnt: 1,
-    createdAt: '2025-02-06T15:20:39.791333600',
-  },
-];
-
 export default function Main() {
-  // 로그인 되어있는 유저 닉네임 가져오기
   const { nickname, profileImg, memberInfo, myPage } = userStore(
     (state) => state
   );
   const [member, setMember] = useState(memberInfo || {});
 
-  //페이지 랜더링 될때마다 유저 정보 불러오기
   useEffect(() => {
     myPage();
   }, []);
@@ -98,28 +51,27 @@ export default function Main() {
     </>,
   ];
 
-  // 만들어져 있는 동화방, 인기 그림 데이터 불러오기
   const [taleData, setTaleData] = useState([]);
   const [drawingData, setdrawingData] = useState([]);
 
   useEffect(() => {
-    // 백엔드 API 호출 함수
     async function fetchData() {
       try {
         const response = await api.get('/tale/rooms');
 
+        console.log(response);
         if (response.data.status === 'SU') {
           setTaleData(response.data.data); //
         } else {
           return;
         }
       } catch (error) {
-        console.error('만들어진 동화방 실패:', error);
+        return;
       }
     }
 
-    fetchData(); // 함수 실행
-  }, []); // 빈 배열을 넣으면 컴포넌트가 처음 렌더링될 때만 실행됨
+    fetchData();
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -138,7 +90,7 @@ export default function Main() {
       }
     }
 
-    fetchData(); // 함수 실행
+    fetchData();
   }, []);
 
   const linkArray = ['/room', '/collection', '/gallery', '/sightseeing'];
@@ -170,7 +122,6 @@ export default function Main() {
     <div>
       {/* 메인 페이지 상단 프로필, 메뉴바 section */}
       <div className=" w-[1024px] h-[440px] px-[60px] bg-[url(/Main/nav-background.png)] flex flex-row justify-between items-center relative">
-        {/* 부모님 페이지 이동, 연결링크 수정 필요 */}
         <Link
           to={'/profile'}
           className="absolute top-[16px] right-[61px] font-NPSfont font-light text-gray-200 text-[14px]">
@@ -178,7 +129,6 @@ export default function Main() {
         </Link>
         {/* 왼쪽 프로필 */}
         <div className="w-[294px] h-[317px] relative">
-          {/* 로그인 정보 store에서 가져오기기 */}
           <img
             className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px]"
             src={member.profileImg || '/Common/blank_profile.jpg'}
@@ -196,7 +146,6 @@ export default function Main() {
             />
             <div className="h-[68px] left-[34px] top-[74px] absolute flex-col justify-start items-start gap-1 inline-flex overflow-hidden">
               <div className="justify-start items-center gap-1.5 inline-flex overflow-hidden">
-                {/* 로그인 정보 store에서 가져오기기 */}
                 <div className="text-main-point service-accent3 max-w-[120px] h-fit truncate hover:animate-marquee">
                   {member.nickname}
                 </div>
@@ -223,7 +172,7 @@ export default function Main() {
       </div>
 
       {/* 만들어진 동화방 */}
-      <div className="mx-[60px] mt-[70px] w-[904px] h-[350px]">
+      {/* <div className="mx-[60px] mt-[70px] w-[904px] h-[350px]">
         <div className="text-text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
@@ -236,7 +185,6 @@ export default function Main() {
               {listFairyTaleRoom}
             </Swiper>
           ) : (
-            // 데이터 없을 때 어떻게 나올지 수정 필요
             <div className="flex flex-col justify-center items-center mx-auto">
               <p className="text-text-second text-center service-accent3 mb-10">
                 아직 만들어진 방이 없어요! 직접 시작하러 가볼까요?
@@ -249,7 +197,7 @@ export default function Main() {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* 인기있는 그림 */}
       <div className="mx-[60px] my-[70px] w-[904px] h-[357px]">

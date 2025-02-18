@@ -5,6 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * author : HEO-hyunjun
+ * date : 2025.01.31
+ * description : 동화 내용을 담는 객체
+ */
+
 @Getter
 @Setter
 @AllArgsConstructor

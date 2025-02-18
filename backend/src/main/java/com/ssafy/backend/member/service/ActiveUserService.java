@@ -1,6 +1,5 @@
 package com.ssafy.backend.member.service;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -17,7 +16,6 @@ import java.util.*;
  * update
  * 1.
  */
-
 
 @Service
 @RequiredArgsConstructor
@@ -44,8 +42,6 @@ public class ActiveUserService {
 
     @Scheduled(fixedRate = 3000) // 10초 마다
     public void sendActiveDataSchedule() {
-//        time++;
-//        System.out.println("sendActiveDataSchedule : " + time);
         messagingTemplate.convertAndSend("/active", "ping");
     }
 
@@ -55,7 +51,6 @@ public class ActiveUserService {
         Set<Long> activeBackupUsers = (Set<Long>) ops.get("activeBackupUsers");
         activeUsers.add(memeberId);
         activeBackupUsers.add(memeberId);
-        System.out.println("접속중 : " + activeUsers);
         ops.set("activeUsers", activeUsers);
         ops.set("activeBackupUsers", activeBackupUsers);
     }

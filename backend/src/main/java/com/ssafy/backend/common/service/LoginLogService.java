@@ -1,9 +1,9 @@
-package com.ssafy.backend.member.service;
+package com.ssafy.backend.common.service;
 
 
 import com.ssafy.backend.db.entity.LoginLog;
 import com.ssafy.backend.db.repository.LoginLogRepository;
-import com.ssafy.backend.member.dto.response.LoginLogAggregateDTO;
+import com.ssafy.backend.common.dto.LoginLogAggregateDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +12,15 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
+
+/**
+ *  author : lee youngjae
+ *  date : 2025.01.25
+ *  description : 로그인 로깅 서비스
+ *  update
+ *      1.
+ * */
 
 @Service
 @RequiredArgsConstructor

@@ -1,13 +1,13 @@
 package com.ssafy.backend.member.service;
 
-import com.ssafy.backend.common.S3Service;
+import com.ssafy.backend.common.service.S3Service;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
-import com.ssafy.backend.dto.MemberDto;
+import com.ssafy.backend.member.dto.MemberDto;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
-import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
+import com.ssafy.backend.member.dto.response.MemberResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,8 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+/**
+ *  author : lee youngjae
+ *  date : 2025.01.25
+ *  description : 멤버 서비스(마이페이지 관련)
+ *  update
+ *      1.
+ * */
 
 @Service
 @RequiredArgsConstructor
@@ -29,11 +36,11 @@ public class MemberService {
 
 
     @Transactional(readOnly = true)
-    public GetMemberResponseDTO getMember(String loginId) {
+    public MemberResponseDTO getMember(String loginId) {
         Member member = memberRepository.getMemberByLoginIdEquals(loginId)
                 .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + loginId));
 
-        return GetMemberResponseDTO.builder()
+        return MemberResponseDTO.builder()
                 .id(member.getId())
                 .loginId(member.getLoginId())
                 .email(member.getEmail())
@@ -53,7 +60,7 @@ public class MemberService {
     }
 
     @Transactional
-    public GetMemberResponseDTO updateMember(String LoginId, UpdateMemberRequestDTO updateMemberRequestDTO) {
+    public MemberResponseDTO updateMember(String LoginId, UpdateMemberRequestDTO updateMemberRequestDTO) {
         Member member = memberRepository.getMemberByLoginIdEquals(LoginId)
                 .orElseThrow(() -> new BadRequestException("회원이 존재하지 않습니다.: " + LoginId));
 
@@ -65,7 +72,7 @@ public class MemberService {
             member.setBirth(updateMemberRequestDTO.getBirth());
         }
 
-        return GetMemberResponseDTO.builder()
+        return MemberResponseDTO.builder()
                 .id(member.getId())
                 .loginId(member.getLoginId())
                 .email(member.getEmail())
@@ -125,7 +132,6 @@ public class MemberService {
     @Transactional
     public void findPasswordService(String loginId, String email) {
         Member member=memberRepository.findByLoginIdAndEmail(loginId, email).orElseThrow(()->new BadRequestException("아이디 또는 이메일을 확인해주세요"));
-        System.out.println(member);
         if(member.getIsDeleted()){
             throw new BadRequestException("아이디 또는 비밀번호를 확인해주세요.");
         }

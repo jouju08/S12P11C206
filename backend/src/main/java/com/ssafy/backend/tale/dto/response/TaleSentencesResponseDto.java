@@ -7,6 +7,12 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * author : heo hyunjun
+ * date : 2025.01.31
+ * description : 동화 문장을 전송하기 위한 DTO
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor

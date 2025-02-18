@@ -1,8 +1,7 @@
 package com.ssafy.backend.member.service;
 
-import com.ssafy.backend.common.ProfileInjector;
+import com.ssafy.backend.common.util.ProfileInjector;
 import com.ssafy.backend.common.auth.JwtUtil;
-import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.common.exception.NotFoundUserException;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
@@ -11,7 +10,6 @@ import com.ssafy.backend.member.dto.request.RegisterRequest;
 import com.ssafy.backend.member.dto.response.LoginResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.25
  *  description : 인증부분 서비스
@@ -133,7 +131,6 @@ public class AuthService {
      */
     public Map<String, String> refreshAccessToken(String refreshToken) {
         // 리프레시 토큰 유효성 검증
-        System.out.println(refreshToken);
         if (!jwtUtil.validateRefreshToken(refreshToken)) {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
         }

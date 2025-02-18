@@ -5,8 +5,7 @@ import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import kotlin.text.UStringsKt;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -16,14 +15,22 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ *  author : jung juha
+ *  date : 2025.01.25
+ *  description : 이메일 전송 서비스
+ *  update
+ *      1.
+ * */
+
 @Service
+@RequiredArgsConstructor
 public class EmailSendService {
-    @Autowired
-    MemberRepository memberRepository;
-    @Autowired
-    private JavaMailSender javaMailSender;
-    @Autowired
-    private RedisConfig redisConfig;
+
+    private final MemberRepository memberRepository;
+    private final JavaMailSender javaMailSender;
+    private final RedisConfig redisConfig;
+
     private int authNumber;
     private String newPassword;//새로운 비밀번호
     /* 이메일 인증에 필요한 정보 */

@@ -1,13 +1,13 @@
 package com.ssafy.backend.gallery.controller;
 
-import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.common.ResponseCode;
-import com.ssafy.backend.common.ResponseMessage;
-import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.common.dto.ApiResponse;
 import com.ssafy.backend.common.exception.ResourceNotFoundException;
 import com.ssafy.backend.db.repository.GalleryRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.gallery.dto.*;
+import com.ssafy.backend.gallery.dto.request.GalleryRequestDto;
+import com.ssafy.backend.gallery.dto.response.GalleryListResponseDto;
+import com.ssafy.backend.gallery.dto.response.GalleryResponseDto;
 import com.ssafy.backend.gallery.service.GalleryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +16,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * author : park byeongju
+ * date : 2025.02.18
+ * description : 자랑하기 게시판 컨트롤러
+ * update
+ * 1.
+ */
 
 @Slf4j
 @RestController
@@ -29,7 +36,6 @@ public class GalleryController {
 
     @PostMapping("/gallery")//게시글 생성
     public ApiResponse<Object> createBoard(Authentication auth, @RequestBody GalleryRequestDto galleryRequestDto) {
-        System.out.println(galleryRequestDto);
         galleryService.createBoard(galleryRequestDto.getTaleMemberId(), auth.getName(), galleryRequestDto.isHasOrigin());
         return ApiResponse.builder().build();
     }
@@ -67,7 +73,6 @@ public class GalleryController {
 
     @PostMapping("/gallery/like")
     public ApiResponse<Object> likeBoard(@RequestBody GalleryDto galleryDto, Authentication auth) {
-        System.out.println(galleryDto);
         if(galleryService.like(auth, galleryDto)){
             return ApiResponse.builder().data("좋아요").build();
         } else {

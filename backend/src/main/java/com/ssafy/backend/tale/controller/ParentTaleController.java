@@ -1,26 +1,25 @@
 package com.ssafy.backend.tale.controller;
 
-import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.common.S3Service;
-import com.ssafy.backend.common.WebSocketNotiService;
+import com.ssafy.backend.common.dto.ApiResponse;
 import com.ssafy.backend.common.exception.BadRequestException;
-import com.ssafy.backend.db.entity.BaseTale;
 import com.ssafy.backend.db.entity.ParentBaseTale;
 import com.ssafy.backend.db.repository.MemberRepository;
-import com.ssafy.backend.tale.dto.common.BaseTaleDto;
 import com.ssafy.backend.tale.dto.common.ParentBaseTaleDto;
-import com.ssafy.backend.tale.dto.request.TaleIntroImageRequestDto;
-import com.ssafy.backend.tale.dto.request.TaleTitleImageRequestDto;
-import com.ssafy.backend.tale.dto.request.TextRequestDto;
 import com.ssafy.backend.tale.dto.response.*;
-import com.ssafy.backend.tale.service.AIServerRequestService;
-import com.ssafy.backend.tale.service.BaseTaleService;
 import com.ssafy.backend.tale.service.ParentBaseTaleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+/**
+ *  author : heo hyunjun
+ *  date : 2025.02.16
+ *  description : 부모가 동화 생성을 요청하는 컨트롤러
+ *  update
+ *      1.
+ * */
 
 @RequiredArgsConstructor
 @RestController
