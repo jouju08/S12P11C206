@@ -147,9 +147,15 @@ const collectionActions = (set, get) => ({
 
   // filterBy 상태를 변경하고, 변경 후 새 데이터를 다시 불러옴
   setFilterBy: (newFilterBy) => {
-    set((state) => {
-      state.filterBy = newFilterBy;
-    });
+    if (newFilterBy === '전체 보기') {
+      set((state) => {
+        state.filterBy = null;
+      });
+    } else {
+      set((state) => {
+        state.filterBy = newFilterBy;
+      });
+    }
     // filterBy 바뀌면 바로 새 데이터를 불러오도록 실행
     get().setMyTaleList();
   },
