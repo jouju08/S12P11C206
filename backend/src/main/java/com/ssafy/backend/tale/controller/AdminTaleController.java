@@ -47,9 +47,7 @@ public class AdminTaleController {
 
 //    @PostMapping("/test")
 //    public void test(@RequestBody TextRequestDto textRequestDto) {
-//        System.out.println(textRequestDto.getText());
 //        String myText = s3Service.uploadFileFromExternalLink(textRequestDto.getText());
-//        System.out.println("myText = " + myText);
 //    }
     @GetMapping("/tale-sentences/{title}")
     public ApiResponse<TaleSentencesResponseDto> generateTaleSentences(@PathVariable String title) {
@@ -72,9 +70,7 @@ public class AdminTaleController {
     // 타이틀 이미지 생성 완료 후 AI 이미지 webhook 요청
     @PostMapping("/submit/ai-picture/{memberId}")
     public void submitAiPicture(@RequestBody ImageUrlListResponseDto imageUrlListResponseDto, @PathVariable Long memberId) {
-        System.out.println("imageUrlListResponseDto = " + imageUrlListResponseDto);
         //websocket으로 알림
-        System.out.println("imageUrlListResponseDto = " + imageUrlListResponseDto);
         webSocketNotiService.sendNotification("/topic/gen/title-image/"+memberId.toString(), imageUrlListResponseDto);
     }
 
@@ -96,7 +92,6 @@ public class AdminTaleController {
     // 도입부 이미지 생성 완료 후 AI 이미지 webhook 요청
     @PostMapping("/submit/ai-intro-picture/{memberId}")
     public void submitAiIntroPicture(@RequestBody ImageUrlListResponseDto imageUrlListResponseDto, @PathVariable Long memberId) {
-        System.out.println("imageUrlListResponseDto = " + imageUrlListResponseDto);
         //websocket으로 알림
         webSocketNotiService.sendNotification("/topic/gen/intro-image/"+memberId.toString(), imageUrlListResponseDto);
     }
@@ -133,7 +128,6 @@ public class AdminTaleController {
 
     @PostMapping("/auth")
     public ApiResponse<Boolean> checkAuthKey(@RequestBody TextRequestDto textRequestDto) {
-        //System.out.println("authKey = " + textRequestDto.getText());
         return ApiResponse.<Boolean>builder().data(textRequestDto.getText().equals(AUTHKEY)).build();
     }
 

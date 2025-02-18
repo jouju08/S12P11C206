@@ -36,7 +36,7 @@ public class MemberController {
     public ApiResponse<MemberResponseDTO> getMember(@RequestHeader("Authorization") String token) {
         String loginId = extractLoginId(token);
         MemberResponseDTO memberResponse = memberService.getMember(loginId);
-        System.out.println(memberResponse);
+
         return ApiResponse.<MemberResponseDTO>builder()
                 .data(memberResponse)
                 .build();

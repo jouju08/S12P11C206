@@ -135,8 +135,7 @@ public class AIServerRequestService {
                     .body(BodyInserters.fromMultipartData(parts))
                     .retrieve()
                     .bodyToMono(void.class)
-                    .subscribe(unused -> System.out.println("요청 성공"),
-                            error -> System.err.println("요청 실패: " + error.getMessage()));
+                    .subscribe();
         }
     }
 
@@ -174,7 +173,6 @@ public class AIServerRequestService {
         parts.add("image", fileResource);
         parts.add("prompt", prompt);
         parts.add("negativePrompt", negativePrompt);
-        System.out.println("parts = " + parts);
 
         webClient.post()
                 .uri("/gen/picture")
@@ -182,8 +180,7 @@ public class AIServerRequestService {
                 .body(BodyInserters.fromMultipartData(parts))
                 .retrieve()
                 .bodyToMono(void.class)
-                .subscribe(unused -> System.out.println("요청 성공"),
-                        error -> System.err.println("요청 실패: " + error.getMessage()));
+                .subscribe();
 
     }
 
@@ -254,7 +251,6 @@ public class AIServerRequestService {
     private void handleGenerateTaleResponse(long roomId,GenerateTaleRequestDto generateTaleRequestDto, ApiResponse<GenerateTaleResponseDto> response){
         // 완성된 동화를 redis에 저장
         List<PageInfo> pages = response.getData().getPages();
-        System.out.println("pages = " + pages);
         List<SentenceOwnerPair> sentenceOwnerPairList =  taleService.saveTaleText(roomId, pages);
         // websocket으로 알림
         webSocketNotiService.sendNotification("/topic/tale/" + roomId, sentenceOwnerPairList);

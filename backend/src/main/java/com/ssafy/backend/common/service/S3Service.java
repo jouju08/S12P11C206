@@ -157,11 +157,9 @@ public class S3Service {
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 throw new RuntimeException("외부 파일 다운로드 실패, 응답 코드: " + responseCode);
             }
-            System.out.println("responseCode = " + responseCode);
 
             // 컨텐츠 타입 추출
             String contentType = connection.getContentType();
-            System.out.println("contentType = " + contentType);
 
             // Content-Disposition 헤더에 파일명이 있는지 확인 (예: attachment; filename="example.png")
             String originalFileName = null;
@@ -179,11 +177,9 @@ public class S3Service {
                 String path = url.getPath(); // 예: "/prod/…/1b49f4d11fbf432e93740d3c182a41f4.png"
                 originalFileName = path.substring(path.lastIndexOf('/') + 1);
             }
-            System.out.println("originalFileName = " + originalFileName);
 
             // 파일 확장자 추출 (예: png)
             String filenameExtension = StringUtils.getFilenameExtension(originalFileName);
-            System.out.println("filenameExtension = " + filenameExtension);
 
             // 새로운 파일명 생성 (uuid + 타임스탬프 + 확장자)
             String uuid = UUID.randomUUID().toString();

@@ -45,9 +45,7 @@ public class FriendManageController {
     public ApiResponse deleteFriend(Authentication auth, @PathVariable String friendId) {
         User user = (User) auth.getPrincipal();
         boolean response = findFriendService.deleteFriend(user.getUsername(), friendId);
-        System.out.println(response);
         if (response) {
-            System.out.println("성공~~~");
             return ApiResponse.builder().data(true).message(ResponseMessage.SUCCESS).build();
         } else return ApiResponse.builder().data(false).message(ResponseMessage.BAD_REQUEST).build();
     }

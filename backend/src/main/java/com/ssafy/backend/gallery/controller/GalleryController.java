@@ -36,7 +36,6 @@ public class GalleryController {
 
     @PostMapping("/gallery")//게시글 생성
     public ApiResponse<Object> createBoard(Authentication auth, @RequestBody GalleryRequestDto galleryRequestDto) {
-        System.out.println(galleryRequestDto);
         galleryService.createBoard(galleryRequestDto.getTaleMemberId(), auth.getName(), galleryRequestDto.isHasOrigin());
         return ApiResponse.builder().build();
     }
@@ -74,7 +73,6 @@ public class GalleryController {
 
     @PostMapping("/gallery/like")
     public ApiResponse<Object> likeBoard(@RequestBody GalleryDto galleryDto, Authentication auth) {
-        System.out.println(galleryDto);
         if(galleryService.like(auth, galleryDto)){
             return ApiResponse.builder().data("좋아요").build();
         } else {

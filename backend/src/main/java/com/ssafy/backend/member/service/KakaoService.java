@@ -49,7 +49,6 @@ public class KakaoService {
 
         // 2. 사용자 정보 요청
         KakaoUserInfo userInfo = getKakaoUserInfo(accessToken);
-        System.out.println("userInfo : " + userInfo);
         // 3. 회원가입 또는 로그인 처리
 
         // 오늘 날짜 패턴 맞추기
@@ -89,11 +88,6 @@ public class KakaoService {
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", jwtAccessToken);
         tokens.put("refreshToken", jwtRefreshToken);
-
-
-        System.out.println("jwtRefreshToken = " + jwtRefreshToken);
-        System.out.println("jwtAccessToken = " + jwtAccessToken);
-        System.out.println("member.getLoginId() = " + member.getLoginId());
 
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setTokens(tokens);

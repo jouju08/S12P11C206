@@ -49,7 +49,6 @@ public class FindFriendService {
         long myMemberId = getMemberId(myLoginId);
         // 내 친구 ID 목록 가져오기
         List<Long> friendIds = friendRepository.findFriendById(myMemberId);
-        System.out.println(friendIds);
 
         if(activeUserSet == null){ // null에 대한 에러 방지
             activeUserSet = new HashSet<>();
@@ -76,10 +75,7 @@ public class FindFriendService {
         Long friendID = getMemberId(friendId);
         Friend friend1=friendRepository.findByUserIdAndFriendId(userID, friendID);
         Friend friend2=friendRepository.findByUserIdAndFriendId(friendID,userID);
-        System.out.println(friendID);
-        System.out.println(userID);
         if(friend1==null||friend2==null) {
-            System.out.println(friend1+" "+friend2);
             return false;
         }
         friendRepository.delete(friend1);

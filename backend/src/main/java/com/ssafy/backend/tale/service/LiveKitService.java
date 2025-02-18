@@ -46,7 +46,6 @@ public class LiveKitService {
         WebhookReceiver webhookReceiver = new WebhookReceiver(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
         try {
             LivekitWebhook.WebhookEvent event = webhookReceiver.receive(body, authHeader);
-            System.out.println("LiveKit Webhook: " + event.toString());
         } catch (Exception e) {
             throw new RuntimeException("Error validating webhook event: " + e.getMessage());
         }

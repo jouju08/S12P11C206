@@ -132,7 +132,6 @@ public class MemberService {
     @Transactional
     public void findPasswordService(String loginId, String email) {
         Member member=memberRepository.findByLoginIdAndEmail(loginId, email).orElseThrow(()->new BadRequestException("아이디 또는 이메일을 확인해주세요"));
-        System.out.println(member);
         if(member.getIsDeleted()){
             throw new BadRequestException("아이디 또는 비밀번호를 확인해주세요.");
         }

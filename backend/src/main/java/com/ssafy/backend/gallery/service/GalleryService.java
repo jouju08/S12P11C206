@@ -60,8 +60,6 @@ public class GalleryService {
         List<GalleryListResponseDto> result = new ArrayList<GalleryListResponseDto>();
 
         Pageable pageable = PageRequest.of(page, 8);
-        System.out.println("page = " + page);
-        System.out.println("order = " + order);
 
         try {
             Page<Gallery> galleryPage = galleryRepository.findAllPictures(order.toUpperCase(), pageable);
@@ -189,7 +187,6 @@ public class GalleryService {
         Long memberId = member.getId();
 
         if (!galleryDto.getHasLiked()) {
-            System.out.println("좋아요 처리");
             // 좋아요 처리
             galleryLikeRepository.save(GalleryLike.builder()
                     .memberId(memberId)

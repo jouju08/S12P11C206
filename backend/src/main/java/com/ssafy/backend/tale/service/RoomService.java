@@ -40,7 +40,6 @@ public class RoomService {
     @Transactional
     public Room makeRoom(MakeRoomRequestDto makeRoomDto) {
 
-        System.out.println(makeRoomDto);
         // 방만들기
         // 1. 빈 방 만들기
         // input : MakeRoomRequestDto(creatorId=User136, partiCnt=4, baseTaleId=10)
@@ -54,7 +53,6 @@ public class RoomService {
         tempRoom.setBaseTale(tempBaseTale);
         tempRoom.setPartiCnt(makeRoomDto.getPartiCnt());
         Tale tale = taleRepository.save(tempRoom);
-        System.out.println(tale);
 
 
         // 2. 반환해 줄 Room 객체 생성
@@ -90,11 +88,6 @@ public class RoomService {
                 .build());
         ops.set("tale-roomList", roomList);
 
-
-        System.out.println(room.getRoomId() + "번 방 레디스에 방 저장 ★");
-        System.out.println(ops.get("tale-" + room.getRoomId().toString()));
-
-        //
         return room;
     }
 
@@ -136,7 +129,6 @@ public class RoomService {
 
     public Room getRoom(Room room) {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-        System.out.println("room = " + room);
         return (Room) ops.get("tale-" + room.getRoomId().toString());
     }
 
@@ -165,14 +157,11 @@ public class RoomService {
     public Room leaveRoom(LeaveRoomRequestDto leaveRoomRequestDto) {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
-        System.out.println(leaveRoomRequestDto);
         Room room = (Room) ops.get("tale-" + leaveRoomRequestDto.getRoomId().toString());
         if (room == null) throw new RuntimeException("유효하지 않은 방입니다.");
 
         // Room 갱신
-        System.out.println("room = " + room);
         Member leaveMember = room.getParticipants().get(leaveRoomRequestDto.getLeaveMemberId());
-        System.out.println("leaveMember = " + leaveMember);
         room.getParticipants().remove(leaveMember.getId());
         room.setFull(false);
 

@@ -28,7 +28,6 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
 
         if(accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> authHeaders = accessor.getNativeHeader("Authorization");
-            System.out.println(authHeaders);
 
             if(authHeaders != null && !authHeaders.isEmpty()) {
                 String token = authHeaders.get(0).replace("Bearer ", "");

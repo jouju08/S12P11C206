@@ -100,7 +100,6 @@ public class AuthController {
     @PostMapping("/refresh")
     public ApiResponse<Map<String, String>> refreshAccessTokenByRefreshToken(@RequestBody RefreshTokenRequestDto refreshTokenDto) {
         String refreshToken = refreshTokenDto.getRefreshToken();
-        System.out.println(refreshToken);
         return ApiResponse.<Map<String, String>>builder().data(authService.refreshAccessToken(refreshToken)).build();
     }
 
@@ -137,7 +136,6 @@ public class AuthController {
 
     @GetMapping("/duplicate/check-nickname/{nickname}")
     public ApiResponse isDuplicatedNickname(@PathVariable String nickname){
-        System.out.println("닉네임"+nickname);
         Optional<Member> member = authService.findByNickname(nickname);
 
         if(member.isPresent()){

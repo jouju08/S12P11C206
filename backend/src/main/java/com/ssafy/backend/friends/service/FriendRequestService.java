@@ -38,9 +38,7 @@ public class FriendRequestService {
         // 신청자와 수신자 조회
         Long proposerId =  memberRepository.findByLoginId(proposerLoginId).get().getId();
         String reciepientLoginId =  friendRequestDto.getReceiverLoginId();
-        System.out.println(reciepientLoginId);
         Long reciepientId =  memberRepository.findByLoginId(reciepientLoginId).get().getId();
-        System.out.println(reciepientId);
 
         Optional<FriendRequest> isfriendRequest = friendRequestRepository.findBySenderIdAndReceiverId(proposerId, reciepientId);
 
@@ -112,7 +110,6 @@ public class FriendRequestService {
             FriendRequest request = optionalRequest.get();
             request.setResponse('D');//상태 변경
             friendRequestRepository.save(request);//요청 상태 저장
-            System.out.println(request.getResponse());
             return true;
         } else {
             return false;
