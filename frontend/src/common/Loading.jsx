@@ -1,3 +1,10 @@
+/**
+ * author : Lim Chaehyeon (chaehyeon)
+ * data : 2025.02.18
+ * description : 로딩 화면
+ * React
+ */
+
 import React, { useRef, useEffect, useState } from 'react';
 
 import '@/styles/loading.css';
@@ -24,13 +31,6 @@ export const Loading = () => {
   }, []);
 
   return (
-    // <div
-    //   className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-    //   role="status">
-    //   <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-    //     Loading...
-    //   </span>
-    // </div>
     <div
       ref={parentRef}
       className="w-full h-full flex flex-col gap-5 justify-center items-center"

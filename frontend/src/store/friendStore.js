@@ -28,7 +28,7 @@ const initialState = {
 const friendActions = (set, get) => ({
   // 친구 요청 목록 가져오기
   fetchFriendRequests: async () => {
-    console.log('fetchFriendRequests 실행됨');
+
     set((state) => {
       state.loading = true;
       state.error = null;
@@ -38,14 +38,14 @@ const friendActions = (set, get) => ({
       const data = await getFriendRequests();
 
       set((state) => {
-        console.log(Array.isArray(data.data));
+
         state.friendRequests = Array.isArray(data.data) ? [...data.data] : [];
         state.loading = false;
       });
     } catch (error) {
       set((state) => {
         state.error = error.message;
-        console.log(' 서버에서 받은 친구 요청 데이터:', state.error);
+
         state.loading = false;
       });
     }
@@ -53,7 +53,7 @@ const friendActions = (set, get) => ({
 
   //보낸 요청
   fetchSendFriendRequests: async () => {
-    console.log('fetchSendFriendRequests 실행됨');
+
     set((state) => {
       state.loading = true;
       state.error = null;
@@ -62,17 +62,16 @@ const friendActions = (set, get) => ({
     try {
       const data = await getSendFriendRequests();
       set((state) => {
-        console.log(Array.isArray(data.data));
         state.sendFriendRequests = Array.isArray(data.data)
           ? [...data.data]
           : [];
-        console.log('sendFriendRequests: ', state.sendFriendRequests);
+
         state.loading = false;
       });
     } catch (error) {
       set((state) => {
         state.error = error.message;
-        console.log(' 서버에서 받은 친구 요청 데이터:', state.error);
+
         state.loading = false;
       });
     }
@@ -93,29 +92,14 @@ const friendActions = (set, get) => ({
     } catch (error) {
       set((state) => {
         state.error = error.message;
-        console.log(' 에러 발생:', state.error);
+
         state.loading = false;
       });
     }
   },
 
-  // 친구 요청 응답 처리 (수락 / 거절)
-  // respondToRequest: async (fromLoginId, answer) => {
-  //   set((state) => {
-  //     state.loading = true;
-  //     state.error = null;
-  //   });
-  //   try {
-  //     await answerFriendRequest(fromLoginId, answer);
-  //     await useFriendStore.getState().fetchFriendList();
-  //     await useFriendStore.getState().fetchSendFriendRequests();
-  //     set((state) => {
-  //       state.loading = false;
-  //     });
-  //   } catch (error) {
-  //     console.error(' Error responding to friend request:', error);
-  //   }
-  // },
+
+
   respondToRequest: async (fromLoginId, answer) => {
     set((state) => {
       state.loading = true;
@@ -138,7 +122,7 @@ const friendActions = (set, get) => ({
         state.error = error.message;
         state.loading = false;
       });
-      console.error('Error responding to friend request:', error);
+
     }
   },
 
@@ -154,15 +138,15 @@ const friendActions = (set, get) => ({
       activeUserStore.getState().setMyFriend(data.data);
 
       set((state) => {
-        // console.log(Array.isArray(data.data));
+
         state.friendList = Array.isArray(data.data) ? data.data : [];
-        // console.log('friendList에 담기는 친구 상세: ', state.friendId);
+
         state.loading = false;
       });
     } catch (error) {
       set((state) => {
         state.error = error.message;
-        console.log(' 서버에서 받은 친구 데이터:', state.error);
+
         state.loading = false;
       });
     }
@@ -182,7 +166,7 @@ const friendActions = (set, get) => ({
     } catch (error) {
       set((state) => {
         state.error = error.message;
-        console.log(' 에러 발생:', state.error);
+
         state.loading = false;
       });
     }
@@ -190,7 +174,7 @@ const friendActions = (set, get) => ({
 
   //모든 멤버 불러오기
   fetchFindMembers: async () => {
-    console.log('fetchFindMembers 실행됨');
+
     set((state) => {
       state.loading = true;
       state.error = null;
@@ -199,21 +183,21 @@ const friendActions = (set, get) => ({
     try {
       const data = await getAllMembers();
       set((state) => {
-        console.log(Array.isArray(data.data));
+
         state.searchMembers = Array.isArray(data.data) ? [...data.data] : [];
         state.loading = false;
       });
     } catch (error) {
       set((state) => {
         state.error = error.message;
-        console.log(' 서버에서 받은 멤버버 데이터:', state.error);
+
         state.loading = false;
       });
     }
   },
 
   makeFriend: async (memberId) => {
-    console.log('makeFriend 실행됨');
+
     set((state) => {
       state.loading = true;
       state.error = null;
@@ -229,7 +213,7 @@ const friendActions = (set, get) => ({
     } catch (error) {
       set((state) => {
         state.error = error.message;
-        console.log(' 에러 발생:', state.error);
+
         state.loading = false;
       });
     }

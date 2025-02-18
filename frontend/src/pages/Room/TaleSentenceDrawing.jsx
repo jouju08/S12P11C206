@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
@@ -41,7 +40,7 @@ const TaleSentenceDrawing = () => {
     drawingaudioRef.current.loop = true;
     drawingaudioRef.current
       .play()
-      .catch((error) => console.error('대기방 음악 재생 실패', error));
+      .catch(() => {});
     setShowDrawingModal(false);
   };
   const {
@@ -88,14 +87,11 @@ const TaleSentenceDrawing = () => {
   };
 
   const publishCanvasTrack = async () => {
-    console.log('publishCanvasTrack 호출됨');
-    console.log(viduRoom);
-    console.log(canvasRef.current);
+
     if (!viduRoom) return;
 
     const canvasElement = canvasRef.current.getCanvas();
     if (!canvasElement) {
-      console.log('캔버스 엘리먼트를 찾을 수 없음');
       return;
     }
 
@@ -107,10 +103,9 @@ const TaleSentenceDrawing = () => {
       const mediaStreamTrack = stream.getVideoTracks()[0];
 
       if (!mediaStreamTrack) {
-        console.error('captureStream에서 videoTrack 생성 실패');
         return;
       }
-      console.log('생성된 videoTrack:', mediaStreamTrack);
+
 
       const localVideoTrack = new LocalVideoTrack(mediaStreamTrack);
 
@@ -119,23 +114,12 @@ const TaleSentenceDrawing = () => {
         source: Track.Source.Camera,
       });
 
-      // .then(() => {
-      //   console.log('Canvas track published successfully!');
-      // })
-      // .catch((error) => {
-      //   console.error('Error publishing canvas track:', error);
-      // });
+
     } catch (error) {
-      console.error('captureStream 호출 중 에러 발생:', error);
+      return ;
     }
 
-    // if (viduRoom.connectionState === 'connected') {
-    //   if (canvasRef.current) {
-    //     publishCanvasTrack(canvasRef.current);
-    //   }
-    // } else {
-    //   viduRoom.on(RoomEvent.Connected, publishCanvasTrack);
-    // }
+
   };
 
   useEffect(() => {
@@ -180,7 +164,7 @@ const TaleSentenceDrawing = () => {
       warningAudioRef.current.volume = 1;
       warningAudioRef.current
         .play()
-        .catch((err) => console.error('Audio play error:', err));
+        .catch(() => {});
     } else {
       warningAudioRef.current.pause();
       warningAudioRef.current.volume = 0;
@@ -235,7 +219,7 @@ const TaleSentenceDrawing = () => {
       selectAudioRef.current.currentTime = 0;
       selectAudioRef.current
         .play()
-        .catch((err) => console.error('Audio play error:', err));
+        .catch(() => {});
     }
   };
 
@@ -283,7 +267,7 @@ const TaleSentenceDrawing = () => {
       selectAudioRef.current.currentTime = 0;
       selectAudioRef.current
         .play()
-        .catch((err) => console.error('Audio play error:', err));
+        .catch(() => {});
     }
     navigate('/tale/hotTale');
   };
@@ -304,27 +288,7 @@ const TaleSentenceDrawing = () => {
     };
   }, []);
 
-  // useEffect(() => {
-  //   // 뒤로가기 방지
-  //   window.history.pushState(null, document.title, window.location.href);
-  //   const preventBack = () => {
-  //     window.history.pushState(null, document.title, window.location.href);
-  //   };
-  //   window.addEventListener('popstate', preventBack);
 
-  //   // 새로고침 방지
-  //   const preventRefresh = (e) => {
-  //     e.preventDefault();
-  //     e.returnValue = '';
-  //   };
-  //   window.addEventListener('beforeunload', preventRefresh);
-
-  //   // 컴포넌트 언마운트 시 이벤트 리스너 제거
-  //   return () => {
-  //     window.removeEventListener('popstate', preventBack);
-  //     window.removeEventListener('beforeunload', preventRefresh);
-  //   };
-  // }, []);
 
   return (
     <>
@@ -434,7 +398,6 @@ const TaleSentenceDrawing = () => {
                 muted
                 onLoadedData={() => {
                   if (warningAudioRef.current && isWarning) {
-                    console.log(warningAudioRef.current);
                     warningAudioRef.current.muted = false;
                     warningAudioRef.current.volume = 1;
                   }

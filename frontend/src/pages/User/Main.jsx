@@ -1,6 +1,5 @@
 import React from 'react';
 import { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
 import { api, userStore } from '@/store/userStore';
 
 import NavMenu from '@/components/Main/NavMenu';
@@ -59,7 +58,7 @@ export default function Main() {
       try {
         const response = await api.get('/tale/rooms');
 
-        console.log(response);
+
         if (response.data.status === 'SU') {
           setTaleData(response.data.data); //
         } else {
@@ -86,7 +85,7 @@ export default function Main() {
           return;
         }
       } catch (error) {
-        console.error('인기있는 그림 실패:', error);
+        return error;
       }
     }
 
@@ -171,33 +170,6 @@ export default function Main() {
         </div>
       </div>
 
-      {/* 만들어진 동화방 */}
-      {/* <div className="mx-[60px] mt-[70px] w-[904px] h-[350px]">
-        <div className="text-text-first service-accent2 mb-[10px]">
-          만들어진 동화방
-        </div>
-        <div className="h-[300px] flex items-center text-center">
-          {taleData && taleData.length != 0 ? (
-            <Swiper
-              slidesPerView={3.15}
-              spaceBetween={20}
-              className="mySwiper w-[904px] overflow-hidden">
-              {listFairyTaleRoom}
-            </Swiper>
-          ) : (
-            <div className="flex flex-col justify-center items-center mx-auto">
-              <p className="text-text-second text-center service-accent3 mb-10">
-                아직 만들어진 방이 없어요! 직접 시작하러 가볼까요?
-              </p>
-              <Link
-                to={'/room'}
-                className="px-3.5 py-2 bg-main-point2 rounded-[30px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.1)] justify-center items-center gap-2.5 text-white service-bold3 inline-flex overflow-hidden">
-                동화 만들러 가기
-              </Link>
-            </div>
-          )}
-        </div>
-      </div> */}
 
       {/* 인기있는 그림 */}
       <div className="mx-[60px] my-[70px] w-[904px] h-[357px]">

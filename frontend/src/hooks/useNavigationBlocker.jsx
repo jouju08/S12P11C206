@@ -1,3 +1,10 @@
+/**
+ * author : Park byungju (vrooming13)
+ * data : 2025.02.18
+ * description : 웹소켓
+ * React
+ */
+
 import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useViduHook } from '@/store/tale/viduStore';
@@ -98,14 +105,14 @@ export const useNavigationBlocker = () => {
           };
           try {
             if (wsUrl && stompClient && stompClient.connected) {
-              console.log('WebSocket 연결: 메시지 전송', wsUrl);
+
               stompClient.publish({
                 destination: wsUrl,
                 body: JSON.stringify({ escape: 'bye' }),
               });
             }
           } catch (error) {
-            console.error('WebSocket 메시지 전송 실패:', error);
+            return error;
           } finally {
             setIsEscape(true);
           }

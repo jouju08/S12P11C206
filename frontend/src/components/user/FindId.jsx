@@ -76,7 +76,7 @@ export default function FindId() {
         Swal.fire('실패', '아이디를 찾지 못했습니다.', 'error');
       }
     } catch (error) {
-      console.error('아이디 찾기 실패', error);
+
       Swal.fire('오류', '아이디 찾기에 실패했습니다.', 'error');
     }
   };

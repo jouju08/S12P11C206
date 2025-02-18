@@ -14,9 +14,8 @@ export default function StreamCanvas({ streamManager }) {
   return (
     <div className="fixed inset-0">
       <Tldraw ref={canvasRef} />
-      {/* <video
-        autoPlay
-        ref={canvasRef}></video> */}
+
+
     </div>
   );
 }

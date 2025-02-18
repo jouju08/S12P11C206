@@ -117,8 +117,7 @@ const DrawingBoard = forwardRef(
       ctx.moveTo(lastPosition.x, lastPosition.y);
       ctx.lineTo(x, y);
 
-      // console.log(lastPosition.x, lastPosition.y);
-      // console.log(x, y);
+
 
       if (isEraser) {
         ctx.globalCompositeOperation = 'source-over';
@@ -163,8 +162,7 @@ const DrawingBoard = forwardRef(
       ctx.moveTo(lastPosition.x, lastPosition.y);
       ctx.lineTo(x, y);
 
-      // console.log(lastPosition.x, lastPosition.y);
-      // console.log(x, y);
+
 
       if (isEraser) {
         ctx.globalCompositeOperation = 'destination-out';

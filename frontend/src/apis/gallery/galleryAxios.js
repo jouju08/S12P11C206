@@ -1,3 +1,10 @@
+/**
+ * author : Lee Yeongjae (leeyj)
+ * data : 2025.02.18
+ * description : 그림 API
+ * React -> SpringBoot
+ */
+
 import { api } from '@/store/userStore';
 
 const galleryAPI = {

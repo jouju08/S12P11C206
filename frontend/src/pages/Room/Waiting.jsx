@@ -49,11 +49,9 @@ export default function Waiting() {
     audioRef.current.loop = true;
     audioRef.current
       .play()
-      .catch((error) => console.error('대기방 음악 재생 실패', error));
+      .catch(() => {});
     setShowWaitingModal(false);
-    // if (onClose) {
-    //   onClose;
-    // }
+
   };
 
   useEffect(() => {
@@ -115,10 +113,6 @@ export default function Waiting() {
     <div className="relative w-[1024px] h-[580px] tall:h-[668px]">
       {' '}
       {/* 배경 필드 이미지 */}
-      {/* <img
-        className="w-[1024px] h-[668px] absolute top-0 left-0 -z-10"
-        src="/Waiting/field-background.png"
-      /> */}
       {showWaitingModal && (
         <WaitingModal
           isHost={isHost}

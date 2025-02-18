@@ -63,7 +63,7 @@ const TaleStart = () => {
           await setSubscribeTale(currentRoom.roomId);
         }
       } catch (error) {
-        console.log(error);
+        return error;
       } finally {
         setLoading(false);
       }

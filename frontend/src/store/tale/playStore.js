@@ -50,9 +50,7 @@ const playActions = (set, get) => ({
     }),
 
   setBaseTale: (rawTale) => {
-    // const response = await taleAPI.startTale(get().roomId);
 
-    // const baseTale = response.data['data'];
 
     if (rawTale !== null) {
       const baseTale = { ...rawTale };
@@ -163,7 +161,7 @@ const playActions = (set, get) => ({
     formData.append('memberId', String(userStore.getState().memberId));
     formData.append('keyword', audioFile);
 
-    console.log(audioFile);
+
 
     const response = await taleAPI.taleKeyWordVoice(formData);
 
@@ -232,7 +230,7 @@ const playActions = (set, get) => ({
     const fileName = 'recorded-audio.wav';
     const wavBlob = await get().convertWebMBlobToWav(voice);
 
-    console.log(wavBlob);
+
     const audioFile = new File([wavBlob], fileName, { type: 'audio/wav' });
 
     formData.append('order', String(order));
@@ -266,7 +264,7 @@ const playActions = (set, get) => ({
 
     const response = await taleAPI.taleKeyWordHandWrite(formData);
 
-    console.log(response.data);
+
 
     if (response) {
       return response.data.data;
@@ -344,7 +342,7 @@ const playActions = (set, get) => ({
 
   //싱글 모드 차례대로 가져오기
   submitPictureSingle: async (picture) => {
-    console.log(get().page);
+
 
     let order = get().tale?.sentenceOwnerPairs?.find(
       (item) =>

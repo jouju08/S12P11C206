@@ -5,15 +5,13 @@ import NumSearch from '@/components/Room/NumSearch';
 import RoomBtn from '@/components/Room/RoomBtn';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 import { Loading } from '@/common/Loading';
-import axios from 'axios';
 import { api } from '@/store/userStore';
 
-// Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
-// Import Swiper styles
+
 import 'swiper/css';
 import 'swiper/css/navigation';
-// import required modules
+
 import { Navigation } from 'swiper/modules';
 
 import '@/styles/roomPage.css';
@@ -47,12 +45,12 @@ export default function Room() {
   const handleSearch = async (query) => {
     setSearchQuery(query);
     setLoading(true);
-    console.log('부모 컴포넌트가 받은 검색어:', query);
+
 
     try {
       const SearchList = await taleAPI.getSearchTaleRooms(Number(query));
       const SearchTale = SearchList.data.data;
-      console.log('검색 방', SearchTale);
+
 
       setExistTaleRoom(
         SearchTale
@@ -66,7 +64,6 @@ export default function Room() {
       );
       setSelectedIndex(SearchTale?.['baseTaleId'] - 1);
     } catch (error) {
-      console.error(error);
       setExistTaleRoom([]);
     } finally {
       setLoading(false);
@@ -97,7 +94,7 @@ export default function Room() {
           ))
         );
       } catch (error) {
-        console.error(error);
+        return error;
       } finally {
         setLoading(false);
       }
@@ -126,43 +123,7 @@ export default function Room() {
     fetchData();
   }, []);
 
-  // 검색한 방목록 불러오기
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const SearchList = await taleAPI.getSearchTaleRooms(
-  //         Number(searchQuery)
-  //       );
 
-  //       const SearchTale = SearchList.data.data;
-  //       console.log('검색 방', SearchTale);
-
-  //       setExistTaleRoom(
-  //         SearchTale
-  //           ? Array(
-  //               <FairyTaleRoom
-  //                 key={1}
-  //                 item={SearchTale}
-  //               />
-  //             )
-  //           : []
-  //       );
-  //       setSelectedIndex(SearchTale?.['baseTaleId']);
-  //     } catch (error) {
-  //       console.error(error);
-  //       // setExistTaleRoom([])
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   if (isMounted.current) {
-  //     isMounted.current = false;
-  //   } else {
-  //     fetchData();
-  //   }
-  // }, [setSearchQuery, searchQuery]);
 
   return (
     <div className="w-[1024px] px-[25px]">

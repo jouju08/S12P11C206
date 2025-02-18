@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { api, userStore } from '@/store/userStore';
 import { adminStore } from '@/store/adminStore';
-import LoadingText from '../BaseTale/LoadingText';
+
 
 const AdminAuthForm = () => {
   const { authKey, setAuthKey } = adminStore();

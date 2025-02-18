@@ -1,7 +1,4 @@
 import React from 'react';
-import { useState } from 'react';
-import TaleLayout from '@/common/layout/TaleLayout';
-import Lobby from '@/pages/Room/Lobby';
 import { useNavigate } from 'react-router-dom';
 
 import '@/styles/swalModal.css';
