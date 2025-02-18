@@ -172,7 +172,7 @@ export default function Main() {
       </div>
 
       {/* 만들어진 동화방 */}
-      <div className="mx-[60px] mt-[70px] w-[904px] h-[350px]">
+      {/* <div className="mx-[60px] mt-[70px] w-[904px] h-[350px]">
         <div className="text-text-first service-accent2 mb-[10px]">
           만들어진 동화방
         </div>
@@ -197,7 +197,7 @@ export default function Main() {
             </div>
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* 인기있는 그림 */}
       <div className="mx-[60px] my-[70px] w-[904px] h-[357px]">

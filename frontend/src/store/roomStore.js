@@ -11,8 +11,8 @@ const initialState = {
   currentRoom: null,
   stompClient: null,
   participants: [],
-  baseTaleId: '',
-  taleTitle: '',
+  baseTaleId: null,
+  taleTitle: null,
 
   rawTale: null,
   isSingle: false,
@@ -27,7 +27,7 @@ const roomActions = (set, get) => ({
   //소켓 연결
   connectRoom: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL_LOCAL);
 
       const stompClient = new Client({
         webSocketFactory: () => socket,
@@ -77,10 +77,6 @@ const roomActions = (set, get) => ({
         destination: '/app/room/create',
         body: JSON.stringify(data),
       });
-
-      const res = await taleAPI.getTaleInfo(get().baseTaleId || 1);
-
-      set({ taleTitle: res.data.data.title || '' });
 
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -160,6 +156,10 @@ const roomActions = (set, get) => ({
         body: JSON.stringify(room),
       });
 
+      const res = await taleAPI.getTaleInfo(get().baseTaleId);
+
+      set({ taleTitle: res.data.data.title || '' });
+
       return new Promise((resolve, reject) => {
         setTimeout(() => {
           const joinRoom = get().currentRoom;
@@ -215,8 +215,8 @@ const roomActions = (set, get) => ({
         currentRoom: null,
         participants: [],
 
-        baseTaleId: '',
-        taleTitle: '',
+        baseTaleId: null,
+        taleTitle: null,
 
         rawTale: null,
         isSingle: false,
