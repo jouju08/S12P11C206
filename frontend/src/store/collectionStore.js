@@ -11,8 +11,6 @@ const taleStart = {
   startScript: 'store start str',
 };
 
-
-
 const taleDetail = {
   orderNum: 1,
   memberId: 1,
@@ -36,7 +34,7 @@ const initialState = {
   createdAt: '',
   // 동화 페이지, 내 동화 목록 불러오기
   sortBy: 'LATEST',
-  currentPage: 0,
+  currentPage: 1,
   filterBy: null,
 };
 
@@ -47,7 +45,6 @@ const collectionActions = (set, get) => ({
       const response = await api.get('/tale/my-tale', {
         params: { order: get().sortBy, baseTaleId: get().filterBy, page: 0 },
       });
-
 
       // 응답 유효성 체크 추가
       if (!response || !response.data) {
@@ -60,7 +57,6 @@ const collectionActions = (set, get) => ({
         state.myTaleList = taleList;
       });
     } catch (error) {
-
       // 오류 상태 처리
       set((state) => {
         state.myTaleList = [];
@@ -72,7 +68,6 @@ const collectionActions = (set, get) => ({
     try {
       const response = await api.get(`/base-tale/${baseTaleId}`);
 
-
       const { title, startVoice, startImg, startScript } = response.data.data;
 
       // [수정 2] Immer의 draft 사용 방식 변경
@@ -82,8 +77,6 @@ const collectionActions = (set, get) => ({
         state.taleStart.startImg = startImg;
         state.taleStart.startScript = startScript;
       });
-
-
     } catch (error) {
       return error;
     }
@@ -99,16 +92,13 @@ const collectionActions = (set, get) => ({
     //  0번째 페이지 -> basetale start 불러옴
     const response = await api.get(`/tale/${get().seeTaleId}/${pageNum}`);
 
-
     set((state) => {
       state.taleDetail = response.data.data;
     });
-
   },
 
   setTaleFinish: async () => {
     const response = await api.get(`/tale/${get().seeTaleId}`);
-
 
     const { participants, createdAt } = response.data.data;
 
@@ -149,16 +139,43 @@ const collectionActions = (set, get) => ({
   setTailTitleList: async () => {
     const response = await api.get('/base-tale/list');
 
-
     const uniqueTitle = response.data.data.map((element, index) => ({
       title: element.title,
       baseTaleId: element.id,
     }));
 
-
     set((state) => {
       state.tailTitleList = uniqueTitle;
     });
+  },
+
+  loadMoreTales: async () => {
+    const currentPage = get().currentPage;
+    const sortBy = get().sortBy;
+
+    try {
+      const response = await api.get('/tale/my-tale', {
+        params: {
+          order: get().sortBy,
+          baseTaleId: get().filterBy,
+          page: currentPage + 1,
+        },
+      });
+
+      if (response.data && response.data.status === 'SU') {
+        set((state) => {
+          state.myTaleList = [...state.myTaleList, ...response.data.data];
+          state.currentPage = currentPage + 1;
+        });
+        return true; // 더 많은 데이터가 있음을 나타냄
+      } else if (response.data && response.data.status === 'NP') {
+        return false; // 더 이상 데이터가 없음을 나타냄
+      } else {
+        throw new Error('API 응답 오류');
+      }
+    } catch (error) {
+      return false;
+    }
   },
 });
 
@@ -202,6 +219,7 @@ export const useCollection = () => {
   const setTailTitleList = useCollectionStore(
     (state) => state.setTailTitleList
   );
+  const loadMoreTales = useCollectionStore((state) => state.loadMoreTales);
 
   return {
     memberId,
@@ -224,5 +242,6 @@ export const useCollection = () => {
     setTailTitleList,
     setSortBy,
     setFilterBy,
+    loadMoreTales,
   };
 };
