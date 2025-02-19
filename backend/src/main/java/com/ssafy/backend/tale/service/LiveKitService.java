@@ -1,7 +1,10 @@
 package com.ssafy.backend.tale.service;
 
 import com.ssafy.backend.common.exception.BadRequestException;
+import com.ssafy.backend.db.entity.Member;
+import com.ssafy.backend.db.repository.MemberRepository;
 import livekit.LivekitWebhook;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,7 +23,10 @@ import org.springframework.web.bind.annotation.RequestBody;
  */
 
 @Service
+@RequiredArgsConstructor
 public class LiveKitService {
+
+    private final MemberRepository memberRepository;
 
     @Value("${LIVEKIT_API_KEY}")
     private String LIVEKIT_API_KEY;
@@ -34,9 +40,12 @@ public class LiveKitService {
             throw new BadRequestException("잘못된 요청입니다.");
         }
 
+        Member member = memberRepository.findByLoginId(loginId).get();
+        String nickname = member.getNickname();
+
         AccessToken token = new AccessToken(LIVEKIT_API_KEY, LIVEKIT_API_SECRET);
         token.setName(loginId);
-        token.setIdentity(loginId);
+        token.setIdentity(nickname);
         token.addGrants(new RoomJoin(true), new RoomName(roomId));
 
         return token.toJwt();
