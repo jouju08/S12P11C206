@@ -105,8 +105,16 @@ export default function Hero() {
         <img
           src="/Hero/tablet.png"
           alt="태블릿 사진"
-          className="absolute bottom-[70px] left-[10%]"
+          className="absolute bottom-[70px] left-[10%] z-10"
         />
+        <video
+          autoPlay
+          muted
+          playsInline
+          loop
+          preload="auto"
+          className="w-[525px] h-[335px] object-cover rounded-2xl absolute bottom-[70px] left-[10%]"
+          src="/Hero/service-video.mp4"></video>
         <div className="text-text-first text-right text-4xl font-extrabold font-NPSfont xl:text-5xl">
           <p className=" leading-[180%]">태블릿으로 손쉽게</p>
           <p>시작할 수 있어요</p>
@@ -128,8 +136,6 @@ export default function Hero() {
         <div className="mt-[4.5rem]">
           <Swiper
             modules={[Autoplay]} // Autoplay 모듈 등록
-
-
             spaceBetween={0}
             speed={6000}
             allowTouchMove={false}

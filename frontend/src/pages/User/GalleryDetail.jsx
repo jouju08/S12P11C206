@@ -5,8 +5,6 @@ import { useCollection } from '@/store/collectionStore';
 import '@/styles/shakingDown.css';
 import CollectionModal from '@/components/modal/CollectionModal';
 
-
-
 export default function GalleryDetail() {
   const { galleryId } = useParams(); // URL에서 galleryId 추출
   const navigate = useNavigate();
@@ -35,8 +33,6 @@ export default function GalleryDetail() {
     }, typingSpeed);
     return () => clearInterval(interval);
   }, []);
-
-
 
   useEffect(() => {
     setGalleryPage(galleryId);
@@ -161,7 +157,6 @@ export default function GalleryDetail() {
                 </p>
               </div>
               {/* 여기 나중에 ChildrenBtn 컴포넌트 */}
-
             </div>
 
             {/* 그림 그린 내용 */}
@@ -202,15 +197,16 @@ export default function GalleryDetail() {
           </div>
         </div>
         {/* ai 동화 보러가기 */}
-        <div className="w-[140px] h-32 pl-3 pt-1 bg-[url('/TaleStart/chat.png')] bg-contain object-contain bg-no-repeat absolute right-[110px] top-[0px] service-regular3 text-text-first">
-          이 그림 그려진
-          <br />
-          동화 보러가기
-        </div>
-        <button
+        <div
           onClick={() => handleClick()}
-          className="w-20 h-20 bg-[url('/Room/together.png')] bg-contain bg-center object-center bg-no-repeat absolute right-[30px] top-[0px] service-regular2 text-text-first hover:scale-105 transition-all duration-200"
-        />
+          className="cursor-pointer">
+          <div className="w-[140px] h-32 pl-3 pt-1 bg-[url('/TaleStart/chat.png')] bg-contain object-contain bg-no-repeat absolute right-[110px] top-[0px] service-regular3 text-text-first">
+            이 그림 그려진
+            <br />
+            동화 보러가기
+          </div>
+          <button className="w-20 h-20 bg-[url('/Room/together.png')] bg-contain bg-center object-center bg-no-repeat absolute right-[30px] top-[0px] service-regular2 text-text-first hover:scale-105 transition-all duration-200" />
+        </div>
       </div>
       {showModal && (
         <div className="absolute top-[-100px] left-0 z-50 w-screen h-screen bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
