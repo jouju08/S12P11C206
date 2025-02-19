@@ -52,7 +52,6 @@ export default function ProfileEdit() {
     };
 
     try {
-
       await updateProfile(updatedData);
       Swal.fire(
         '프로필 수정 성공',
@@ -74,9 +73,7 @@ export default function ProfileEdit() {
 
     try {
       await updateProfileImage(formData);
-
     } catch (error) {
-
       Swal.fire(
         '오류',
         '프로필 이미지 업데이트에 실패했습니다. 다시 시도해 주세요.',
@@ -101,7 +98,7 @@ export default function ProfileEdit() {
         <div className="flex flex-col items-center">
           <div className="mt-[25px] ml-[28px] space-y-[16px] space-x-[28px] flex items-center">
             <img
-              className="rounded-full w-[150px] h-[150px]"
+              className="rounded-full w-[150px] h-[150px] object-cover"
               src={
                 profileImg
                   ? profileImg
@@ -113,8 +110,7 @@ export default function ProfileEdit() {
             <div className="flex flex-col items-center space-y-[10px]">
               <button
                 onClick={handleButtonClick}
-                className="w-[150px] h-[38px] rounded-[30px] bg-main-btn service-regular3 text-text-first border border-[#787878]"
-              >
+                className="w-[150px] h-[38px] rounded-[30px] bg-main-btn service-regular3 text-text-first border border-[#787878]">
                 사진 바꾸기
               </button>
               <input
@@ -133,8 +129,7 @@ export default function ProfileEdit() {
                 />
                 <div
                   className="service-regular3 text-text-second cursor-pointer"
-                  onClick={() => setShow(true)}
-                >
+                  onClick={() => setShow(true)}>
                   비밀번호 변경
                 </div>
               </div>
@@ -149,12 +144,14 @@ export default function ProfileEdit() {
               isNicknameAvailable={isNicknameAvailable}
               setIsNicknameValidated={setIsNicknameValidated}
             />
-            <InputBirthItem birth={newBirth} setBirth={setNewBirth} />
+            <InputBirthItem
+              birth={newBirth}
+              setBirth={setNewBirth}
+            />
             <div className="flex justify-end">
               <button
                 onClick={handleSave}
-                className="mt-[12px] w-[150px] h-[38px] rounded-[30px] bg-main-btn service-regular3 text-text-first border border-[#787878]"
-              >
+                className="mt-[12px] w-[150px] h-[38px] rounded-[30px] bg-main-btn service-regular3 text-text-first border border-[#787878]">
                 저장 하기
               </button>
             </div>
@@ -213,9 +210,12 @@ function InputNickNameItem({
           <div
             className="service-regular3"
             onClick={() =>
-              confirmDuplicate(isNicknameAvailable, nickname, setIsNicknameValidated)
-            }
-          >
+              confirmDuplicate(
+                isNicknameAvailable,
+                nickname,
+                setIsNicknameValidated
+              )
+            }>
             중복확인
           </div>
           <div>☑️</div>
@@ -225,7 +225,11 @@ function InputNickNameItem({
   );
 }
 
-async function confirmDuplicate(isNicknameAvailable, nickname, setIsNicknameValidated) {
+async function confirmDuplicate(
+  isNicknameAvailable,
+  nickname,
+  setIsNicknameValidated
+) {
   const nicknameRegex = /^[A-Za-z0-9가-힣]{2,12}$/;
   if (!nicknameRegex.test(nickname)) {
     Swal.fire(
@@ -246,7 +250,6 @@ async function confirmDuplicate(isNicknameAvailable, nickname, setIsNicknameVali
       setIsNicknameValidated(false);
     }
   } catch (error) {
-
     Swal.fire('오류', '닉네임 중복 확인에 실패했습니다.', 'error');
     setIsNicknameValidated(false);
   }

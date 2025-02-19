@@ -58,7 +58,6 @@ export default function Main() {
       try {
         const response = await api.get('/tale/rooms');
 
-
         if (response.data.status === 'SU') {
           setTaleData(response.data.data); //
         } else {
@@ -129,7 +128,7 @@ export default function Main() {
         {/* 왼쪽 프로필 */}
         <div className="w-[294px] h-[317px] relative">
           <img
-            className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px]"
+            className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px] bg-white object-cover"
             src={member.profileImg || '/Common/blank_profile.jpg'}
             alt="profileImg"
           />
@@ -169,7 +168,6 @@ export default function Main() {
           </Swiper>
         </div>
       </div>
-
 
       {/* 인기있는 그림 */}
       <div className="mx-[60px] my-[70px] w-[904px] h-[357px]">
