@@ -182,7 +182,7 @@
 ### 1.10 기타 툴
 - Postman 
 
-## 환경변수
+## 2. 환경변수
 ### 2.1 Docker-Compose
 ``` 
 FRONT_PORT=${FRONT_PORT}
