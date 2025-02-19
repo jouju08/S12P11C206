@@ -13,6 +13,7 @@ const TaleKeyword = () => {
   const [inputText, setInputText] = useState(''); // 타자 입력 텍스트
   const [isNextActive, setIsNextActive] = useState(false); // 다음 버튼 활성화 상태
   const [recordedAudio, setRecordedAudio] = useState(null); // 녹음된 오디오 데이터
+  const [isRecording, setIsRecording] = useState(false);
   const canvasRef = useRef(null); // 글쓰기 캔버스 참조
 
   const navigate = useNavigate();
@@ -167,6 +168,7 @@ const TaleKeyword = () => {
 
     setIsNextActive(false);
     setCurrentKeyword(null);
+    setMode('default');
   };
 
   const handleNext = async () => {
@@ -276,23 +278,41 @@ const TaleKeyword = () => {
               <br /> 단어를 채워보자!
             </>
           )}
-          {mode === 'typing' && (
+          {mode === 'typing' && !isNextActive && (
             <>
               단어를 쓰고
               <br />
               확인을 눌러줘!
             </>
           )}
-          {mode === 'voice' && (
+          {mode === 'voice' &&
+            !isNextActive &&
+            !isRecording &&
+            !recordedAudio && (
+              <>
+                마이크를 눌러서 <br />
+                단어를 말해보자!
+              </>
+            )}
+          {mode === 'voice' && isRecording && (
             <>
-              마이크를 눌러서 <br />
-              크게 말해보자!
+              다 말했으면
+              <br />
+              다시 마이크를 눌러줘!
             </>
           )}
-          {isNextActive && (
+          {mode === 'voice' && !isRecording && recordedAudio && (
             <>
-              다음 버튼을 <br />
+              이제 확인 버튼을
+              <br />
               눌러줘!
+            </>
+          )}
+          {mode !== 'default' && isNextActive && (
+            <>
+              좋아! 이제 넘어가자.
+              <br />
+              다음 버튼을 눌러줘~
             </>
           )}
         </FairyChatBubble>
@@ -314,6 +334,8 @@ const TaleKeyword = () => {
       {mode === 'voice' && (
         <div className="absolute bottom-[18%] right-[230px] flex items-center gap-8">
           <VoiceRecorder
+            isRecording={isRecording}
+            setIsRecording={setIsRecording}
             recordedAudio={recordedAudio}
             setRecordedAudio={setRecordedAudio}
           />
@@ -399,9 +421,12 @@ const ModeButton = ({ mode, text, imageSrc, onClick }) => {
   );
 };
 
-const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
-  const [isRecording, setIsRecording] = useState(false);
-
+const VoiceRecorder = ({
+  isRecording,
+  setIsRecording,
+  recordedAudio,
+  setRecordedAudio,
+}) => {
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
