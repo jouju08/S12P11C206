@@ -1,6 +1,32 @@
 
 # 포팅메뉴얼
 ## 목차
+- [0. 사용도구](#0-사용도구)
+- [1. 개발환경](#1-개발환경)
+  - [1.1 Frontend](#11-frontend)
+  - [1.2 Backend](#12-backend)
+  - [1.3 AI](#13-ai)
+  - [1.4 Server](#14-server)
+  - [1.5 Database](#15-database)
+  - [1.6 UI/UX](#16-uiux)
+  - [1.7 CI/CD 및 인증서 관리](#17-cicd-및-인증서-관리)
+  - [1.8 IDE](#18-ide)
+  - [1.9 형상 / 이슈관리](#19-형상--이슈관리)
+  - [1.10 기타 툴](#110-기타-툴)
+- [2. 환경변수](#2-환경변수)
+  - [2.1 Docker-Compose](#21-docker-compose)
+  - [2.2 Frontend](#22-frontend)
+  - [2.3 Backend](#23-backend)
+  - [2.4 AI](#24-ai)
+  - [2.5 MySQL](#25-mysql)
+- [3. EC2 세팅](#3-ec2-세팅)
+  - [3.1 Docker 설치](#31-docker-설치)
+  - [3.2 Docker Compose 및 설치](#32-docker-compose-및-설치)
+  - [3.3 SSL 적용](#33-ssl-적용)
+  - [3.4 OpenVidu 설치](#34-openvidu-설치)
+- [4. 프로젝트 실행](#4-프로젝트-실행)
+
+
 
 ## 0. 사용도구
 - 이슈 관리 : Notion, Jira
@@ -425,4 +451,8 @@ MYSQL_PASSWORD=${MYSQL_PASSWORD}
     systemctl start openvidu
     ```
 
-
+## 4. 프로젝트 실행
+### Docker compose 실행
+```
+docker compose up
+```
