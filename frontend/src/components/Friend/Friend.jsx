@@ -30,6 +30,7 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
   const [searchTerm, setSearchTerm] = useState(''); //검색어
   const [filteredMembers, setFilteredMembers] = useState(searchMembers);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [countrequest,setCountRequest]=useState(0);
 
   const handleSearch = (e) => {
     const value = e.target.value;
@@ -57,6 +58,10 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
       fetchFindMembers();
     }
   }, [activeTab]);
+
+  useEffect(() => {
+      fetchFriendRequests();
+  }, []);//표시 하려면,,,
 
   const handleRespondToRequest = async (loginId, answer) => {
     await respondToRequest(loginId, answer);
@@ -118,6 +123,7 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
           className="h-[30px] w-[30px]"
         />
       </button>
+      
       <div className="flex justify-around items-center pb-2 mb-4">
         <button
           onClick={() => setActiveTab('friends')}
@@ -125,7 +131,12 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
             ${activeTab === 'friends' ? 'bg-main-point2 ' : 'bg-white'}`}>
           친구 목록
         </button>
-
+        {friendRequests.length!=0&&(
+            <p className='rounded-full font-NPSfont bg-main-carrot px-2 py-[3px] text-xs absolute top-[55px] right-[250px]  text-text-white'>
+              {friendRequests.length}
+            </p>  
+          )
+        }
         <button
           onClick={() => setActiveTab('get_requests')}
           className={`px-3 py-2 cursor-pointer text-text-first text-lg font-NPSfont rounded-full  shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] hover:bg-main-point2 transition-colors duration-200
