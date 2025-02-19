@@ -144,7 +144,7 @@ export default function Main() {
             />
             <div className="h-[68px] left-[34px] top-[74px] absolute flex-col justify-start items-start gap-1 inline-flex overflow-hidden">
               <div className="justify-start items-center gap-1.5 inline-flex overflow-hidden">
-                <div className="text-main-point service-accent3 max-w-[120px] h-fit truncate hover:animate-marquee">
+                <div className="text-main-carrot service-accent3 max-w-[120px] h-fit truncate hover:animate-marquee">
                   {member.nickname}
                 </div>
                 <div className="text-text-first service-accent3">어서 와!</div>
