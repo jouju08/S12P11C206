@@ -10,6 +10,7 @@ import '@/styles/main.css';
 import '@/styles/text.css';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Mousewheel, Scrollbar, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import '@/styles/taleRoom.css';
 import { Link } from 'react-router-dom';
@@ -159,12 +160,22 @@ export default function Main() {
         {/* 오른쪽 메뉴바 */}
         <div className="w-[594px] h-[316px] py-[40px] ">
           <Swiper
+            modules={[Mousewheel, Scrollbar, Pagination]}
+            mousewheel={true}
+            scrollbar={{
+              draggable: true,
+              hide: false,
+              el: '.swiper-scrollbar',
+              dragSize: 350,
+            }}
             slidesPerView={3.2}
             spaceBetween={20}
             grabCursor={true}
-            className="mySwiper w-[509px] overflow-visible"
+            className="mySwiper w-[509px] overflow-visible relative"
             style={{ padding: 20 }}>
             {listNavMenu}
+            <div class="swiper-pagination"></div>
+            <div class="swiper-scrollbar bg-gray-200 rounded-sm h-[5px] w-[200px] absolute bottom-0 left-1/2 -translate-x-1/2"></div>{' '}
           </Swiper>
         </div>
       </div>
