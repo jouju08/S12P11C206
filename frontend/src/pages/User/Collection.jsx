@@ -24,6 +24,10 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
     );
   }
 
+  const getTextClass = (text) => {
+    return text.length > 8 ? 'service-regular3' : 'service-regular2';
+  };
+
   return (
     <div className="container mx-auto">
       {chunk(myTaleList, 5).map((row, rowIndex) => (
@@ -38,17 +42,33 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
                 style={{
                   backgroundImage: "url('/Collection/book-cover.png')",
                 }}>
-                <div className="absolute z-10 pt-[90%] text-center inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
-                  <button
-                    onClick={() => {
-                      setShowModal(true);
-                      setTaleStart(item.baseTaleId);
-                      setSeeTaleId(item.taleId);
-                    }}
-                    className="bg-main-btn w-[85px] h-[24px] text-center service-regular3 px-3 rounded-xl">
+                <div
+                  onClick={() => {
+                    setShowModal(true);
+                    setTaleStart(item.baseTaleId);
+                    setSeeTaleId(item.taleId);
+                  }}
+                  className="absolute cursor-pointer z-10 text-center flex flex-col justify-start items-center inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out ">
+                  <p
+                    className={`bg-[rgba(256,256,256,0.7)] rounded-lg mt-7 w-[70%] text-text-first ${getTextClass(item.title)}`}>
+                    {item.title}
+                  </p>
+                  <p className="bg-[rgba(256,256,256,0.7)] my-1 rounded-lg px-1 w-fit text-text-first">
+                    {item.createdAt.slice(0, 10)}
+                  </p>
+                  <img
+                    src="/Collection/go-read.gif"
+                    alt="보러가기"
+                    className="w-20 h-20 absolute -bottom-1 -right-2"
+                  />
+                  <img
+                    src="/Common/fairy-chat-bubble.png"
+                    alt="보러가기"
+                    className="absolute bottom-7 left-10 w-[45%] h-[30px] scale-x-[-1]"
+                  />
+                  <p className="absolute bottom-[30px] left-12 service-regular3 text-text-second">
                     보러가기
-                  </button>
-                  <p className="text-white">{item.createdAt.slice(0, 10)}</p>
+                  </p>
                 </div>
                 <img
                   className="w-[149px] h-[195px] mx-auto my-4 rounded opacity-90 relative"
