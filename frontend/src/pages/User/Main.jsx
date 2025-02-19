@@ -10,6 +10,7 @@ import '@/styles/main.css';
 import '@/styles/text.css';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { Mousewheel, Scrollbar, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import '@/styles/taleRoom.css';
 import { Link } from 'react-router-dom';
@@ -57,7 +58,6 @@ export default function Main() {
     async function fetchData() {
       try {
         const response = await api.get('/tale/rooms');
-
 
         if (response.data.status === 'SU') {
           setTaleData(response.data.data); //
@@ -129,7 +129,7 @@ export default function Main() {
         {/* 왼쪽 프로필 */}
         <div className="w-[294px] h-[317px] relative">
           <img
-            className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px]"
+            className="w-[150px] h-[150px] left-[128px] top-0 absolute rounded-[100px] bg-white object-cover"
             src={member.profileImg || '/Common/blank_profile.jpg'}
             alt="profileImg"
           />
@@ -145,7 +145,7 @@ export default function Main() {
             />
             <div className="h-[68px] left-[34px] top-[74px] absolute flex-col justify-start items-start gap-1 inline-flex overflow-hidden">
               <div className="justify-start items-center gap-1.5 inline-flex overflow-hidden">
-                <div className="text-main-point service-accent3 max-w-[120px] h-fit truncate hover:animate-marquee">
+                <div className="text-main-carrot service-accent3 max-w-[120px] h-fit truncate hover:animate-marquee">
                   {member.nickname}
                 </div>
                 <div className="text-text-first service-accent3">어서 와!</div>
@@ -160,16 +160,25 @@ export default function Main() {
         {/* 오른쪽 메뉴바 */}
         <div className="w-[594px] h-[316px] py-[40px] ">
           <Swiper
+            modules={[Mousewheel, Scrollbar, Pagination]}
+            mousewheel={true}
+            scrollbar={{
+              draggable: true,
+              hide: false,
+              el: '.swiper-scrollbar',
+              dragSize: 350,
+            }}
             slidesPerView={3.2}
             spaceBetween={20}
             grabCursor={true}
-            className="mySwiper w-[509px] overflow-visible"
+            className="mySwiper w-[509px] overflow-visible relative"
             style={{ padding: 20 }}>
             {listNavMenu}
+            <div class="swiper-pagination"></div>
+            <div class="swiper-scrollbar bg-gray-200 rounded-sm h-[5px] w-[200px] absolute bottom-0 left-1/2 -translate-x-1/2"></div>{' '}
           </Swiper>
         </div>
       </div>
-
 
       {/* 인기있는 그림 */}
       <div className="mx-[60px] my-[70px] w-[904px] h-[357px]">
