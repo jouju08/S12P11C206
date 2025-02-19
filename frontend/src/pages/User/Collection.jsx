@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useCollection } from '@/store/collectionStore';
 import CollectionModal from '@/components/modal/CollectionModal';
+import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 
 const chunk = (arr, size) =>
   Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
@@ -9,8 +10,6 @@ const chunk = (arr, size) =>
 
 const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
   const { taleStart, setTaleStart, setSeeTaleId } = useCollection();
-
-
 
   if (myTaleList.length === 0) {
     return (
@@ -83,11 +82,24 @@ export default function Collection() {
     setSortBy,
     filterBy,
     setFilterBy,
+    loadMoreTales,
   } = useCollection();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
+  const loadMore = useCallback(async () => {
+    if (!isLoading) {
+      setIsLoading(true);
+      const hasMore = await loadMoreTales();
+      setIsLoading(false);
+      if (!hasMore) {
+        // 더 이상 불러올 데이터가 없을 때의 처리
+      }
+    }
+  }, [loadMoreTales]);
 
+  const infiniteScrollRef = useInfiniteScroll(loadMore);
 
   const handleExit = () => {
     setShowModal(false);
@@ -131,12 +143,22 @@ export default function Collection() {
       <section
         id="need-scrool"
         className="w-[974px] h-[486px] relative overflow-y-auto mt-[65px] scr pr-4">
-        <TaleGrid
-          myTaleList={myTaleList}
-          filterBy={filterBy}
-          sortBy={sortBy}
-          setShowModal={setShowModal}
-        />
+        {myTaleList.length === 0 ? (
+          <div className="w-full h-[300px] service-accent1 text-text-first text-center leading-[300px]">
+            아직 동화책이 없어요!
+          </div>
+        ) : (
+          <TaleGrid
+            myTaleList={myTaleList}
+            filterBy={filterBy}
+            sortBy={sortBy}
+            setShowModal={setShowModal}
+          />
+        )}
+        {/* Intersection Observer의 타겟 요소 */}
+        <div
+          ref={infiniteScrollRef}
+          style={{ height: '20px' }}></div>
       </section>
 
       {showModal && (

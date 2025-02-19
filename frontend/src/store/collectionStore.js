@@ -11,8 +11,6 @@ const taleStart = {
   startScript: 'store start str',
 };
 
-
-
 const taleDetail = {
   orderNum: 1,
   memberId: 1,
@@ -36,34 +34,61 @@ const initialState = {
   createdAt: '',
   // 동화 페이지, 내 동화 목록 불러오기
   sortBy: 'LATEST',
-  currentPage: 0,
+  currentPage: 1,
   filterBy: null,
 };
 
 const collectionActions = (set, get) => ({
   setMyTaleList: async () => {
     try {
-      // 내가 참여한 동화 목록 불러오는 api
-      const response = await api.get('/tale/my-tale', {
-        params: { order: get().sortBy, baseTaleId: get().filterBy, page: 0 },
+      const taleList = [];
+
+      const promises = [0, 1].map(async (page) => {
+        const response = await api.get('/tale/my-tale', {
+          params: {
+            order: get().sortBy,
+            baseTaleId: get().filterBy,
+            page: page,
+          },
+        });
+
+        if (response.data && response.data.data) {
+          return response.data.data;
+        }
+        return [];
       });
 
+      const results = await Promise.all(promises);
+
+      results.forEach((data) => {
+        taleList.push(...data);
+      });
+      // const taleList = [];
+
+      // // 내가 참여한 동화 목록 불러오는 api 0~3페이지까지 불러오기
+      // const response = await api.get('/tale/my-tale', {
+      //   params: { order: get().sortBy, baseTaleId: get().filterBy, page: 0 },
+      // });
+
+      // 지우자
+      console.log(
+        `order: ${get().sortBy}, baseTaleId: ${get().filterBy}, page: 0~2 동화 호출!`,
+        taleList
+      );
 
       // 응답 유효성 체크 추가
-      if (!response || !response.data) {
-        throw new Error('API 응답 오류');
-      }
+      // if (!response || !response.data) {
+      //   throw new Error('API 응답 오류');
+      // }
 
-      // 값 어떻게 넘어오는지 확인 하고
-      const taleList = response.data.data;
       set((state) => {
         state.myTaleList = taleList;
       });
     } catch (error) {
-
       // 오류 상태 처리
       set((state) => {
         state.myTaleList = [];
+        state.currentPage = 1;
       });
     }
   },
@@ -71,7 +96,6 @@ const collectionActions = (set, get) => ({
   setTaleStart: async (baseTaleId) => {
     try {
       const response = await api.get(`/base-tale/${baseTaleId}`);
-
 
       const { title, startVoice, startImg, startScript } = response.data.data;
 
@@ -82,8 +106,6 @@ const collectionActions = (set, get) => ({
         state.taleStart.startImg = startImg;
         state.taleStart.startScript = startScript;
       });
-
-
     } catch (error) {
       return error;
     }
@@ -99,16 +121,13 @@ const collectionActions = (set, get) => ({
     //  0번째 페이지 -> basetale start 불러옴
     const response = await api.get(`/tale/${get().seeTaleId}/${pageNum}`);
 
-
     set((state) => {
       state.taleDetail = response.data.data;
     });
-
   },
 
   setTaleFinish: async () => {
     const response = await api.get(`/tale/${get().seeTaleId}`);
-
 
     const { participants, createdAt } = response.data.data;
 
@@ -129,6 +148,9 @@ const collectionActions = (set, get) => ({
     });
     // sortBy가 바뀌면 바로 새 데이터를 불러오도록 실행
     get().setMyTaleList();
+    set((state) => {
+      state.currentPage = 1;
+    });
   },
 
   // filterBy 상태를 변경하고, 변경 후 새 데이터를 다시 불러옴
@@ -144,21 +166,52 @@ const collectionActions = (set, get) => ({
     }
     // filterBy 바뀌면 바로 새 데이터를 불러오도록 실행
     get().setMyTaleList();
+    set((state) => {
+      state.currentPage = 1;
+    });
   },
 
   setTailTitleList: async () => {
     const response = await api.get('/base-tale/list');
-
 
     const uniqueTitle = response.data.data.map((element, index) => ({
       title: element.title,
       baseTaleId: element.id,
     }));
 
-
     set((state) => {
       state.tailTitleList = uniqueTitle;
     });
+  },
+
+  loadMoreTales: async () => {
+    const currentPage = get().currentPage;
+    const sortBy = get().sortBy;
+
+    try {
+      const response = await api.get('/tale/my-tale', {
+        params: {
+          order: get().sortBy,
+          baseTaleId: get().filterBy,
+          page: currentPage + 1,
+        },
+      });
+      console.log('스크롤 아래로 댕김', response);
+
+      if (response.data && response.data.status === 'SU') {
+        set((state) => {
+          state.myTaleList = [...state.myTaleList, ...response.data.data];
+          state.currentPage = currentPage + 1;
+        });
+        return true; // 더 많은 데이터가 있음을 나타냄
+      } else if (response.data && response.data.status === 'NP') {
+        return false; // 더 이상 데이터가 없음을 나타냄
+      } else {
+        throw new Error('API 응답 오류');
+      }
+    } catch (error) {
+      return false;
+    }
   },
 });
 
@@ -202,6 +255,7 @@ export const useCollection = () => {
   const setTailTitleList = useCollectionStore(
     (state) => state.setTailTitleList
   );
+  const loadMoreTales = useCollectionStore((state) => state.loadMoreTales);
 
   return {
     memberId,
@@ -224,5 +278,6 @@ export const useCollection = () => {
     setTailTitleList,
     setSortBy,
     setFilterBy,
+    loadMoreTales,
   };
 };
