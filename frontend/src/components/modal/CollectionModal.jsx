@@ -114,7 +114,7 @@ const CollectionModal = ({ handleExit }) => {
         {pageNum === 5 || pageNum === 0 ? null : (
           <button
             onClick={() => setIsOrigin(!isOrigin)}
-            className="w-[200px] h-[100px] absolute bottom-[425px] left-[90px] z-50 flex items-center cursor-pointer">
+            className="w-[220px] h-[100px] absolute bottom-[445px] left-[90px] z-50 flex items-center cursor-pointer">
             <img
               src="/Collection/fairy-magic.png"
               className="w-[100px] transition-transform duration-200 hover:scale-105"
@@ -122,11 +122,11 @@ const CollectionModal = ({ handleExit }) => {
             />
             {isOrigin ? (
               <span className="text-text-second service-regular3">
-                AI 그림 보기
+                요술로 바꿔줄게~
               </span>
             ) : (
               <span className="text-text-second service-regular3">
-                원래 그림 보기
+                원래 그림을 볼까?
               </span>
             )}
           </button>
