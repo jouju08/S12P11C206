@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useFriend } from '@/store/friendStore';
 import { userStore } from '@/store/userStore';
 
-
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import '@/styles/text.css';
@@ -30,7 +29,7 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
   const [searchTerm, setSearchTerm] = useState(''); //검색어
   const [filteredMembers, setFilteredMembers] = useState(searchMembers);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [countrequest,setCountRequest]=useState(0);
+  const [countrequest, setCountRequest] = useState(0);
 
   const handleSearch = (e) => {
     const value = e.target.value;
@@ -60,15 +59,14 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
   }, [activeTab]);
 
   useEffect(() => {
-      fetchFriendRequests();
-  }, []);//표시 하려면,,,
+    fetchFriendRequests();
+  }, []); //표시 하려면,,,
 
   const handleRespondToRequest = async (loginId, answer) => {
     await respondToRequest(loginId, answer);
     // 상태 업데이트를 위해 friendRequests를 다시 가져옵니다
     fetchFriendRequests();
   };
-
 
   const showDeleteSwal = (friendId, freindName) => {
     withReactContent(Swal)
@@ -123,7 +121,7 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
           className="h-[30px] w-[30px]"
         />
       </button>
-      
+
       <div className="flex justify-around items-center pb-2 mb-4">
         <button
           onClick={() => setActiveTab('friends')}
@@ -131,12 +129,11 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
             ${activeTab === 'friends' ? 'bg-main-point2 ' : 'bg-white'}`}>
           친구 목록
         </button>
-        {friendRequests.length!=0&&(
-            <p className='rounded-full font-NPSfont bg-main-carrot px-2 py-[3px] text-xs absolute top-[55px] right-[250px]  text-text-white'>
-              {friendRequests.length}
-            </p>  
-          )
-        }
+        {friendRequests.length != 0 && (
+          <p className="rounded-full font-NPSfont bg-main-carrot px-2 py-[3px] text-xs absolute top-[55px] right-[250px]  text-text-white">
+            {friendRequests.length}
+          </p>
+        )}
         <button
           onClick={() => setActiveTab('get_requests')}
           className={`px-3 py-2 cursor-pointer text-text-first text-lg font-NPSfont rounded-full  shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] hover:bg-main-point2 transition-colors duration-200
@@ -166,8 +163,12 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
       {activeTab === 'get_requests' && (
         <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {friendRequests.length === 0 ? (
-            <div className="relative w-full h-full">
-              <p className="text-center text-lg text-text-first font-NPSfont absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="relative w-full h-full flex flex-col justify-center items-center">
+              <img
+                className="w-[100px] h-[100px]"
+                src="/Common/sad-unicon.png"
+              />
+              <p className="text-center text-lg text-text-first font-NPSfont">
                 받은 친구 요청이 없어요
               </p>
             </div>
@@ -216,8 +217,12 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
       {activeTab === 'send_requests' && (
         <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {sendFriendRequests.length === 0 ? (
-            <div className="relative w-full h-full">
-              <p className="text-center text-lg text-text-first font-NPSfont absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="relative w-full h-full flex flex-col justify-center items-center">
+              <img
+                className="w-[100px] h-[100px]"
+                src="/Common/sad-unicon.png"
+              />
+              <p className="text-center text-lg text-text-first font-NPSfont">
                 보낸 친구 요청이 없어요
               </p>
             </div>
@@ -255,10 +260,14 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
       {activeTab === 'friends' && (
         <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           {friendList.length === 0 ? (
-            <div className="relative w-full h-full flex flex-col justify-center items-center">
+            <div
+              onClick={() => {
+                setActiveTab('find_friends');
+              }}
+              className="relative w-full h-full flex flex-col justify-center items-center cursor-pointer transition-all duration-200 hover:scale-105">
               <img
-                className="w-50 h-50"
-                src="/Main/main-fairy.png"
+                className="w-[100px] h-[100px]"
+                src="/Common/sad-unicon.png"
               />
               <p className="text-center text-lg text-text-first font-NPSfont">
                 친구를 찾아볼까요?
@@ -326,7 +335,7 @@ const Friends = ({ friends, setShowFriend, showFriend }) => {
         <div className="w-[464px] h-full overflow-y-auto bg-white rounded-2xl border border-[#9f9f9f] flex flex-col items-center p-4">
           <input
             type="text"
-            placeholder="닉네임을 입력해주세요"
+            placeholder="친구 이름을 찾아보아요!"
             value={searchTerm}
             onChange={handleSearch}
             className="w-full px-3 py-2 border rounded-md mb-3
