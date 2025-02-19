@@ -155,6 +155,10 @@ export default function Collection() {
             setShowModal={setShowModal}
           />
         )}
+        {/* Intersection Observer의 타겟 요소 */}
+        <div
+          ref={infiniteScrollRef}
+          style={{ height: '20px' }}></div>
       </section>
 
       {showModal && (
