@@ -113,7 +113,6 @@ const TaleKeyword = () => {
         ? await submitVoiceSingle(recordedAudio)
         : await submitVoice(recordedAudio);
 
-
       if (response.status == 'SU') {
         setIsNextActive(true);
         setCurrentKeyword(response.data.text);
@@ -121,8 +120,6 @@ const TaleKeyword = () => {
         return;
       }
     }
-
-
   };
 
   const handleSubmit = async () => {
@@ -186,9 +183,7 @@ const TaleKeyword = () => {
       //선택 효과음 재생
       selectAudioRef.current.volume = 1;
       selectAudioRef.current.currentTime = 0;
-      selectAudioRef.current
-        .play()
-        .catch(() => {});
+      selectAudioRef.current.play().catch(() => {});
     }
   };
   const modeButtons = [
@@ -202,7 +197,6 @@ const TaleKeyword = () => {
       text: '목소리',
       imageSrc: '/TaleKeyword/keyword-mic.png',
     },
-
   ];
 
   return (
@@ -274,7 +268,7 @@ const TaleKeyword = () => {
           backgroundImage: "url('/TaleKeyword/keyword-fairy.png')",
         }}
       />
-      <div className="absolute top-[235px] left-[285px]">
+      <div className="absolute bottom-1/2 left-[285px] translate-y-1/2">
         <FairyChatBubble>
           {mode === 'default' && (
             <>
@@ -284,8 +278,9 @@ const TaleKeyword = () => {
           )}
           {mode === 'typing' && (
             <>
-              동화를 어떻게 <br />
-              바꿀까?
+              단어를 쓰고
+              <br />
+              확인을 눌러줘!
             </>
           )}
           {mode === 'voice' && (
@@ -294,7 +289,12 @@ const TaleKeyword = () => {
               크게 말해보자!
             </>
           )}
-
+          {isNextActive && (
+            <>
+              다음 버튼을 <br />
+              눌러줘!
+            </>
+          )}
         </FairyChatBubble>
       </div>
       {/* 모드별 UI */}
@@ -320,7 +320,6 @@ const TaleKeyword = () => {
           <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
-
       {/* 하단 버튼들 */}
       {mode !== 'default' && (
         <div className="absolute bottom-[0px] right-[50px] flex gap-4">
@@ -487,8 +486,6 @@ const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
           className={`w-[100px] h-[100px] ${recordedAudio ? 'opacity-50' : ''}`}
         />
       </button>
-
-
     </div>
   );
 };
