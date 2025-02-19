@@ -113,7 +113,6 @@ const TaleKeyword = () => {
         ? await submitVoiceSingle(recordedAudio)
         : await submitVoice(recordedAudio);
 
-
       if (response.status == 'SU') {
         setIsNextActive(true);
         setCurrentKeyword(response.data.text);
@@ -121,8 +120,6 @@ const TaleKeyword = () => {
         return;
       }
     }
-
-
   };
 
   const handleSubmit = async () => {
@@ -186,9 +183,7 @@ const TaleKeyword = () => {
       //선택 효과음 재생
       selectAudioRef.current.volume = 1;
       selectAudioRef.current.currentTime = 0;
-      selectAudioRef.current
-        .play()
-        .catch(() => {});
+      selectAudioRef.current.play().catch(() => {});
     }
   };
   const modeButtons = [
@@ -202,7 +197,6 @@ const TaleKeyword = () => {
       text: '목소리',
       imageSrc: '/TaleKeyword/keyword-mic.png',
     },
-
   ];
 
   return (
@@ -294,7 +288,6 @@ const TaleKeyword = () => {
               크게 말해보자!
             </>
           )}
-
         </FairyChatBubble>
       </div>
       {/* 모드별 UI */}
@@ -320,7 +313,6 @@ const TaleKeyword = () => {
           <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
-
       {/* 하단 버튼들 */}
       {mode !== 'default' && (
         <div className="absolute bottom-[0px] right-[50px] flex gap-4">
@@ -337,6 +329,7 @@ const TaleKeyword = () => {
 
           {/* 다음 */}
           <button
+            disabled={!isNextActive}
             onClick={() => {
               handleNext();
               handleConfirmSound();
@@ -487,8 +480,6 @@ const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
           className={`w-[100px] h-[100px] ${recordedAudio ? 'opacity-50' : ''}`}
         />
       </button>
-
-
     </div>
   );
 };

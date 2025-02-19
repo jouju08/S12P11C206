@@ -38,9 +38,7 @@ const TaleSentenceDrawing = () => {
     drawingaudioRef.current.volume = 1;
     drawingaudioRef.current.currentTime = 0;
     drawingaudioRef.current.loop = true;
-    drawingaudioRef.current
-      .play()
-      .catch(() => {});
+    drawingaudioRef.current.play().catch(() => {});
     setShowDrawingModal(false);
   };
   const {
@@ -80,14 +78,13 @@ const TaleSentenceDrawing = () => {
 
   //livekit
   const joinVidu = async () => {
-    await getTokenByAxios(currentRoom.roomId);
+    await getTokenByAxios(2);
     await joinViduRoom();
 
     return;
   };
 
   const publishCanvasTrack = async () => {
-
     if (!viduRoom) return;
 
     const canvasElement = canvasRef.current.getCanvas();
@@ -106,20 +103,15 @@ const TaleSentenceDrawing = () => {
         return;
       }
 
-
       const localVideoTrack = new LocalVideoTrack(mediaStreamTrack);
 
       await viduRoom.localParticipant.publishTrack(localVideoTrack, {
         name: 'video_from_canvas',
         source: Track.Source.Camera,
       });
-
-
     } catch (error) {
-      return ;
+      return;
     }
-
-
   };
 
   useEffect(() => {
@@ -162,9 +154,7 @@ const TaleSentenceDrawing = () => {
       warningAudioRef.current.muted = false;
       warningAudioRef.current.currentTime = 0;
       warningAudioRef.current.volume = 1;
-      warningAudioRef.current
-        .play()
-        .catch(() => {});
+      warningAudioRef.current.play().catch(() => {});
     } else {
       warningAudioRef.current.pause();
       warningAudioRef.current.volume = 0;
@@ -178,6 +168,8 @@ const TaleSentenceDrawing = () => {
     if (currentStep >= 4) {
       setTimeLeft(0);
       setIsWarning(false);
+      canvasRef.current.completeDrawing();
+
       return;
     }
 
@@ -217,9 +209,7 @@ const TaleSentenceDrawing = () => {
 
       selectAudioRef.current.volume = 1;
       selectAudioRef.current.currentTime = 0;
-      selectAudioRef.current
-        .play()
-        .catch(() => {});
+      selectAudioRef.current.play().catch(() => {});
     }
   };
 
@@ -265,9 +255,7 @@ const TaleSentenceDrawing = () => {
       //선택 효과음 재생
       selectAudioRef.current.volume = 1;
       selectAudioRef.current.currentTime = 0;
-      selectAudioRef.current
-        .play()
-        .catch(() => {});
+      selectAudioRef.current.play().catch(() => {});
     }
     navigate('/tale/hotTale');
   };
@@ -288,8 +276,6 @@ const TaleSentenceDrawing = () => {
     };
   }, []);
 
-
-
   return (
     <>
       <div className="relative">
@@ -308,10 +294,11 @@ const TaleSentenceDrawing = () => {
         )}
         <div
           className="w-[1024px] h-[668px] bg-contain bg-no-repeat bg-bottom flex"
-          style={{
-            backgroundImage: "url('/Collection/modal-open-book.png')",
-            backgroundSize: '100% 90%',
-          }}>
+          // style={{
+          //   backgroundImage: "url('/TaleSentenceDrawing/sketch-bg.png')",
+          //   backgroundSize: '100% 90%',
+          // }}
+        >
           <section className="w-[70%] relative text-center">
             {/* 내가 그려볼 문장 */}
             <div className="py-3 justify-start items-center inline-flex overflow-hidden">
@@ -334,7 +321,7 @@ const TaleSentenceDrawing = () => {
               <>{!isSingle && multiModeSentences?.['sentence']}</>
             </div>
 
-            <div className="w-[590px] h-[420px] ml-[55px]">
+            <div className="w-[590px] h-[420px] ml-[55px] my-2">
               <DrawingBoard
                 ref={canvasRef}
                 width={590}
@@ -347,7 +334,7 @@ const TaleSentenceDrawing = () => {
               <>
                 <button
                   onClick={() => handleConfirm()}
-                  className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
+                  className="h-[60px] px-3 z-10 absolute bottom-12 right-12 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
                   확인
                 </button>
               </>
@@ -356,13 +343,13 @@ const TaleSentenceDrawing = () => {
                 {canRead ? (
                   <button
                     onClick={() => moveToReadTale()}
-                    className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
+                    className="h-[60px] px-3 z-10 absolute bottom-12 right-12 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center">
                     동화보러가기
                   </button>
                 ) : (
                   <button
                     disabled={!canRead}
-                    className="h-[60px] px-3 z-10 absolute bottom-8 right-6 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center
+                    className="h-[60px] px-3 z-10 absolute bottom-12 right-12 rounded-full bg-main-strawberry service-accent3 text-white shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] text-center
                     disabled:bg-slate-400">
                     <div className="tale-loader">동화가 만들어지고 있어요</div>
                   </button>
