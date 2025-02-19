@@ -67,7 +67,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
                         .requestMatchers("/api/auth/logout", "/api/auth/kakao/callback").permitAll()
                         .requestMatchers("/api/auth/duplicate/**", "/api/auth/email/**").permitAll()
-                        .requestMatchers("/api/auth/find-id").permitAll()
+                        .requestMatchers("/api/auth/find-id","/api/auth/find-password").permitAll()
                         .requestMatchers("/ws/**").permitAll() // 임시로 다 열기
                         .requestMatchers("/api/tale/submit/ai-picture", "/api/admin/tale/submit/**").permitAll()
                         .requestMatchers("/actuator/**").permitAll()

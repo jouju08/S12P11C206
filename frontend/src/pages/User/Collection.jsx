@@ -10,23 +10,7 @@ const chunk = (arr, size) =>
 const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
   const { taleStart, setTaleStart, setSeeTaleId } = useCollection();
 
-  // const filteredTaleList = myTaleList
-  //   .filter((item) =>
-  //     filterBy === '전체보기' ? true : item.title === filterBy
-  //   )
-  //   .sort((a, b) => {
-  //     if (sortBy === '최신순')
-  //       return (
-  //         new Date(b.createdAt.slice(0, 10)) -
-  //         new Date(a.createdAt.slice(0, 10))
-  //       );
-  //     if (sortBy === '과거순')
-  //       return (
-  //         new Date(a.createdAt.slice(0, 10)) -
-  //         new Date(b.createdAt.slice(0, 10))
-  //       );
-  //     return 0;
-  //   });
+
 
   if (myTaleList.length === 0) {
     return (
@@ -100,13 +84,10 @@ export default function Collection() {
     filterBy,
     setFilterBy,
   } = useCollection();
-  // const [sortBy, setSortBy] = useState('LATEST');
-  // const [filterBy, setFilterBy] = useState(null);
+
   const [showModal, setShowModal] = useState(false);
 
-  // const uniqueTitles = [
-  //   ...new Set(myTaleList.map((item) => item.baseTale)),
-  // ].sort((a, b) => a.localeCompare(b));
+
 
   const handleExit = () => {
     setShowModal(false);

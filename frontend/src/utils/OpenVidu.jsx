@@ -1,6 +1,5 @@
 import React from 'react';
 import { api } from '@/store/userStore';
-import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
 
 export default function OpenVidu() {

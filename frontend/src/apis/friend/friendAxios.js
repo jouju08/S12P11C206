@@ -1,13 +1,18 @@
+/**
+ * author : Jung Juha (jouju08)
+ * data : 2025.02.18
+ * description : 친구 API
+ * React -> SpringBoot
+ */
+
 import { api } from '@/store/userStore';
 
 export const getFriendRequests = async () => {
-  console.log('getFriendRequests() 실행됨');
+
   try {
     const response = await api.get('/friend/request');
-    console.log('API 응답 데이터:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch friend requests:', error);
     throw error;
   }
 };
@@ -18,11 +23,9 @@ export const answerFriendRequest = async (fromLoginId, answer) => {
     const response = await api.get(`/friend/request/${answer}/${fromLoginId}`, {
       withCredentials: true,
     });
-    console.log('response');
-    console.log(response.data);
+
     return response.data;
   } catch (error) {
-    console.error('Failed to answer friend request:', error);
     throw error;
   }
 };
@@ -32,7 +35,6 @@ export const getFriendList = async () => {
     const response = await api.get(`/friend/info`);
     return response.data;
   } catch (error) {
-    console.error('Failed to answer friend info:', error);
     throw error;
   }
 };
@@ -42,10 +44,9 @@ export const getDeleteFriend = async (friendId) => {
     const response = await api.get(`/friend/delete/${friendId}`, {
       withCredentials: true,
     });
-    console.log(response.data);
+
     return response.data;
   } catch (error) {
-    console.error('Failed to answer friend delete', error);
     throw error;
   }
 };
@@ -55,46 +56,42 @@ export const getDeleteRequest = async (ToLoginId) => {
     const response = await api.get(`/friend/request/cancel/${ToLoginId}`, {
       withCredentials: true,
     });
-    console.log(response.data);
+
     return response.data;
   } catch (error) {
-    console.error('Failed to answer friend delete', error);
     throw error;
   }
 };
 
 export const getSendFriendRequests = async () => {
-  console.log('getSendFriendRequests() 실행됨');
+
   try {
     const response = await api.get('/friend/request/send');
-    console.log('API 응답 데이터:', response.data);
+
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch friend requests:', error);
     throw error;
   }
 };
 export const getAllMembers = async () => {
-  console.log('getAllMembers() 실행됨');
+
   try {
     const response = await api.get('/member/all');
-    console.log('API 응답 데이터:', response.data);
+
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch friend requests:', error);
     throw error;
   }
 };
 
 export const postMakeFriend = async (memberId) => {
-  console.log('postMakeFriend() 실행');
+
   try {
     const response = await api.post(`friend/request`, {
       receiverLoginId: memberId,
     });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch friend requests:', error);
     throw error;
   }
 };

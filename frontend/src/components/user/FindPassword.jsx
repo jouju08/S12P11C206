@@ -90,7 +90,7 @@ export default function FindPassword() {
         Swal.fire('실패', '아이디와 이메일을 다시 확인해주세요.', 'error');
       }
     } catch (error) {
-      console.error('비밀번호 찾기 실패', error);
+
       Swal.fire('오류', '비밀번호 찾기에 실패했습니다.', 'error');
     }
   };

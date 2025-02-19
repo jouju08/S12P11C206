@@ -132,7 +132,7 @@ export default function Register() {
       }
 
       const response = await duplicate(type, value);
-      console.log('response', response);
+
       if (response.status === 'Success.') {
         Swal.fire('사용 가능', `사용 가능한 ${type}입니다`, 'success').then(
           (result) => {
@@ -156,7 +156,7 @@ export default function Register() {
         Swal.fire('중복', `이미 사용중인 ${type}입니다`, 'error');
       }
     } catch (error) {
-      console.error(`${type} 중복 확인 오류`, error);
+      return error;
     }
   };
 
@@ -199,13 +199,7 @@ export default function Register() {
       return;
     }
 
-    console.log('회원가입 요청:', {
-      loginId,
-      password,
-      email,
-      birth,
-      nickname,
-    });
+
     const response = await register({
       loginId,
       password,
@@ -213,7 +207,7 @@ export default function Register() {
       birth,
       nickname,
     });
-    console.log(response.data.status);
+
     if (response.data.status === 'SU') {
       Swal.fire(
         '회원가입 성공',
@@ -236,7 +230,6 @@ export default function Register() {
         Swal.fire('오류', '인증번호 발송에 실패했습니다.', 'error');
       }
     } catch (error) {
-      console.error('이메일 인증 오류', error);
       Swal.fire('오류', '인증번호 발송에 실패했습니다.', 'error');
     }
   };
@@ -279,7 +272,6 @@ export default function Register() {
         Swal.fire('인증 실패', '잘못된 인증번호입니다.', 'error');
       }
     } catch (error) {
-      console.error('인증번호 확인 오류', error);
       Swal.fire('인증 실패', '인증번호 확인에 실패했습니다.', 'error');
     }
   };

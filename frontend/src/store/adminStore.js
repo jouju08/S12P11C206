@@ -23,7 +23,7 @@ const adminActions = (set, get) => ({
     return new Promise((resolve, reject) => {
       const socket = new SockJS('/ws');
 
-      console.log(socket);
+
       const stompClient = new Client({
         webSocketFactory: () => socket,
 
@@ -37,8 +37,8 @@ const adminActions = (set, get) => ({
           Authorization: `Bearer ${userStore.getState().accessToken}`,
         },
 
-        onDisconnect: () => console.log('Disconnected'),
-        debug: (str) => console.log(str),
+        onDisconnect: () => {},
+        debug: (str) => {},
       });
 
       stompClient.activate();
@@ -57,7 +57,7 @@ const adminActions = (set, get) => ({
       (message) => {
         const newImages = JSON.parse(message.body);
         get().setTitleImages(newImages.images);
-        console.log(newImages);
+
       }
     );
   },
@@ -73,7 +73,7 @@ const adminActions = (set, get) => ({
       (message) => {
         const newImages = JSON.parse(message.body);
         get().setIntroImages(newImages.images);
-        console.log(newImages);
+
       }
     );
   },

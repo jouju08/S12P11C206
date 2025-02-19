@@ -1,6 +1,12 @@
+/**
+ * author : Lim Chaehyeon (chaehyeon)
+ * data : 2025.02.18
+ * description : 메인 레이아웃
+ * React
+ */
+
 import { useState, useRef, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import Footer from '../Footer';
 import AuthHeader from '../Header/AuthHeader';
 import DefaultHeader from '../Header/DefaultHeader';
 import { useUser } from '@/store/userStore';
@@ -19,18 +25,6 @@ export default function MainLayout() {
   const isFindIdPage = location.pathname === '/findid';
   const isFindPWPage = location.pathname === '/findpw';
 
-  // useEffect(() => {
-  //   function handleClickOutside(event) {
-  //     if (friendsRef.current && !friendsRef.current.contains(event.target)) {
-  //       setShowFriend(false);
-  //     }
-  //   }
-
-  //   document.addEventListener('mousedown', handleClickOutside);
-  //   return () => {
-  //     document.removeEventListener('mousedown', handleClickOutside);
-  //   };
-  // }, [friendsRef]);
 
   return (
     <div
@@ -81,7 +75,6 @@ export default function MainLayout() {
         />
       ) : null}
 
-      {/* 최소 높이 주는 w-3/4 css 삭제 */}
       <div className="relative flex justify-center items-center mx-auto">
         <Outlet />
       </div>

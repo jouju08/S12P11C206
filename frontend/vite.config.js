@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   base: '/',
@@ -17,13 +16,22 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
-
       '/ws': {
         target: 'wss://i12c206.p.ssafy.io:8080/ws',
         changeOrigin: true,
         ws: true,
       },
     },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        // 빌드 산출물의 파일명에 해시를 포함시켜 캐시 무효화가 자동으로 이루어지도록 함
+        entryFileNames: '[name].[hash].js',
+        chunkFileNames: '[name].[hash].js',
+        assetFileNames: '[name].[hash][extname]'
+      }
+    }
   },
   define: {
     global: 'window',

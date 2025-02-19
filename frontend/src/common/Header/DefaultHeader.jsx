@@ -1,3 +1,10 @@
+/**
+ * author : Lim Chaehyeon (chaehyeon)
+ * data : 2025.02.18
+ * description : 헤더
+ * React
+ */
+
 import { useUser } from '@/store/userStore';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -6,7 +13,6 @@ export default function DefaultHeader({ showFriend, setShowFriend }) {
   const { logout } = useUser();
   return (
     <header>
-      {/* // <header className="shadow-md"> */}
       <div className="w-[1024px] h-[100px] relative m-auto">
         {/* logo */}
         <Link

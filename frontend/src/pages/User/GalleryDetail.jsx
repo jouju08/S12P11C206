@@ -5,22 +5,7 @@ import { useCollection } from '@/store/collectionStore';
 import '@/styles/shakingDown.css';
 import CollectionModal from '@/components/modal/CollectionModal';
 
-// 더미 데이터 - 내가 그린 문장이 뭔지도 들어와야 함
-const dummyGalleryPage = {
-  galleryId: 1,
-  taleTitle: '아기돼지 3형제',
-  img: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-  originImg: 'https://myfairy-c206.s3.ap-northeast-2.amazonaws.com/tale1.png',
-  author: '테스터',
-  authorMemberId: 5,
-  taleId: 301,
-  sentence: '[이번] ㅇㅇㅇㅇ',
-  baseTaleId: 1,
-  likeCount: 1,
-  hasOrigin: true,
-  hasLiked: true,
-  createdAt: '2025-02-05T16:31:14.170944900',
-};
+
 
 export default function GalleryDetail() {
   const { galleryId } = useParams(); // URL에서 galleryId 추출
@@ -51,14 +36,7 @@ export default function GalleryDetail() {
     return () => clearInterval(interval);
   }, []);
 
-  // useEffect(() => {
-  //   const fetchGalleryPage = async () => {
-  //     await setGalleryPage(galleryId);
-  //     setIsOrigin(galleryPage['hasOrigin']);
-  //   };
 
-  //   fetchGalleryPage();
-  // }, [galleryId]);
 
   useEffect(() => {
     setGalleryPage(galleryId);
@@ -71,7 +49,6 @@ export default function GalleryDetail() {
   }, [galleryPage]);
 
   const handleHeart = () => {
-    // galleryPage['hasLiked'] = !galleryPage['hasLiked'];
     toggleHasLiked();
   };
 
@@ -184,11 +161,7 @@ export default function GalleryDetail() {
                 </p>
               </div>
               {/* 여기 나중에 ChildrenBtn 컴포넌트 */}
-              {/* <div className="p-2 bg-[#ffc8a3] rounded-2xl shadow-[3px_3px_4px_0px_rgba(0,0,0,0.10)] justify-center items-center gap-2.5 flex overflow-hidden">
-              <div className="text-[#505050] text-base font-normal font-['NPS font']">
-                + 친구추가
-              </div>
-            </div> */}
+
             </div>
 
             {/* 그림 그린 내용 */}

@@ -21,7 +21,7 @@ const sightseeingActions = (set, get) => ({
       const response = await api.get('/gallery', {
         params: { order: sortBy, page: currentPage + 1 },
       });
-      console.log('스크롤 아래로 댕김', response);
+
 
       if (response.data && response.data.status === 'SU') {
         set((state) => {
@@ -30,13 +30,12 @@ const sightseeingActions = (set, get) => ({
         });
         return true; // 더 많은 데이터가 있음을 나타냄
       } else if (response.data && response.data.status === 'NP') {
-        console.log('더 이상 불러올 데이터가 없습니다.');
+
         return false; // 더 이상 데이터가 없음을 나타냄
       } else {
         throw new Error('API 응답 오류');
       }
     } catch (error) {
-      console.error('❌ 추가 데이터 불러오기 실패:', error);
       return false;
     }
   },
@@ -49,7 +48,6 @@ const sightseeingActions = (set, get) => ({
       });
 
       if (response.data && response.data.status === 'SU') {
-        console.log('✅ 갤러리 목록 불러오기 성공', response);
 
         set((state) => {
           state.drawingList = response.data.data;
@@ -59,7 +57,7 @@ const sightseeingActions = (set, get) => ({
         throw new Error('API 응답 오류');
       }
     } catch (error) {
-      console.error('❌ drawingList 불러오기 실패:', error);
+
       set((state) => {
         state.drawingList = [];
         state.currentPage = 1;
@@ -83,17 +81,17 @@ const sightseeingActions = (set, get) => ({
       });
 
       if (response.data && response.data.status === 'SU') {
-        // console.log('😊 갤러리 인기 목록 성공', response);
+
 
         set((state) => {
           state.popList = response.data.data.slice(0, 3);
-          // console.log(state.popList);
+
         });
       } else {
         throw new Error('API 응답 오류');
       }
     } catch (error) {
-      console.error('❌ popList 불러오기 실패:', error);
+
       set((state) => {
         state.popList = [];
       });

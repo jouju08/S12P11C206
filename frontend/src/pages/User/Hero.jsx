@@ -6,10 +6,9 @@ import { useUser } from '@/store/userStore';
 import '@/styles/main.css';
 import '@/styles/Hero.css';
 
-// Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules'; // Autoplay 모듈 가져오기
-// Import Swiper styles
+
 import 'swiper/css';
 
 export default function Hero() {
@@ -129,9 +128,8 @@ export default function Hero() {
         <div className="mt-[4.5rem]">
           <Swiper
             modules={[Autoplay]} // Autoplay 모듈 등록
-            // freeMode={true}
-            // slidesPerView="auto"
-            // slidesPerView="4"
+
+
             spaceBetween={0}
             speed={6000}
             allowTouchMove={false}

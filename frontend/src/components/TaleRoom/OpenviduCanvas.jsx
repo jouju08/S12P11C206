@@ -1,4 +1,3 @@
-import { LocalVideoTrack, RemoteVideoTrack } from 'livekit-client';
 import { useEffect, useRef } from 'react';
 
 export default function OpenviduCanvas({

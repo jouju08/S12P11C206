@@ -1,4 +1,3 @@
-import axios from "axios";
 import { userStore, useUser } from "./userStore";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -22,7 +21,7 @@ const initialProfile = {
         try{
           api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
           const response = await api.get('/member/mypage');
-          console.log('회원정보', response.data.data);
+
           set((state) => {
             state.memberId = response.data.data.memberId;
             state.loginId = response.data.data.loginId;
@@ -33,23 +32,20 @@ const initialProfile = {
             state.profileImg = response.data.data.profileImg;
           });
         } catch (error) {
-          console.log('프로필 정보 불러오기 실패', error);
           throw error;
         }
       },
 
     updateProfile: async (updateData) => {
       try{
-        console.log('프로필 정보', updateData);
         api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
         const response = await api.patch('/member/mypage',updateData);
-        console.log('프로필 수정 성공', response.data);
+
         set((state) => {
           state.nickname = response.data.data.nickname;
           state.birth = response.data.data.birth;
         });
       } catch (error) {
-        console.log('프로필 수정 실패', error);
         throw error;
       }
     },
@@ -64,7 +60,6 @@ const initialProfile = {
           return false;
         }
       } catch (error) {
-        console.log('닉네임 중복 체크 실패', error);
         throw error;
       }
     },
@@ -76,9 +71,8 @@ const initialProfile = {
         set((state) => {
           state.profileImg = response.data.data;
         });
-        console.log(response);
+
       } catch (error) {
-        console.log('프로필 이미지 업데이트 에러',error);
         throw error;
       }
     },
@@ -86,14 +80,11 @@ const initialProfile = {
     deleteUser:async()=>{
       try{
         const response=await api.delete("/member/delete");
-        console.log(response.data.status);
-        console.log(response.data);
+
         if(response.data.status==="SU"){
-          console.log("delete user success");
           return true;
         }
       }catch(error){
-          console.log("user delete error", error);
           return false;
         }
     },
@@ -104,10 +95,9 @@ const initialProfile = {
           oldPassword,
           newPassword,
         });
-        console.log("비밀번호 변경 요청 성공", response.data.status);
+
         return response.data;
       } catch (error) {
-        console.log("비밀번호 변경 실패", error);
         throw error;
       }
     },
@@ -172,13 +162,12 @@ const myfairyTaleActions = (set, get) => ({
         try {
             api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
             const response = await api.get('/tale/my-tale');
-            console.log('동화목록: ', response.data.data);
+
             
             set((state) => {
                 state.myTales = response.data.data;
             });
         } catch (error) {
-            console.log('동화목록 정보 불러오기 실패', error);
             throw error;
         }
     }
@@ -220,12 +209,10 @@ const kidTrackActions = (set, get) => ({
     try {
       
       const response = await api.get("/auth/child/aggregate");
-      console.log("Aggregate response:", response.data.data);
       set((state) => {
         state.loginSummary = response.data.data;
       });
     } catch (error) {
-      console.log("Aggregate fetch error", error);
       throw error;
     }
   },
@@ -236,7 +223,7 @@ const kidTrackActions = (set, get) => ({
       const response = await api.get("/auth/child", {
         params: { page: get().page, size: 10 },
       });
-      console.log("Login events response:", response.data.data);
+
       const newEvents = response.data.data.content;
       set((state) => {
         state.loginEvents = [...state.loginEvents, ...newEvents];
@@ -245,7 +232,6 @@ const kidTrackActions = (set, get) => ({
         }
       });
     } catch (error) {
-      console.log("Login events fetch error", error);
       throw error;
     }
   },

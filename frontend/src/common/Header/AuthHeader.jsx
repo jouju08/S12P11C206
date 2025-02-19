@@ -1,3 +1,10 @@
+/**
+ * author : Lim Chaehyeon (chaehyeon)
+ * data : 2025.02.18
+ * description : 헤더
+ * React
+ */
+
 import { useUser } from '@/store/userStore';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -18,9 +25,6 @@ export default function AuthHeader() {
             className="h-[70px]"
           />
         </Link>
-        {/* <div className="left-[788px] top-[35px] absolute service-bold3 text-text-first cursor-pointer hover:text-main-choose">
-          <Link to="/login">로그인</Link>
-        </div> */}
       </nav>
     </header>
   );

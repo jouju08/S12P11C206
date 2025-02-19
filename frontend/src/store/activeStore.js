@@ -23,7 +23,7 @@ const ActiveUserActions = (set, get) => ({
     return new Promise((resolve, reject) => {
       const socket = new SockJS('/ws');
 
-      console.log(socket);
+
       const stompClient = new Client({
         webSocketFactory: () => socket,
 
@@ -35,12 +35,11 @@ const ActiveUserActions = (set, get) => ({
           Authorization: `Bearer ${userStore.getState().accessToken}`,
         },
 
-        onDisconnect: () => console.log('Disconnected'),
+        onDisconnect: () => {},
         onStompError: (frame) => {
-          console.error('Broker reported error: ' + frame.headers['message']);
-          console.error('Additional details: ' + frame.body);
+
         },
-        // debug: (str) => console.log(str),
+
       });
 
       stompClient.activate();
@@ -59,14 +58,14 @@ const ActiveUserActions = (set, get) => ({
 
     stompClient.subscribe(`/active`, async (message) => {
       const newMsg = message.body;
-      // console.log(message.body);
+
 
       try {
         const response = await api.get(
           `/active?memberId=${userStore.getState().memberId}`
         );
       } catch (err) {
-        console.log(err);
+        return err;
       }
     });
 
@@ -83,7 +82,7 @@ const ActiveUserActions = (set, get) => ({
             get().setInviteInfo(JSON.parse(inviteMsg));
           }
         } catch (err) {
-          console.log(err);
+          return err;
         }
       }
     });
@@ -120,17 +119,7 @@ const ActiveUserActions = (set, get) => ({
     set((state) => ({ inviteInfo: { ...info } }));
   },
 
-  // publishMain: async () => {
-  //   const stompClient = get().stompClient;
 
-  //   if (!stompClient || !stompClient.connected) {
-  //     return;
-  //   }
-  //   // 메세지 받기
-  //   stompClient.publish({ destination: '' });
-  // },
-  // setParticipants: (roomId, users) =>
-  //   set((state) => ({ participants: [...state.participants, participant] })),
 });
 
 const activeUserStore = create(

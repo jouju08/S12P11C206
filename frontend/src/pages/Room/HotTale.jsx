@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { useTaleRoom } from '@/store/roomStore';
+
 import { useTalePlay } from '@/store/tale/playStore';
 
-import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
 import TaleNavigation from '@/components/Common/TaleNavigation';
 import { Loading } from '@/common/Loading';
 import AudioPlayer from '@/components/Common/AudioPlayer';
@@ -27,7 +26,7 @@ const HotTale = () => {
         await setHotTale(pageNum);
         setLoading(false);
       } catch (error) {
-        console.error('Hot Tale Error 발생:', error);
+        return error;
       }
     };
 

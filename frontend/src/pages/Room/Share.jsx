@@ -1,4 +1,3 @@
-import FriendCanvas from '@/components/Share/FriendCanvas';
 import MyCanvas from '@/components/Share/MyCanvas';
 import React, { useEffect, useRef, useState } from 'react';
 import { OpenVidu } from 'openvidu-browser';
@@ -51,7 +50,7 @@ export default function Share() {
     });
 
     newSession.on('exception', (exception) => {
-      console.warn(exception);
+      return exception;
     });
 
     try {
@@ -73,11 +72,7 @@ export default function Share() {
       setMainStreamManager(newPublisher);
       setCurrentVideoDevice(currentVideoDevice);
     } catch (error) {
-      console.log(
-        'There was an error connecting to the session:',
-        error.code,
-        error.message
-      );
+      return error;
     }
   };
 
@@ -125,11 +120,7 @@ export default function Share() {
   return (
     <div className="flex h-screen w-[100%] bg-gray-100 p-4">
       {mainStreamManager && <MyCanvas streamManager={mainStreamManager} />}
-      {/* <div className="w-1/4 flex flex-col gap-2 ml-4">
-        {[...Array(parseInt(3))].map((friend, index) => (
-          <FriendCanvas key={index} />
-        ))}
-      </div> */}
+
     </div>
   );
 }
