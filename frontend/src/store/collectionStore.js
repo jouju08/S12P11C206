@@ -41,6 +41,9 @@ const initialState = {
 const collectionActions = (set, get) => ({
   setMyTaleList: async () => {
     try {
+      set((state) => {
+        state.currentPage = 1;
+      });
       const taleList = [];
 
       const promises = [0, 1].map(async (page) => {
@@ -52,10 +55,14 @@ const collectionActions = (set, get) => ({
           },
         });
 
-        if (response.data && response.data.data) {
+        // if (response.data && response.data.data) {
+        //   return response.data.data;
+        // }
+        // return [];
+
+        if (response.data && response.data.status === 'SU') {
           return response.data.data;
-        }
-        return [];
+        } else if (response.data && response.data.status === 'NP') return [];
       });
 
       const results = await Promise.all(promises);
@@ -71,10 +78,10 @@ const collectionActions = (set, get) => ({
       // });
 
       // 지우자
-      console.log(
-        `order: ${get().sortBy}, baseTaleId: ${get().filterBy}, page: 0~2 동화 호출!`,
-        taleList
-      );
+      // console.log(
+      //   `order: ${get().sortBy}, baseTaleId: ${get().filterBy}, page: 0~2 동화 호출!`,
+      //   taleList
+      // );
 
       // 응답 유효성 체크 추가
       // if (!response || !response.data) {
