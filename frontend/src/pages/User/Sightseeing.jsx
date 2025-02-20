@@ -31,7 +31,6 @@ export default function Sightseeing() {
 
   const handleHasOriginChange = (e) => {
     const newValue = e.target.value === 'true';
-    console.log('Changing hasOrigin to:', newValue);
     setHasOrigin(newValue);
     setDrawingList();
   };
@@ -66,8 +65,7 @@ export default function Sightseeing() {
           </div>
           <Link
             to={'/gallery'}
-            className="px-3.5 py-2 bg-main-point2 rounded-[30px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.15)] justify-center items-center gap-2.5 text-white service-bold3 inline-flex overflow-hidden"
-          >
+            className="px-3.5 py-2 bg-main-point2 rounded-[30px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.15)] justify-center items-center gap-2.5 text-white service-bold3 inline-flex overflow-hidden">
             내 그림 꾸러미 가기
           </Link>
         </div>
@@ -160,8 +158,7 @@ export default function Sightseeing() {
             <select
               value={hasOrigin ? 'true' : 'false'}
               onChange={handleHasOriginChange}
-              className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50"
-            >
+              className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50">
               <option value="false">요정그림</option>
               <option value="true">내그림</option>
             </select>
@@ -170,8 +167,7 @@ export default function Sightseeing() {
             <select
               value={sortBy}
               onChange={handleSortChange}
-              className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50"
-            >
+              className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50">
               <option value="LATEST">최신순</option>
               <option value="POP">인기순</option>
             </select>
@@ -187,14 +183,19 @@ export default function Sightseeing() {
           ) : (
             <div className="grid grid-flow-row grid-cols-4 gap-4 mt-[30px]">
               {drawingList.map((item, idx) => (
-                <GalleryItem item={item} key={idx} />
+                <GalleryItem
+                  item={item}
+                  key={idx}
+                />
               ))}
             </div>
           )}
         </div>
 
         {/* Intersection Observer의 타겟 요소 */}
-        <div ref={infiniteScrollRef} style={{ height: '20px' }}></div>
+        <div
+          ref={infiniteScrollRef}
+          style={{ height: '20px' }}></div>
       </div>
     </div>
   );

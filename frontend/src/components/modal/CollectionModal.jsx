@@ -27,8 +27,6 @@ const CollectionModal = ({ handleExit }) => {
       taleDetail?.['img'] === 'processing' ||
       taleDetail?.['img'] === 'before processing';
 
-    console.log(!isOrigin && isImageProcessing);
-
     return !isOrigin && isImageProcessing;
   }, [isOrigin, taleDetail]);
 
@@ -36,11 +34,6 @@ const CollectionModal = ({ handleExit }) => {
     setTaleDetail(pageNum);
     setIsOrigin(false);
   }, [pageNum, setTaleDetail]);
-
-  useEffect(() => {
-    console.log(isOrigin);
-    console.log(duckRender);
-  }, [isOrigin]);
 
   useEffect(() => {
     setTaleFinish();

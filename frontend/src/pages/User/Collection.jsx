@@ -11,19 +11,6 @@ const chunk = (arr, size) =>
 const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
   const { taleStart, setTaleStart, setSeeTaleId } = useCollection();
 
-  if (myTaleList.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full -mt-20">
-        <img
-          src="/Common/nodata.png"
-          alt="No Data"
-          className="w-[100px] h-[100px]"
-        />
-        <p className="service-accent2 mt-2">아직 만들어진 동화가 없어요</p>
-      </div>
-    );
-  }
-
   const getTextClass = (text) => {
     return text.length > 8 ? 'service-regular3' : 'service-regular2';
   };
@@ -164,8 +151,13 @@ export default function Collection() {
         id="need-scrool"
         className="w-[974px] h-[486px] relative overflow-y-auto mt-[65px] scr pr-4">
         {myTaleList.length === 0 ? (
-          <div className="w-full h-[300px] service-accent1 text-text-first text-center leading-[300px]">
-            아직 동화책이 없어요!
+          <div className="flex flex-col items-center justify-center h-full -mt-20">
+            <img
+              src="/Common/nodata.png"
+              alt="No Data"
+              className="w-[100px] h-[100px]"
+            />
+            <p className="service-accent2 mt-2">아직 만들어진 동화가 없어요</p>
           </div>
         ) : (
           <TaleGrid
