@@ -21,6 +21,13 @@ const CollectionModal = ({ handleExit }) => {
     createdAt,
   } = useCollection();
 
+  const isImageProcessing =
+    taleDetail?.['img'] == null ||
+    taleDetail?.['img'] === 'processing' ||
+    taleDetail?.['img'] === 'before processing';
+
+  const duckRender = !isOrigin && isImageProcessing;
+
   useEffect(() => {
     setTaleDetail(pageNum);
     setIsOrigin(false);
@@ -197,7 +204,19 @@ const CollectionModal = ({ handleExit }) => {
                 />
               </div>
             )}
-            {!isOrigin && taleDetail['img'] && (
+
+            {duckRender ? (
+              <div className="flex flex-col mt-[150px] items-center justify-center">
+                <img
+                  src="/Gallery/movingDuck.gif"
+                  alt="대체 이미지"
+                  className="w-[150px] h-[150px] object-cover object-center bg-white"
+                />
+                <div className="text-text-first text-xl font-NPSfont">
+                  {text}
+                </div>
+              </div>
+            ) : (
               <div>
                 <img
                   src={taleDetail['img']}
@@ -211,21 +230,6 @@ const CollectionModal = ({ handleExit }) => {
                 />
               </div>
             )}
-            {!isOrigin &&
-              (taleDetail['img'] == null ||
-                taleDetail['img'] === 'processing' ||
-                taleDetail['img'] === 'before processing') && (
-                <div className="flex flex-col mt-[150px] items-center justify-center">
-                  <img
-                    src="/Gallery/movingDuck.gif"
-                    alt="대체 이미지"
-                    className="w-[150px] h-[150px] object-cover object-center bg-white"
-                  />
-                  <div className="text-text-first text-xl font-NPSfont">
-                    {text}
-                  </div>
-                </div>
-              )}
           </>
         )}
 
