@@ -76,7 +76,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
 
           <div className="h-[435px] p-4 flex">
             {/* 왼쪽 이미지 영역 */}
-            <div className="w-[400px] h-[400px] relative overflow-hidden mr-4">
+            <div className="w-full h-full relative overflow-hidden mr-4">
               {isOriginal && detail?.orginImg && (
                 <img
                   src={isOriginal ? detail?.orginImg : detail?.img}
@@ -96,7 +96,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
               )}
 
               {!duckRender && !isOriginal && (
-                <div className="flex flex-col mt-[150px] items-center justify-center">
+                <div className="w-full h-full">
                   <img
                     src={detail?.img}
                     alt="AI 이미지"
