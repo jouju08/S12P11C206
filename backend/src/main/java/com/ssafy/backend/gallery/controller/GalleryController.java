@@ -45,7 +45,7 @@ public class GalleryController {
             Authentication auth,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "LATEST") String order,
-            @RequestParam(defaultValue = "true" ) Boolean hasOrigin)  {
+            @RequestParam(defaultValue = "false" ) Boolean hasOrigin)  {
         List<GalleryListResponseDto> allPictures = galleryService.findAllPictures(auth, --page, order, hasOrigin);
         return ApiResponse.<List<GalleryListResponseDto>>builder()
                 .data(allPictures)
