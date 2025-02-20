@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import ChildrenBtn from './ChildrenBtn';
 import { useTaleRoom } from '@/store/roomStore';
-
+import { useFriend } from '@/store/friendStore';
 const Participant = ({ item, isHost = false }) => {
   const { id, isFriend, nickname, profileImg } = item;
   const { currentRoom } = useTaleRoom();
+  const {
+      fetchSendFriendRequest, 
+      sendFriendRequests,
+      friendList, 
+      fetchFriendList,
+    }=useFriend();
 
   return (
     <div
@@ -22,13 +28,11 @@ const Participant = ({ item, isHost = false }) => {
         <div className="absolute top-3 left-[72px] text-text-first service-regular1">
           {item.nickname}
         </div>
-        {isHost ? (
+        {isHost &&(
           <img
             className="w-[34px] h-[34px] left-[14px] top-[-11.50px] absolute"
             src="/Waiting/crown.gif"
           />
-        ) : (
-          <ChildrenBtn isFriend={isFriend} />
         )}
       </div>
     </div>
