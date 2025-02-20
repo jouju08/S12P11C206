@@ -1,6 +1,6 @@
 package com.ssafy.backend.gallery.service;
 
-import com.ssafy.backend.common.exception.NotFoundPage;
+import com.ssafy.backend.common.exception.NotFoundPageException;
 import com.ssafy.backend.common.exception.ResourceNotFoundException;
 import com.ssafy.backend.db.entity.Gallery;
 import com.ssafy.backend.db.entity.GalleryLike;
@@ -87,7 +87,7 @@ public class GalleryService {
             return result;
         } catch (InvalidDataAccessApiUsageException e){
 //            e.printStackTrace();
-            throw new NotFoundPage("없는 페이지입니다.");
+            throw new NotFoundPageException("없는 페이지입니다.");
         }
     }
 
