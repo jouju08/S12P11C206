@@ -411,14 +411,14 @@ const BaseTaleRequest = () => {
 
   return (
     <>
-      <div className="mx-auto flex justify-center items-center mt-10 mb-5">
+      <div className="mx-auto flex justify-end items-center mt-10 mb-5">
         <div
           onClick={() => handleBackParent()}
-          className="text-2xl font-semibold  hover:text-red-500 hover:cursor-pointer">
+          className="text-xl font-semibold shadow-md bg-white rounded-[8px] p-[8px] px-[15px] hover:bg-slate-200 hover:cursor-pointer">
           부모님 페이지로 돌아가기
         </div>
       </div>
-      <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto">
+      <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto auth-regular1">
         <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
           관리자에게 동화 요청하기
         </h1>

@@ -413,7 +413,7 @@ const BaseTaleRequestAdmin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto auth-regular1">
       <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
         동화 요청 관리
       </h1>

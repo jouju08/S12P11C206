@@ -409,13 +409,13 @@ const BaseTale = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto auth-regular1">
       <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
         기본 동화 관리
       </h1>
       <div className="flex flex-col lg:flex-row gap-8">
         {/* 왼쪽: 동화 목록 */}
-        <div className="lg:w-1/3 bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+        <div className="lg:w-1/3 bg-white p-6 rounded-lg shadow-lg border border-gray-200 ">
           <h2 className="text-2xl font-semibold mb-4 text-gray-700">
             동화 목록
           </h2>
