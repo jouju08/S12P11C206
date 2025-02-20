@@ -17,6 +17,7 @@ import '@/styles/taleRoom.css';
 import { Link } from 'react-router-dom';
 
 export default function Main() {
+  const [scrollX, setScrollX] = useState(0);
   const { nickname, profileImg, memberInfo, myPage } = userStore(
     (state) => state
   );
@@ -97,6 +98,7 @@ export default function Main() {
     fetchData();
   }, []);
 
+
   const linkArray = [
     '/room',
     '/collection',
@@ -127,7 +129,8 @@ export default function Main() {
       <GalleryItem item={item} />
     </SwiperSlide>
   ));
-
+  const barWidth = (904 * 4) / listFamousDrawing.length;
+  const maxScrollX = 904 - barWidth;
   return (
     <div>
       {/* 메인 페이지 상단 프로필, 메뉴바 section */}
@@ -213,7 +216,7 @@ export default function Main() {
       </div>
 
       {/* 인기있는 그림 */}
-      <div className="mx-[60px] my-[70px] w-[904px] h-[357px]">
+      <div className="mx-[60px] my-[70px] w-[904px] h-[380px] relative">
         <div className="flex justify-between items-center mb-[10px]">
           <div className="text-text-first service-accent2">
             지금 인기있는 그림
@@ -228,14 +231,31 @@ export default function Main() {
         </div>
         {drawingData && drawingData.length !== 0 ? (
           <Swiper
-            modules={[Mousewheel]}
+            modules={[Mousewheel, Scrollbar, Pagination]}
             mousewheel={true}
             slidesPerView={4}
             spaceBetween={30}
             grabCursor={true}
-            className="mySwiper w-[904px] h-[300px] overflow-hidden px-4">
+            scrollbar={{
+                draggable: true,
+                hide: false,
+                el: '.swiper-scrollbar',
+                dragSize: 350,
+              }}
+            onSlideChange={(swiper)=>{
+              const progress=swiper.progress;
+              setScrollX(progress*maxScrollX);
+            }}
+            className="mySwiper w-[904px] h-[330px] overflow-hidden px-4">
             {listFamousDrawing}
-          </Swiper>
+            <div class="swiper-pagination"></div>
+            <div className="absolute -bottom-0 left-1/2 -translate-x-1/2 w-[904px] h-[5px] bg-gray-200 rounded-sm mx-auto mt-4">
+            <div
+              className="h-full bg-main-point2 rounded-sm transition-all duration-300 "
+              style={{  transform: `translateX(${scrollX}px)`, width: `${barWidth}px`}} // 진행률에 따라 너비 변경
+            ></div>
+            </div>
+           </Swiper>
         ) : (
           <div className="flex flex-col justify-center items-center mx-auto">
             <p className="text-text-second text-center service-accent3 mb-10">
@@ -249,6 +269,7 @@ export default function Main() {
           </div>
         )}
       </div>
+      
     </div>
   );
 }

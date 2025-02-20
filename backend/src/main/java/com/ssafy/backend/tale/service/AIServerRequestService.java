@@ -226,10 +226,6 @@ public class AIServerRequestService {
             if(!response.getStatus().equals(ResponseCode.SUCCESS))
                 throw new RuntimeException("AI 서버 요청 실패");
 
-            String text = response.getData().getText();
-            text = text.substring(0,11);
-            response = ApiResponse.<TextResponseDto>builder().data(new TextResponseDto(text)).build();
-
             return response;
         }catch(IOException | UnsupportedAudioFileException e){
             throw new BadRequestException("지원하는 형식(.wav)가 아니거나, 잘못된 파일입니다.");
@@ -254,10 +250,6 @@ public class AIServerRequestService {
 
         if(!response.getStatus().equals(ResponseCode.SUCCESS))
             throw new RuntimeException("AI 서버 요청 실패");
-
-        String text = response.getData().getText();
-        text = text.substring(0,11);
-        response = ApiResponse.<TextResponseDto>builder().data(new TextResponseDto(text)).build();
 
         return response;
     }

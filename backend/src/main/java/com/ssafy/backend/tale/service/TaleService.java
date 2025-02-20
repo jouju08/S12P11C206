@@ -266,10 +266,8 @@ public class TaleService {
             throw new RuntimeException("유효하지 않은 참가자입니다.");
 
         TaleMemberDto taleMemberDto = taleMember2taleMemberDto(taleMember);
-        String keyword = keywordRequestDto.getKeyword();
-        keyword = keyword.substring(0,11);
 
-        taleMemberDto.setKeyword(keyword);
+        taleMemberDto.setKeyword(keywordRequestDto.getKeyword());
         setTaleMemberDtoToRedis(taleMemberDto);
 
         // 2. 단어 몇명 선택했는지 확인
