@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
 import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
 import FairyChatBubble from '@/components/Common/FairyChatBubble';
 import { useTalePlay } from '@/store/tale/playStore';
@@ -6,6 +12,7 @@ import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/store/userStore';
 import { useViduHook } from '@/store/tale/viduStore';
+import VoiceRecorder from '@/components/TaleRoom/VoiceRecoder';
 
 const TaleKeyword = () => {
   const selectAudioRef = useRef(null); //확인 효과음
@@ -56,6 +63,12 @@ const TaleKeyword = () => {
   } = useTalePlay(); // 동화 API
 
   const { memberId } = useUser();
+
+  useEffect(() => {
+    if (recordedAudio !== null && !isRecording) {
+      handleConfirm();
+    }
+  }, [recordedAudio, isRecording]);
 
   useEffect(() => {
     const handleUnMount = async () => {
@@ -235,7 +248,9 @@ const TaleKeyword = () => {
               <div className="text-center text-text-first story-basic3">
                 {singleModeSentences[currentStep]?.['sentence'].split('xx')[0]}
               </div>
-              <div className="flex items-center justify-center w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400">
+              <div
+                onClick={() => setMode('typing')}
+                className="flex items-center justify-center w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400">
                 <span className="text-center text-text-first story-basic3">
                   {currentKeyword}
                 </span>
@@ -291,26 +306,26 @@ const TaleKeyword = () => {
             !recordedAudio && (
               <>
                 마이크를 눌러서 <br />
-                단어를 말해보자!
+                요정들에게 단어를 말해보자!!
               </>
             )}
-          {mode === 'voice' && isRecording && (
+          {mode === 'voice' && isRecording && !isNextActive && (
             <>
               다 말했으면
               <br />
               다시 마이크를 눌러줘!
             </>
           )}
-          {mode === 'voice' && !isRecording && recordedAudio && (
+
+          {mode === 'voice' && !isRecording && !isNextActive && (
             <>
-              이제 확인 버튼을
+              조금만 기달려줄래?
               <br />
-              눌러줘!
             </>
           )}
           {mode !== 'default' && isNextActive && (
             <>
-              좋아! 이제 넘어가자.
+              만들어진 단어가 맞으면
               <br />
               다음 버튼을 눌러줘~
             </>
@@ -334,12 +349,18 @@ const TaleKeyword = () => {
       {mode === 'voice' && (
         <div className="absolute bottom-[18%] right-[230px] flex items-center gap-8">
           <VoiceRecorder
+            recordedAudio={recordedAudio}
+            setRecordedAudio={setRecordedAudio}
+            isRecording={isRecording}
+            setIsRecording={setIsRecording}
+          />
+          {/* <VoiceRecorder
             isRecording={isRecording}
             setIsRecording={setIsRecording}
             recordedAudio={recordedAudio}
             setRecordedAudio={setRecordedAudio}
-          />
-          <ConfirmBtn onClick={handleConfirm} />
+          /> */}
+          {/* <ConfirmBtn onClick={handleConfirm} /> */}
         </div>
       )}
       {/* 하단 버튼들 */}
@@ -422,99 +443,78 @@ const ModeButton = ({ mode, text, imageSrc, onClick }) => {
   );
 };
 
-const VoiceRecorder = ({
-  isRecording,
-  setIsRecording,
-  recordedAudio,
-  setRecordedAudio,
-}) => {
-  const mediaRecorderRef = useRef(null);
-  const chunksRef = useRef([]);
+// const VoiceRecorder = ({
+//   isRecording,
+//   setIsRecording,
+//   recordedAudio,
+//   setRecordedAudio,
+// }) => {
+//   const mediaRecorderRef = useRef(null);
+//   const chunksRef = useRef([]);
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+//   const startRecording = async () => {
+//     try {
+//       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+//       mediaRecorderRef.current = new MediaRecorder(stream);
 
-      mediaRecorderRef.current.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunksRef.current.push(e.data);
-        }
-      };
+//       mediaRecorderRef.current.ondataavailable = (e) => {
+//         if (e.data.size > 0) {
+//           chunksRef.current.push(e.data);
+//         }
+//       };
 
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
-        setRecordedAudio(audioBlob);
-        chunksRef.current = [];
-      };
+//       mediaRecorderRef.current.onstop = () => {
+//         const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
+//         setRecordedAudio(audioBlob);
+//         chunksRef.current = [];
+//       };
 
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-    } catch (err) {
-      return;
-    }
-  };
+//       mediaRecorderRef.current.start();
+//       setIsRecording(true);
+//     } catch (err) {
+//       return;
+//     }
+//   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream
-        .getTracks()
-        .forEach((track) => track.stop());
-      setIsRecording(false);
-    }
-    return;
-  };
+//   const stopRecording = () => {
+//     if (mediaRecorderRef.current && isRecording) {
+//       mediaRecorderRef.current.stop();
+//       mediaRecorderRef.current.stream
+//         .getTracks()
+//         .forEach((track) => track.stop());
+//       setIsRecording(false);
+//     }
+//     return;
+//   };
 
-  const handleRecordClick = () => {
-    if (!isRecording) {
-      startRecording();
-    } else {
-      stopRecording();
-    }
-  };
+//   const handleRecordClick = () => {
+//     if (!isRecording) {
+//       startRecording();
+//     } else {
+//       stopRecording();
+//     }
+//   };
 
-  // 녹음된 거 확인용 - 다운로드 부분 삭제 시 이것도 삭제
-  const downloadWavFile = (audioBlob) => {
-    if (!audioBlob) return;
-
-    // Blob URL 생성
-    const blobUrl = URL.createObjectURL(audioBlob);
-
-    // 다운로드 링크 생성
-    const downloadLink = document.createElement('a');
-    downloadLink.href = blobUrl;
-    downloadLink.download = `recorded_audio_${new Date().getTime()}.wav`;
-
-    // 링크를 DOM에 추가하고 클릭 이벤트 발생
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-
-    // cleanup
-    document.body.removeChild(downloadLink);
-    URL.revokeObjectURL(blobUrl);
-  };
-
-  return (
-    <div>
-      <button
-        onClick={handleRecordClick}
-        disabled={recordedAudio !== null}
-        className={`w-[140px] h-[140px] flex items-center justify-center rounded-full shadow-lg transition-all duration-200
-          ${isRecording ? 'bg-main-choose' : recordedAudio ? 'bg-gray-300' : 'bg-main-background'}`}>
-        <img
-          src={
-            isRecording
-              ? '/TaleKeyword/active-mic.png'
-              : '/TaleKeyword/before-mic.png'
-          }
-          alt="microphone"
-          className={`w-[100px] h-[100px] ${recordedAudio ? 'opacity-50' : ''}`}
-        />
-      </button>
-    </div>
-  );
-};
+//   return (
+//     <div>
+//       <button
+//         onClick={handleRecordClick}
+//         disabled={recordedAudio !== null}
+//         className={`w-[140px] h-[140px] flex items-center justify-center rounded-full shadow-lg transition-all duration-200
+//           ${isRecording ? 'bg-main-choose' : recordedAudio ? 'bg-gray-300' : 'bg-main-background'}`}>
+//         <img
+//           src={
+//             isRecording
+//               ? '/TaleKeyword/active-mic.png'
+//               : '/TaleKeyword/before-mic.png'
+//           }
+//           alt="microphone"
+//           className={`w-[100px] h-[100px] ${recordedAudio ? 'opacity-50' : ''}`}
+//         />
+//       </button>
+//     </div>
+//   );
+// };
 
 // 분홍색 확인 버튼
 const ConfirmBtn = ({ onClick }) => {
