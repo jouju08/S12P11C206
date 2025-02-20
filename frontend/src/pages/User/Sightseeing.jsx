@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSightseeing } from '@/store/sightseeingStore';
 import { Link } from 'react-router-dom';
 import GalleryItem from '@/components/Common/GalleyItem';
 import useInfiniteScroll from '@/hooks/useInfiniteScroll';
 
 export default function Sightseeing() {
-
   const {
     drawingList,
     setDrawingList,
@@ -14,6 +13,8 @@ export default function Sightseeing() {
     sortBy,
     setSortBy,
     loadMoreDrawings,
+    hasOrigin,
+    setHasOrigin,
   } = useSightseeing();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -25,6 +26,14 @@ export default function Sightseeing() {
 
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
+    setDrawingList();
+  };
+
+  const handleHasOriginChange = (e) => {
+    const newValue = e.target.value === 'true';
+    console.log('Changing hasOrigin to:', newValue);
+    setHasOrigin(newValue);
+    setDrawingList();
   };
 
   const loadMore = useCallback(async () => {
@@ -34,10 +43,9 @@ export default function Sightseeing() {
       setIsLoading(false);
       if (!hasMore) {
         // 더 이상 불러올 데이터가 없을 때의 처리
-
       }
     }
-  }, [loadMoreDrawings]);
+  }, [isLoading, loadMoreDrawings]);
 
   const infiniteScrollRef = useInfiniteScroll(loadMore);
 
@@ -58,7 +66,8 @@ export default function Sightseeing() {
           </div>
           <Link
             to={'/gallery'}
-            className="px-3.5 py-2 bg-main-point2 rounded-[30px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.15)] justify-center items-center gap-2.5 text-white service-bold3 inline-flex overflow-hidden">
+            className="px-3.5 py-2 bg-main-point2 rounded-[30px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.15)] justify-center items-center gap-2.5 text-white service-bold3 inline-flex overflow-hidden"
+          >
             내 그림 꾸러미 가기
           </Link>
         </div>
@@ -82,10 +91,10 @@ export default function Sightseeing() {
             {/* 2등 이미지 */}
             <Link to={`/gallery/${popList[1].galleryId}`}>
               <img
-                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[267px] left-[253px] bg-white] object-cover object-center"
+                className="w-[145px] h-[145px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.25)] absolute origin-top-left top-[267px] left-[253px] bg-white object-cover object-center"
                 src={popList[1]?.img || '/Sightseeing/test1.png'}
               />
-            </Link>{' '}
+            </Link>
           </>
         )}
 
@@ -105,7 +114,6 @@ export default function Sightseeing() {
                 {popList[0]?.authorNickname}
               </div>
             </div>
-
             {/* 1등 이미지 */}
             <Link to={`/gallery/${popList[0].galleryId}`}>
               <img
@@ -132,7 +140,6 @@ export default function Sightseeing() {
                 {popList[2]?.authorNickname}
               </div>
             </div>
-
             {/* 3등 이미지 */}
             <Link to={`/gallery/${popList[2].galleryId}`}>
               <img
@@ -148,14 +155,27 @@ export default function Sightseeing() {
       <div className="w-[974px] h-fit px-[22px] mb-[30px] mt-[70px]">
         <h1 className="service-accent2 mt-[10px] ">작품 갤러리</h1>
         {/* 정렬 선택 */}
-        <div className="text-right">
-          <select
-            value={sortBy}
-            onChange={handleSortChange}
-            className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50">
-            <option value="LATEST">최신순</option>
-            <option value="POP">인기순</option>
-          </select>
+        <div className="flex justify-end items-center gap-4">
+          <div className="text-right">
+            <select
+              value={hasOrigin ? 'true' : 'false'}
+              onChange={handleHasOriginChange}
+              className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50"
+            >
+              <option value="false">요정그림</option>
+              <option value="true">내그림</option>
+            </select>
+          </div>
+          <div className="text-right">
+            <select
+              value={sortBy}
+              onChange={handleSortChange}
+              className="mr-4 border bg-white rounded-md service-regular2 px-4 w-[180px] h-[40px] relative z-50"
+            >
+              <option value="LATEST">최신순</option>
+              <option value="POP">인기순</option>
+            </select>
+          </div>
         </div>
 
         {/* 그림 목록 */}
@@ -167,21 +187,14 @@ export default function Sightseeing() {
           ) : (
             <div className="grid grid-flow-row grid-cols-4 gap-4 mt-[30px]">
               {drawingList.map((item, idx) => (
-                <GalleryItem
-                  item={item}
-                  key={idx}
-                />
+                <GalleryItem item={item} key={idx} />
               ))}
             </div>
           )}
         </div>
 
         {/* Intersection Observer의 타겟 요소 */}
-        <div
-          ref={infiniteScrollRef}
-          style={{ height: '20px' }}></div>
-
-
+        <div ref={infiniteScrollRef} style={{ height: '20px' }}></div>
       </div>
     </div>
   );
