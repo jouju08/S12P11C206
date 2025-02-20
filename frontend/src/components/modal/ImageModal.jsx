@@ -12,6 +12,13 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
 
   const { uploadGallery } = useMyPictures();
 
+  const isImageProcessing =
+    detail?.['img'] == null ||
+    detail?.['img'] === 'processing' ||
+    detail?.['img'] === 'before processing';
+
+  const duckRender = !isOrigin && isImageProcessing;
+
   const handleShowOff = async () => {
     if (detail && detail.id) {
       const payload = {
@@ -35,7 +42,6 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
           });
         }
       } catch (error) {
-
         Swal.fire({
           icon: 'error',
           title: '실패',
@@ -69,39 +75,30 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
           <div className="h-[435px] p-4 flex">
             {/* 왼쪽 이미지 영역 */}
             <div className="w-[400px] h-[400px] relative overflow-hidden mr-4">
-              {isOriginal ? (
-                <>
-                  {detail?.img && (
-                    <img
-                      src={isOriginal ? detail?.orginImg : detail?.img}
-                      alt={detail?.title}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
-                </>
+              {isOriginal && detail?.img && (
+                <img
+                  src={isOriginal ? detail?.orginImg : detail?.img}
+                  alt={detail?.title}
+                  className="w-full h-full object-cover"
+                />
+              )}
+
+              {duckRender ? (
+                <div className="flex flex-col mt-[150px] items-center justify-center">
+                  <img
+                    src="/Gallery/movingDuck.gif"
+                    alt="대체 이미지"
+                    className="w-[150px] h-[150PX] object-cover object-center bg-white"
+                  />
+                </div>
               ) : (
-                <>
-                  {/* 이미지가 없거나, AI 서버에서 아직 처리중인 경우, 마찬가지로 대체 이미지를 보여줍니다. */}
-                  {detail?.img == null ||
-                  detail?.img === 'processing' ||
-                  detail?.img === 'before processing' ? (
-                    <div className="flex flex-col w-full h-full items-center justify-center">
-                      <img
-                        src="/Gallery/movingDuck.gif"
-                        alt="대체 이미지"
-                        className="w-[150px] h-[150PX] object-cover object-center bg-white"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex flex-col w-full h-full items-center justify-center">
-                      <img
-                        src={detail.img}
-                        alt="AI 이미지"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                </>
+                <div className="flex flex-col mt-[150px] items-center justify-center">
+                  <img
+                    src={detail.img}
+                    alt="AI 이미지"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               )}
 
               <span className="service-bold3 absolute top-2 left-2 inline-block bg-white/80 text-black px-2 py-1 rounded text-base">

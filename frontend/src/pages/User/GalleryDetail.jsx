@@ -19,6 +19,14 @@ export default function GalleryDetail() {
   const typingSpeed = 200;
   const delayBeforeRestart = 1000;
 
+  //이미지가 없거나, AI 서버에서 아직 처리중인 경우, 대체 이미지
+  const isImageProcessing =
+    galleryPage?.['img'] == null ||
+    galleryPage?.['img'] === 'processing' ||
+    galleryPage?.['img'] === 'before processing';
+
+  const duckRender = !isOrigin && isImageProcessing;
+
   useEffect(() => {
     //이미지 로딩 글자 효과
     let i = 0;
@@ -88,29 +96,24 @@ export default function GalleryDetail() {
                 className="w-full h-full object-cover object-center bg-white"
               />
             )}
-            {!isOrigin && galleryPage['img'] && (
+            {duckRender ? (
+              <div className="flex flex-col h-full w-full items-center justify-center">
+                <img
+                  src="/Gallery/movingDuck.gif"
+                  alt="대체 이미지"
+                  className="w-[150px] h-[150px] object-cover object-center bg-white"
+                />
+                <div className="text-text-first text-xl font-NPSfont">
+                  {text}
+                </div>
+              </div>
+            ) : (
               <img
                 src={galleryPage['img']}
                 alt="그림"
                 className="w-full h-full object-cover object-center bg-white"
               />
             )}
-            {/* 이미지가 없거나, AI 서버에서 아직 처리중인 경우, 마찬가지로 대체 이미지를 보여줍니다. */}
-            {!isOrigin &&
-              (galleryPage['img'] == null ||
-                galleryPage['img'] === 'processing' ||
-                galleryPage['img'] === 'before processing') && (
-                <div className="flex flex-col h-full w-full items-center justify-center">
-                  <img
-                    src="/Gallery/movingDuck.gif"
-                    alt="대체 이미지"
-                    className="w-[150px] h-[150PX] object-cover object-center bg-white"
-                  />
-                  <div className="text-text-first text-xl font-NPSfont">
-                    {text}
-                  </div>
-                </div>
-              )}
           </div>
 
           {/* 그림 상세내용 */}
