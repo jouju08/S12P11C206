@@ -100,7 +100,9 @@ public class TaleController {
     // 키워드 타이핑 정보 확인
     @PostMapping("/keyword/typing")
     public ApiResponse<String> keywordTyping(@RequestBody KeywordRequestDto keywordRequestDto){
-        return ApiResponse.<String>builder().data(keywordRequestDto.getKeyword()).build();
+        String text = keywordRequestDto.getKeyword();
+        text = text.substring(0,11);
+        return ApiResponse.<String>builder().data(text).build();
     }
 
 

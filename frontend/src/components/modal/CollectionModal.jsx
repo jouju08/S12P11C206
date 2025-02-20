@@ -6,6 +6,12 @@ import { useCollection } from '@/store/collectionStore';
 const CollectionModal = ({ handleExit }) => {
   const [pageNum, setPageNum] = useState(0);
   const [isOrigin, setIsOrigin] = useState(false);
+
+  const [text, setText] = useState('');
+  const loadingText = ' 이미지 로딩중...';
+  const typingSpeed = 200;
+  const delayBeforeRestart = 1000;
+
   const {
     setTaleDetail,
     taleStart,
@@ -22,6 +28,23 @@ const CollectionModal = ({ handleExit }) => {
 
   useEffect(() => {
     setTaleFinish();
+  }, []);
+
+  useEffect(() => {
+    //이미지 로딩 글자 효과
+    let i = 0;
+    const interval = setInterval(() => {
+      setText(loadingText.slice(0, i + 1));
+      i++;
+      if (i === loadingText.length) {
+        setTimeout(() => {
+          i = 0;
+        }, delayBeforeRestart);
+      }
+    }, typingSpeed);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const getTextClass = (where, text) => {
@@ -114,7 +137,7 @@ const CollectionModal = ({ handleExit }) => {
         {pageNum === 5 || pageNum === 0 ? null : (
           <button
             onClick={() => setIsOrigin(!isOrigin)}
-            className="w-[200px] h-[100px] absolute bottom-[425px] left-[90px] z-50 flex items-center cursor-pointer">
+            className="w-[220px] h-[100px] absolute bottom-[445px] left-[90px] z-50 flex items-center cursor-pointer">
             <img
               src="/Collection/fairy-magic.png"
               className="w-[100px] transition-transform duration-200 hover:scale-105"
@@ -122,11 +145,11 @@ const CollectionModal = ({ handleExit }) => {
             />
             {isOrigin ? (
               <span className="text-text-second service-regular3">
-                AI 그림 보기
+                요술로 바꿔줄게~
               </span>
             ) : (
               <span className="text-text-second service-regular3">
-                원래 그림 보기
+                원래 그림을 볼까?
               </span>
             )}
           </button>
@@ -159,18 +182,51 @@ const CollectionModal = ({ handleExit }) => {
             />
           </div>
         ) : (
-          <div>
-            <img
-              src={isOrigin ? taleDetail['originImg'] : taleDetail['img']}
-              alt="블러 처리 이미지"
-              className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] bottom-[133px]"
-            />
-            <img
-              src={isOrigin ? taleDetail['originImg'] : taleDetail['img']}
-              alt="동화 만든 이미지"
-              className="w-[300px] h-[300px] z-10 absolute left-[168px] bottom-[153px]"
-            />
-          </div>
+          <>
+            {isOrigin && taleDetail['originImg'] && (
+              <div>
+                <img
+                  src={taleDetail['originImg']}
+                  alt="블러 처리 이미지"
+                  className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] bottom-[133px]"
+                />
+                <img
+                  src={taleDetail['originImg']}
+                  alt="동화 만든 이미지"
+                  className="w-[300px] h-[300px] z-10 absolute left-[168px] bottom-[153px]"
+                />
+              </div>
+            )}
+            {!isOrigin && taleDetail['img'] && (
+              <div>
+                <img
+                  src={taleDetail['img']}
+                  alt="블러 처리 이미지"
+                  className="w-[340px] h-[340px] blur-[20px] absolute z-10 left-[148px] bottom-[133px]"
+                />
+                <img
+                  src={taleDetail['img']}
+                  alt="동화 만든 이미지"
+                  className="w-[300px] h-[300px] z-10 absolute left-[168px] bottom-[153px]"
+                />
+              </div>
+            )}
+            {!isOrigin &&
+              (taleDetail['img'] == null ||
+                taleDetail['img'] === 'processing' ||
+                taleDetail['img'] === 'before processing') && (
+                <div className="flex flex-col mt-[150px] items-center justify-center">
+                  <img
+                    src="/Gallery/movingDuck.gif"
+                    alt="대체 이미지"
+                    className="w-[150px] h-[150px] object-cover object-center bg-white"
+                  />
+                  <div className="text-text-first text-xl font-NPSfont">
+                    {text}
+                  </div>
+                </div>
+              )}
+          </>
         )}
 
         <div className="w-[378px] h-[430px] z-10 absolute right-[105px] bottom-[95px] flex flex-col justify-center items-center text-text-first story-basic2">

@@ -73,7 +73,6 @@ const BaseTaleRequestAdmin = () => {
   // BaseTale 목록 조회
   const fetchBaseTales = async () => {
     try {
-
       const response = await api.get(`/admin/tale/parent`, {
         headers: {
           authKey: authKey,
@@ -85,7 +84,6 @@ const BaseTaleRequestAdmin = () => {
       }
       setBaseTales(taleList);
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '오류',
@@ -132,7 +130,6 @@ const BaseTaleRequestAdmin = () => {
       }
       handleNewTale();
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '저장 실패',
@@ -175,7 +172,6 @@ const BaseTaleRequestAdmin = () => {
         });
       }
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -212,7 +208,6 @@ const BaseTaleRequestAdmin = () => {
         });
       }
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -243,7 +238,6 @@ const BaseTaleRequestAdmin = () => {
         text: '타이틀 이미지 생성 요청을 보냈습니다.',
       });
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -273,17 +267,16 @@ const BaseTaleRequestAdmin = () => {
         setSelectedTitleImage(response.data.data.text);
         Swal.fire({
           icon: 'success',
-          title: '저장 완료',
-          text: '이미지 저장에 성공했습니다.',
+          title: '확정 완료',
+          text: '이미지 확정에 성공했습니다.',
         });
       }
       return;
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
-        title: '저장 실패',
-        text: '이미지 저장에 실패했습니다.',
+        title: '확정 실패',
+        text: '이미지 확정에 실패했습니다.',
       });
       return;
     }
@@ -312,7 +305,6 @@ const BaseTaleRequestAdmin = () => {
         text: '도입부 이미지 생성 요청을 보냈습니다.',
       });
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -342,17 +334,16 @@ const BaseTaleRequestAdmin = () => {
         setSelectedIntroImage(response.data.data.text);
         Swal.fire({
           icon: 'success',
-          title: '저장 완료',
-          text: '이미지 저장에 성공했습니다.',
+          title: '확정 완료',
+          text: '이미지 확정에 성공했습니다.',
         });
       }
       return;
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
-        title: '저장 실패',
-        text: '이미지 저장에 실패했습니다.',
+        title: '확정 실패',
+        text: '이미지 확정에 실패했습니다.',
       });
       return;
     }
@@ -397,7 +388,6 @@ const BaseTaleRequestAdmin = () => {
         }
       }
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '조회 실패',
@@ -500,7 +490,7 @@ const BaseTaleRequestAdmin = () => {
                       type="button"
                       onClick={submitSelectedTitleImage}
                       className="text-white bg-green-600 hover:bg-green-700 text-white w-24 h-auto rounded-md">
-                      저장하기
+                      확정하기
                     </button>
                   </div>
                 )}
@@ -544,6 +534,20 @@ const BaseTaleRequestAdmin = () => {
               </div>
             </div>
 
+            {/* 도입부 스크립트 */}
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">
+                도입부 스크립트:
+              </label>
+              <textarea
+                name="startScript"
+                value={formData.startScript}
+                onChange={handleInputChange}
+                rows="3"
+                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                required
+              />
+            </div>
             {/* 도입부 이미지 섹션 */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <label className="w-full font-medium text-gray-700">
@@ -568,7 +572,7 @@ const BaseTaleRequestAdmin = () => {
                     type="button"
                     onClick={submitSelectedIntroImage}
                     className="text-white bg-green-600 hover:bg-green-700 text-white w-24 h-auto rounded-md">
-                    저장하기
+                    확정하기
                   </button>
                 </div>
               )}
@@ -606,21 +610,6 @@ const BaseTaleRequestAdmin = () => {
               도입부 {introImages && <span>다시 </span>}이미지 생성하기
               <LoadingText loading={formDataReadyState.startImg} />
             </button>
-            {/* 도입부 스크립트 */}
-            <div>
-              <label className="block font-medium text-gray-700 mb-1">
-                도입부 스크립트:
-              </label>
-              <textarea
-                name="startScript"
-                value={formData.startScript}
-                onChange={handleInputChange}
-                rows="3"
-                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                required
-              />
-            </div>
-
             {/* 도입부 음성 URL 및 생성 */}
             <div className="flex-col gap-3">
               <label className="w-32 font-medium text-gray-700">

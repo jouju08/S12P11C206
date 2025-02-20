@@ -206,16 +206,15 @@ function InputNickNameItem({
           onChange={onNicknameChange}
           type="text"
         />
-        <div className="flex items-center justify-center bg-main-pink w-[95px] h-[38px] rounded-[8px] shadow-md hover:bg-main-beige hover:cursor-pointer">
-          <div
-            className="service-regular3"
-            onClick={() =>
-              confirmDuplicate(
-                isNicknameAvailable,
-                nickname,
-                setIsNicknameValidated
-              )
-            }>
+        <div className="flex items-center justify-center bg-main-pink w-[95px] h-[38px] rounded-[8px] shadow-md hover:bg-main-beige hover:cursor-pointer"
+        onClick={() =>
+          confirmDuplicate(
+            isNicknameAvailable,
+            nickname,
+            setIsNicknameValidated
+          )
+        }>
+          <div className="service-regular3">
             중복확인
           </div>
           <div>☑️</div>

@@ -1,6 +1,6 @@
 package com.ssafy.backend.gallery.service;
 
-import com.ssafy.backend.common.exception.NotFoundPage;
+import com.ssafy.backend.common.exception.NotFoundPageException;
 import com.ssafy.backend.common.exception.ResourceNotFoundException;
 import com.ssafy.backend.db.entity.Gallery;
 import com.ssafy.backend.db.entity.GalleryLike;
@@ -55,14 +55,14 @@ public class GalleryService {
      * “famous” - 인기순
      */
     @Transactional
-    public List<GalleryListResponseDto> findAllPictures(Authentication auth, int page, String order) {
+    public List<GalleryListResponseDto> findAllPictures(Authentication auth, int page, String order, Boolean hasOrigin) {
         Long userId = memberRepository.findByLoginId(auth.getName()).get().getId();
         List<GalleryListResponseDto> result = new ArrayList<GalleryListResponseDto>();
 
         Pageable pageable = PageRequest.of(page, 8);
 
         try {
-            Page<Gallery> galleryPage = galleryRepository.findAllPictures(order.toUpperCase(), pageable);
+            Page<Gallery> galleryPage = galleryRepository.findAllPictures(order.toUpperCase(), hasOrigin, pageable);
             boolean hasLiked = true;
 
             for (Gallery gallery : galleryPage) {
@@ -87,7 +87,7 @@ public class GalleryService {
             return result;
         } catch (InvalidDataAccessApiUsageException e){
 //            e.printStackTrace();
-            throw new NotFoundPage("없는 페이지입니다.");
+            throw new NotFoundPageException("없는 페이지입니다.");
         }
     }
 
