@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AudioPlayer from '@/components/Common/AudioPlayer';
 import TaleNavigation from '@/components/Common/TaleNavigation';
 import { useCollection } from '@/store/collectionStore';
@@ -21,19 +21,26 @@ const CollectionModal = ({ handleExit }) => {
     createdAt,
   } = useCollection();
 
-  const duckRender = useCallback(() => {
+  const duckRender = useMemo(() => {
     const isImageProcessing =
       taleDetail?.['img'] == null ||
       taleDetail?.['img'] === 'processing' ||
       taleDetail?.['img'] === 'before processing';
 
+    console.log(!isOrigin && isImageProcessing);
+
     return !isOrigin && isImageProcessing;
-  }, [isOrigin]);
+  }, [isOrigin, taleDetail]);
 
   useEffect(() => {
     setTaleDetail(pageNum);
     setIsOrigin(false);
   }, [pageNum, setTaleDetail]);
+
+  useEffect(() => {
+    console.log(isOrigin);
+    console.log(duckRender);
+  }, [isOrigin]);
 
   useEffect(() => {
     setTaleFinish();
@@ -207,18 +214,20 @@ const CollectionModal = ({ handleExit }) => {
               </div>
             )}
 
-            {duckRender ? (
-              <div className="flex flex-col mt-[150px] items-center justify-center">
+            {duckRender && !isOrigin && (
+              <div className="flex flex-col z-10 absolute left-[168px] bottom-[153px]">
                 <img
                   src="/Gallery/movingDuck.gif"
                   alt="대체 이미지"
-                  className="w-[150px] h-[150px] object-cover object-center bg-white"
+                  className="w-[300px] h-[300px]"
                 />
                 <div className="text-text-first text-xl font-NPSfont">
                   {text}
                 </div>
               </div>
-            ) : (
+            )}
+
+            {!duckRender && !isOrigin && (
               <div>
                 <img
                   src={taleDetail['img']}

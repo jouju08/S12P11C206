@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGalleryDetail } from '@/store/galleryDetailStore';
 import { useCollection } from '@/store/collectionStore';
@@ -21,14 +21,14 @@ export default function GalleryDetail() {
 
   //이미지가 없거나, AI 서버에서 아직 처리중인 경우, 대체 이미지
 
-  const duckRender = useCallback(() => {
+  const duckRender = useMemo(() => {
     const isImageProcessing =
       galleryPage?.['img'] == null ||
       galleryPage?.['img'] === 'processing' ||
       galleryPage?.['img'] === 'before processing';
 
     return !isOrigin && isImageProcessing;
-  }, [isOrigin]);
+  }, [isOrigin, galleryPage]);
 
   useEffect(() => {
     //이미지 로딩 글자 효과
@@ -92,14 +92,15 @@ export default function GalleryDetail() {
         <div className="w-[974px] h-[540px] mt-[30px] relative flex justify-between items-center">
           {/* 이미지 */}
           <div className="w-[540px] h-[540px] bg-white">
-            {isOrigin && galleryPage['originImg'] && (
+            {isOrigin && galleryPage?.['originImg'] && (
               <img
-                src={galleryPage['originImg']}
+                src={galleryPage?.['originImg']}
                 alt="그림"
                 className="w-full h-full object-cover object-center bg-white"
               />
             )}
-            {duckRender ? (
+
+            {duckRender && !isOrigin && (
               <div className="flex flex-col h-full w-full items-center justify-center">
                 <img
                   src="/Gallery/movingDuck.gif"
@@ -110,9 +111,10 @@ export default function GalleryDetail() {
                   {text}
                 </div>
               </div>
-            ) : (
+            )}
+            {!duckRender && !isOrigin && (
               <img
-                src={galleryPage['img']}
+                src={galleryPage?.['img']}
                 alt="그림"
                 className="w-full h-full object-cover object-center bg-white"
               />
