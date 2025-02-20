@@ -96,8 +96,8 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
                     <div className="flex flex-col mt-[150px] items-center justify-center">
                       <img
                         src={detail.img}
-                        alt="대체 이미지"
-                        className="w-[150px] h-[150PX] object-cover object-center bg-white"
+                        alt="AI 이미지"
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   )}

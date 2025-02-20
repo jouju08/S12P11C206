@@ -10,6 +10,7 @@ const initialState = {
   memberId: userStore.getState().memberId,
   sortBy: 'LATEST', // 초기값: 최신순("date")
   currentPage: 1,
+  hasOrigin: false,
 };
 
 const sightseeingActions = (set, get) => ({
@@ -19,7 +20,7 @@ const sightseeingActions = (set, get) => ({
 
     try {
       const response = await api.get('/gallery', {
-        params: { order: sortBy, page: currentPage + 1 },
+        params: { order: sortBy, page: currentPage + 1, hasOrigin: get().hasOrigin },
       });
 
 
@@ -44,7 +45,7 @@ const sightseeingActions = (set, get) => ({
   setDrawingList: async () => {
     try {
       const response = await api.get('/gallery', {
-        params: { order: get().sortBy, page: 1 },
+        params: { order: get().sortBy, page: 1, hasOrigin: get().hasOrigin },
       });
 
       if (response.data && response.data.status === 'SU') {
@@ -77,7 +78,7 @@ const sightseeingActions = (set, get) => ({
   setPopList: async () => {
     try {
       const response = await api.get('/gallery', {
-        params: { order: 'POP', page: 1 },
+        params: { order: 'POP', page: 1, hasOrigin: get().hasOrigin },
       });
 
       if (response.data && response.data.status === 'SU') {
@@ -97,6 +98,17 @@ const sightseeingActions = (set, get) => ({
       });
     }
   },
+
+  setHasOrigin: (newHasOrigin) => {
+    set((state) => {
+      state.hasOrigin = newHasOrigin;
+    });
+    
+    get().setDrawingList();
+    get().setPopList();
+  },
+
+
 });
 
 const useSightseeingStore = create(
@@ -109,6 +121,7 @@ const useSightseeingStore = create(
   )
 );
 
+
 export const useSightseeing = () => {
   const memberId = useSightseeingStore((state) => state.memberId);
   const drawingList = useSightseeingStore(
@@ -118,6 +131,7 @@ export const useSightseeing = () => {
   const popList = useSightseeingStore((state) => state.popList, shallow);
   const sortBy = useSightseeingStore((state) => state.sortBy);
   const currentPage = useSightseeingStore((state) => state.currentPage);
+  const hasOrigin = useSightseeingStore((state) => state.hasOrigin);
 
   const loadMoreDrawings = useSightseeingStore(
     (state) => state.loadMoreDrawings
@@ -125,6 +139,7 @@ export const useSightseeing = () => {
   const setDrawingList = useSightseeingStore((state) => state.setDrawingList);
   const setPopList = useSightseeingStore((state) => state.setPopList);
   const setSortBy = useSightseeingStore((state) => state.setSortBy);
+  const setHasOrigin = useSightseeingStore((state) => state.setHasOrigin);
 
   return {
     memberId,
@@ -132,10 +147,12 @@ export const useSightseeing = () => {
     popList,
     sortBy,
     currentPage,
+    hasOrigin,
 
     setDrawingList,
     setPopList,
     setSortBy,
     loadMoreDrawings,
+    setHasOrigin,
   };
 };
