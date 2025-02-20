@@ -61,7 +61,9 @@ export default function Hero() {
           alt="로고이미지"
           className="w-[141px] h-[70px] z-10 absolute left-1/2 top-16 -translate-x-1/2 -translate-y-1/2"
         />
-        <div className="text-center text-[#fcfaff] text-[58px] xl:text-[78px] font-extrabold font-NPSfont leading-[180%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div
+        style={{ filter: "drop-shadow(3px 3px 3px #000)" }}
+        className="text-center text-[#fcfaff] text-[58px] xl:text-[78px] font-extrabold font-NPSfont leading-[180%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 filter">
           상상하고 표현하는
           <br />
           마이페어리
