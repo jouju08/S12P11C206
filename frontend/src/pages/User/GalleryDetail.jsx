@@ -100,7 +100,7 @@ export default function GalleryDetail() {
               (galleryPage['img'] == null ||
                 galleryPage['img'] === 'processing' ||
                 galleryPage['img'] === 'before processing') && (
-                <div className="flex flex-col mt-[150px] items-center justify-center">
+                <div className="flex flex-col h-full w-full items-center justify-center">
                   <img
                     src="/Gallery/movingDuck.gif"
                     alt="대체 이미지"
