@@ -1,5 +1,6 @@
 package com.ssafy.backend.tale.service;
 
+import com.ssafy.backend.common.exception.NotFoundPageException;
 import com.ssafy.backend.common.service.S3Service;
 import com.ssafy.backend.common.service.WebSocketNotiService;
 import com.ssafy.backend.db.entity.BaseTale;
@@ -84,6 +85,9 @@ public class TaleService {
             TaleResponseDto taleResponseDto = parseTale(taleMember.getTale()); // 동화 페이지를 파싱합니다.
             taleResponseDtoList.add(taleResponseDto); // 반환객체에 추가합니다.
         }
+
+        if(taleResponseDtoList.isEmpty())
+            throw new NotFoundPageException("동화가 없습니다.");
 
         return taleResponseDtoList;
     }

@@ -8,8 +8,8 @@ package com.ssafy.backend.common.exception;
  *      1.
  * */
 
-public class NotFoundPage extends RuntimeException {
-    public NotFoundPage(String message) {
+public class NotFoundPageException extends RuntimeException {
+    public NotFoundPageException(String message) {
         super(message);
     }
 }
