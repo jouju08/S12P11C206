@@ -36,6 +36,7 @@ export default function Main() {
     'nav-book.png',
     'nav-drawing.png',
     'nav-proud.png',
+    'nav-profile.png',
   ];
   const menuArray = [
     <>
@@ -49,6 +50,9 @@ export default function Main() {
     </>,
     <>
       그림 <br /> 구경
+    </>,
+    <>
+      부모님 <br /> 페이지
     </>,
   ];
 
@@ -93,7 +97,13 @@ export default function Main() {
     fetchData();
   }, []);
 
-  const linkArray = ['/room', '/collection', '/gallery', '/sightseeing'];
+  const linkArray = [
+    '/room',
+    '/collection',
+    '/gallery',
+    '/sightseeing',
+    '/profile',
+  ];
   const listNavMenu = imgArray.map((image, idx) => (
     <SwiperSlide
       key={idx}
@@ -122,11 +132,6 @@ export default function Main() {
     <div>
       {/* 메인 페이지 상단 프로필, 메뉴바 section */}
       <div className=" w-[1024px] h-[440px] px-[60px] bg-[url(/Main/nav-background.png)] flex flex-row justify-between items-center relative">
-        <Link
-          to={'/profile'}
-          className="absolute top-[16px] right-[61px] font-NPSfont font-light text-gray-200 text-[14px]">
-          부모님 페이지
-        </Link>
         {/* 왼쪽 프로필 */}
         <div className="w-[294px] h-[317px] relative">
           <img
@@ -209,11 +214,22 @@ export default function Main() {
 
       {/* 인기있는 그림 */}
       <div className="mx-[60px] my-[70px] w-[904px] h-[357px]">
-        <div className="text-text-first service-accent2 mb-[10px]">
-          지금 인기있는 그림
+        <div className="flex justify-between items-center mb-[10px]">
+          <div className="text-text-first service-accent2">
+            지금 인기있는 그림
+          </div>
+          {drawingData && drawingData.length > 0 && (
+            <Link
+              to="/sightseeing"
+              className="text-text-second service-regular2 cursor-pointer">
+              전체보기
+            </Link>
+          )}
         </div>
-        {drawingData && drawingData.length != 0 ? (
+        {drawingData && drawingData.length !== 0 ? (
           <Swiper
+            modules={[Mousewheel]}
+            mousewheel={true}
             slidesPerView={4}
             spaceBetween={30}
             grabCursor={true}
@@ -221,14 +237,13 @@ export default function Main() {
             {listFamousDrawing}
           </Swiper>
         ) : (
-          // 데이터 없을 때 어떻게 나올지 수정 필요
           <div className="flex flex-col justify-center items-center mx-auto">
             <p className="text-text-second text-center service-accent3 mb-10">
               아직 올라온 게시물이 없어요! 직접 올리러 가볼까요?
             </p>
             <Link
-              to={'/gallery'}
-              className="px-3.5 py-2 bg-main-point2 rounded-[30px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.1)] justify-center items-center gap-2.5 text-white service-bold3 inline-flex overflow-hidden">
+              to="/gallery"
+              className="px-3.5 py-2 bg-main-point2 rounded-[30px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.1)] justify-center items-center gap-2.5 text-white service-bold3 inline-flex">
               올릴 사진 선택하러 가기
             </Link>
           </div>

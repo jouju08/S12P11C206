@@ -13,6 +13,7 @@ const TaleKeyword = () => {
   const [inputText, setInputText] = useState(''); // 타자 입력 텍스트
   const [isNextActive, setIsNextActive] = useState(false); // 다음 버튼 활성화 상태
   const [recordedAudio, setRecordedAudio] = useState(null); // 녹음된 오디오 데이터
+  const [isRecording, setIsRecording] = useState(false);
   const canvasRef = useRef(null); // 글쓰기 캔버스 참조
 
   const navigate = useNavigate();
@@ -113,7 +114,6 @@ const TaleKeyword = () => {
         ? await submitVoiceSingle(recordedAudio)
         : await submitVoice(recordedAudio);
 
-
       if (response.status == 'SU') {
         setIsNextActive(true);
         setCurrentKeyword(response.data.text);
@@ -121,8 +121,6 @@ const TaleKeyword = () => {
         return;
       }
     }
-
-
   };
 
   const handleSubmit = async () => {
@@ -170,6 +168,7 @@ const TaleKeyword = () => {
 
     setIsNextActive(false);
     setCurrentKeyword(null);
+    setMode('default');
   };
 
   const handleNext = async () => {
@@ -186,9 +185,7 @@ const TaleKeyword = () => {
       //선택 효과음 재생
       selectAudioRef.current.volume = 1;
       selectAudioRef.current.currentTime = 0;
-      selectAudioRef.current
-        .play()
-        .catch(() => {});
+      selectAudioRef.current.play().catch(() => {});
     }
   };
   const modeButtons = [
@@ -202,7 +199,6 @@ const TaleKeyword = () => {
       text: '목소리',
       imageSrc: '/TaleKeyword/keyword-mic.png',
     },
-
   ];
 
   return (
@@ -274,7 +270,7 @@ const TaleKeyword = () => {
           backgroundImage: "url('/TaleKeyword/keyword-fairy.png')",
         }}
       />
-      <div className="absolute top-[235px] left-[285px]">
+      <div className="absolute bottom-1/2 left-[285px] translate-y-1/2">
         <FairyChatBubble>
           {mode === 'default' && (
             <>
@@ -282,19 +278,43 @@ const TaleKeyword = () => {
               <br /> 단어를 채워보자!
             </>
           )}
-          {mode === 'typing' && (
+          {mode === 'typing' && !isNextActive && (
             <>
-              동화를 어떻게 <br />
-              바꿀까?
+              단어를 쓰고
+              <br />
+              확인을 눌러줘!
             </>
           )}
-          {mode === 'voice' && (
+          {mode === 'voice' &&
+            !isNextActive &&
+            !isRecording &&
+            !recordedAudio && (
+              <>
+                마이크를 눌러서 <br />
+                단어를 말해보자!
+              </>
+            )}
+          {mode === 'voice' && isRecording && (
             <>
-              마이크를 눌러서 <br />
-              크게 말해보자!
+              다 말했으면
+              <br />
+              다시 마이크를 눌러줘!
             </>
           )}
-
+          {mode === 'voice' && !isRecording && recordedAudio && (
+            <>
+              이제 확인 버튼을
+              <br />
+              눌러줘!
+            </>
+          )}
+          {mode !== 'default' && isNextActive && (
+            <>
+              좋아! 이제 넘어가자.
+              <br />
+              다음 버튼을 눌러줘~
+            </>
+          )}
         </FairyChatBubble>
       </div>
       {/* 모드별 UI */}
@@ -314,13 +334,14 @@ const TaleKeyword = () => {
       {mode === 'voice' && (
         <div className="absolute bottom-[18%] right-[230px] flex items-center gap-8">
           <VoiceRecorder
+            isRecording={isRecording}
+            setIsRecording={setIsRecording}
             recordedAudio={recordedAudio}
             setRecordedAudio={setRecordedAudio}
           />
           <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
-
       {/* 하단 버튼들 */}
       {mode !== 'default' && (
         <div className="absolute bottom-[0px] right-[50px] flex gap-4">
@@ -400,9 +421,12 @@ const ModeButton = ({ mode, text, imageSrc, onClick }) => {
   );
 };
 
-const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
-  const [isRecording, setIsRecording] = useState(false);
-
+const VoiceRecorder = ({
+  isRecording,
+  setIsRecording,
+  recordedAudio,
+  setRecordedAudio,
+}) => {
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
@@ -487,8 +511,6 @@ const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
           className={`w-[100px] h-[100px] ${recordedAudio ? 'opacity-50' : ''}`}
         />
       </button>
-
-
     </div>
   );
 };
