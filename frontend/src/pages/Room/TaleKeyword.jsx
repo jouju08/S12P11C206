@@ -266,7 +266,9 @@ const TaleKeyword = () => {
               <div className="text-center text-text-first story-basic3">
                 {multiModeSentences?.['sentence'].split('xx')[0]}
               </div>
-              <div className="flex items-center justify-center w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400">
+              <div
+                onClick={() => setMode('typing')}
+                className="flex items-center justify-center w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400">
                 <span className="text-center text-text-first story-basic3">
                   {currentKeyword}
                 </span>

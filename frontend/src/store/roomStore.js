@@ -27,7 +27,7 @@ const roomActions = (set, get) => ({
   //소켓 연결
   connectRoom: async () => {
     return new Promise((resolve, reject) => {
-      const socket = new SockJS('/ws');
+      const socket = new SockJS(import.meta.env.VITE_WS_URL_LOCAL);
 
       const stompClient = new Client({
         webSocketFactory: () => socket,
@@ -116,7 +116,6 @@ const roomActions = (set, get) => ({
 
       //동화 시작
       stompClient.subscribe(`/topic/room/start/${roomId}`, (message) => {
-
         const parsedData = JSON.parse(message.body);
 
         // Deep copy

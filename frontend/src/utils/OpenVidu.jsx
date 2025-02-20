@@ -19,7 +19,6 @@ export default function OpenVidu() {
     }
 
     const data = await response.json();
-    console.log(data.token);
     return data.token;
   }
   return <div>OpenVidu</div>;
