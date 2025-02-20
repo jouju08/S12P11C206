@@ -47,11 +47,8 @@ export default function Waiting() {
     audioRef.current.volume = 1;
     audioRef.current.currentTime = 0;
     audioRef.current.loop = true;
-    audioRef.current
-      .play()
-      .catch(() => {});
+    audioRef.current.play().catch(() => {});
     setShowWaitingModal(false);
-
   };
 
   useEffect(() => {
@@ -165,7 +162,7 @@ export default function Waiting() {
         />
       </div>
       {/* 참여자 명단과 동화 정보 flex-row */}
-      <div className="w-full h-fit flex justify-between items-center mt-[340px] px-[25px]">
+      <div className="w-full h-fit flex justify-between items-center justify-items-center mt-[340px] px-[25px]">
         {/* 참여자 명단 */}
         <div className="w-[410px] h-[300px] relative flex flex-col gap-3">
           {participants.map((item, idx) => (
@@ -211,38 +208,41 @@ export default function Waiting() {
         </div>
 
         {/* 동화책 */}
-        <div className="w-fit relative h-[270px] flex gap-10 items-center overflow-hidden pr-10">
-          <img
-            className="w-40 h-[220px] inline-block"
-            src={tale?.startImg}
-            alt="이미지 없음"
-          />
-          <div className="pb-16">
-            <h1 className="service-accent2 text-text-first mb-4">
-              {tale?.title}
-            </h1>
-            <p className="story-basic2 text-text-second">
-              무슨 내용을 바꿔볼까요?
-              <br />
-              시작할 때까지 조금만
-              <br />
-              기다려보아요!
-            </p>
+        <div className="w-fit h-[300px] flex flex-col gap-8 overflow-hidden">
+          <div className="flex gap-6 p-4 bg-white shadow-md rounded-xl">
+            <img
+              className="w-40 h-fit inline-block rounded-xl"
+              src={tale?.startImg}
+              alt="이미지 없음"
+            />
+            <div className="">
+              <h1 className="service-accent2 text-text-first mb-4">
+                {tale?.title}
+              </h1>
+              <p className="story-basic2 text-text-second">
+                무슨 내용을 바꿔볼까요?
+                <br />
+                시작할 때까지 조금만
+                <br />
+                기다려보아요!
+              </p>
+            </div>
           </div>
-
           {/* 4명 다 모이면 출발 버튼 활성화 */}
-          <button
-            onClick={handleStart}
-            disabled={isDisabled}
-            className={`h-16 px-4 py-3 absolute bottom-[-0%] right-0 rounded-[64px] border-4 justify-start items-center gap-2.5 inline-flex overflow-hidden
+          <div className="flex justify-end">
+            <button
+              onClick={handleStart}
+              disabled={isDisabled}
+              className={`w-40 h-16 px-4 py-3 rounded-[64px] border-4 justify-start items-center gap-2.5 inline-flex overflow-hidden
               ${isDisabled ? 'bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed' : 'bg-white border-main-btn text-black'}
             `}>
-            <img
-              src="/Waiting/play.png"
-              alt="출발버튼"
-            />
-            <div className="text-text-first service-bold2">출발하기</div>
-          </button>
+              <img
+                src="/Waiting/play.png"
+                alt="출발버튼"
+              />
+              <div className="text-text-first service-bold2">출발하기</div>
+            </button>
+          </div>
         </div>
       </div>
       {showModal && <InviteModal handleExit={() => handleExit()} />}
