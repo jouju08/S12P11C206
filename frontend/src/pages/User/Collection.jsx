@@ -15,18 +15,6 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
     return text.length > 8 ? 'service-regular3' : 'service-regular2';
   };
 
-  // if (myTaleList.length === 0) {
-  //   return (
-  //     <div className="flex flex-col items-center justify-center h-full -mt-20">
-  //       <img
-  //         src="/Common/nodata.png"
-  //         alt="No Data"
-  //         className="w-[100px] h-[100px]"
-  //       />
-  //       <p className="service-accent2 mt-2">아직 만들어진 동화가 없어요</p>
-  //     </div>
-  //   );
-  // } else {
   return (
     <div className="container mx-auto">
       {chunk(myTaleList, 5).map((row, rowIndex) => (
@@ -88,7 +76,6 @@ const TaleGrid = ({ myTaleList, filterBy, sortBy, setShowModal }) => {
       ))}
     </div>
   );
-  // }
 };
 
 export default function Collection() {
