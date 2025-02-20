@@ -412,12 +412,11 @@ const BaseTaleRequest = () => {
   return (
     <>
       <div className="mx-auto flex justify-center items-center mt-10 mb-5">
-        <a
-          href="#"
+        <div
           onClick={() => handleBackParent()}
-          className="text-2xl font-semibold  hover:text-red-500">
+          className="text-2xl font-semibold  hover:text-red-500 hover:cursor-pointer">
           부모님 페이지로 돌아가기
-        </a>
+        </div>
       </div>
       <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto">
         <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
