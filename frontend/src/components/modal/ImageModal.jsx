@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import Swal from 'sweetalert2';
 import { useMyPictures } from '@/store/galleryStore';
 
@@ -12,12 +12,14 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
 
   const { uploadGallery } = useMyPictures();
 
-  const isImageProcessing =
-    detail?.['img'] == null ||
-    detail?.['img'] === 'processing' ||
-    detail?.['img'] === 'before processing';
+  const duckRender = useCallback(() => {
+    const isImageProcessing =
+      detail?.['img'] == null ||
+      detail?.['img'] === 'processing' ||
+      detail?.['img'] === 'before processing';
 
-  const duckRender = !isOrigin && isImageProcessing;
+    return !isOrigin && isImageProcessing;
+  }, [isOrigin]);
 
   const handleShowOff = async () => {
     if (detail && detail.id) {

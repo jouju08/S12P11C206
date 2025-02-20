@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGalleryDetail } from '@/store/galleryDetailStore';
 import { useCollection } from '@/store/collectionStore';
@@ -20,12 +20,15 @@ export default function GalleryDetail() {
   const delayBeforeRestart = 1000;
 
   //이미지가 없거나, AI 서버에서 아직 처리중인 경우, 대체 이미지
-  const isImageProcessing =
-    galleryPage?.['img'] == null ||
-    galleryPage?.['img'] === 'processing' ||
-    galleryPage?.['img'] === 'before processing';
 
-  const duckRender = !isOrigin && isImageProcessing;
+  const duckRender = useCallback(() => {
+    const isImageProcessing =
+      galleryPage?.['img'] == null ||
+      galleryPage?.['img'] === 'processing' ||
+      galleryPage?.['img'] === 'before processing';
+
+    return !isOrigin && isImageProcessing;
+  }, [isOrigin]);
 
   useEffect(() => {
     //이미지 로딩 글자 효과

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import AudioPlayer from '@/components/Common/AudioPlayer';
 import TaleNavigation from '@/components/Common/TaleNavigation';
 import { useCollection } from '@/store/collectionStore';
@@ -21,12 +21,14 @@ const CollectionModal = ({ handleExit }) => {
     createdAt,
   } = useCollection();
 
-  const isImageProcessing =
-    taleDetail?.['img'] == null ||
-    taleDetail?.['img'] === 'processing' ||
-    taleDetail?.['img'] === 'before processing';
+  const duckRender = useCallback(() => {
+    const isImageProcessing =
+      taleDetail?.['img'] == null ||
+      taleDetail?.['img'] === 'processing' ||
+      taleDetail?.['img'] === 'before processing';
 
-  const duckRender = !isOrigin && isImageProcessing;
+    return !isOrigin && isImageProcessing;
+  }, [isOrigin]);
 
   useEffect(() => {
     setTaleDetail(pageNum);
