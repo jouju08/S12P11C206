@@ -85,7 +85,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
                   {!detail?.img ||
                   detail?.img === 'processing' ||
                   detail?.img === 'before processing' ? (
-                    <div className="flex flex-col mt-[150px] items-center justify-center">
+                    <div className="flex flex-col w-full h-full items-center justify-center">
                       <img
                         src="/Gallery/movingDuck.gif"
                         alt="대체 이미지"
@@ -93,7 +93,7 @@ const ImageModal = ({ isOpen, onClose, detail }) => {
                       />
                     </div>
                   ) : (
-                    <div className="flex flex-col mt-[150px] items-center justify-center">
+                    <div className="flex flex-col w-full h-full items-center justify-center">
                       <img
                         src={detail.img}
                         alt="AI 이미지"
