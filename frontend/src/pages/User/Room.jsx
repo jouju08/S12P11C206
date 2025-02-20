@@ -5,7 +5,7 @@ import NumSearch from '@/components/Room/NumSearch';
 import RoomBtn from '@/components/Room/RoomBtn';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
 import { Loading } from '@/common/Loading';
-import { api } from '@/store/userStore';
+import { api } from '@/store/userStore.js';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 
@@ -17,10 +17,6 @@ import { Navigation } from 'swiper/modules';
 import '@/styles/roomPage.css';
 import taleAPI from '@/apis/tale/taleAxios';
 import { useTaleRoom } from '@/store/roomStore';
-
-/*
->> 방 번호 입력시 그 번호에 해당되는 부분 아직 안 됨<<
-*/
 
 export default function Room() {
   const [swiper, setSwiper] = useState(null);
@@ -38,7 +34,6 @@ export default function Room() {
   const handleClick = async (index) => {
     setBaseTaleId(taleList[index].id);
     setSelectedIndex((prevIndex) => (prevIndex === index ? null : index));
-    // 세터함수로 selectedIndex
   };
 
   // 검색어를 받아서 부모 상태 업데이트
@@ -46,11 +41,9 @@ export default function Room() {
     setSearchQuery(query);
     setLoading(true);
 
-
     try {
       const SearchList = await taleAPI.getSearchTaleRooms(Number(query));
       const SearchTale = SearchList.data.data;
-
 
       setExistTaleRoom(
         SearchTale
@@ -123,8 +116,6 @@ export default function Room() {
     fetchData();
   }, []);
 
-
-
   return (
     <div className="w-[1024px] px-[25px]">
       <h1 className="text-center text-text-first service-accent1 mx-auto mb-3">
@@ -142,7 +133,6 @@ export default function Room() {
           className="block w-[50px] h-[50px] bg-gray-50 rounded-full after:content-[url(/Room/room-navigater.png)]"></button>
         <div className="flex justify-center">
           <Swiper
-            onSlideChangeTransitionEnd={handleClick}
             slidesPerView={3}
             spaceBetween={-80}
             slidesOffsetAfter={-110}

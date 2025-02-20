@@ -26,6 +26,7 @@ export default function Main() {
   useEffect(() => {
     myPage();
   }, []);
+
   useEffect(() => {
     if (memberInfo) {
       setMember(memberInfo);
@@ -98,7 +99,6 @@ export default function Main() {
     fetchData();
   }, []);
 
-
   const linkArray = [
     '/room',
     '/collection',
@@ -129,8 +129,10 @@ export default function Main() {
       <GalleryItem item={item} />
     </SwiperSlide>
   ));
+
   const barWidth = (904 * 4) / listFamousDrawing.length;
   const maxScrollX = 904 - barWidth;
+
   return (
     <div>
       {/* 메인 페이지 상단 프로필, 메뉴바 section */}
@@ -168,16 +170,13 @@ export default function Main() {
 
         {/* 오른쪽 메뉴바 */}
         <div className="relative w-[594px] h-[316px] py-[40px] flex items-center justify-center">
-        <button 
-          id="prev-button" 
-          className="absolute left-[-20px] z-10 hover:scale-110 transition"
-        >
-        <img
-          src='/Main/left-arrow.png'
-          className='w-[65px] h-[65px] opacity-65'
-        >
-        </img>
-        </button>
+          <button
+            id="prev-button"
+            className="absolute left-[-20px] z-10 hover:scale-110 transition">
+            <img
+              src="/Main/left-arrow.png"
+              className="w-[65px] h-[65px] opacity-65"></img>
+          </button>
 
           <Swiper
             // modules={[Mousewheel, Scrollbar, Pagination]}
@@ -202,15 +201,12 @@ export default function Main() {
             {/* <div class="swiper-pagination"></div> */}
             {/* <div class="swiper-scrollbar bg-gray-200 rounded-sm h-[5px] w-[200px] absolute bottom-0 left-1/2 -translate-x-1/2"></div>{' '} */}
           </Swiper>
-          <button 
-            id="next-button" 
-            className="absolute right-[-20px] z-10 hover:scale-110 transition"
-          >
-          <img
-          src='/Main/arrow.png'
-          className='w-[65px] h-[65px] opacity-65'
-          >
-          </img>
+          <button
+            id="next-button"
+            className="absolute right-[-20px] z-10 hover:scale-110 transition">
+            <img
+              src="/Main/arrow.png"
+              className="w-[65px] h-[65px] opacity-65"></img>
           </button>
         </div>
       </div>
@@ -237,25 +233,28 @@ export default function Main() {
             spaceBetween={30}
             grabCursor={true}
             scrollbar={{
-                draggable: true,
-                hide: false,
-                el: '.swiper-scrollbar',
-                dragSize: 350,
-              }}
-            onSlideChange={(swiper)=>{
-              const progress=swiper.progress;
-              setScrollX(progress*maxScrollX);
+              draggable: true,
+              hide: false,
+              el: '.swiper-scrollbar',
+              dragSize: 350,
+            }}
+            onSlideChange={(swiper) => {
+              const progress = swiper.progress;
+              setScrollX(progress * maxScrollX);
             }}
             className="mySwiper w-[904px] h-[330px] overflow-hidden px-4">
             {listFamousDrawing}
-            <div class="swiper-pagination"></div>
+            <div className="swiper-pagination"></div>
             <div className="absolute -bottom-0 left-1/2 -translate-x-1/2 w-[904px] h-[5px] bg-gray-200 rounded-sm mx-auto mt-4">
-            <div
-              className="h-full bg-main-point2 rounded-sm transition-all duration-300 "
-              style={{  transform: `translateX(${scrollX}px)`, width: `${barWidth}px`}} // 진행률에 따라 너비 변경
-            ></div>
+              <div
+                className="h-full bg-main-point2 rounded-sm transition-all duration-300 "
+                style={{
+                  transform: `translateX(${scrollX}px)`,
+                  width: `${barWidth}px`,
+                }} // 진행률에 따라 너비 변경
+              ></div>
             </div>
-           </Swiper>
+          </Swiper>
         ) : (
           <div className="flex flex-col justify-center items-center mx-auto">
             <p className="text-text-second text-center service-accent3 mb-10">
@@ -269,7 +268,6 @@ export default function Main() {
           </div>
         )}
       </div>
-      
     </div>
   );
 }
