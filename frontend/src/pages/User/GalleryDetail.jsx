@@ -31,7 +31,9 @@ export default function GalleryDetail() {
         }, delayBeforeRestart);
       }
     }, typingSpeed);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {
@@ -95,7 +97,7 @@ export default function GalleryDetail() {
             )}
             {/* 이미지가 없거나, AI 서버에서 아직 처리중인 경우, 마찬가지로 대체 이미지를 보여줍니다. */}
             {!isOrigin &&
-              (!galleryPage['img'] ||
+              (galleryPage['img'] == null ||
                 galleryPage['img'] === 'processing' ||
                 galleryPage['img'] === 'before processing') && (
                 <div className="flex flex-col mt-[150px] items-center justify-center">

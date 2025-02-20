@@ -20,12 +20,12 @@ public interface GalleryRepository extends JpaRepository<Gallery, Long> {
     @Query("SELECT g FROM Gallery g WHERE g.hasDeleted = false ORDER BY g.createdAt desc")
     List<Gallery> findAllPictures_();
 
-    @Query(value = "SELECT g FROM Gallery g WHERE g.hasDeleted = false " +
+    @Query(value = "SELECT g FROM Gallery g WHERE g.hasDeleted = false AND g.hasOrigin = :hasOrigin " +
             "ORDER BY " +
             "CASE WHEN :order = 'LATEST' THEN g.createdAt END DESC, " +
             "CASE WHEN :order = 'POP' THEN g.likeCnt END DESC",
             countQuery = "SELECT COUNT(g) FROM Gallery g WHERE g.hasDeleted = false")
-    Page<Gallery> findAllPictures(@Param("order") String order, Pageable pageable);
+    Page<Gallery> findAllPictures(@Param("order") String order, @Param("hasOrigin") Boolean hasOrigin, Pageable pageable);
 
     List<Gallery> findByMemberAndImgPathAndCreatedAtStartingWith(Member member, String imgPath, String createdAtPrefix);
 }

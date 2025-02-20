@@ -86,7 +86,6 @@ const BaseTaleRequest = () => {
       }
       setBaseTales(taleList);
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '오류',
@@ -118,10 +117,8 @@ const BaseTaleRequest = () => {
       return;
     }
     try {
-
       const response = await api.post('/parent/tale/base-tale', formData);
       if (response.data && response.data.data) {
-
         Swal.fire({
           icon: 'success',
           title: '성공',
@@ -131,7 +128,6 @@ const BaseTaleRequest = () => {
       }
       handleNewTale();
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '저장 실패',
@@ -174,7 +170,6 @@ const BaseTaleRequest = () => {
         });
       }
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -211,7 +206,6 @@ const BaseTaleRequest = () => {
         });
       }
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -242,7 +236,6 @@ const BaseTaleRequest = () => {
         text: '타이틀 이미지 생성 요청을 보냈습니다.',
       });
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -272,17 +265,16 @@ const BaseTaleRequest = () => {
         setSelectedTitleImage(response.data.data.text);
         Swal.fire({
           icon: 'success',
-          title: '저장 완료',
-          text: '이미지 저장에 성공했습니다.',
+          title: '확정 완료',
+          text: '이미지 확정에 성공했습니다.',
         });
       }
       return;
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
-        title: '저장 실패',
-        text: '이미지 저장에 실패했습니다.',
+        title: '확정 실패',
+        text: '이미지 확정에 실패했습니다.',
       });
       return;
     }
@@ -311,7 +303,6 @@ const BaseTaleRequest = () => {
         text: '도입부 이미지 생성 요청을 보냈습니다.',
       });
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '생성 실패',
@@ -341,17 +332,16 @@ const BaseTaleRequest = () => {
         setSelectedIntroImage(response.data.data.text);
         Swal.fire({
           icon: 'success',
-          title: '저장 완료',
-          text: '이미지 저장에 성공했습니다.',
+          title: '확정 완료',
+          text: '이미지 확정에 성공했습니다.',
         });
       }
       return;
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
-        title: '저장 실패',
-        text: '이미지 저장에 실패했습니다.',
+        title: '확정 실패',
+        text: '이미지 확정에 실패했습니다.',
       });
       return;
     }
@@ -392,7 +382,6 @@ const BaseTaleRequest = () => {
         }
       }
     } catch (error) {
-
       Swal.fire({
         icon: 'error',
         title: '조회 실패',
@@ -422,15 +411,14 @@ const BaseTaleRequest = () => {
 
   return (
     <>
-      <div className="mx-auto flex justify-center items-center mt-10 mb-5">
-        <a
-          href="#"
+      <div className="mx-auto flex justify-end items-center mt-10 mb-5">
+        <div
           onClick={() => handleBackParent()}
-          className="text-2xl font-semibold  hover:text-red-500">
+          className="text-xl font-semibold shadow-md bg-white rounded-[8px] p-[8px] px-[15px] hover:bg-slate-200 hover:cursor-pointer">
           부모님 페이지로 돌아가기
-        </a>
+        </div>
       </div>
-      <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto">
+      <div className="min-h-screen bg-gray-50 p-8 mt-5 shadow-lg rounded-lg max-w-6xl mx-auto auth-regular1">
         <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
           관리자에게 동화 요청하기
         </h1>
@@ -449,7 +437,7 @@ const BaseTaleRequest = () => {
                     key={tale.id}
                     onClick={() => handleSelectTale(tale.id)}
                     className="cursor-pointer text-indigo-600 hover:bg-indigo-50 p-3 rounded-lg transition">
-                    {tale.title} (ID: {tale.id})
+                    {tale.title}
                   </li>
                 ))}
               </ul>
@@ -558,6 +546,21 @@ const BaseTaleRequest = () => {
                 </div>
               </div>
 
+              {/* 도입부 스크립트 */}
+              <div>
+                <label className="block font-medium text-gray-700 mb-1">
+                  도입부 스크립트:
+                </label>
+                <textarea
+                  name="startScript"
+                  value={formData.startScript}
+                  onChange={handleInputChange}
+                  rows="3"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  required
+                />
+              </div>
+
               {/* 도입부 이미지 섹션 */}
               <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <label className="w-full font-medium text-gray-700">
@@ -619,49 +622,6 @@ const BaseTaleRequest = () => {
                 도입부 {introImages && <span>다시 </span>}이미지 생성하기
                 <LoadingText loading={formDataReadyState.startImg} />
               </button>
-              {/* 도입부 스크립트 */}
-              <div>
-                <label className="block font-medium text-gray-700 mb-1">
-                  도입부 스크립트:
-                </label>
-                <textarea
-                  name="startScript"
-                  value={formData.startScript}
-                  onChange={handleInputChange}
-                  rows="3"
-                  className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                  required
-                />
-              </div>
-
-              {/* 도입부 음성 URL 및 생성 */}
-              <div className="flex-col gap-3">
-                <label className="w-32 font-medium text-gray-700">
-                  도입부 음성
-                </label>
-                <div className="flex-2">
-                  {!formData.startVoice && (
-                    <div className="text-gray-300">
-                      도입부 음성이 아직 생성되지 않았습니다.
-                    </div>
-                  )}
-                  {formData.startVoice && (
-                    <audio
-                      controls
-                      src={formData.startVoice}
-                      className="mt-2 w-full"
-                    />
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={handleGenerateVoiceUrl}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow transition duration-300">
-                    도입부 음성 생성하기{' '}
-                    <LoadingText loading={formDataReadyState.startVoice} />
-                  </button>
-                </div>
-              </div>
 
               {/* 키워드 및 키워드 문장 입력 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

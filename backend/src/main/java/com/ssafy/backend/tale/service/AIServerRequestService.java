@@ -225,6 +225,7 @@ public class AIServerRequestService {
                     .block();
             if(!response.getStatus().equals(ResponseCode.SUCCESS))
                 throw new RuntimeException("AI 서버 요청 실패");
+
             return response;
         }catch(IOException | UnsupportedAudioFileException e){
             throw new BadRequestException("지원하는 형식(.wav)가 아니거나, 잘못된 파일입니다.");
@@ -239,13 +240,18 @@ public class AIServerRequestService {
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
         parts.add("file", fileResource);
 
-        return webClient.post()
+        ApiResponse<TextResponseDto> response =  webClient.post()
                 .uri("/ask/handwrite-to-word")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(parts))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<TextResponseDto>>(){})
                 .block();
+
+        if(!response.getStatus().equals(ResponseCode.SUCCESS))
+            throw new RuntimeException("AI 서버 요청 실패");
+
+        return response;
     }
 
     private void handleGenerateTaleResponse(long roomId,GenerateTaleRequestDto generateTaleRequestDto, ApiResponse<GenerateTaleResponseDto> response){

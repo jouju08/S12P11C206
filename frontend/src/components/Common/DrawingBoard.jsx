@@ -18,6 +18,7 @@ const DrawingBoard = forwardRef(
     const [isEraser, setIsEraser] = useState(false);
     const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 });
     const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+    const [isDrawingComplete, setIsDrawingComplete] = useState(false);
 
     const border = 'border-2 border-gray-200 rounded-2xl';
 
@@ -62,6 +63,29 @@ const DrawingBoard = forwardRef(
       return () => clearInterval(interval);
     }, [useHeartBeat]);
 
+    useEffect(() => {
+      const disableTouch = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+
+      if (isDrawingComplete) {
+        document.addEventListener('touchstart', disableTouch, {
+          passive: false,
+        });
+        document.addEventListener('touchmove', disableTouch, {
+          passive: false,
+        });
+        document.addEventListener('touchend', disableTouch, { passive: false });
+      }
+
+      return () => {
+        document.removeEventListener('touchstart', disableTouch);
+        document.removeEventListener('touchmove', disableTouch);
+        document.removeEventListener('touchend', disableTouch);
+      };
+    }, [isDrawingComplete]);
+
     useImperativeHandle(ref, () => ({
       getPNGFile: () => {
         return new Promise((resolve) => {
@@ -92,6 +116,25 @@ const DrawingBoard = forwardRef(
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       },
 
+      completeDrawing: () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) return;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.font = '75px NPSfont';
+        ctx.fillStyle = 'whitesmoke';
+        ctx.textAlign = 'center';
+        ctx.fillText('그림 완성!!', canvas.width / 2, canvas.height / 1.8);
+
+        setIsDrawingComplete(true);
+      },
+
       getCanvas: () => canvasRef.current,
       canvas: canvasRef.current,
     }));
@@ -116,8 +159,6 @@ const DrawingBoard = forwardRef(
       ctx.beginPath();
       ctx.moveTo(lastPosition.x, lastPosition.y);
       ctx.lineTo(x, y);
-
-
 
       if (isEraser) {
         ctx.globalCompositeOperation = 'source-over';
@@ -162,12 +203,10 @@ const DrawingBoard = forwardRef(
       ctx.moveTo(lastPosition.x, lastPosition.y);
       ctx.lineTo(x, y);
 
-
-
       if (isEraser) {
-        ctx.globalCompositeOperation = 'destination-out';
-        ctx.strokeStyle = 'rgba(0,0,0,1)';
-        ctx.lineWidth = 35;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = 'white'; // 투명 대신 흰색으로 지움
+        ctx.lineWidth = 25;
       } else {
         ctx.globalCompositeOperation = 'source-over';
         ctx.strokeStyle = lineColor;
@@ -192,12 +231,17 @@ const DrawingBoard = forwardRef(
 
     return (
       <div className="flex flex-col gap-2">
-        <div className="flex gap-2 items-center relative"></div>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 ">
           <canvas
             ref={canvasRef}
-            className={`${isEraser ? 'cursor-crosshair' : 'cursor-pointer'}  ${usePalette ? `` : `${border}`} md:cursor-pointer`}
-            style={{ width, height, touchAction: 'none' }}
+            className={`border-[5px] border-[#a3825b] shadow-lg rounded-lg
+              ${isEraser ? 'cursor-crosshair' : 'cursor-pointer'}  ${usePalette ? `` : `${border}`} md:cursor-pointer shadow-inner`}
+            style={{
+              width,
+              height,
+              touchAction: 'none',
+              pointerEvents: isDrawingComplete ? 'none' : 'auto',
+            }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
