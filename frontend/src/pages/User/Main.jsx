@@ -10,8 +10,9 @@ import '@/styles/main.css';
 import '@/styles/text.css';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Mousewheel, Scrollbar, Pagination } from 'swiper/modules';
+import { Mousewheel, Scrollbar, Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
+import 'swiper/css/navigation';
 import '@/styles/taleRoom.css';
 import { Link } from 'react-router-dom';
 
@@ -158,25 +159,51 @@ export default function Main() {
         </div>
 
         {/* 오른쪽 메뉴바 */}
-        <div className="w-[594px] h-[316px] py-[40px] ">
+        <div className="relative w-[594px] h-[316px] py-[40px] flex items-center justify-center">
+        <button 
+          id="prev-button" 
+          className="absolute left-[-20px] z-10 hover:scale-110 transition"
+        >
+        <img
+          src='/Main/left-arrow.png'
+          className='w-[65px] h-[65px] opacity-65'
+        >
+        </img>
+        </button>
+
           <Swiper
-            modules={[Mousewheel, Scrollbar, Pagination]}
-            mousewheel={true}
-            scrollbar={{
-              draggable: true,
-              hide: false,
-              el: '.swiper-scrollbar',
-              dragSize: 350,
+            // modules={[Mousewheel, Scrollbar, Pagination]}
+            // mousewheel={true}
+            //  scrollbar={{
+            //   draggable: true,
+            //   hide: false,
+            //   el: '.swiper-scrollbar',
+            //   dragSize: 350,
+            // }}
+            navigation={{
+              prevEl: '#prev-button',
+              nextEl: '#next-button',
             }}
+            modules={[Navigation]}
             slidesPerView={3.2}
             spaceBetween={20}
             grabCursor={true}
             className="mySwiper w-[509px] overflow-visible relative"
             style={{ padding: 20 }}>
             {listNavMenu}
-            <div class="swiper-pagination"></div>
-            <div class="swiper-scrollbar bg-gray-200 rounded-sm h-[5px] w-[200px] absolute bottom-0 left-1/2 -translate-x-1/2"></div>{' '}
+            {/* <div class="swiper-pagination"></div> */}
+            {/* <div class="swiper-scrollbar bg-gray-200 rounded-sm h-[5px] w-[200px] absolute bottom-0 left-1/2 -translate-x-1/2"></div>{' '} */}
           </Swiper>
+          <button 
+            id="next-button" 
+            className="absolute right-[-20px] z-10 hover:scale-110 transition"
+          >
+          <img
+          src='/Main/arrow.png'
+          className='w-[65px] h-[65px] opacity-65'
+          >
+          </img>
+          </button>
         </div>
       </div>
 
