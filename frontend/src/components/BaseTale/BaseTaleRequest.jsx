@@ -513,7 +513,7 @@ const BaseTaleRequest = () => {
                         type="button"
                         onClick={submitSelectedTitleImage}
                         className="text-white bg-green-600 hover:bg-green-700 text-white w-24 h-auto rounded-md">
-                        저장하기
+                        확정하기
                       </button>
                     </div>
                   )}
@@ -581,7 +581,7 @@ const BaseTaleRequest = () => {
                       type="button"
                       onClick={submitSelectedIntroImage}
                       className="text-white bg-green-600 hover:bg-green-700 text-white w-24 h-auto rounded-md">
-                      저장하기
+                      확정하기
                     </button>
                   </div>
                 )}
