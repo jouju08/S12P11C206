@@ -1,6 +1,5 @@
 package com.ssafy.backend.friends.service;
 
-import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.db.entity.Friend;
 import com.ssafy.backend.db.entity.FriendRequest;
@@ -8,45 +7,38 @@ import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.FriendRepository;
 import com.ssafy.backend.db.repository.FriendRequestRepository;
 import com.ssafy.backend.db.repository.MemberRepository;
-import com.ssafy.backend.dto.FriendDto;
-import com.ssafy.backend.dto.MemberDto;
-import com.ssafy.backend.member.service.AuthenticationService;
-import io.jsonwebtoken.Claims;
-import org.apache.catalina.security.SecurityUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
+import com.ssafy.backend.friends.dto.request.FriendRequestDto;
+import com.ssafy.backend.member.dto.MemberDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * author : jung juha
+ * date : 2025.02.18
+ * description : 친구 신청 서비스
+ * update
+ * 1.
+ */
+
 @Service
+@RequiredArgsConstructor
 public class FriendRequestService {
+
     public final FriendRepository friendRepository;
     public final MemberRepository memberRepository;
     public final FriendRequestRepository friendRequestRepository;
     public final FindFriendService findFriendService;
-    public FriendRequestService(MemberRepository memberRepository,
-                                FriendRepository friendRepository,
-                                FriendRequestRepository friendRequestRepository,
-                                FindFriendService findFriendService) {
-        this.memberRepository = memberRepository;
-        this.friendRepository = friendRepository;
-        this.friendRequestRepository = friendRequestRepository;
-        this.findFriendService=findFriendService;
-    }
 
-    public boolean sendFriendRequest(FriendDto friendDto, String proposerLoginId) {
+    public boolean sendFriendRequest(FriendRequestDto friendRequestDto, String proposerLoginId) {
         // 신청자와 수신자 조회
         Long proposerId =  memberRepository.findByLoginId(proposerLoginId).get().getId();
-        String reciepientLoginId =  friendDto.getReceiverLoginId();
-        System.out.println(reciepientLoginId);
+        String reciepientLoginId =  friendRequestDto.getReceiverLoginId();
         Long reciepientId =  memberRepository.findByLoginId(reciepientLoginId).get().getId();
-        System.out.println(reciepientId);
 
         Optional<FriendRequest> isfriendRequest = friendRequestRepository.findBySenderIdAndReceiverId(proposerId, reciepientId);
 
@@ -100,9 +92,9 @@ public class FriendRequestService {
 
         return requests.stream()
                 .map(request -> {
-                    Member geter = memberRepository.findById(request.getRecipientId())
+                    Member member = memberRepository.findById(request.getRecipientId())
                             .orElseThrow(() -> new IllegalArgumentException("Invalid proposer ID"));
-                    return new MemberDto(geter.getLoginId(), geter.getNickname(), geter.getProfileImg());
+                    return new MemberDto(member.getId(), member.getLoginId(), member.getNickname(), member.getProfileImg(), false);
                 })
                 .collect(Collectors.toList());
     }
@@ -118,7 +110,6 @@ public class FriendRequestService {
             FriendRequest request = optionalRequest.get();
             request.setResponse('D');//상태 변경
             friendRequestRepository.save(request);//요청 상태 저장
-            System.out.println(request.getResponse());
             return true;
         } else {
             return false;
@@ -135,7 +126,7 @@ public class FriendRequestService {
                 .map(request -> {
                     Member proposer = memberRepository.findById(request.getProposerId())
                             .orElseThrow(() -> new IllegalArgumentException("Invalid proposer ID"));
-                    return new MemberDto(proposer.getLoginId(), proposer.getNickname(), proposer.getProfileImg());
+                    return new MemberDto(proposer.getId() ,proposer.getLoginId(), proposer.getNickname(), proposer.getProfileImg(), false);
                 })
                 .collect(Collectors.toList());
     }

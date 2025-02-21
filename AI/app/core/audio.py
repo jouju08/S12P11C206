@@ -5,20 +5,19 @@ import base64
 import time
 from fastapi import Response
 from openai import OpenAI
-from pydub import AudioSegment
-import config
 import app.core.util as util
 import app.core.chains as chains
 import app.models.request as request_dto
 import app.models.response as response_dto
 
 
-def is_audio_length_ok(file):
-    """
-    audio 파일의 길이가 MAX_AUDIO_LENGTH 이하인지 확인하는 함수
-    """
-    audio = AudioSegment.from_file(file)
-    return len(audio)//60//1000 < config.MAX_AUDIO_LENGTH
+# def is_audio_length_ok(file):
+#     """
+#     audio 파일의 길이가 MAX_AUDIO_LENGTH 이하인지 확인하는 함수
+#     """
+#     audio = AudioSegment.from_file(file)
+#     print(len(audio)//60//1000)
+#     return len(audio)//60//1000 < config.MAX_AUDIO_LENGTH
 
 
 def transcript_audio(file):
@@ -61,7 +60,7 @@ def script_read(textRequestDto: request_dto.TextRequestDto):
                 "role": "user",
                 "content": [
                     {
-                        "text": textRequestDto.text,
+                        "text": textRequestDto.text + "\n위 스크립트를 그대로 읽어줘.",
                         "type": "text"
                     },
                 ],

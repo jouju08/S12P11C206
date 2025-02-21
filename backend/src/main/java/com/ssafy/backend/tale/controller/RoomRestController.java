@@ -1,17 +1,24 @@
 package com.ssafy.backend.tale.controller;
 
-import com.ssafy.backend.common.ApiResponse;
+import com.ssafy.backend.common.dto.ApiResponse;
 import com.ssafy.backend.tale.dto.common.RoomInfo;
 import com.ssafy.backend.tale.service.LiveKitService;
 import com.ssafy.backend.tale.service.RoomService;
-import io.livekit.server.WebhookReceiver;
-import livekit.LivekitWebhook;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+/**
+ *  author : prak byeongju
+ *  date : 2025.02.16
+ *  description : 방 정보 제공을 위한 REST 컨트롤러
+ *  update
+ *      1.
+ * */
+
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +30,10 @@ public class RoomRestController {
     @GetMapping("/tale/rooms")
     public ApiResponse<List<RoomInfo>> getAllRooms() {
         return ApiResponse.<List<RoomInfo>>builder().data(roomService.getRoomList()).build();
+    }
+    @GetMapping("/tale/rooms/{roomId}")
+    public ApiResponse<RoomInfo> getRoom(@PathVariable("roomId") String roomId) {
+        return ApiResponse.<RoomInfo>builder().data(roomService.getRoom(Long.parseLong(roomId))).build();
     }
 
     @GetMapping("/tale/room/token")

@@ -1,5 +1,5 @@
 package com.ssafy.backend.common;
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.19
  *  description : 프로젝트 표준 응답상태 메세지
@@ -21,6 +21,7 @@ public interface ResponseMessage {
     String NOT_EXISTED_BOARD = "This board does not exist.";
     String BAD_REQUEST = "Bad request";
     String NOT_FOUND = "Not found";
+    String NOT_FOUND_PAGE = "Not found page";
 
 
     // HTTP Status 401

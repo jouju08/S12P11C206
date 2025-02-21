@@ -2,7 +2,7 @@ package com.ssafy.backend.tale.dto.request;
 
 import lombok.*;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.23
  *  description : 방 생성을 위한 요청 DTO,

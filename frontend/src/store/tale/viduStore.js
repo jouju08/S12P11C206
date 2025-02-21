@@ -3,10 +3,6 @@ import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { api } from '../userStore';
 import {
-  LocalVideoTrack,
-  RemoteParticipant,
-  RemoteTrack,
-  RemoteTrackPublication,
   Room,
   RoomEvent,
 } from 'livekit-client';
@@ -19,12 +15,11 @@ const viduToken = '';
 
 const openVidu = undefined;
 
-// const LIVE_KIT_URL = 'ws://localhost:7880';
+
 const LIVE_KIT_URL = import.meta.env.VITE_OPENVIDU_URL;
 
 const viduActions = (set, get) => ({
   getTokenByAxios: async (roomId) => {
-    console.log(roomId);
     const response = await api.get('/tale/room/token', {
       params: {
         roomId: roomId,
@@ -68,18 +63,8 @@ const viduActions = (set, get) => ({
 
       try {
         await room.connect(LIVE_KIT_URL, useViduStore.getState().viduToken);
-        await room.localParticipant.setCameraEnabled(true);
 
-        set((state) => {
-          state.localTrack = room.localParticipant.videoTrackPublications
-            .values()
-            .next().value.videoTrack;
-        });
       } catch (error) {
-        console.log(
-          'There was an error connecting to the room:',
-          error.message
-        );
         await get().leaveViduRoom();
       }
     }

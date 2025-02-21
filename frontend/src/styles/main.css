@@ -1,0 +1,46 @@
+@keyframes verticalShake {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.shaking-image {
+  animation: verticalShake 1.5s ease-in-out infinite;
+}
+
+.tale-loader {
+  width: fit-content;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1px #000;
+  color: #0000;
+  background: linear-gradient(-60deg, #fff 45%, #ffb0b0 0 55%, #fff 0) 0/300%
+    100% no-repeat text;
+  animation: l3 2s linear infinite;
+}
+
+@keyframes l3 {
+  0% {
+    background-position: 100%;
+  }
+}
+
+.swiper-scrollbar {
+  background-color: #c1ae6e;
+  height: 5px !important;
+  width: 400px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  top: 4px !important;
+  border-radius: 20px;
+}
+
+.swiper-scrollbar-drag {
+  background-color: #7f612d;
+  height: 100% !important;
+  cursor: pointer;
+  border-radius: 20px;
+}

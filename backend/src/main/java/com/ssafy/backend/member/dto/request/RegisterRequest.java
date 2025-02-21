@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.25
  *  description : 회원가입에 필요한 요청 DTO

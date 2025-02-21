@@ -1,6 +1,5 @@
 import React from 'react';
 import { useState } from 'react';
-// import { Search } from 'lucide-react'; // Lucide 아이콘 사용
 
 export default function NumSearch({ onSearch }) {
   const [query, setQuery] = useState('');
@@ -8,7 +7,7 @@ export default function NumSearch({ onSearch }) {
   // 검색 실행 함수
   const handleSearch = () => {
     if (query.trim() !== '') {
-      console.log('검색 실행:', query);
+
       // 검색 실행 로직 추가 (API 호출) 아니면 받은 query 보내서 부모에서 로직 실행
       onSearch(query); // 부모 컴포넌트에 검색어 전달
     }

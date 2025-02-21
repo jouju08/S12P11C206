@@ -1,5 +1,6 @@
 package com.ssafy.backend.member.service;
 
+import com.ssafy.backend.common.util.ProfileInjector;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.NotFoundUserException;
 import com.ssafy.backend.db.entity.Member;
@@ -7,8 +8,8 @@ import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.member.dto.request.LoginRequest;
 import com.ssafy.backend.member.dto.request.RegisterRequest;
 import com.ssafy.backend.member.dto.response.LoginResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.25
  *  description : 인증부분 서비스
@@ -41,11 +42,6 @@ public class AuthService {
      * 회원가입
      */
     public void register(RegisterRequest request) {
-        // 중복 체크
-        if (memberRepository.existsByLoginId(request.getLoginId())) {
-            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
-        }
-
         // 비밀번호 암호화
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
@@ -57,6 +53,7 @@ public class AuthService {
         member.setNickname(request.getNickname());
         member.setBirth(request.getBirth());
         member.setLoginType('E');
+        member.setProfileImg(new ProfileInjector().getRandImg());
 //        member.setDeleted(false);
 
         memberRepository.save(member);
@@ -67,10 +64,15 @@ public class AuthService {
     /**
      * 로그인
      */
-    public LoginResponseDto login(LoginRequest request) {
+    public LoginResponseDto login(LoginRequest request, HttpServletRequest httpRequest) {
         // 사용자 조회
         Member member = memberRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new NotFoundUserException("사용자 정보를 다시 확인하세요."));
+
+        if(member.getIsDeleted()){
+            throw new NotFoundUserException("사용자 정보를 다시 확인하세요.");
+        }
+
 
         // 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
@@ -89,11 +91,12 @@ public class AuthService {
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
 
-
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setTokens(tokens);
         member.setPassword(null);
         loginResponseDto.setMember(member);
+
+
         return loginResponseDto;
     }
 
@@ -128,7 +131,6 @@ public class AuthService {
      */
     public Map<String, String> refreshAccessToken(String refreshToken) {
         // 리프레시 토큰 유효성 검증
-        System.out.println(refreshToken);
         if (!jwtUtil.validateRefreshToken(refreshToken)) {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
         }
@@ -167,4 +169,7 @@ public class AuthService {
     public boolean isMemberExists(String email, String birth) {
         return memberRepository.findByEmailAndBirth(email, birth).isPresent();
     }
+
+
 }
+

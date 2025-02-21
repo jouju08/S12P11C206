@@ -4,24 +4,19 @@ import ChooseTale from '@/components/Room/ChooseTale';
 import NumSearch from '@/components/Room/NumSearch';
 import RoomBtn from '@/components/Room/RoomBtn';
 import FairyTaleRoom from '@/components/Common/FairyTaleRoom';
-import axios from 'axios';
-import { api } from '@/store/userStore';
+import { Loading } from '@/common/Loading';
+import { api } from '@/store/userStore.js';
 
-// Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
-// Import Swiper styles
+
 import 'swiper/css';
 import 'swiper/css/navigation';
-// import required modules
+
 import { Navigation } from 'swiper/modules';
 
 import '@/styles/roomPage.css';
 import taleAPI from '@/apis/tale/taleAxios';
 import { useTaleRoom } from '@/store/roomStore';
-
-/*
->> 방 번호 입력시 그 번호에 해당되는 부분 아직 안 됨<<
-*/
 
 export default function Room() {
   const [swiper, setSwiper] = useState(null);
@@ -36,16 +31,36 @@ export default function Room() {
   const { setBaseTaleId } = useTaleRoom();
 
   // 클릭된 동화 업데이트
-  const handleClick = (index) => {
+  const handleClick = async (index) => {
     setBaseTaleId(taleList[index].id);
     setSelectedIndex((prevIndex) => (prevIndex === index ? null : index));
-    // 세터함수로 selectedIndex
   };
 
   // 검색어를 받아서 부모 상태 업데이트
-  const handleSearch = (query) => {
+  const handleSearch = async (query) => {
     setSearchQuery(query);
-    console.log('부모 컴포넌트가 받은 검색어:', query);
+    setLoading(true);
+
+    try {
+      const SearchList = await taleAPI.getSearchTaleRooms(Number(query));
+      const SearchTale = SearchList.data.data;
+
+      setExistTaleRoom(
+        SearchTale
+          ? [
+              <FairyTaleRoom
+                key={SearchTale.id || 1}
+                item={SearchTale}
+              />,
+            ]
+          : []
+      );
+      setSelectedIndex(SearchTale?.['baseTaleId'] - 1);
+    } catch (error) {
+      setExistTaleRoom([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // selectedIndex 변경될 때마다 데이터 요청
@@ -54,38 +69,25 @@ export default function Room() {
       setLoading(true);
 
       try {
-        // 테스트용 dummy data
-        const dummy = {
-          hostMemberId: 0,
-          hostNickname: '방장이겠지',
-          hostProfileImg: null,
-          maxParticipantsCnt: 4,
-          participantsCnt: 1,
-          roomId: 222,
-          taleTitle: taleList[selectedIndex].title,
-        };
-
         const roomList = await taleAPI.getAllTaleRooms();
 
         //선택한 baseTaleId에 맞게 필터
         const existTales = roomList.data['data'];
 
-        const filterTales = existTales.filter(
+        const filterTales = existTales?.filter(
           (item) => item?.['baseTaleId'] == taleList[selectedIndex].id
         );
 
         setExistTaleRoom(
-          filterTales.map((item, idx) => (
+          filterTales?.map((item, idx) => (
             <FairyTaleRoom
               key={idx}
               item={item}
             />
           ))
         );
-
-        console.log(`${taleList[selectedIndex].title} 변경!`);
       } catch (error) {
-        console.error('➡️ 데이터 가져오기 실패:', error);
+        return error;
       } finally {
         setLoading(false);
       }
@@ -103,11 +105,8 @@ export default function Room() {
     const fetchData = async () => {
       try {
         const response = await api.get('/base-tale/list');
-        console.log('✅ 가져온 데이터', response.data);
-        // 응답 데이터 구조 확인 후 배열 접근
         setTaleList(response.data.data || []);
       } catch (err) {
-        console.error('✅ 데이터 가져오기 실패:', err);
         setTaleList([]); // 에러 발생 시 빈 배열 설정
       } finally {
         setLoading(false);
@@ -115,7 +114,7 @@ export default function Room() {
     };
 
     fetchData();
-  }, []); // 빈 배열: 컴포넌트 마운트 시 1회만 실행
+  }, []);
 
   return (
     <div className="w-[1024px] px-[25px]">
@@ -132,27 +131,32 @@ export default function Room() {
         <button
           onClick={() => swiper.slidePrev()}
           className="block w-[50px] h-[50px] bg-gray-50 rounded-full after:content-[url(/Room/room-navigater.png)]"></button>
-        <Swiper
-          slidesPerView={3}
-          spaceBetween={-80}
-          grabCursor={true}
-          navigation={true}
-          modules={[Navigation]}
-          onBeforeInit={(swipper) => setSwiper(swipper)}
-          className="mySwiper w-[808px] h-[270px] overflow-hidden">
-          {taleList.map((item, index) => (
-            <SwiperSlide
-              key={index}
-              onClick={() => {
-                handleClick(index);
-              }}>
-              <ChooseTale
-                item={item}
-                isActive={selectedIndex === index}
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        <div className="flex justify-center">
+          <Swiper
+            slidesPerView={3}
+            spaceBetween={-80}
+            slidesOffsetAfter={-110}
+            grabCursor={true}
+            navigation={true}
+            modules={[Navigation]}
+            onBeforeInit={(swipper) => setSwiper(swipper)}
+            centerInsufficientSlides={true}
+            className="mySwiper w-[808px] h-[270px] overflow-hidden">
+            {taleList.map((item, index) => (
+              <SwiperSlide
+                key={index}
+                className="cursor-pointer"
+                onClick={() => {
+                  handleClick(index);
+                }}>
+                <ChooseTale
+                  item={item}
+                  isActive={selectedIndex === index}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
         <button
           onClick={() => swiper.slideNext()}
           className="w-[50px] h-[50px] bg-gray-50 rounded-full -scale-x-100 after:content-[url(/Room/room-navigater.png)]"></button>
@@ -195,25 +199,36 @@ export default function Room() {
               <RoomBtn
                 isSingle={false}
                 location={'together.png'}>
-                내가 방 만들기
+                친구들과 시작하기
               </RoomBtn>
             </div>
 
             {/* 데이터 표시 구간 */}
             <section className="w-full px-9 py-10">
               {loading ? (
-                <p>로딩 중...</p>
-              ) : existTaleRoom ? (
+                // <p>로딩 중...</p>
+                <Loading />
+              ) : existTaleRoom && existTaleRoom.length > 0 ? (
                 <div>
-                  <h2 className="text-xl font-bold">
-                    데이터 ID: {selectedIndex}
-                  </h2>
                   <div className="grid grid-flow-row grid-cols-3 gap-4">
                     {...existTaleRoom}
                   </div>
                 </div>
               ) : (
-                <p>데이터 없음</p>
+                <div className="w-full h-[300px] flex flex-col justify-center items-center">
+                  <img
+                    src="/Common/nodata.png"
+                    alt="No Data"
+                    className="w-[100px] h-[100px]"
+                  />
+                  <p className="service-accent2 text-text-first mt-2">
+                    아직 만들어진{' '}
+                    <span className="text-main-carrot">
+                      {taleList[selectedIndex].title}
+                    </span>{' '}
+                    방이 없어요
+                  </p>
+                </div>
               )}
             </section>
           </>

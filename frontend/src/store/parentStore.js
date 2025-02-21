@@ -1,12 +1,8 @@
-import axios from "axios";
-import { userStore } from "./userStore";
+import { userStore, useUser } from "./userStore";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-
-const api = axios.create({
-    baseURL: '/api',
-});
+import { api } from "./userStore";
 
 const initialProfile = {
     memberId: null,
@@ -25,7 +21,7 @@ const initialProfile = {
         try{
           api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
           const response = await api.get('/member/mypage');
-          console.log('회원정보', response.data.data);
+
           set((state) => {
             state.memberId = response.data.data.memberId;
             state.loginId = response.data.data.loginId;
@@ -36,38 +32,34 @@ const initialProfile = {
             state.profileImg = response.data.data.profileImg;
           });
         } catch (error) {
-          console.log('프로필 정보 불러오기 실패', error);
           throw error;
         }
       },
 
     updateProfile: async (updateData) => {
       try{
-        console.log('프로필 정보', updateData);
         api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
         const response = await api.patch('/member/mypage',updateData);
-        console.log('프로필 수정 성공', response.data);
+
         set((state) => {
           state.nickname = response.data.data.nickname;
           state.birth = response.data.data.birth;
         });
       } catch (error) {
-        console.log('프로필 수정 실패', error);
         throw error;
       }
     },
   
     isNicknameAvailable: async(nickname) => {
       try {
-        const response = await api.get(`/auth/check-nickname/${encodeURIComponent(nickname)}`);
+        const response = await api.get(`/auth/duplicate/check-nickname/${encodeURIComponent(nickname)}`);
         
-        if (response == false){
-          return false;
-        } else {
+        if (response.data.status == 'Success.'){
           return true;
+        } else if(response.data.status == 'DN'){
+          return false;
         }
       } catch (error) {
-        console.log('닉네임 중복 체크 실패', error);
         throw error;
       }
     },
@@ -76,9 +68,36 @@ const initialProfile = {
       try {
         api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
         const response = await api.patch('/member/profile-image',profileImage);
-        console.log(response);
+        set((state) => {
+          state.profileImg = response.data.data;
+        });
+
       } catch (error) {
-        console.log('프로필 이미지 업데이트 에러',error);
+        throw error;
+      }
+    },
+
+    deleteUser:async()=>{
+      try{
+        const response=await api.delete("/member/delete");
+
+        if(response.data.status==="SU"){
+          return true;
+        }
+      }catch(error){
+          return false;
+        }
+    },
+
+    changePassword: async (oldPassword, newPassword) => {
+      try {
+        const response = await api.patch("/member/change-password", {
+          oldPassword,
+          newPassword,
+        });
+
+        return response.data;
+      } catch (error) {
         throw error;
       }
     },
@@ -110,7 +129,9 @@ const initialProfile = {
     const updateProfile = profileStore((state) => state.updateProfile);
     const isNicknameAvailable = profileStore((state) => state.isNicknameAvailable);
     const updateProfileImage = profileStore((state) => state.updateProfileImage);
-  
+    const deleteUser=profileStore((state)=>state.deleteUser);
+    const changePassword = profileStore((state) => state.changePassword);
+
     return {
       memberId,
       loginId,
@@ -123,7 +144,9 @@ const initialProfile = {
       fetchProfile,
       updateProfile,
       isNicknameAvailable,
-      updateProfileImage
+      updateProfileImage,
+      deleteUser,
+      changePassword,
     };
   };
 
@@ -139,13 +162,12 @@ const myfairyTaleActions = (set, get) => ({
         try {
             api.defaults.headers.common['Authorization'] = `Bearer ${get().accessToken}`;
             const response = await api.get('/tale/my-tale');
-            console.log('동화목록: ', response.data.data);
+
             
             set((state) => {
                 state.myTales = response.data.data;
             });
         } catch (error) {
-            console.log('동화목록 정보 불러오기 실패', error);
             throw error;
         }
     }
@@ -172,4 +194,92 @@ export const useMyTales = () => {
 
         fetchMyTale
     };
+};
+
+const initialKidTrackState = {
+  loginSummary: null, 
+  loginEvents: [],   
+  page: 0,
+  hasMore: true,
+};
+
+const kidTrackActions = (set, get) => ({
+
+  fetchKidTrackAggregate: async () => {
+    try {
+      
+      const response = await api.get("/auth/child/aggregate");
+      set((state) => {
+        state.loginSummary = response.data.data;
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  
+  fetchKidTrackEvents: async () => {
+    try {
+      const response = await api.get("/auth/child", {
+        params: { page: get().page, size: 10 },
+      });
+
+      const newEvents = response.data.data.content;
+      set((state) => {
+        state.loginEvents = [...state.loginEvents, ...newEvents];
+        if (newEvents.length < 10) {
+          state.hasMore = false;
+        }
+      });
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  
+  incrementKidTrackPage: () => {
+    set((state) => {
+      state.page += 1;
+    });
+    get().fetchKidTrackEvents();
+  },
+
+  
+  resetKidTrack: () =>
+    set(() => ({
+      loginSummary: null,
+      loginEvents: [],
+      page: 0,
+      hasMore: true,
+    })),
+});
+
+const kidTrackStore = create(
+  devtools(
+    immer((set, get) => ({
+      ...initialKidTrackState,
+      ...kidTrackActions(set, get),
+    }))
+  )
+);
+
+
+export const useKidTrack = () => {
+  const loginSummary = kidTrackStore((state) => state.loginSummary);
+  const loginEvents = kidTrackStore((state) => state.loginEvents);
+  const fetchKidTrackAggregate = kidTrackStore((state) => state.fetchKidTrackAggregate);
+  const fetchKidTrackEvents = kidTrackStore((state) => state.fetchKidTrackEvents);
+  const incrementKidTrackPage = kidTrackStore((state) => state.incrementKidTrackPage);
+  const hasMore = kidTrackStore((state) => state.hasMore);
+  const page = kidTrackStore((state) => state.page);
+
+  return {
+    loginSummary,
+    loginEvents,
+    fetchKidTrackAggregate,
+    fetchKidTrackEvents,
+    incrementKidTrackPage,
+    hasMore,
+    page,
+  };
 };

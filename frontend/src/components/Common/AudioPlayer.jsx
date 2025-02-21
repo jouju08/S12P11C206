@@ -7,11 +7,11 @@ const AudioPlayer = ({ audioSrc, pageNum }) => {
   // 오디오 요소가 로드될 때마다 볼륨 설정
   useEffect(() => {
     if (audioRef.current) {
-      audioRef.current.volume = 0.2;
+      audioRef.current.volume = 0.7;
 
       // onloadeddata 이벤트에서도 볼륨 설정
       audioRef.current.onloadeddata = () => {
-        audioRef.current.volume = 0.2;
+        audioRef.current.volume = 0.7;
       };
     }
   }, [audioSrc]); // audioSrc가 변경될 때마다 실행
@@ -19,7 +19,7 @@ const AudioPlayer = ({ audioSrc, pageNum }) => {
   // 페이지가 바뀔 때마다
   useEffect(() => {
     audioRef.current.currentTime = 0; // 처음으로 되감기
-    audioRef.current.volume = 0.2; // 여기서도 볼륨 설정
+    audioRef.current.volume = 0.7; // 여기서도 볼륨 설정
     audioRef.current.play(); // 자동재생
     setIsMuted(false);
   }, [pageNum]);
@@ -40,9 +40,9 @@ const AudioPlayer = ({ audioSrc, pageNum }) => {
         ref={audioRef}
         src={audioSrc}
         autoPlay
-        volume="0.2"
+        volume="0.7"
         onLoadedData={() => {
-          if (audioRef.current) audioRef.current.volume = 0.2;
+          if (audioRef.current) audioRef.current.volume = 0.7;
         }}
       />
       <button

@@ -1,17 +1,26 @@
 package com.ssafy.backend.member.controller;
 
-import com.ssafy.backend.common.ApiResponse;
-import com.ssafy.backend.dto.MemberDto;
+import com.ssafy.backend.common.dto.ApiResponse;
+import com.ssafy.backend.member.dto.MemberDto;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.exception.BadRequestException;
 import com.ssafy.backend.member.dto.request.ChangePasswordRequestDTO;
 import com.ssafy.backend.member.dto.request.UpdateMemberRequestDTO;
-import com.ssafy.backend.member.dto.response.GetMemberResponseDTO;
+import com.ssafy.backend.member.dto.response.MemberResponseDTO;
 import com.ssafy.backend.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+/**
+ * author : lee youngjae
+ * date : 2025.02.18
+ * description : 멤버 컨트롤러(마이페이지)
+ * update
+ * 1.
+ */
 
 import java.util.*;
 @RestController
@@ -24,24 +33,24 @@ public class MemberController {
 
     // 회원 정보 조회
     @GetMapping("/mypage")
-    public ApiResponse<GetMemberResponseDTO> getMember(@RequestHeader("Authorization") String token) {
+    public ApiResponse<MemberResponseDTO> getMember(@RequestHeader("Authorization") String token) {
         String loginId = extractLoginId(token);
-        GetMemberResponseDTO memberResponse = memberService.getMember(loginId);
-        return ApiResponse.<GetMemberResponseDTO>builder()
+        MemberResponseDTO memberResponse = memberService.getMember(loginId);
+
+        return ApiResponse.<MemberResponseDTO>builder()
                 .data(memberResponse)
                 .build();
     }
 
     // 회원 정보 수정
     @PatchMapping("/mypage")
-    public ApiResponse<GetMemberResponseDTO> updateMember(
+    public ApiResponse<MemberResponseDTO> updateMember(
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody UpdateMemberRequestDTO updateMemberRequestDTO) {
 
         String loginId = extractLoginId(token);
-        GetMemberResponseDTO memberResponse = memberService.updateMember(loginId, updateMemberRequestDTO);
-
-        return ApiResponse.<GetMemberResponseDTO>builder()
+        MemberResponseDTO memberResponse = memberService.updateMember(loginId, updateMemberRequestDTO);
+        return ApiResponse.<MemberResponseDTO>builder()
                 .data(memberResponse)
                 .build();
     }
@@ -73,21 +82,21 @@ public class MemberController {
 
     // 프로필 사진 변경
     @PatchMapping("/profile-image")
-    public ApiResponse<Void> updateProfileImage(
-            @RequestHeader("Authorization") String token,
-            @RequestParam("profileImage") MultipartFile profileImage) {
+    public ApiResponse<String> updateProfileImage(
+            @RequestHeader("Authorization") String token, MultipartFile profileImage) {
 
         String loginId = extractLoginId(token);
-        memberService.updateProfileImage(loginId, profileImage);
+        String imgPath = memberService.updateProfileImage(loginId, profileImage);
 
-        return ApiResponse.<Void>builder()
-                .data(null)
+        return ApiResponse.<String>builder()
+                .data(imgPath)
                 .build();
     }
 
     @GetMapping("/all")
-    public ApiResponse<List<MemberDto>> getMembers() {
-        List<MemberDto> allMembers=memberService.getAllMembers();
+    public ApiResponse<List<MemberDto>> getMembers(Authentication auth) {
+        String loginId = auth.getName();
+        List<MemberDto> allMembers=memberService.getAllMembers(loginId);
         return ApiResponse.<List<MemberDto>>builder().data(allMembers).build();
     }
 

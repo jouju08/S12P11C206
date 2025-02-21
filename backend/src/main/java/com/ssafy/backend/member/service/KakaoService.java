@@ -1,10 +1,12 @@
 package com.ssafy.backend.member.service;
 
+import com.ssafy.backend.common.util.ProfileInjector;
 import com.ssafy.backend.common.auth.JwtUtil;
 import com.ssafy.backend.common.auth.KakaoUserInfo;
 import com.ssafy.backend.db.entity.Member;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.member.dto.response.LoginResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -14,9 +16,15 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
+/**
+ *  author : park byeongju
+ *  date : 2025.01.25
+ *  description : 카카오 로그인 서비스
+ *  update
+ *      1.
+ * */
 
 @Service
 @RequiredArgsConstructor
@@ -26,22 +34,21 @@ public class KakaoService {
     private final RefreshTokenService refreshTokenService;
     private final JwtUtil jwtUtil;
 
-    @Value("${oauth_kakao_client_id}")
+    @Value("${OAUTH_KAKAO_CLIENT_ID}")
     private String clientId;
 
-    @Value("${oauth_kakao_redirect_uri}")
+    @Value("${OAUTH_KAKAO_REDIRECT_URI}")
     private String redirectUri;
 
-    @Value("${oauth_kakao_secert}")
+    @Value("${OAUTH_KAKAO_SECRET}")
     private String secret;
 
-    public LoginResponseDto kakaoLogin(String code) {
+    public LoginResponseDto kakaoLogin(String code, HttpServletRequest httpRequest) {
         // 1. 카카오 토큰 요청
         String accessToken = getKakaoAccessToken(code);
 
         // 2. 사용자 정보 요청
         KakaoUserInfo userInfo = getKakaoUserInfo(accessToken);
-        System.out.println("userInfo : " + userInfo);
         // 3. 회원가입 또는 로그인 처리
 
         // 오늘 날짜 패턴 맞추기
@@ -49,34 +56,43 @@ public class KakaoService {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String formattedDate = sdf.format(today);
 
-        Member member = memberRepository.findByLoginId(userInfo.getLoginId())
-                .orElseGet(() -> {
-                    Member newMember = Member.builder()
-                            .loginId(userInfo.getLoginId())
-                            .nickname(userInfo.getNickname())
-                            .isDeleted(false)
-//                            .profileImg()
-                            .loginType('K')
-                            .birth(formattedDate)
-                            .build();
-                    return memberRepository.save(newMember);
-                });
+        Optional<Member> optionalMember = memberRepository.findByLoginId(userInfo.getLoginId());
+        Member member;
+        if (optionalMember.isPresent()) {
+            member = optionalMember.get();
+        } else {
+            String tempNickname = userInfo.getNickname();
+
+            do {
+                tempNickname = userInfo.getNickname() + UUID.randomUUID().toString().replace("-", "").substring(0, 5);
+            } while (memberRepository.findByNickname(tempNickname).isPresent());
+
+            Member newMember = Member.builder()
+                    .loginId(userInfo.getLoginId())
+                    .nickname(tempNickname)
+                    .isDeleted(false)
+                    .loginType('K')
+                    .birth(formattedDate)
+                    .profileImg(new ProfileInjector().getRandImg())
+                    .build();
+            member = memberRepository.save(newMember);
+        }
 
         // 4. JWT 토큰 생성 및 반환
-        String jwtAccessToken = jwtUtil.generateToken(member.getEmail());
-        String jwtRefreshToken = jwtUtil.generateRefreshToken(member.getEmail());
-        
+        String jwtAccessToken = jwtUtil.generateToken(member.getLoginId());
+        String jwtRefreshToken = jwtUtil.generateRefreshToken(member.getLoginId());
+
         // 레디스에 리프레시 토큰 저장
         refreshTokenService.saveRefreshToken(member.getLoginId(), jwtRefreshToken);
-        
+
         Map<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", jwtAccessToken);
         tokens.put("refreshToken", jwtRefreshToken);
+
         LoginResponseDto loginResponseDto = new LoginResponseDto();
         loginResponseDto.setTokens(tokens);
         member.setPassword(null);
         loginResponseDto.setMember(member);
-
 
         return loginResponseDto;
     }

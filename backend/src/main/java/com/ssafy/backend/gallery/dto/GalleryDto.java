@@ -4,6 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * author : park byeongju
+ * date : 2025.02.18
+ * description : 자랑하기 게시판 dto
+ * update
+ * 1.
+ */
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

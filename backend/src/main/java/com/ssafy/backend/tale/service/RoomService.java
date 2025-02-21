@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.23
  *  description : 방 서비스
@@ -40,7 +40,6 @@ public class RoomService {
     @Transactional
     public Room makeRoom(MakeRoomRequestDto makeRoomDto) {
 
-        System.out.println(makeRoomDto);
         // 방만들기
         // 1. 빈 방 만들기
         // input : MakeRoomRequestDto(creatorId=User136, partiCnt=4, baseTaleId=10)
@@ -54,7 +53,6 @@ public class RoomService {
         tempRoom.setBaseTale(tempBaseTale);
         tempRoom.setPartiCnt(makeRoomDto.getPartiCnt());
         Tale tale = taleRepository.save(tempRoom);
-        System.out.println(tale);
 
 
         // 2. 반환해 줄 Room 객체 생성
@@ -90,11 +88,6 @@ public class RoomService {
                 .build());
         ops.set("tale-roomList", roomList);
 
-
-        System.out.println(room.getRoomId() + "번 방 레디스에 방 저장 ★");
-        System.out.println(ops.get("tale-" + room.getRoomId().toString()));
-
-        //
         return room;
     }
 
@@ -136,13 +129,20 @@ public class RoomService {
 
     public Room getRoom(Room room) {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
-        System.out.println("room = " + room);
         return (Room) ops.get("tale-" + room.getRoomId().toString());
     }
 
     public List<RoomInfo> getRoomList() {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         return (List<RoomInfo>) ops.get("tale-roomList");
+    }
+    public RoomInfo getRoom(long roomId) {
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
+        for (RoomInfo room : roomList) {
+            if (room.getRoomId().equals(roomId)) return room;
+        }
+        return null;
     }
 
     /*
@@ -157,19 +157,16 @@ public class RoomService {
     public Room leaveRoom(LeaveRoomRequestDto leaveRoomRequestDto) {
         ValueOperations<String, Object> ops = redisTemplate.opsForValue();
         List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
-        System.out.println(leaveRoomRequestDto);
         Room room = (Room) ops.get("tale-" + leaveRoomRequestDto.getRoomId().toString());
         if (room == null) throw new RuntimeException("유효하지 않은 방입니다.");
 
         // Room 갱신
-        System.out.println("room = " + room);
         Member leaveMember = room.getParticipants().get(leaveRoomRequestDto.getLeaveMemberId());
-        System.out.println("leaveMember = " + leaveMember);
         room.getParticipants().remove(leaveMember.getId());
         room.setFull(false);
 
         if (room.getParticipants().isEmpty()) { // 호스트 0명일 경우 방 삭제
-            redisTemplate.delete(room.getRoomId().toString());
+            redisTemplate.delete("tale-"+room.getRoomId().toString());
 
             // room list 방 삭제
             for (RoomInfo roomInfo : roomList) {
@@ -207,4 +204,15 @@ public class RoomService {
         return room;
     }
 
+    public void deleteRoom(Long roomId) {
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        List<RoomInfo> roomList = (List<RoomInfo>) ops.get("tale-roomList");
+        for (RoomInfo roomInfo : roomList) {
+            if (roomInfo.getRoomId().equals(roomId)) {
+                if (roomList.remove(roomInfo)) ops.set("tale-roomList", roomList);
+                else throw new RuntimeException("방 리스트 삭제 실패");
+                break;
+            }
+        }
+    }
 }

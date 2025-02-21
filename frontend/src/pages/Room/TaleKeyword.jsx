@@ -1,33 +1,43 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
 import ParticipationStatus from '@/components/TaleRoom/ParticepationStatus';
 import FairyChatBubble from '@/components/Common/FairyChatBubble';
 import { useTalePlay } from '@/store/tale/playStore';
 import { useTaleRoom } from '@/store/roomStore';
 import { useNavigate } from 'react-router-dom';
-import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
-import DrawingBoard from '@/components/Common/DrawingBoard';
-
-// 확인용 더미데이터
-const ParticipationList = [
-  {
-    id: 1,
-    nickname: '더미데이터',
-  },
-];
+import { useUser } from '@/store/userStore';
+import { useViduHook } from '@/store/tale/viduStore';
+import VoiceRecorder from '@/components/TaleRoom/VoiceRecoder';
 
 const TaleKeyword = () => {
+  const selectAudioRef = useRef(null); //확인 효과음
   const [mode, setMode] = useState('default'); // 현재 모드: default, typing, voice, writing
   const [inputText, setInputText] = useState(''); // 타자 입력 텍스트
   const [isNextActive, setIsNextActive] = useState(false); // 다음 버튼 활성화 상태
   const [recordedAudio, setRecordedAudio] = useState(null); // 녹음된 오디오 데이터
+  const [isRecording, setIsRecording] = useState(false);
   const canvasRef = useRef(null); // 글쓰기 캔버스 참조
 
   const navigate = useNavigate();
 
-  const { isSingle } = useTaleRoom();
+  const {
+    currentRoom,
+    isSingle,
+    participants,
+    leaveRoom,
+    isEscape,
+    resetStateRoom,
+  } = useTaleRoom();
 
   // 싱글모드일때 사용, 몇번째 그림 그렸는지 확인
   const [currentStep, setCurrentStep] = useState(0);
+
+  const { leaveViduRoom } = useViduHook();
 
   const {
     tale,
@@ -48,23 +58,56 @@ const TaleKeyword = () => {
     keywords,
     setPage,
     addPage,
+
+    resetState,
   } = useTalePlay(); // 동화 API
 
+  const { memberId } = useUser();
+
   useEffect(() => {
-    if (currentStep >= 4) {
-      navigate('/tale/taleSentenceDrawing');
+    if (recordedAudio !== null && !isRecording) {
+      handleConfirm();
     }
+  }, [recordedAudio, isRecording]);
+
+  useEffect(() => {
+    const handleUnMount = async () => {
+      if (currentStep >= 4) {
+        await setPage(0);
+        navigate('/tale/taleSentenceDrawing');
+      }
+    };
+
+    handleUnMount();
   }, [currentStep]); // 페이지 넘어가는 side effect
 
-  //unmounted reset page(count) for next play
+  //누군가 탈주하면 방폭파
   useEffect(() => {
-    return () => {
-      setPage(0);
-    };
-  }, []);
+    if (isEscape) {
+      leaveRoom();
+      leaveViduRoom();
+      resetStateRoom();
+      resetState();
+      navigate('/room');
+    }
+  }, [isEscape, currentRoom]);
 
-  const sentences = tale?.['sentenceOwnerPairs']?.filter(
-    (item) => item.sentence
+  const sortedSentences = useMemo(() => {
+    return [...(tale?.sentenceOwnerPairs || [])].sort(
+      (a, b) => a.order - b.order
+    );
+  }, [tale]);
+
+  //싱글모드 문장들
+  const singleModeSentences = useMemo(
+    () => sortedSentences?.filter((item) => item.sentence) || [],
+    [sortedSentences]
+  );
+
+  //멀티모드 개인문장
+  const multiModeSentences = useMemo(
+    () => sortedSentences?.find((item) => item.owner === memberId) || null,
+    [sortedSentences, memberId]
   );
 
   const handleConfirm = async () => {
@@ -73,50 +116,22 @@ const TaleKeyword = () => {
         ? await submitTypingSingle(inputText)
         : await submitTyping(inputText);
 
-      if (response) {
+      if (response.status == 'SU') {
         setIsNextActive(true);
-        setCurrentKeyword(response);
-      } else {
-        alert('fail keyword');
+        setCurrentKeyword(response.data);
+      } else if (response.status == 'SER') {
+        return;
       }
     } else if (mode === 'voice') {
       const response = isSingle
         ? await submitVoiceSingle(recordedAudio)
         : await submitVoice(recordedAudio);
 
-      if (response) {
+      if (response.status == 'SU') {
         setIsNextActive(true);
-        setCurrentKeyword(response);
-      } else {
-        alert('fail keyword');
-      }
-    } else if (mode === 'writing') {
-      const file = await canvasRef.current.getPNGFile();
-      // const handwriteFile = await exportToBlob({
-      //   elements: canvasRef.current.getSceneElements(),
-      //   appState: canvasRef.current.getAppState(),
-      //   files: canvasRef.current.getFiles(),
-      //   mimeType: 'image/png',
-      // });
-
-      // const url = URL.createObjectURL(handwriteFile);
-      // const a = document.createElement('a');
-      // a.href = url;
-      // a.download = 'drawing.png';
-      // a.click();
-      // URL.revokeObjectURL(url);
-
-      // const file = new File([handwriteFile], `file.png`, { type: 'image/png' });
-
-      const response = isSingle
-        ? await submitHandWriteSingle(file)
-        : await submitHandWrite(file);
-
-      if (response) {
-        setIsNextActive(true);
-        setCurrentKeyword(response);
-      } else {
-        alert('fail keyword');
+        setCurrentKeyword(response.data.text);
+      } else if (response.status == 'SER') {
+        return;
       }
     }
   };
@@ -146,8 +161,10 @@ const TaleKeyword = () => {
         addKeyword(keyword);
         handleReset();
         return true;
+      } else {
+        return false;
       }
-    } catch {
+    } catch (error) {
       return false;
     }
   };
@@ -155,36 +172,35 @@ const TaleKeyword = () => {
   const handleReset = () => {
     setInputText('');
     setRecordedAudio(null);
-    // if (canvasRef.current) {
-    //   canvasRef.current.resetScene();
-    // }
 
-    if (canvasRef.current.canvas) {
+    if (canvasRef.current) {
       const canvas = canvasRef.current.canvas;
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
     setIsNextActive(false);
+    setCurrentKeyword(null);
+    setMode('default');
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isSingle) {
-      handleSubmitSingle(inputText).then((resolve) => {
-        if (resolve == true) {
-          handleReset();
-          setCurrentStep((prev) => prev + 1);
-        }
-      });
+      await handleSubmitSingle();
+      setCurrentStep((prev) => prev + 1);
     } else if (!isSingle) {
-      handleSubmit().then((resolve) => {
-        if (resovle == true) {
-          handleReset();
-        }
-      });
+      await handleSubmit();
+      setCurrentStep((prev) => prev + 5);
     }
   };
-
+  const handleConfirmSound = async () => {
+    if (selectAudioRef.current) {
+      //선택 효과음 재생
+      selectAudioRef.current.volume = 1;
+      selectAudioRef.current.currentTime = 0;
+      selectAudioRef.current.play().catch(() => {});
+    }
+  };
   const modeButtons = [
     {
       mode: 'typing',
@@ -196,27 +212,21 @@ const TaleKeyword = () => {
       text: '목소리',
       imageSrc: '/TaleKeyword/keyword-mic.png',
     },
-    {
-      mode: 'writing',
-      text: '글쓰기',
-      imageSrc: '/TaleKeyword/keyword-writing.png',
-    },
   ];
 
   return (
-    <div className="relative w-[1024px] h-[668px]">
+    <div className="relative w-[1024px] h-[580px] tall:h-[668px]">
+      {' '}
+      <audio /*확인 효과음*/
+        ref={selectAudioRef}
+        src={'/Common/select.mp3'}
+      />
       {/* 배경 absolute */}
-      <div
-        className="absolute top-0 left-0 opacity-70 w-[1024px] h-[668px] bg-cover bg-center"
-        style={{
-          backgroundImage: "url('/TaleKeyword/field-background.png')",
-        }}></div>
-
+      <div className="absolute top-0 left-0 opacity-70 w-[1024px] h-[580px] tall:h-[668px] bg-cover bg-center"></div>
       {/* 참여인원 섹션 */}
       <div className="absolute top-4 left-[84px]">
-        <ParticipationStatus ParticipationList={ParticipationList} />
+        <ParticipationStatus ParticipationList={participants} />
       </div>
-
       {/* 제목 */}
       <div className="py-1.5 left-[367px] top-[80px] absolute justify-start items-center inline-flex overflow-hidden">
         <div className="w-[240px] h-[53px] relative">
@@ -230,20 +240,46 @@ const TaleKeyword = () => {
           src="/TaleKeyword/pencil.png"
         />
       </div>
-
       {/* 문장 */}
       <div className="absolute top-[150px] left-0 w-full text-center">
         <div className="h-[75px] px-[41px] py-4 bg-white rounded-[10px] shadow-[4px_4px_4px_0px_rgba(0,0,0,0.10)] border border-[#787878] justify-start items-center gap-5 inline-flex overflow-hidden">
-          <div className="text-center text-text-first story-basic3">
-            첫째 아기 돼지는
-          </div>
-          <div className="w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400" />
-          <div className="text-center text-text-first story-basic3">
-            (으)로 집을 지었습니다.
-          </div>
+          {isSingle && (
+            <>
+              <div className="text-center text-text-first story-basic3">
+                {singleModeSentences[currentStep]?.['sentence'].split('xx')[0]}
+              </div>
+              <div
+                onClick={() => setMode('typing')}
+                className="flex items-center justify-center w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400">
+                <span className="text-center text-text-first story-basic3">
+                  {currentKeyword}
+                </span>
+              </div>
+              <div className="text-center text-text-first story-basic3">
+                {singleModeSentences[currentStep]?.['sentence'].split('xx')[1]}
+              </div>
+            </>
+          )}
+
+          {!isSingle && (
+            <>
+              <div className="text-center text-text-first story-basic3">
+                {multiModeSentences?.['sentence'].split('xx')[0]}
+              </div>
+              <div
+                onClick={() => setMode('typing')}
+                className="flex items-center justify-center w-[100px] h-[53px] relative bg-main-pink rounded-[10px] border border-gray-400">
+                <span className="text-center text-text-first story-basic3">
+                  {currentKeyword}
+                </span>
+              </div>
+              <div className="text-center text-text-first story-basic3">
+                {multiModeSentences?.['sentence'].split('xx')[1]}
+              </div>
+            </>
+          )}
         </div>
       </div>
-
       {/* 말풍선 */}
       <div
         className="w-[214px] h-[279px] absolute top-[250px] left-[100px] bg-cover"
@@ -251,7 +287,7 @@ const TaleKeyword = () => {
           backgroundImage: "url('/TaleKeyword/keyword-fairy.png')",
         }}
       />
-      <div className="absolute top-[235px] left-[285px]">
+      <div className="absolute bottom-1/2 left-[285px] translate-y-1/2">
         <FairyChatBubble>
           {mode === 'default' && (
             <>
@@ -259,30 +295,48 @@ const TaleKeyword = () => {
               <br /> 단어를 채워보자!
             </>
           )}
-          {mode === 'typing' && (
+          {mode === 'typing' && !isNextActive && (
             <>
-              동화를 어떻게 <br />
-              바꿀까?
+              단어를 쓰고
+              <br />
+              확인을 눌러줘!
             </>
           )}
-          {mode === 'voice' && (
+          {mode === 'voice' &&
+            !isNextActive &&
+            !isRecording &&
+            !recordedAudio && (
+              <>
+                마이크를 눌러서 <br />
+                요정들에게 단어를 말해보자!!
+              </>
+            )}
+          {mode === 'voice' && isRecording && !isNextActive && (
             <>
-              마이크를 눌러서 <br />
-              크게 말해보자!
+              다 말했으면
+              <br />
+              다시 마이크를 눌러줘!
             </>
           )}
-          {mode === 'writing' && (
+
+          {mode === 'voice' && !isRecording && !isNextActive && (
             <>
-              아래 하얀 도화지에 <br />
-              단어를 써줄래?
+              조금만 기달려줄래?
+              <br />
+            </>
+          )}
+          {mode !== 'default' && isNextActive && (
+            <>
+              만들어진 단어가 맞으면
+              <br />
+              다음 버튼을 눌러줘~
             </>
           )}
         </FairyChatBubble>
       </div>
-
       {/* 모드별 UI */}
       {mode === 'typing' && (
-        <div className="absolute bottom-[170px] right-[100px] h-[118px] px-7 py-5 bg-main-background rounded-[50px] justify-start items-center gap-5 inline-flex">
+        <div className="absolute bottom-[18%] right-[100px] h-[118px] px-7 py-5 bg-main-background rounded-[50px] justify-start items-center gap-5 inline-flex">
           <input
             type="text"
             value={inputText}
@@ -294,61 +348,26 @@ const TaleKeyword = () => {
           <ConfirmBtn onClick={handleConfirm} />
         </div>
       )}
-
       {mode === 'voice' && (
-        <div className="absolute bottom-[150px] right-[250px] flex items-center gap-8">
+        <div className="absolute bottom-[18%] right-[230px] flex items-center gap-8">
           <VoiceRecorder
             recordedAudio={recordedAudio}
             setRecordedAudio={setRecordedAudio}
+            isRecording={isRecording}
+            setIsRecording={setIsRecording}
           />
-          <ConfirmBtn onClick={handleConfirm} />
+          {/* <VoiceRecorder
+            isRecording={isRecording}
+            setIsRecording={setIsRecording}
+            recordedAudio={recordedAudio}
+            setRecordedAudio={setRecordedAudio}
+          /> */}
+          {/* <ConfirmBtn onClick={handleConfirm} /> */}
         </div>
       )}
-
-      {mode === 'writing' && (
-        <div className="absolute bottom-[140px] left-[500px] flex items-center gap-4">
-          <div className="relative">
-            <DrawingBoard
-              ref={canvasRef}
-              width={300}
-              height={100}
-              usePalette={false}
-            />
-            {/* <Excalidraw
-              renderMainMenu={() => ''}
-              renderSidebar={() => ''}
-              excalidrawAPI={(api) => {
-                canvasRef.current = api;
-              }}
-              initialData={{
-                elements: [],
-                appState: {
-                  activeTool: {
-                    type: 'freedraw',
-                    customType: null,
-                    locked: true,
-                  },
-                  scrollX: 100,
-                  scrollY: 100,
-                },
-              }}
-            /> */}
-          </div>
-
-          {/* <canvas
-            ref={canvasRef}
-            width={470}
-            height={165}
-            className="border border-gray-200 rounded-xl bg-white"></canvas> */}
-          <div className="pb-12">
-            <ConfirmBtn onClick={handleConfirm} />
-          </div>
-        </div>
-      )}
-
       {/* 하단 버튼들 */}
       {mode !== 'default' && (
-        <div className="absolute bottom-[20px] right-[50px] flex gap-4">
+        <div className="absolute bottom-[0px] right-[50px] flex gap-4">
           {/* 뒤로가기 */}
           <button
             onClick={() => {
@@ -361,7 +380,12 @@ const TaleKeyword = () => {
             }}></button>
 
           {/* 다음 */}
-          <button onClick={handleNext}>
+          <button
+            disabled={!isNextActive}
+            onClick={() => {
+              handleNext();
+              handleConfirmSound();
+            }}>
             <img
               src={
                 isNextActive
@@ -382,10 +406,9 @@ const TaleKeyword = () => {
             }}></button>
         </div>
       )}
-
       {/* 첫 번째 화면 버튼들 */}
       {mode === 'default' && (
-        <div className="absolute bottom-[160px] left-[390px] flex gap-4">
+        <div className="absolute bottom-[100px] left-[450px] flex gap-4">
           {modeButtons.map((button) => (
             <ModeButton
               key={button.mode}
@@ -422,98 +445,78 @@ const ModeButton = ({ mode, text, imageSrc, onClick }) => {
   );
 };
 
-const VoiceRecorder = ({ recordedAudio, setRecordedAudio }) => {
-  const [isRecording, setIsRecording] = useState(false);
-  const mediaRecorderRef = useRef(null);
-  const chunksRef = useRef([]);
+// const VoiceRecorder = ({
+//   isRecording,
+//   setIsRecording,
+//   recordedAudio,
+//   setRecordedAudio,
+// }) => {
+//   const mediaRecorderRef = useRef(null);
+//   const chunksRef = useRef([]);
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+//   const startRecording = async () => {
+//     try {
+//       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+//       mediaRecorderRef.current = new MediaRecorder(stream);
 
-      mediaRecorderRef.current.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunksRef.current.push(e.data);
-        }
-      };
+//       mediaRecorderRef.current.ondataavailable = (e) => {
+//         if (e.data.size > 0) {
+//           chunksRef.current.push(e.data);
+//         }
+//       };
 
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
-        setRecordedAudio(audioBlob);
-        console.log('🔊', audioBlob);
-        chunksRef.current = [];
-      };
+//       mediaRecorderRef.current.onstop = () => {
+//         const audioBlob = new Blob(chunksRef.current, { type: 'audio/wav' });
+//         setRecordedAudio(audioBlob);
+//         chunksRef.current = [];
+//       };
 
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-    } catch (err) {
-      console.error('Error accessing microphone:', err);
-    }
-  };
+//       mediaRecorderRef.current.start();
+//       setIsRecording(true);
+//     } catch (err) {
+//       return;
+//     }
+//   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream
-        .getTracks()
-        .forEach((track) => track.stop());
-      setIsRecording(false);
-    }
-  };
+//   const stopRecording = () => {
+//     if (mediaRecorderRef.current && isRecording) {
+//       mediaRecorderRef.current.stop();
+//       mediaRecorderRef.current.stream
+//         .getTracks()
+//         .forEach((track) => track.stop());
+//       setIsRecording(false);
+//     }
+//     return;
+//   };
 
-  const handleRecordClick = () => {
-    if (!isRecording) {
-      startRecording();
-    } else {
-      stopRecording();
-    }
-  };
+//   const handleRecordClick = () => {
+//     if (!isRecording) {
+//       startRecording();
+//     } else {
+//       stopRecording();
+//     }
+//   };
 
-  // 녹음된 거 확인용 - 다운로드 부분 삭제 시 이것도 삭제
-  const downloadWavFile = (audioBlob) => {
-    if (!audioBlob) return;
-
-    // Blob URL 생성
-    const blobUrl = URL.createObjectURL(audioBlob);
-
-    // 다운로드 링크 생성
-    const downloadLink = document.createElement('a');
-    downloadLink.href = blobUrl;
-    downloadLink.download = `recorded_audio_${new Date().getTime()}.wav`;
-
-    // 링크를 DOM에 추가하고 클릭 이벤트 발생
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-
-    // cleanup
-    document.body.removeChild(downloadLink);
-    URL.revokeObjectURL(blobUrl);
-  };
-
-  return (
-    <div>
-      <button
-        onClick={handleRecordClick}
-        disabled={recordedAudio !== null}
-        className={`w-[140px] h-[140px] flex items-center justify-center rounded-full shadow-lg transition-all duration-200
-          ${isRecording ? 'bg-main-choose' : recordedAudio ? 'bg-gray-300' : 'bg-main-background'}`}>
-        <img
-          src={
-            isRecording
-              ? '/TaleKeyword/active-mic.png'
-              : '/TaleKeyword/before-mic.png'
-          }
-          alt="microphone"
-          className={`w-[100px] h-[100px] ${recordedAudio ? 'opacity-50' : ''}`}
-        />
-      </button>
-
-      {/* 녹음 완료 후 다운로드 버튼 클릭 시 */}
-      <button onClick={() => downloadWavFile(recordedAudio)}>다운로드</button>
-    </div>
-  );
-};
+//   return (
+//     <div>
+//       <button
+//         onClick={handleRecordClick}
+//         disabled={recordedAudio !== null}
+//         className={`w-[140px] h-[140px] flex items-center justify-center rounded-full shadow-lg transition-all duration-200
+//           ${isRecording ? 'bg-main-choose' : recordedAudio ? 'bg-gray-300' : 'bg-main-background'}`}>
+//         <img
+//           src={
+//             isRecording
+//               ? '/TaleKeyword/active-mic.png'
+//               : '/TaleKeyword/before-mic.png'
+//           }
+//           alt="microphone"
+//           className={`w-[100px] h-[100px] ${recordedAudio ? 'opacity-50' : ''}`}
+//         />
+//       </button>
+//     </div>
+//   );
+// };
 
 // 분홍색 확인 버튼
 const ConfirmBtn = ({ onClick }) => {

@@ -1,8 +1,6 @@
 package com.ssafy.backend.common.auth;
 
-import com.ssafy.backend.common.auth.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -30,7 +28,6 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
 
         if(accessor != null && StompCommand.CONNECT.equals(accessor.getCommand())) {
             List<String> authHeaders = accessor.getNativeHeader("Authorization");
-            System.out.println(authHeaders);
 
             if(authHeaders != null && !authHeaders.isEmpty()) {
                 String token = authHeaders.get(0).replace("Bearer ", "");

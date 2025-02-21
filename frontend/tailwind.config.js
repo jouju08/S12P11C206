@@ -5,10 +5,13 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      screens: {
+        tall: { raw: '(min-height: 768px)' },
+      },
       fontFamily: {
         NPSfont: ['NPSfont', ...defaultTheme.fontFamily.sans],
         CuteFont: ['CuteFont', ...defaultTheme.fontFamily.sans],
-        WantedFont: ['Wanted Sans', ...defaultTheme.fontFamily.sans],
+        WantedFont: ['Wanted Sans Variable', ...defaultTheme.fontFamily.sans],
       },
       colors: {
         main: {

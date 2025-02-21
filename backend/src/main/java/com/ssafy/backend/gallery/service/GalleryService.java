@@ -1,5 +1,6 @@
 package com.ssafy.backend.gallery.service;
 
+import com.ssafy.backend.common.exception.NotFoundPageException;
 import com.ssafy.backend.common.exception.ResourceNotFoundException;
 import com.ssafy.backend.db.entity.Gallery;
 import com.ssafy.backend.db.entity.GalleryLike;
@@ -10,19 +11,32 @@ import com.ssafy.backend.db.repository.GalleryRepository;
 import com.ssafy.backend.db.repository.MemberRepository;
 import com.ssafy.backend.db.repository.TaleMemberRepository;
 import com.ssafy.backend.gallery.dto.GalleryDto;
-import com.ssafy.backend.gallery.dto.GalleryListResponseDto;
-import com.ssafy.backend.gallery.dto.GalleryRequestDto;
-import com.ssafy.backend.gallery.dto.GalleryResponseDto;
+import com.ssafy.backend.gallery.dto.response.GalleryListResponseDto;
+import com.ssafy.backend.gallery.dto.request.GalleryRequestDto;
+import com.ssafy.backend.gallery.dto.response.GalleryResponseDto;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+/**
+ * author : park byeongju
+ * date : 2025.02.18
+ * description : 자랑하기 게시판 서비스
+ * update
+ * 1.
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -32,35 +46,77 @@ public class GalleryService {
     private final GalleryLikeRepository galleryLikeRepository;
     private final TaleMemberRepository taleMemberRepository;
 
+    private final int PAGE_SIZE = 8;
 
+
+    /*
+     * “date” - 최신순(기본값)
+     *
+     * “famous” - 인기순
+     */
     @Transactional
-    public List<GalleryListResponseDto> findAllPictures(Authentication auth) {
+    public List<GalleryListResponseDto> findAllPictures(Authentication auth, int page, String order, Boolean hasOrigin) {
         Long userId = memberRepository.findByLoginId(auth.getName()).get().getId();
         List<GalleryListResponseDto> result = new ArrayList<GalleryListResponseDto>();
-        List<Gallery> galleries = galleryRepository.findAllPictures();
 
-        for(Gallery gallery : galleries) {
-            GalleryListResponseDto dto = new GalleryListResponseDto();
-            dto.setGalleryId(gallery.getId());
-            dto.setImg(gallery.getImgPath());
-            dto.setAuthorId(gallery.getMember().getId());
-            dto.setAuthorNickname(gallery.getMember().getNickname());
-            dto.setAuthorProfileImg(gallery.getMember().getProfileImg());
-            dto.setLikeCnt(gallery.getGalleryLikes().size());
-            dto.setCreatedAt(gallery.getCreatedAt());
-            result.add(dto);
+        Pageable pageable = PageRequest.of(page, 8);
+
+        try {
+            Page<Gallery> galleryPage = galleryRepository.findAllPictures(order.toUpperCase(), hasOrigin, pageable);
+            boolean hasLiked = true;
+
+            for (Gallery gallery : galleryPage) {
+                Optional<GalleryLike> galleryLike = galleryLikeRepository.findByGalleryIdAndMemberId(gallery.getId(), userId);
+                if(galleryLike.isPresent()) {
+                    hasLiked = true;
+                } else {
+                    hasLiked = false;
+                }
+                GalleryListResponseDto dto = new GalleryListResponseDto();
+                dto.setGalleryId(gallery.getId());
+                dto.setImg(gallery.getImgPath());
+                dto.setAuthorId(gallery.getMember().getId());
+                dto.setAuthorNickname(gallery.getMember().getNickname());
+                dto.setAuthorProfileImg(gallery.getMember().getProfileImg());
+                dto.setLikeCnt(gallery.getLikeCnt());
+                dto.setCreatedAt(gallery.getCreatedAt());
+                dto.setHasLiked(hasLiked);
+                result.add(dto);
+            }
+
+            return result;
+        } catch (InvalidDataAccessApiUsageException e){
+//            e.printStackTrace();
+            throw new NotFoundPageException("없는 페이지입니다.");
         }
-
-        return result;
     }
 
     @Transactional
     public GalleryResponseDto pictureDetail(Authentication auth, Integer id) {
         try {
             Optional<Gallery> gallery = galleryRepository.findById(id);
-            if(gallery.get().getHasDeleted()){
+            if (gallery.get().getHasDeleted()) {
                 throw new ResourceNotFoundException("삭제된 게시글에 대한 요청입니다.");
             }
+            int orderNum = gallery.get().getTaleMember().getOrderNum();
+            String keyword = "";
+            String sentence = "";
+            if(orderNum == 0){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword1();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence1();
+            } else if(orderNum == 1){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword2();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence2();
+            } else if(orderNum == 2){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword3();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence3();
+            } else if(orderNum == 3){
+                keyword = gallery.get().getTaleMember().getTale().getBaseTale().getKeyword4();
+                sentence = gallery.get().getTaleMember().getTale().getBaseTale().getKeywordSentence4();
+            }
+
+//            String replaceSentence = sentence.replace("xx", keyword);
+
             boolean hasLiked = !galleryLikeRepository.findByGalleryIdAndMemberId(gallery.get().getId(), memberRepository.findByLoginId(auth.getName()).get().getId()).isEmpty();
             return GalleryResponseDto.builder()
                     .galleryId(gallery.get().getId())
@@ -72,8 +128,11 @@ public class GalleryService {
                     .hasLiked(hasLiked)
                     .author(gallery.get().getMember().getNickname())
                     .authorMemberId(gallery.get().getMember().getId())
+                    .authorProfileImg(gallery.get().getMember().getProfileImg())
                     .taleId(gallery.get().getTaleMember().getTale().getId())
                     .baseTaleId(gallery.get().getTaleMember().getTale().getBaseTale().getId())
+                    .sentence(gallery.get().getTaleMember().getImgScript())
+                    .createdAt(gallery.get().getTaleMember().getCreatedAt())
                     .build();
         } catch (Exception e) {
             return null;
@@ -93,7 +152,14 @@ public class GalleryService {
             throw new AuthorizationDeniedException("잘못된 회원 접근입니다.");
         }
 
+        String today = LocalDate.now().toString();
+
         String imgPath = hasOrigin ? taleMember.getOrginImg() : taleMember.getImg();
+
+        List<Gallery> existGalleries = galleryRepository.findByMemberAndImgPathAndCreatedAtStartingWith(member, imgPath, today);
+        if (!existGalleries.isEmpty()) {
+            throw new RuntimeException("이미 이 이미지로 오늘 게시글을 올렸습니다.");
+        }
 
         try {
             galleryRepository.save(Gallery.builder()
@@ -126,14 +192,19 @@ public class GalleryService {
                     .memberId(memberId)
                     .galleryId(galleryDto.getId())
                     .build());
+            Optional<Gallery> gallery = galleryRepository.findById(galleryDto.getId());
+            List<GalleryLike> galleryLike = galleryLikeRepository.findByGalleryId((gallery.get().getId()));
+            int likeCount = galleryLike.size();
+            gallery.get().setLikeCnt(likeCount);
             return true;
         } else {
             // 좋아요 취소 처리
-            System.out.println("memberId = " + memberId);
-            System.out.println("galleryDto.getId() = " + galleryDto.getId());
-            GalleryLike galleryLike = galleryLikeRepository.findByGalleryIdAndMemberId(galleryDto.getId(), memberId)
-                    .orElseThrow(() -> new EntityNotFoundException("좋아요 정보를 찾을 수 없습니다."));
-            galleryLikeRepository.delete(galleryLike);
+            galleryLikeRepository.deleteByGalleryIdAndMemberId(galleryDto.getId(), memberId);
+
+            Optional<Gallery> gallery = galleryRepository.findById(galleryDto.getId());
+            List<GalleryLike> galleryLike = galleryLikeRepository.findByGalleryId((gallery.get().getId()));
+            int likeCount = galleryLike.size();
+            gallery.get().setLikeCnt(likeCount);
             return false;
         }
     }

@@ -6,7 +6,7 @@ import lombok.*;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
+/**
  *  author : park byeongju
  *  date : 2025.01.23
  *  description : 방 상태 관리를 Room 객체 클래스,

@@ -1,6 +1,5 @@
 import React from 'react';
 import { api } from '@/store/userStore';
-import { useTaleRoom } from '@/store/roomStore';
 import { useTalePlay } from '@/store/tale/playStore';
 
 export default function OpenVidu() {
@@ -20,7 +19,6 @@ export default function OpenVidu() {
     }
 
     const data = await response.json();
-    console.log(data.token);
     return data.token;
   }
   return <div>OpenVidu</div>;

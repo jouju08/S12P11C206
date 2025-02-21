@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import MainLayout from '@/common/layout/MainLayout';
 import TaleLayout from '@/common/layout/TaleLayout';
 import { Loading } from '@/common/Loading';
@@ -10,12 +10,14 @@ import {
   Outlet,
   RouterProvider,
   useLocation,
+  useNavigate,
 } from 'react-router-dom';
 
 import KakaoCallback from '@/components/kakao/KakaoCallback';
-import DrawingBoard from '@/components/Common/DrawingBoard';
-import CanvasTest from '@/pages/CanvasTest';
 import Friends from '@/components/Friend/Friend';
+import { useFriendSocket } from '@/hooks/useFriendSocket';
+import { useTaleRoom } from '@/store/roomStore';
+import FriendInviteModal from '@/components/modal/FriendInviteModal';
 
 const Hero = lazy(() => import('@/pages/User/Hero'));
 const Login = lazy(() => import('@/pages/User/Login'));
@@ -27,21 +29,23 @@ const Gallery = lazy(() => import('@/pages/User/Gallery'));
 const GalleryDetail = lazy(() => import('@/pages/User/GalleryDetail'));
 const Profile = lazy(() => import('@/pages/User/Profile'));
 const Sightseeing = lazy(() => import('@/pages/User/Sightseeing'));
-const FileTest = lazy(() => import('@/pages/FileTest'));
-const Lobby = lazy(() => import('@/pages/Room/Lobby'));
-const Share = lazy(() => import('@/pages/Room/Share'));
 const TaleStart = lazy(() => import('@/pages/Room/TaleStart'));
 const TaleKeyword = lazy(() => import('@/pages/Room/TaleKeyword'));
+const FindId = lazy(() => import('@/components/user/FindId'));
+const FindPw = lazy(() => import('@/components/user/FindPassword'));
 const TaleSentenceDrawing = lazy(
   () => import('@/pages/Room/TaleSentenceDrawing')
 );
 const HotTale = lazy(() => import('@/pages/Room/HotTale'));
 const Waiting = lazy(() => import('@/pages/Room/Waiting'));
+const RequestBaseTale = lazy(() => import('@/pages/RequestBaseTale'));
+const Admin = lazy(() => import('@/pages/Admin'));
 
 //인증된 사용자
 const ProtectedLayout = () => {
   const { isAuthenticated, fetchUser } = useUser();
   const location = useLocation();
+  useFriendSocket();
 
   useEffect(() => {
     fetchUser();
@@ -68,9 +72,15 @@ const router = createBrowserRouter([
       { path: 'login', element: <Login /> },
       { path: 'register', element: <Register /> },
       { path: 'auth/kakao/callback', element: <KakaoCallback /> },
-      { path: 'friends', element: <Friends /> },
+      { path: 'findid', element: <FindId /> },
+      { path: 'findpw', element: <FindPw /> },
       {
-        element: <ProtectedLayout />, // 인증된 사용자
+        element: (
+          <>
+            <ProtectedLayout />
+            <FriendInviteModal />
+          </>
+        ), // 인증된 사용자
         children: [
           { path: 'main', element: <Main /> },
           { path: 'room', element: <Room /> },
@@ -78,9 +88,10 @@ const router = createBrowserRouter([
           { path: 'gallery', element: <Gallery /> },
           { path: 'gallery/:galleryId', element: <GalleryDetail /> },
           { path: 'profile', element: <Profile /> },
-          { path: 'upload', element: <FileTest /> },
-          { path: 'canvas', element: <CanvasTest /> },
           { path: 'sightseeing', element: <Sightseeing /> },
+          { path: 'admin', element: <Admin /> },
+          { path: 'requestBasetale', element: <RequestBaseTale />},
+          { path: 'friends', element: <Friends /> },
         ],
       },
     ],
@@ -92,8 +103,6 @@ const router = createBrowserRouter([
       {
         element: <ProtectedLayout />, // 인증된 사용자
         children: [
-          { path: 'lobby', element: <Lobby /> },
-          { path: 'share', element: <Share /> },
           { path: 'waiting', element: <Waiting /> },
           { path: 'taleStart', element: <TaleStart /> },
           { path: 'taleKeyword', element: <TaleKeyword /> },

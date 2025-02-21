@@ -6,28 +6,9 @@ import time
 import json
 import requests
 import config
-import app.core.util as util
 import app.models.common as common
 import app.models.response as response_dto
 from fastapi import UploadFile
-
-AI_IMG_2_IMG_ENDPOINT = config.AI_IMG_2_IMG_SERVER + "/make_image"  # 그림 AI 서버 주소
-# 현재 서버 주소
-
-UPGRADE_HANDPICTURE_WEBHOOK = config.PUBLIC_HOST_URL + \
-    "/submit/upgrade-handpicture"  # 그림 AI서버에서 돌려받을 주소
-SPRING_UPGRADE_PICTURE_WEBHOOK = config.SPRING_SERVER_URL + \
-    "/api/tale/submit/ai-picture"  # 그림 AI서버에서 받은 그림을 보내줄 주소
-
-GEN_TALE_IMG_WEBHOOK = config.PUBLIC_HOST_URL + \
-    "/submit/gen-tale-image"  # novita에서 받은 BaseTale 표지 이미지를 돌려받을 주소
-SPRING_GEN_TALE_IMG_WEBHOOK = config.SPRING_SERVER_URL + \
-    "/api/admin/tale/submit/ai-picture"  # novita에서 받은 BaseTale 표지 이미지를 보내줄 주소
-
-GEN_TALE_INTRO_IMG_WEBHOOK = config.PUBLIC_HOST_URL + \
-    "/submit/gen-tale-intro-image"  # novita에서 받은 BaseTale 소개 이미지를 돌려받을 주소
-SPRING_GEN_TALE_INTRO_IMG_WEBHOOK = config.SPRING_SERVER_URL + \
-    "/api/admin/tale/submit/ai-intro-picture"  # novita에서 받은 BaseTale 소개 이미지를 보내줄 주소
 
 
 def handwrite_to_word(file):
@@ -96,12 +77,13 @@ def upgrade_handpicture(roomId: int, order: int, prompt: str, negativePrompt: st
         'order': order,
         'prompt': prompt,
         'negativePrompt': negativePrompt,
-        'webhook': UPGRADE_HANDPICTURE_WEBHOOK
+        'webhook': config.UPGRADE_HANDPICTURE_WEBHOOK
     }
     file = {
         'image': (image.filename, image.file.read(), 'image/png')
     }
-    result = requests.post(AI_IMG_2_IMG_ENDPOINT, data=fields, files=file)
+    result = requests.post(config.AI_IMG_2_IMG_ENDPOINT,
+                           data=fields, files=file)
 
     return result.text
 
@@ -118,10 +100,10 @@ def upgrade_handpicture_submit(roomId: int, order: int, image: UploadFile):
         'roomId': roomId,
         'order': order,
     }
-    requests.post(SPRING_UPGRADE_PICTURE_WEBHOOK, data=fields, files=file)
+    requests.post(config.SPRING_UPGRADE_PICTURE_WEBHOOK,
+                  data=fields, files=file)
 
 
-@util.logger
 def post_novita_api(prompts: common.PromptSet, webhook_url):
     """
     novita API에 이미지 생성 요청을 보내는 함수
@@ -177,20 +159,23 @@ def post_novita_api(prompts: common.PromptSet, webhook_url):
 #         print("Received Non-JSON Body:", pretty_json)  # JSON이 아니면 그냥 출력
 #     return
 
-@util.logger
 def return_novita_image(web_hook_request, post_url):
     """
     novita에서 받은 이미지를 spring으로 전송하는 함수
     """
-    image_url = []
-    for image in web_hook_request["payload"]["images"]:
-        image_url.append(image["image_url"])
-    field = {
+    image_url = [image["image_url"]
+                 for image in web_hook_request["payload"]["images"]]
+    payload = {
         'images': image_url
     }
-    print(f"gen image_url {image_url}")
+    headers = {
+        "Content-Type": "application/json",
+    }
     try:
-        requests.post(post_url, data=field)
+        response = requests.post(post_url, headers=headers, json=payload)
+        print("response from spring")
+        print(response.status_code)
+        print(response.text)
     except Exception as e:
         print("return_novita_image error")
         print(e)

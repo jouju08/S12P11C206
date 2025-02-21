@@ -50,7 +50,7 @@ const App = () => {
     });
 
     newSession.on('exception', (exception) => {
-      console.warn(exception);
+      return exception;
     });
 
     try {
@@ -86,11 +86,7 @@ const App = () => {
       setMainStreamManager(newPublisher);
       setCurrentVideoDevice(currentVideoDevice);
     } catch (error) {
-      console.log(
-        'There was an error connecting to the session:',
-        error.code,
-        error.message
-      );
+      return error;
     }
   };
 
@@ -135,7 +131,7 @@ const App = () => {
         }
       }
     } catch (e) {
-      console.error(e);
+      return e;
     }
   };
 

@@ -11,6 +11,12 @@ const taleAPI = {
   //방목록조회
   getAllTaleRooms: () => api.get('tale/rooms'),
 
+  //방 번호 검색 조회
+  getSearchTaleRooms: (roomId) => api.get(`/tale/rooms/${roomId}`),
+
+  //기본 동화 정보 조회
+  getTaleInfo: (baseTaleId) => api.get(`/base-tale/${baseTaleId}`),
+
   //동화 시작 요청 후 기본동화 정보들 받아옴
   startTale: (roomId) => api.get(`/tale/start/${roomId}`),
 
@@ -30,16 +36,16 @@ const taleAPI = {
   taleKeyWordTyping: (data) => api.post('/tale/keyword/typing', data),
 
   //최종 키워드 제출
-  taleSubmitTotal: (data) => api.post('/tale/submit/keyword', data), //키워드 최종 제출
+  taleSubmitTotal: (data) => api.post('/tale/submit/keyword', data),
 
+  //그린 동화 제출
   taleSubmitPicture: (data) =>
     api.post('/tale/submit/picture', data, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    }), //그린 동화 제출
-
-  taleHot: (roomId, page) => api.get(`/tale/temp/${roomId}/${page}`),
+    }),
+  taleHot: (roomId, page) => api.get(`/tale/${roomId}/${page}`),
 };
 
 export default taleAPI;

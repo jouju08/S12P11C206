@@ -1,26 +1,61 @@
-import React, { useState } from 'react';
+/**
+ * author : Lim Chaehyeon (chaehyeon)
+ * data : 2025.02.18
+ * description : 동화 레이아웃
+ * React
+ */
+
+import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '@/store/userStore';
+import { userStore, useUser } from '@/store/userStore';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTalePlay } from '@/store/tale/playStore';
 
 import TaleRoomHeader from '../Header/TaleRoomHeader';
+import { useTaleRoom } from '@/store/roomStore';
+import { useViduHook } from '@/store/tale/viduStore';
+import { useNavigationBlocker } from '@/hooks/useNavigationBlocker';
 
 export default function TaleLayout() {
   const { isAuthenticated } = useUser();
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const { roomId } = useTalePlay();
+  const {
+    currentRoom,
+    leaveRoom,
+    isEscape,
+    isEscapeAfter,
+    isleaveRoom,
+    resetStateRoom,
+  } = useTaleRoom();
+  const { roomId, resetState } = useTalePlay();
+  const { leaveViduRoom } = useViduHook();
+
+  const isWaiting = location.pathname === '/tale/waiting';
+  const isStart = location.pathname === '/tale/taleStart';
+  const isSentence = location.pathname === '/tale/taleSentenceDrawing';
+  const isKeyword = location.pathname === '/tale/taleKeyword';
+  const isHotTale = location.pathname === '/tale/hotTale';
+
+  const { handleEscape } = useNavigationBlocker(); //탈주 감지
 
   // 나가기 버튼 누르면 모달을 띄워줌
   const handleExit = () => {
     setShowModal(true);
   };
 
-  // 방 나가기 확인 (여기서 방 나가는 axios 필요할 듯)
   const handleConfirm = () => {
-    navigate('/room'); // 특정 페이지로 이동
+    //탈주감지
+    handleEscape(location);
+
+    //방 나가기전 초기화
+    leaveRoom();
+    leaveViduRoom();
+    resetStateRoom();
+    resetState();
+    navigate('/room');
   };
 
   // 나가기를 취소함 -> 모달 hidden
@@ -28,14 +63,63 @@ export default function TaleLayout() {
     setShowModal(false);
   };
 
+  useEffect(() => {
+    return () => {
+      leaveRoom();
+      leaveViduRoom();
+      resetStateRoom();
+      resetState();
+      navigate('/room');
+    };
+  }, []);
+
   return (
     <>
       <div className="flex flex-col justify-center h-full w-full">
-        <div className="relative flex flex-col mx-auto w-[1024px] h-[768px] justify-center items-center">
-          {isAuthenticated ? <TaleRoomHeader onClose={handleExit} /> : null}
+        <div className="relative flex flex-col mx-auto w-dvw min-h-svh justify-start items-center">
+          {isSentence ? null : isAuthenticated ? (
+            <TaleRoomHeader onClose={handleExit} />
+          ) : null}
+          {/* background option */}
+          {isWaiting ? (
+            <img
+              src="/Waiting/field-background.png"
+              alt="Waiting 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover"
+            />
+          ) : null}
+          {isStart ? (
+            <img
+              src="/TaleStart/field-background.png"
+              alt="TaleStart 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover"
+            />
+          ) : null}
+          {isHotTale ? (
+            <img
+              src="/TaleStart/field-background.png"
+              alt="HotTale 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover"
+            />
+          ) : null}
+          {isKeyword ? (
+            <img
+              src="/TaleKeyword/field-background.png"
+              alt="TaleKeyword 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover opacity-80"
+            />
+          ) : null}
+          {isSentence ? (
+            <img
+              src="/TaleSentenceDrawing/field-background1.png"
+              alt="TaleSentenceDrawing 배경"
+              className="absolute bottom-0 left-0 w-svw h-svh object-cover bg-cover opacity-75"
+            />
+          ) : null}
+
           <Outlet />
           {showModal && (
-            <div className="absolute top-0 left-0 z-50 w-[1024px] h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
+            <div className="absolute top-0 left-0 z-50 w-full h-full bg-[rgba(0,0,0,0.5)] flex justify-center items-center">
               <Modal
                 handleConfirm={handleConfirm}
                 handleCancel={handleCancel}
